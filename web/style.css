@@ -465,3 +465,11 @@ kbd.k-pad { border-radius: 999px; border-color: var(--accent); }
   html[data-panel="sidebar"] #gear { display: none; }
 }
 @media (max-width: 860px), (max-height: 500px) and (max-width: 1100px) { .side-head { display: none; } }
+
+/* the page-not-found page: search box and three link boxes */
+.nfsearch { display: flex; gap: 8px; margin: .6em 0 1em; max-width: 30rem; }
+.nfsearch input { flex: 1; min-width: 0; font: inherit; padding: 5px 8px; border: 1px solid var(--line); background: var(--paper); color: var(--fg); border-radius: 2px; }
+.nfboxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 10px; margin: .3em 0 1em; }
+.nfboxes a { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border: 1px solid var(--line); background: var(--softer); text-decoration: none; }
+.nfboxes a:hover { background: var(--soft); }
+.nfboxes span { font-size: .85rem; color: var(--muted); }

@@ -703,7 +703,13 @@
           '<p class="editline"><a href="' + REPO + "/edit/main/web/guide/" + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
         buildToc();
       }).catch(function () {
-        box.innerHTML = guideFailed ? guideUnavailable() : '<div class="mbox">There is no guide page called “' + esc(title) + '” yet. <a href="' + newPageUrl(title) + '"' + newAttr(title) + ' rel="noopener">Create it</a>, or try the search box.</div>';
+        if (guideFailed) { box.innerHTML = guideUnavailable(); return; }
+        var sim = similarPages(missingWords(title));
+        box.innerHTML = '<p>There is no guide page called “' + esc(title) + '” yet.</p>' +
+          '<p><a href="' + newPageUrl(title) + '"' + newAttr(title) + ' rel="noopener">Create this page</a> (you need your own fork first: see <a href="' + HOWTO + '">how to contribute</a>).</p>' +
+          '<p>Or search for <a href="#/search/' + enc(title) + '">' + esc(title) + '</a>, or browse the <a href="#/guide">Game Guide</a>.</p>' +
+          (sim.length ? '<p class="muted">Pages with a similar name</p><ul>' + sim.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : "") +
+          categoryOffer(slug);
       });
     }, toc: false };
   };
@@ -741,8 +747,53 @@
     return null;
   };
 
+  /* the words of a missing address or name, without the view words, for the search box and for finding pages with a similar name */
+  function missingWords(name) {
+    var raw = String(name || "").replace(/^#\/?/, "");
+    try { raw = decodeURIComponent(raw); } catch (e) {}
+    return raw.split(/[^A-Za-z0-9]+/).filter(function (w) { return w && !/^(topic|hub|system|patch|guide|category|search)$/i.test(w); });
+  }
+  /* strict matching: a title that contains every word; failing that, the longest word (at least 3 letters). At most 3 pages, guide pages first */
+  function similarPages(words) {
+    var long = words.slice().sort(function (a, b) { return b.length - a.length; })[0];
+    function pick(items, title) {
+      var all = items.filter(function (x) { var t = title(x).toLowerCase(); return words.length && words.every(function (w) { return t.indexOf(w.toLowerCase()) >= 0; }); });
+      if (!all.length && long && long.length >= 3) all = items.filter(function (x) { return title(x).toLowerCase().indexOf(long.toLowerCase()) >= 0; });
+      return all;
+    }
+    var g = pick(listedGuide(), function (p) { return p.title; }).map(function (p) { return glink(p) + ' <span class="muted">(Game Guide)</span>'; });
+    var t = pick(topics, function (x) { return x; }).map(function (x) { return tlink(x) + ' <span class="muted">(Patch Notes topic)</span>'; });
+    return g.concat(t).slice(0, 3);
+  }
+  /* a missing address inside a real category (#/guide/combat/x when "Combat" exists) offers that category */
+  function categoryOffer(slug) {
+    var parts = String(slug || "").replace(/^#?\/?(guide\/)?/i, "").split("/");
+    if (parts.length < 2) return "";
+    var first = parts[0].toLowerCase().replace(/[-_\s]+/g, " "), found = null;
+    Object.keys(guideCategories()).forEach(function (c) { if (c.toLowerCase().replace(/[-_\s]+/g, " ") === first) found = c; });
+    return found ? '<p>This address is inside the <a href="#/guide/category/' + enc(found) + '">' + esc(found) + "</a> category. You can browse the pages there.</p>" : "";
+  }
+  function notFoundLinks() {
+    var n = listedGuide().length;
+    return '<p class="muted">Or start from one of these</p><div class="nfboxes">' +
+      '<a href="#/"><b>Main Page</b><span>Start here</span></a>' +
+      '<a href="#/guide"><b>Game Guide</b><span>' + (guide ? plural(n, "page") : "Community-written pages") + "</span></a>" +
+      '<a href="#/patchnotes"><b>Patch Notes</b><span>All topics and patches</span></a></div>';
+  }
+  function notFoundSearch(q) {
+    return '<form class="nfsearch" id="nf-search" role="search"><input type="search" id="nf-q" value="' + esc(q) + '" aria-label="Search the wiki"><button type="submit" class="more">Search</button></form>';
+  }
+  function wireNotFound() {
+    var f = document.getElementById("nf-search");
+    if (f) f.addEventListener("submit", function (e) { e.preventDefault(); var q = document.getElementById("nf-q").value.trim(); if (q) location.hash = "#/search/" + encodeURIComponent(q); });
+  }
   function notFound(name) {
-    return { title: "Not found", html: page("Page not found", '<div class="mbox">This wiki has no page called “' + esc(name || "") + '”. Try the search box, or go to <a href="#/topics">All topics</a>.</div>') };
+    var isAddr = String(name || "").charAt(0) === "#", words = missingWords(name), sim = similarPages(words);
+    var h = "<p>" + (isAddr ? "There is no page at <code>" + esc(name) + "</code>." : "There is no page called “" + esc(name || "") + "”.") + " It may have moved, or the link may be mistyped.</p>";
+    h += notFoundSearch(words.join(" "));
+    if (sim.length) h += '<p class="muted">Pages with a similar name</p><ul>' + sim.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
+    h += categoryOffer(name) + notFoundLinks();
+    return { title: "Not found", html: page("Page not found", h), toc: false, after: wireNotFound };
   }
 
   /* ---------- behaviours ---------- */
