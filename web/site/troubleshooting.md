@@ -1,7 +1,7 @@
 ---
 title: Troubleshooting and FAQ
 category: Contributing
-summary: Fixes for the problems people hit most when writing a guide page, and what each page-check message means.
+summary: Fixes for the most common problems when writing a page, and what each page-check message means.
 ---
 
 This page lists the problems people meet most when writing a guide page, with a fix for each, and explains every message the page check can show. If yours is not here, report it from [Feedback & Bugs](#/feedback) and say what you tried.

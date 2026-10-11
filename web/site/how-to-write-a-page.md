@@ -1,7 +1,7 @@
 ---
 title: How to write a guide page
 category: Contributing
-summary: Add or fix a Game Guide page in a few minutes, and see how it connects to the rest of the site.
+summary: A step-by-step walkthrough for adding a page to the Game Guide or fixing one, from your first fork to seeing it live.
 ---
 
 This page walks you through adding a page to the Game Guide, or fixing an existing one, from your first fork to seeing the page on the site. Anyone can do it: a page is one plain text file that you write in your browser, and you need only a free GitHub account, with nothing installed.

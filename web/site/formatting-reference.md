@@ -1,7 +1,7 @@
 ---
 title: Formatting reference
 category: Contributing
-summary: All of the guide formatting features and how to implement them.
+summary: Every kind of formatting a guide page can use, with the syntax to type and how it looks.
 expected-missing: Example of a missing page
 ---
 

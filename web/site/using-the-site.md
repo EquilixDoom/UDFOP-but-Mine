@@ -1,7 +1,7 @@
 ---
 title: Using the site
 category: Reading
-summary: Search, the menus, Contents, Settings and previews, and how the site looks on a phone.
+summary: How to search, use the menus and Contents, change the look in Settings, and read the site on a phone.
 ---
 
 This page is for readers. It explains how to find things on UDFOP with search and browsing, how the menus work, and how to change the look in Settings. Nothing here needs an account, and your choices stay in your browser.

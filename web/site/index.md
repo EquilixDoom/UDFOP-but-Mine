@@ -1,7 +1,7 @@
 ---
 title: Site Guide
 category: Contributing
-summary: Help for writing, fixing and reviewing Game Guide pages.
+summary: Help for writing, fixing and reviewing Game Guide pages, and for getting around the site.
 ---
 
 The Site Guide is the help section of UDFOP. It explains how to write, fix and review Game Guide pages, and how to use the site. These pages are about the project itself. The pages about the game are in the [Game Guide](#/guide). New here? Start with [[How to write a guide page]].

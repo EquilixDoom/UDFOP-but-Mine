@@ -1,7 +1,7 @@
 ---
 title: Anatomy of a page
 category: Contributing
-summary: The parts of a page on the site, which part of your file makes each one, and what the site adds by itself.
+summary: What each part of a guide page is, which part of your file makes it, and what the site adds on its own.
 ---
 
 This page names each part of a Game Guide page, says which part of your file makes it, and shows what the site adds by itself, so you know what you control and what you leave to the site. A page looks like more than the file you wrote: the site builds a title block, a Contents list, a References section and more around your text. For the steps of writing a page, see [[How to write a guide page]].
