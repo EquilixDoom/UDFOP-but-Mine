@@ -7,6 +7,7 @@ A name is added only with the person's agreement, and only as a GitHub username 
 ## Maintainer
 
 - [tau-samsara](https://github.com/tau-samsara)
+- [SylviaBun](https://github.com/SylviaBun)
 
 ## Contributors
 
