@@ -93,6 +93,10 @@ On a computer, pointing at a link to a page, topic, patch, category or game syst
 
 ![A link in a list, with a small card under it showing the page's kind, title and summary](images/use-preview.png "Pointing at a link shows a preview card."){center 620}
 
+### Pictures
+
+Click any picture to see it full size. Click again, press {{Esc}}, or use the **×** button to close it. With the keyboard, {{Tab}} to a picture and press {{Enter}}.
+
 ### Keys and spoilers
 
 Keys and buttons are drawn as keycaps, such as {{W}} or {{Shift+Right click}}. Gamepad buttons are round: {{pad:RT}}. A dark bar over some words is a **spoiler**. Click it, or press {{Enter}} or {{Space}} while it is selected, to show it, and do the same to hide it again.

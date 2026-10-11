@@ -1017,6 +1017,58 @@
     if (sp && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleSpoiler(sp); }
   });
 
+  /* pictures in a page open full size on top of the page when clicked (or {{Enter}} or {{Space}} on a focused one); a click, a close button or {{Esc}} closes it */
+  var lightbox = (function () {
+    var box = null, shot, cap, closeBtn, from = null;
+    function build() {
+      box = document.createElement("div");
+      box.id = "lightbox"; box.hidden = true; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Picture, full size");
+      box.innerHTML = '<button type="button" class="lb-close" aria-label="Close picture">×</button><figure><img alt=""><figcaption></figcaption></figure>';
+      shot = box.querySelector("img"); cap = box.querySelector("figcaption"); closeBtn = box.querySelector(".lb-close");
+      box.addEventListener("click", close);
+      document.body.appendChild(box);
+    }
+    function open(img) {
+      if (!box) build();
+      if (!img.naturalWidth) return;   /* not loaded (or broken): nothing to enlarge */
+      var fig = img.closest("figure"), text = fig && fig.querySelector("figcaption") ? fig.querySelector("figcaption").textContent : img.alt;
+      shot.src = img.currentSrc || img.src; shot.alt = img.alt;
+      cap.textContent = text || ""; cap.hidden = !text;
+      from = img; box.hidden = false; document.body.classList.add("lb-open");
+      closeBtn.focus();
+    }
+    function close() {
+      if (!box || box.hidden) return;
+      box.hidden = true; document.body.classList.remove("lb-open"); shot.removeAttribute("src");
+      if (from && document.body.contains(from)) from.focus();
+      from = null;
+    }
+    function isOpen() { return !!box && !box.hidden; }
+    /* make the pictures of the page reachable from the keyboard */
+    function enhance() {
+      Array.prototype.forEach.call(app.querySelectorAll("img"), function (img) {
+        if (img.closest("a") || img.getAttribute("data-lb")) return;   /* a picture that is a link keeps doing that */
+        img.setAttribute("data-lb", "1"); img.tabIndex = 0; img.setAttribute("role", "button");
+        img.setAttribute("aria-label", "Show picture full size: " + (img.alt || "no description"));
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var img = e.target.closest && e.target.closest("#app img[data-lb]");
+      if (img) { e.preventDefault(); open(img); }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (isOpen()) {
+        if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); }
+        else if (e.key === "Tab") { e.preventDefault(); closeBtn.focus(); }
+        return;
+      }
+      if ((e.key === "Enter" || e.key === " ") && e.target.getAttribute && e.target.getAttribute("data-lb")) { e.preventDefault(); open(e.target); }
+    }, true);
+    new MutationObserver(enhance).observe(app, { childList: true, subtree: true });
+    return { close: close, isOpen: isOpen };
+  })();
+  window.addEventListener("hashchange", function () { lightbox.close(); });
+
   /* the Copy button on code blocks */
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest(".codecopy");

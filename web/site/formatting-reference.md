@@ -306,6 +306,8 @@ Rendered:
 
 ![Sarsaparilla looking majestic](images/sarsaparilla-01s.jpg)
 
+Readers can click any picture to open it full size, so a screenshot can be shown small on the page without losing its detail.
+
 ## Extended features
 
 These go beyond plain Markdown. They are what lets Game Guide pages connect to each other and to the Patch Notes, and each one is explained here with an example.
