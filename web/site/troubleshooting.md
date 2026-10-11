@@ -2,7 +2,6 @@
 title: Troubleshooting and FAQ
 category: Contributing
 summary: Fixes for the problems people hit most when writing a guide page, and what each page-check message means.
-unlisted: yes
 ---
 
 Something not working? Find your problem below. If it is not here, report it from [Feedback & Bugs](#/feedback) and say what you tried.
@@ -122,4 +121,4 @@ If you opened `index.html` straight from a folder, your browser blocks it. Serve
 
 Press {{Ctrl+Shift+R}}. If you changed a page, run `python tools/guide.py` again so the list and search text are rebuilt.
 
-Back to the [[Site guide]].
+Back to the [Site Guide](#/site).

@@ -318,17 +318,22 @@
       /* 0: every word is in the title; 1: in the title, summary or category; 2: only in the page text */
       return { p: p, rank: words.every(function (w) { return ti.indexOf(w) >= 0; }) ? 0 : words.every(function (w) { return head.indexOf(w) >= 0; }) ? 1 : 2 };
     }).filter(Boolean).sort(function (a, b) { return a.rank - b.rank || a.p.title.localeCompare(b.p.title); }).map(function (x) { return x.p; });
+    var sp = siteGuide.filter(function (p) {
+      var all = (p.title + " " + p.summary + " " + p.category + " " + p.text).toLowerCase();
+      return words.every(function (w) { return all.indexOf(w) >= 0; });
+    });
     var h = "";
     if (!words.length) h = "<p>Type something in the search box.</p>";
     else {
-      h = '<p>Results for <b>' + esc(q) + "</b>: " + plural(gp.length, "guide page") + ", " + plural(tm.length, "matching topic") + " and " + plural(hit.length, "matching change") + ".</p>";
+      h = '<p>Results for <b>' + esc(q) + "</b>: " + plural(gp.length, "guide page") + ", " + plural(sp.length, "Site Guide page") + ", " + plural(tm.length, "matching topic") + " and " + plural(hit.length, "matching change") + ".</p>";
       if (gp.length) {
         h += sec("Game Guide", "Game Guide", 2) + shownThenMore(gp, SEARCH_SHOWN, guideList, "guide pages", "gp-rest");
       }
+      if (sp.length) h += sec("Site Guide", "Site Guide", 2) + guideList(sp);
       if (tm.length === 1 && tm[0].toLowerCase() === q.toLowerCase()) h = '<div class="mbox">There is a topic named “' + tlink(tm[0]) + "”.</div>" + h;
       if (tm.length) h += sec("Topics", "Topics", 2) + shownThenMore(tm, TOPICS_SHOWN, topicList, "topics", "tm-rest");
       if (hit.length) h += sec("Changes", "Changes", 2) + table(hit, ["Patch", "Topic", "Type", "Change"], 100);
-      if (!tm.length && !hit.length && !gp.length) h += "<p>No results. Try fewer or different words.</p>";
+      if (!tm.length && !hit.length && !gp.length && !sp.length) h += "<p>No results. Try fewer or different words.</p>";
     }
     return { title: "Search: " + q, html: page("Search", h), after: revealMore };
   };
@@ -352,16 +357,30 @@
   /* ---------- Game Guide: Markdown pages in web/guide/, listed by guide/index.json ---------- */
   var REPO = "https://github.com/tau-samsara/udfop";
   /* the contributor instructions: the one place their address is written (the menu in index.html has it too). A moved page can keep its old address working by adding it to MOVED */
-  var HOWTO = "#/guide/how-to/how-to-write-a-page";
-  var MOVED = { "how-to-write-a-page": "how-to/how-to-write-a-page" };   /* old slug (lower case) -> new slug */
+  var HOWTO = "#/site/how-to-write-a-page";
+  /* Game Guide addresses that moved (lower case) -> where the page lives now. The Site Guide used to be inside the Game Guide */
+  var MOVED = {
+    "how-to-write-a-page": "#/site/how-to-write-a-page", "how-to/how-to-write-a-page": "#/site/how-to-write-a-page",
+    "how-to/formatting-reference": "#/site/formatting-reference", "how-to/troubleshooting": "#/site/troubleshooting",
+    "how-to/reviewing-a-pull-request": "#/site/reviewing-a-pull-request", "how-to/site-guide": "#/site"
+  };
   var guide = null, guideFailed = false, guideBySlug = {}, guideByTitle = {};
+  var siteGuide = [], siteBySlug = {}, siteByTitle = {};   /* the Site Guide: pages in web/site/, listed by site/index.json */
   var topicByLower = {};
   topics.forEach(function (t) { topicByLower[t.toLowerCase()] = t; });
 
   function guideLoaded(list) {
     guide = list || []; guideBySlug = {}; guideByTitle = {};
-    guide.forEach(function (p) { guideBySlug[p.slug.toLowerCase()] = p; guideByTitle[p.title.toLowerCase()] = p; });
+    guide.forEach(function (p) { p.area = "guide"; guideBySlug[p.slug.toLowerCase()] = p; guideByTitle[p.title.toLowerCase()] = p; });
   }
+  function siteLoaded(list) {
+    siteGuide = list || []; siteBySlug = {}; siteByTitle = {};
+    siteGuide.forEach(function (p) { p.area = "site"; siteBySlug[p.slug.toLowerCase()] = p; siteByTitle[p.title.toLowerCase()] = p; });
+  }
+  /* a page of either guide, by title or by address; [[Title]] links find a page in both */
+  function findPage(low) { return guideByTitle[low] || guideBySlug[low] || siteByTitle[low] || siteBySlug[low]; }
+  /* the address of a page: the Site Guide's front page is #/site itself */
+  function purl(p) { return p.area === "site" ? (p.slug === "index" ? "#/site" : "#/site/" + p.slug.split("/").map(enc).join("/")) : "#/guide/" + p.slug.split("/").map(enc).join("/"); }
   /* pages with "unlisted: yes" in their front matter are left out of the Game Guide page, the category pages and the counts. They can still be opened by address, by a link and by search */
   function listedGuide() { return (guide || []).filter(function (p) { return !p.unlisted; }); }
   function guideCategories() {
@@ -369,7 +388,7 @@
     listedGuide().forEach(function (p) { (m[p.category] = m[p.category] || []).push(p); });
     return m;
   }
-  function glink(p) { return '<a href="#/guide/' + p.slug.split("/").map(enc).join("/") + '">' + esc(p.title) + "</a>"; }
+  function glink(p) { return '<a href="' + purl(p) + '">' + esc(p.title) + "</a>"; }
   /* a category page: titles only, bulleted in columns, grouped by first letter once there are enough of them */
   function categoryList(list) {
     var sorted = list.slice().sort(function (a, b) { return a.title.localeCompare(b.title, undefined, { sensitivity: "base" }); });
@@ -435,11 +454,13 @@
   }
   /* small superscripts say where a link goes; links to other guide pages are the default and carry none */
   var MARK_GP = '<sup class="lt" title="Game Guide page" aria-label="(Game Guide)">GP</sup>';
+  var MARK_SG = '<sup class="lt" title="Site Guide page" aria-label="(Site Guide)">SG</sup>';
   var MARK_PN = '<sup class="lt" title="Patch Notes page" aria-label="(Patch Notes)">PN</sup>';
   var MARK_EXT = '<sup class="lt" title="Opens another website" aria-label="(external site)">\u2197</sup>';
   /* every link a page makes is noted here, and listed in a References section at the bottom */
   var refs = null;
-  function newRefs(selfSlug) { return { self: (selfSlug || "").toLowerCase(), seen: {}, guide: [], topic: [], patch: [], ext: [] }; }
+  function pageKey(p) { return (p.area + "|" + p.slug).toLowerCase(); }   /* a page's identity across both guides */
+  function newRefs(selfKey) { return { self: (selfKey || "").toLowerCase(), seen: {}, guide: [], topic: [], patch: [], ext: [] }; }
   function noteRef(kind, key, item) {
     if (!refs) return;
     var id = kind + "|" + String(key).toLowerCase();
@@ -451,9 +472,9 @@
     var raw = target.trim(), low = raw.toLowerCase(), t;
     if (low.indexOf("topic:") === 0) { t = topicByLower[low.slice(6).trim()]; if (t) noteRef("topic", t, t); return t ? tlink(t).replace(">" + esc(t) + "<", ">" + esc(label || t) + "<") + MARK_PN : esc(label || raw.slice(6)); }
     if (low.indexOf("patch:") === 0) { var v = raw.slice(6).trim(); if (byVersion[v]) noteRef("patch", v, v); return byVersion[v] ? '<a href="#/patch/' + enc(v) + '">' + esc(label || v) + "</a>" + MARK_PN : esc(label || v); }
-    var g = guideByTitle[low] || guideBySlug[low];
-    if (g) { if (g.slug.toLowerCase() !== refs_self()) noteRef("guide", g.slug, g); }
-    if (g) return '<a href="#/guide/' + g.slug.split("/").map(enc).join("/") + '">' + esc(label || g.title) + "</a>" + MARK_GP;
+    var g = findPage(low);
+    if (g) { if (pageKey(g) !== refs_self()) noteRef("guide", pageKey(g), g); }
+    if (g) return '<a href="' + purl(g) + '">' + esc(label || g.title) + "</a>" + (g.area === "site" ? MARK_SG : MARK_GP);
     t = topicByLower[low];
     if (t) { noteRef("topic", t, t); return tlink(t).replace(">" + esc(t) + "<", ">" + esc(label || t) + "<") + MARK_PN; }
     return '<a class="missing" href="' + newPageUrl(raw) + '"' + newAttr(raw) + ' rel="noopener" title="No page called this yet. Click to create it.">' + esc(label || raw) + "</a>";
@@ -465,7 +486,7 @@
   var FIG_LINE = new RegExp('^!\\[([^\\]]*)\\]\\(' + IMG_URL + '(?:\\s+"([^"]*)")?\\)(?:\\{([^}]*)\\})?$');
   function imgSrc(src) {
     src = safeUrl(src); if (!src) return "";
-    if (!/^(https?:|\/)/i.test(src)) src = "guide/" + mdBase + src.replace(/^\.?\//, "");
+    if (!/^(https?:|\/)/i.test(src)) src = mdRoot + mdBase + src.replace(/^\.?\//, "");
     return src;
   }
   function figureOpts(braces) {
@@ -544,14 +565,17 @@
       /* "guide:Name", "topic:Name" and "patch:0.1.2" say which kind; with no prefix a guide page wins over a topic of the same name */
       var pm = /^(guide|topic|patch)\s*:\s*(.*)$/i.exec(name), mode = pm ? pm[1].toLowerCase() : "", rest = (pm ? pm[2] : name).trim();
       if (mode === "patch") { if (byVersion[rest]) noteRef("patch", rest, rest); return; }
-      var low = rest.toLowerCase(), g = mode === "topic" ? null : (guideByTitle[low] || guideBySlug[low]), t = mode === "guide" ? null : topicByLower[low];
-      if (g && g.slug.toLowerCase() !== r.self) noteRef("guide", g.slug, g); else if (!g && t) noteRef("topic", t, t);
+      var low = rest.toLowerCase(), g = mode === "topic" ? null : findPage(low), t = mode === "guide" ? null : topicByLower[low];
+      if (g && pageKey(g) !== r.self) noteRef("guide", pageKey(g), g); else if (!g && t) noteRef("topic", t, t);
     });
     var h = "";
-    if (r.guide.length || r.topic.length || r.patch.length) {
+    if (r.guide.length || r.topic.length || r.patch.length) {   /* r.guide holds pages of both guides */
       h += sec("References", "References", 2);
-      if (r.guide.length) h += sec("Game Guide", "Game Guide", 3) + '<ol class="refs">' + r.guide.map(function (g) {
-        return "<li>" + glink(g) + (g.summary ? " – " + esc(g.summary) : "") + "</li>"; }).join("") + "</ol>";
+      [["guide", "Game Guide"], ["site", "Site Guide"]].forEach(function (a) {
+        var list = r.guide.filter(function (g) { return g.area === a[0]; });
+        if (list.length) h += sec(a[1], a[1], 3) + '<ol class="refs">' + list.map(function (g) {
+          return "<li>" + glink(g) + (g.summary ? " – " + esc(g.summary) : "") + "</li>"; }).join("") + "</ol>";
+      });
       if (r.topic.length || r.patch.length) h += sec("Patch Notes", "Patch Notes", 3) + '<ol class="refs">' +
         r.topic.map(function (t) { var v = lastVer(byTopic[t]); return "<li>" + tlink(t) + " – last patched " + vlink(v) + " (" + esc(dateOf(v)) + ")</li>"; }).join("") +
         r.patch.map(function (v) { return "<li>Patch " + vlink(v) + " – released " + esc(dateOf(v)) + "</li>"; }).join("") + "</ol>";
@@ -567,6 +591,7 @@
     return '<div class="codebox"><div class="codebar"><span class="codelang">' + esc(hl.label || "") + '</span><button type="button" class="codecopy" aria-label="Copy this code">Copy</button></div><pre><code' +
       (lang ? ' class="lang-' + esc(lang) + '"' : "") + ">" + hl.html + "</code></pre></div>";
   }
+  var mdRoot = "guide/";   /* "guide/" or "site/": which section's folder the page being rendered is in */
   var mdBase = "";   /* folder of the page being rendered, so pictures resolve next to it */
   function markdown(src, title) {
     var lines = src.replace(/\r\n?/g, "\n").split("\n"), out = [], i = 0, first = true, figSince = false;
@@ -681,38 +706,46 @@
     return { title: c, html: page(esc(c), h, { hat: GUIDE_HAT + " › " + esc(c) }), toc: false };
   };
   views.guidepage = function (slug) {
-    if (MOVED[slug.toLowerCase()]) { location.replace("#/guide/" + MOVED[slug.toLowerCase()].split("/").map(enc).join("/")); return null; }
-    var entry = guideBySlug[slug.toLowerCase()] || guideByTitle[slug.toLowerCase()];
+    if (MOVED[slug.toLowerCase()]) { location.replace(MOVED[slug.toLowerCase()]); return null; }
+    return pageView("guide", slug);
+  };
+  var SITE_HAT = '<a href="#/site">Site Guide</a>';
+  /* the Site Guide: help for contributors and reviewers, in web/site/. #/site is its front page (web/site/index.md) */
+  views.site = function (arg) { return pageView("site", arg || "index"); };
+  /* one Markdown page of the Game Guide (web/guide/) or the Site Guide (web/site/); both are rendered the same way */
+  function pageView(area, slug) {
+    var site = area === "site", bySlug = site ? siteBySlug : guideBySlug, byTitle = site ? siteByTitle : guideByTitle, dir = site ? "site/" : "guide/";
+    var entry = bySlug[slug.toLowerCase()] || byTitle[slug.toLowerCase()], front = site && (entry ? entry.slug : slug) === "index";
     var title = entry ? entry.title : slug.split("/").pop();
-    var slugPath = (entry ? entry.slug : slug).split("/").map(enc).join("/");
-    return { title: title, html: page(esc(title), '<div id="gp"><p>Loading…</p></div>', { hat: GUIDE_HAT }), after: function () {
+    var real = entry ? entry.slug : slug, slugPath = real.split("/").map(enc).join("/");
+    return { title: title, html: page(esc(title), '<div id="gp"><p>Loading…</p></div>', { hat: front ? "" : site ? SITE_HAT : GUIDE_HAT }), after: function () {
       var box = document.getElementById("gp");
-      fetch("guide/" + slugPath + ".md").then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }).then(function (raw) {
+      fetch(dir + slugPath + ".md").then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }).then(function (raw) {
         var fm = frontMatter(raw), t = fm.meta.title || title, cat = fm.meta.category || (entry && entry.category) || "General";
         document.title = t + " – " + SHORT;
-        setNav(["page:" + (entry ? entry.slug : slug).toLowerCase(), "guide"]);   /* the page's real slug, not the title or odd capitals someone typed */
+        setNav(["page:" + (site ? "site/" : "") + real.toLowerCase(), area]);   /* the page's real slug, not the title or odd capitals someone typed */
         document.querySelector("h1.title").textContent = t;
         var hat = document.querySelector(".hat");
-        if (entry && entry.unlisted) hat.remove();
-        else hat.innerHTML = GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a>";
-        mdBase = (entry ? entry.slug : slug).indexOf("/") >= 0 ? (entry ? entry.slug : slug).replace(/[^/]*$/, "") : "";
-        refs = newRefs(entry ? entry.slug : slug);
-        var rendered = markdown(fm.body, t); mdBase = "";
+        if (hat && !site) { if (entry && entry.unlisted) hat.remove(); else hat.innerHTML = GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a>"; }
+        mdRoot = dir;
+        mdBase = real.indexOf("/") >= 0 ? real.replace(/[^/]*$/, "") : "";
+        refs = newRefs(area + "|" + real);
+        var rendered = markdown(fm.body, t); mdBase = ""; mdRoot = "guide/";
         rendered += buildReferences(refs, (fm.meta.related || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean)); refs = null;
         box.innerHTML = rendered +
-          '<p class="editline"><a href="' + REPO + "/edit/main/web/guide/" + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
+          '<p class="editline"><a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
         buildToc();
       }).catch(function () {
         if (guideFailed) { box.innerHTML = guideUnavailable(); return; }
-        /* the same page as any other missing address, with a way to write this one */
+        /* the same page as any other missing address (a Game Guide page also gets a way to write it) */
         document.title = "Not found – " + SHORT;
         document.querySelector("h1.title").textContent = "Page not found";
         var hat = document.querySelector(".hat"); if (hat) hat.remove();
-        box.innerHTML = notFoundBody(title, '<p><a href="' + newPageUrl(title) + '"' + newAttr(title) + ' rel="noopener">Create this page</a> (you need your own fork first: see <a href="' + HOWTO + '">how to contribute</a>).</p>', slug);
+        box.innerHTML = notFoundBody(title, site ? "" : '<p><a href="' + newPageUrl(title) + '"' + newAttr(title) + ' rel="noopener">Create this page</a> (you need your own fork first: see <a href="' + HOWTO + '">how to contribute</a>).</p>', site ? "" : slug);
         wireNotFound();
       });
     }, toc: false };
-  };
+  }
 
   views.home = function () {
     var n = listedGuide().length;
@@ -762,8 +795,9 @@
       return all;
     }
     var g = pick(listedGuide(), function (p) { return p.title; }).map(function (p) { return glink(p) + ' <span class="muted">(Game Guide)</span>'; });
+    var sgl = pick(siteGuide, function (p) { return p.title; }).map(function (p) { return glink(p) + ' <span class="muted">(Site Guide)</span>'; });
     var t = pick(topics, function (x) { return x; }).map(function (x) { return tlink(x) + ' <span class="muted">(Patch Notes topic)</span>'; });
-    return g.concat(t).slice(0, 3);
+    return g.concat(sgl, t).slice(0, 3);
   }
   /* a missing address inside a real category (#/guide/combat/x when "Combat" exists) offers that category */
   function categoryOffer(slug) {
@@ -994,7 +1028,10 @@
 
     fetch("guide/index.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(guideLoaded)
     .catch(function () { guideFailed = true; guideLoaded([]); })
-    .then(function () { if (/^#\/(guide|search)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
+    .then(function () {
+      return fetch("site/index.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(siteLoaded).catch(function () { siteLoaded([]); });
+    })
+    .then(function () { if (/^#\/(guide|site|search)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
   document.getElementById("foot-stats").textContent = rows.length.toLocaleString() + " changes · " + topics.length + " topics · " + versions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
 
   /* search box with suggestions */
@@ -1005,8 +1042,9 @@
     var pre = [], mid = [];
     topics.forEach(function (t) { var i = t.toLowerCase().indexOf(v); if (i === 0) pre.push(t); else if (i > 0) mid.push(t); });
     var list = pre.concat(mid).slice(0, 8);
-    var gl = (guide || []).filter(function (p) { return p.title.toLowerCase().indexOf(v) >= 0; }).slice(0, 4);
-    sug.innerHTML = gl.map(function (p) { return '<li><a href="#/guide/' + p.slug.split("/").map(enc).join("/") + '">' + esc(p.title) + "<small>guide</small></a></li>"; }).join("") + list.map(function (t) { return '<li><a href="#/topic/' + enc(t) + '">' + esc(t) + "<small>" + plural(byTopic[t].length, "change") + "</small></a></li>"; }).join("") +
+    function titled(p) { return p.title.toLowerCase().indexOf(v) >= 0; }
+    var gl = (guide || []).filter(titled).slice(0, 4).concat(siteGuide.filter(titled).slice(0, 2));
+    sug.innerHTML = gl.map(function (p) { return '<li><a href="' + purl(p) + '">' + esc(p.title) + "<small>" + (p.area === "site" ? "site guide" : "guide") + "</small></a></li>"; }).join("") + list.map(function (t) { return '<li><a href="#/topic/' + enc(t) + '">' + esc(t) + "<small>" + plural(byTopic[t].length, "change") + "</small></a></li>"; }).join("") +
       '<li><a href="#/search/' + enc(q.value.trim()) + '">Search for “' + esc(q.value.trim()) + "”<small>full text</small></a></li>";
     sug.hidden = false; cur = -1;
   }
@@ -1097,7 +1135,7 @@
       return dot > n * 0.5 ? cut.slice(0, dot + 1) : cut.replace(/\s+\S*$/, "") + "…";
     }
     function content(href) {
-      var m = /^#\/(topic|guide|patch|hub|system)\/(.+)$/.exec(href), arg;
+      var m = /^#\/(topic|guide|site|patch|hub|system)\/(.+)$/.exec(href), arg;
       if (!m) return null;
       try { arg = decodeURIComponent(m[2]); } catch (e) { arg = m[2]; }
       if (m[1] === "topic") {
@@ -1121,6 +1159,10 @@
       if (m[1] === "system") {
         var sl = bySystem[arg]; if (!sl) return null;
         return { kind: "Game system", title: arg, text: "Changes to the " + arg + " system.", meta: plural(sl.length, "change") };
+      }
+      if (m[1] === "site") {
+        var sg = siteBySlug[arg.toLowerCase()] || siteByTitle[arg.toLowerCase()];
+        return sg ? { kind: "Site Guide", title: sg.title, text: sg.summary || clip(sg.text, 200), meta: "" } : null;
       }
       if (arg.indexOf("category/") === 0) {
         var cat = arg.slice(9), n = listedGuide().filter(function (g) { return g.category === cat; }).length;
@@ -1186,11 +1228,14 @@
     if (name !== "feedback") feedbackPage = location.href;
     var fr = document.getElementById("foot-report");
     if (fr) { fr.href = "#/feedback"; }
-    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", about: "about" }[name];
+    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about" }[name];
     var keys = [nav];
     if (name === "guide") {
       if (arg.indexOf("category/") === 0) keys = ["guide"];
       else if (arg) { var ge = guideBySlug[arg.toLowerCase()] || guideByTitle[arg.toLowerCase()]; keys = ge ? ["page:" + ge.slug.toLowerCase(), "guide"] : ["page:" + arg.toLowerCase(), "guide"]; }
+    } else if (name === "site") {
+      var se = arg ? (siteBySlug[arg.toLowerCase()] || siteByTitle[arg.toLowerCase()]) : null;
+      keys = se ? ["page:site/" + se.slug.toLowerCase(), "site"] : ["site"];
     } else if (name === "hub") keys = ["hub:" + arg, nav];
     else if (name === "topic" && D.hubs[arg]) keys = ["hub:" + D.hubs[arg], nav];
     setNav(keys);

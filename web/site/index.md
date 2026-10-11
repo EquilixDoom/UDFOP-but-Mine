@@ -1,11 +1,10 @@
 ---
-title: Site guide
+title: Site Guide
 category: Contributing
 summary: Help for writing, fixing and reviewing Game Guide pages.
-unlisted: yes
 ---
 
-Help for the people who write and look after the Game Guide. These pages are about the project, so they are not listed with the game pages.
+Help for the people who write and look after the Game Guide. These pages are about the project itself. The pages about the game are in the [Game Guide](#/guide).
 
 ## Writing a page
 
@@ -13,7 +12,7 @@ Help for the people who write and look after the Game Guide. These pages are abo
 - [[Formatting reference]]: every kind of formatting, with the syntax and how it looks.
 - [[Troubleshooting and FAQ]]: fixes for common problems, and what each page-check message means.
 
-## Looking after the guide
+## Looking after the Game Guide
 
 - [[Reviewing a pull request]]: what to check, how to give feedback, and how to merge.
 

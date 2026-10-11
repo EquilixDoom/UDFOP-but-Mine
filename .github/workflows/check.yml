@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'web/guide/**'
+      - 'web/site/**'
       - 'tools/guide.py'
 
 permissions:

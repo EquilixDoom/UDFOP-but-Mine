@@ -2,7 +2,6 @@
 title: Formatting reference
 category: Contributing
 summary: Every bit of formatting a guide page can use, with the syntax and how it looks.
-unlisted: yes
 expected-missing: Example of a missing page
 ---
 
@@ -295,8 +294,8 @@ Double square brackets link to another page on this site. They are the way to li
 
 | You type | What it does | Result |
 |---|---|---|
-| `[[How to write a guide page]]` | links to a guide page by its title, marked **GP** | [[How to write a guide page]] |
-| `[[How to write a guide page\|this page]]` | the same page, with your own words, still marked **GP** | [[How to write a guide page\|this page]] |
+| `[[Controls]]` | links to a guide page by its title, marked **GP** | [[Controls]] |
+| `[[Controls\|the key bindings]]` | the same page, with your own words, still marked **GP** | [[Controls\|the key bindings]] |
 | `[[topic:Revenants]]` | links to a Patch Notes topic, marked **PN** | [[topic:Revenants]] |
 | `[[patch:0.1.6656]]` | links to a patch's page, marked **PN** | [[patch:0.1.6656]] |
 | `[text](https://example.com)` | links to another website, marked **↗** | [an outside link](https://example.com) |
@@ -314,6 +313,7 @@ A small raised marker after a link says where it goes, so readers know before th
 | Marker | Where the link goes |
 |---|---|
 | **GP** | a page in the Game Guide |
+| **SG** | a page in the Site Guide |
 | **PN** | a Patch Notes topic or patch |
 | **↗** | another website |
 | none | a plain link to a page of this site, such as a category, and a red link to a page that does not exist yet |
@@ -324,7 +324,7 @@ A normal Markdown link can point at any page of the site, so you can send reader
 
 | You type | Result |
 |---|---|
-| `[Contributing](#/guide/category/Contributing)` | [Contributing](#/guide/category/Contributing) (a Game Guide category) |
+| `[Player Guide](#/guide/category/Player%20Guide)` | [Player Guide](#/guide/category/Player%20Guide) (a Game Guide category; write a space in its name as `%20`) |
 | `[Audio](#/hub/Audio)` | [Audio](#/hub/Audio) (a Patch Notes category) |
 | `[all patches](#/patches)` | [all patches](#/patches) |
 | `[recent changes](#/recent)` | [recent changes](#/recent) |
@@ -500,4 +500,4 @@ You do not write these. They come from what you wrote: a **Contents** list built
 
 Raw HTML (it is shown as plain text, which keeps pages safe and consistent), strikethrough, underline, coloured text, footnotes, task-list checkboxes, merged table cells, embedded video or other media, forced line breaks inside a paragraph, and links to a section inside a page. Leave these out and the page will look right everywhere.
 
-Back to the [[Site guide]].
+Back to the [Site Guide](#/site).

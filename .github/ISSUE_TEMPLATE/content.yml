@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This issue will be **public**. If you can fix the page yourself, that is even better: see [how to write a guide page](https://tau-samsara.github.io/udfop/#/guide/how-to/how-to-write-a-page).
+        This issue will be **public**. If you can fix the page yourself, that is even better: see [how to write a guide page](https://tau-samsara.github.io/udfop/#/site/how-to-write-a-page).
   - type: input
     id: page
     attributes:

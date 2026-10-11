@@ -1,8 +1,7 @@
 ---
 title: Reviewing a pull request
-category: Contributing
+category: Maintaining
 summary: What to check, how to give feedback and how to merge when someone sends a guide page.
-unlisted: yes
 ---
 
 A maintainer reads every new or edited guide page before it goes live. This page is for the people who do that. You need only a browser and your own reading. For what contributors are told, see [[How to write a guide page]].
@@ -19,7 +18,7 @@ Most contributors are new to GitHub, and many have never opened a pull request. 
 On the project page, open the **Pull requests** tab, then the pull request. Read its description and see which files it changes in the **Files changed** tab.
 
 > [!IMPORTANT]
-> A guide pull request should only change files inside `web/guide/`: pages (`.md` files) and pictures. If it changes anything else, such as `web/app.js`, `tools/` or `.github/`, ask the contributor why before going further.
+> A Game Guide pull request should only change files inside `web/guide/`: pages (`.md` files) and pictures. If it changes anything else, such as `web/app.js`, `tools/`, `.github/` or the Site Guide in `web/site/`, ask the contributor why before going further.
 
 ## 2. Look at the automatic check
 
@@ -105,4 +104,4 @@ Afterwards:
 
 Fix it the way anything else is fixed: edit the page and send another pull request. For a page that should not have been published, remove the file the same way. Nothing needs to be undone first.
 
-Back to the [[Site guide]].
+Back to the [Site Guide](#/site).
