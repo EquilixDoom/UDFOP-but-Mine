@@ -1,6 +1,6 @@
 ---
 title: Reviewing a pull request
-category: Maintaining
+category: Site Guide
 summary: What to check when someone sends a guide page, how to give kind feedback, and how to merge it.
 ---
 

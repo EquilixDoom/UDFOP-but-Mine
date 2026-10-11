@@ -1,6 +1,6 @@
 ---
 title: Site Guide
-category: Contributing
+category: Site Guide
 summary: Help for writing, fixing and reviewing Game Guide pages, and for getting around the site.
 ---
 
@@ -8,18 +8,18 @@ The Site Guide is the help section of UDFOP. It explains how to write, fix and r
 
 ## Writing a page
 
-- [[How to write a guide page]]: the steps from forking the project to seeing your page on the site.
-- [[Formatting reference]]: every kind of formatting, with the syntax and how it looks.
-- [[Anatomy of a page]]: the parts of a page, which part of your file makes each one, and what the site adds.
-- [[Troubleshooting and FAQ]]: fixes for common problems, and what each page-check message means.
+- [[How to write a guide page]] – A step-by-step walkthrough for adding a page to the Game Guide or fixing one, from your first fork to seeing it live.
+- [[Formatting reference]] – Every kind of formatting a guide page can use, with the syntax to type and how it looks.
+- [[Anatomy of a page]] – What each part of a guide page is, which part of your file makes it, and what the site adds on its own.
+- [[Troubleshooting and FAQ]] – Fixes for the most common problems when writing a page, and what each page-check message means.
 
 ## Using the site
 
-- [[Using the site]]: search, the menus, Contents, Settings, previews and the phone layout.
+- [[Using the site]] – How to search, use the menus and Contents, change the look in Settings, and read the site on a phone.
 
 ## Looking after the Game Guide
 
-- [[Reviewing a pull request]]: what to check, how to give feedback, and how to merge.
+- [[Reviewing a pull request]] – What to check when someone sends a guide page, how to give kind feedback, and how to merge it.
 
 ## Other places
 

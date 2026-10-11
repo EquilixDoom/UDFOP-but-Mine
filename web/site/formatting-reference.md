@@ -1,11 +1,11 @@
 ---
 title: Formatting reference
-category: Contributing
+category: Site Guide
 summary: Every kind of formatting a guide page can use, with the syntax to type and how it looks.
 expected-missing: Example of a missing page
 ---
 
-Everything you can write in a guide page, with examples in plain text syntax and rendered. For information on adding/editing a page, see [[How to write a guide page]]. If something does not look right, check here first [[Troubleshooting and FAQ]].
+Everything you can write in a guide page, with examples in plain text syntax and rendered. For the steps of adding or editing a page, see [[How to write a guide page]]. If something does not look right, see [[Troubleshooting and FAQ]].
 
 ## Quick reference
 
@@ -131,7 +131,7 @@ Rendered:
 
 ### Inline code
 
-Put a short stretch between single backticks to show it exactly as typed. This is also how to show markup literally, so it is not turned into a link or bold. Inline code is shown in an accent colour on a faint background, so it stands out from plain text and is never mistaken for a link: amber on the default and Iliac Bay themes, green on Parchment and blue on Oblivion.
+Put a short stretch between single backticks to show it exactly as typed. This is also how to show markup literally, so it is not turned into a link or bold. Inline code is shown in an accent color on a faint background, so it stands out from plain text and is never mistaken for a link: amber on the default and Iliac Bay themes, green on Parchment and blue on Oblivion.
 
 ```md
 Press `Jump` to climb, and write `[[a page]]` to link.
@@ -157,11 +157,11 @@ Write `` `word` `` to show word in backticks, and `` ` `` for one backtick on it
 
 ### Code blocks
 
-For several lines shown exactly as typed, put a line of three backticks above them and another below. That suits commands, in-game chat lines, settings and data, and it is how the grey boxes in this page are written. Spacing and line breaks are kept, and long lines scroll sideways. Every box has a **Copy** button in its top bar, which copies the text exactly as typed, without the colours.
+For several lines shown exactly as typed, put a line of three backticks above them and another below. That suits commands, in-game chat lines, settings and data, and it is how the gray boxes in this page are written. Spacing and line breaks are kept, and long lines scroll sideways. Every box has a **Copy** button in its top bar, which copies the text exactly as typed, without the colors.
 
-(Optional) Put a language name straight after the opening backticks, for example `json`. The name then appears in the box's top bar and the code is coloured. A box with no name, or with a name the site does not know, is shown plain with no colours, and a name you gave still appears in the bar. Names are not case sensitive.
+(Optional) Put a language name straight after the opening backticks, for example `json`. The name then appears in the box's top bar and the code is colored. A box with no name, or with a name the site does not know, is shown plain with no colors, and a name you gave still appears in the bar. Names are not case sensitive.
 
-| You write | The code is coloured as |
+| You write | The code is colored as |
 |:---|:---|
 | `json` | JSON |
 | `js`, `javascript`, `ts`, `typescript` | JavaScript and TypeScript |
@@ -175,10 +175,10 @@ For several lines shown exactly as typed, put a line of three backticks above th
 | `xml`, `html`, `xaml`, `svg` | XML and HTML |
 | `python`, `py` | Python |
 | `markdown`, `md` | Markdown, including `[[links]]` and `{{keys}}` |
-| `text`, `txt`, or no name | no colours |
+| `text`, `txt`, or no name | no colors |
 
 > [!NOTE]
-> The colouring is a guide for the eye, not a full reader of the language, so unusual code may be coloured imperfectly. That does no harm, and the text itself is never changed. Very long boxes (over about 20,000 characters) are shown without colours.
+> The coloring is a guide for the eye, not a full reader of the language, so unusual code may be colored imperfectly. That does no harm, and the text itself is never changed. Very long boxes (over about 20,000 characters) are shown without colors.
 
 **Showing the fence itself.** A code box ends only at a line of backticks that is at least as long as the line that opened it. To show a box that contains three backticks, open and close it with four. Tildes, written `~~~`, work as fences too.
 
@@ -351,7 +351,7 @@ A normal Markdown link can point at any page of the site, so you can send reader
 | `[all patches](#/patches)` | [all patches](#/patches) |
 | `[recent changes](#/recent)` | [recent changes](#/recent) |
 | `[all topics](#/topics)` | [all topics](#/topics) |
-| `[Feedback and bugs](#/feedback)` | [Feedback and bugs](#/feedback) |
+| `[Feedback & Bugs](#/feedback)` | [Feedback & Bugs](#/feedback) |
 
 > [!NOTE]
 > These are plain links: they have no PN or arrow marker and they do not appear in the References section, so use the double-bracket forms from the linking examples above when you want a topic, patch or guide page listed there.
@@ -457,7 +457,7 @@ Rendered, one of each:
 
 Anything you can write in a page also works inside a box: several paragraphs, lists, links, keys and code boxes. Put `>` at the start of every line of the box, including blank lines between paragraphs. Keep each box short. On a normal guide page use them sparingly, since a page full of boxes stops anything standing out. The pages about the site itself use many because each one is something a contributor must not miss.
 
-A tag the site does not know, such as `[!DANGER]`, leaves an ordinary quotation, and the page check mentions it. When you edit on GitHub, its preview draws these boxes too, in its own colours.
+A tag the site does not know, such as `[!DANGER]`, leaves an ordinary quotation, and the page check mentions it. When you edit on GitHub, its preview draws these boxes too, in its own colors.
 
 ### Spoilers
 
@@ -496,7 +496,7 @@ Press {{W}} to move forward and hold {{Left Shift}} to run. {{Shift+Right click}
 
 - **Arrow keys** are typed as words, `{{Up}}`, `{{Down}}`, `{{Left}}` and `{{Right}}`, and shown as arrows, ↑ ↓ ← →, which read faster. The words are only for the four arrow keys: `{{Left Shift}}` and `{{Left click}}` are not affected.
 - **Combinations** are joined with `+`, and each key gets its own cap, as in `{{Ctrl+Shift+K}}`. For a plus key itself, write `{{+}}`.
-- **Mouse buttons** are recognised by name (`Left click`, `Right click`, `Middle click`, `Mouse 3`, `Mouse 4`, `Mouse 5` and `Scroll`) and drawn with rounder corners than keyboard keys.
+- **Mouse buttons** are recognized by name (`Left click`, `Right click`, `Middle click`, `Mouse 3`, `Mouse 4`, `Mouse 5` and `Scroll`) and drawn with rounder corners than keyboard keys.
 - **Gamepad buttons** start with `pad:`, as in `{{pad:A}}`, and are drawn round. The prefix is not shown. Use the name printed on the button; the table below lists the Xbox names, which are the game's own, and the PlayStation ones. When a page gives both for one button, put the Xbox name first and the PlayStation name second, such as `{{pad:RB}}, {{pad:R1}}`, and say so once on the page so readers know they are the same button on two controllers.
 - **Keys with symbols** are written as the character and named in plain words after it, so readers who do not know the symbol can find it: `{{;}} (semicolon)`, `{{,}} (comma)` or `{{[}} (left bracket)`.
 - **Use the same names everywhere** so pages agree. Use these:
@@ -516,10 +516,10 @@ Press {{W}} to move forward and hold {{Left Shift}} to run. {{Shift+Right click}
 
 ### What the site does for you
 
-You do not write these. They come from what you wrote: a **Contents** list built from the page's headings (docked in the left sidebar by default, where it follows the section being read; subsections are listed under their section behind a small arrow that the reader opens; readers can hide it behind a ☰ button beside the page title that floats at the top left of the window once they scroll past the title, and the site remembers their choice; on a narrow screen such as a phone there is no Contents list: each section and subsection folds instead, closed to begin with, and a reader taps a heading to open it), the page's place in the Game Guide index and breadcrumb from its `category`, its entry in the Game Guide index and in search, the **References** section, the **PN** and **↗** markers on links, and the colours and **Copy** button on code boxes.
+You do not write these. They come from what you wrote: a **Contents** list built from the page's headings (docked in the left sidebar by default, where it follows the section being read; subsections are listed under their section behind a small arrow that the reader opens; readers can hide it behind a ☰ button beside the page title that floats at the top left of the window once they scroll past the title, and the site remembers their choice; on a narrow screen such as a phone there is no Contents list: each section and subsection folds instead, closed to begin with, and a reader taps a heading to open it), the page's place in the Game Guide index and breadcrumb from its `category`, its entry in the Game Guide index and in search, the **References** section, the **PN** and **↗** markers on links, and the colors and **Copy** button on code boxes.
 
 ## Not supported
 
-Raw HTML (it is shown as plain text, which keeps pages safe and consistent), strikethrough, underline, coloured text, footnotes, task-list checkboxes, merged table cells, embedded video or other media, forced line breaks inside a paragraph, and links to a section inside a page. Leave these out and the page will look right everywhere.
+Raw HTML (it is shown as plain text, which keeps pages safe and consistent), strikethrough, underline, colored text, footnotes, task-list checkboxes, merged table cells, embedded video or other media, forced line breaks inside a paragraph, and links to a section inside a page. Leave these out and the page will look right everywhere.
 
 Back to the [Site Guide](#/site).

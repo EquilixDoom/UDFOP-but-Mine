@@ -1,6 +1,6 @@
 ---
 title: Using the site
-category: Reading
+category: Site Guide
 summary: How to search, use the menus and Contents, change the look in Settings, and read the site on a phone.
 ---
 

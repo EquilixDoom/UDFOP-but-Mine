@@ -1,6 +1,6 @@
 ---
 title: Anatomy of a page
-category: Contributing
+category: Site Guide
 summary: What each part of a guide page is, which part of your file makes it, and what the site adds on its own.
 ---
 
@@ -10,7 +10,7 @@ This page names each part of a Game Guide page, says which part of your file mak
 
 ![A guide page on a wide window, with the header, the Contents list on the left, the page in the middle, Settings on the right and the footer under the page, each outlined and numbered](images/anatomy-screen.png "A guide page on a wide window with its default layout. The numbers are explained below."){center 900}
 
-1. **The Main menu button.** The main menu is hidden until the reader opens it with this button.
+1. **The main menu button.** The main menu is hidden until the reader opens it with this button.
 2. **The logo.** It links to the Main Page.
 3. **The search box.**
 4. **The left sidebar**, which holds the Contents list, and the main menu if the reader docks it there.
@@ -38,15 +38,15 @@ From the top of the page down. The numbers match the picture.
 
 ## On a narrow screen
 
-![A guide page on a phone, with its sections folded closed](images/anatomy-narrow.png "The same page on a phone: 1 the Main menu button, 2 the search box, 3 the Settings gear, 4 the title, 5 the folded sections."){right 240}
+![A guide page on a phone, with its sections folded closed](images/anatomy-narrow.png "The same page on a phone: 1 the main menu button, 2 the search box, 3 the Settings gear, 4 the title, 5 the folded sections."){right 240}
 
 On a phone, or any window under about 860 pixels wide, the page is one column and the sidebars are gone:
 
 - **There is no Contents list.** Instead, each `##` and `###` section **folds**, closed to begin with. Tapping a heading opens it.
-- **The Main menu and Settings** open as pop-ups from the header buttons.
+- **The main menu and Settings** open as pop-ups from the header buttons.
 - **Floated pictures** move above the text and take the full width.
 
-## Where to read more
+## Where to go next
 
 - How to write each part of your text: the [[Formatting reference]].
 - What readers can change, and how the menus work: [[Using the site]].

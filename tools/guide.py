@@ -183,7 +183,7 @@ def check_images(pages, problems, root=ROOT, prefix=''):
 
 
 def code_languages():
-    """The language names the site colours: the keys of ALIASES in web/highlight.js, plus the plain ones."""
+    """The language names the site colors: the keys of ALIASES in web/highlight.js, plus the plain ones."""
     try:
         src = open(os.path.join('web', 'highlight.js'), encoding='utf-8').read()
         block = src[src.index('var ALIASES = {'):src.index('};', src.index('var ALIASES = {'))]
@@ -201,7 +201,7 @@ def check_code_languages(pages, problems):
     for p in pages:
         for lang in fence_languages(p['_body']):
             if lang.lower() not in names:
-                problems.append(('warn', p['_where'], 'the code box language "%s" is not one the site colours, so it will be shown plain (see "Code blocks" in the how-to page for the names)' % lang))
+                problems.append(('warn', p['_where'], 'the code box language "%s" is not one the site colors, so it will be shown plain (see "Code blocks" in the Formatting reference for the names)' % lang))
 
 
 ALERTS = ('note', 'tip', 'important', 'warning', 'caution')

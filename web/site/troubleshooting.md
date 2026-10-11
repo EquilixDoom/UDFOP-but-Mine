@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting and FAQ
-category: Contributing
+category: Site Guide
 summary: Fixes for the most common problems when writing a page, and what each page-check message means.
 ---
 
@@ -69,9 +69,9 @@ Check that the second row is a line of dashes with one set of dashes for each co
 
 The tag must be alone on the first line of the box, written exactly `[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` or `[!CAUTION]`. Every line of the box must start with `>`, including blank lines between paragraphs.
 
-### My code box has no colours
+### My code box has no colors
 
-Put the language name straight after the three backticks, with no space, and use one of the names in the [[Formatting reference]]. A name the site does not know leaves the box plain. Boxes over about 20,000 characters are never coloured.
+Put the language name straight after the three backticks, with no space, and use one of the names in the [[Formatting reference]]. A name the site does not know leaves the box plain. Boxes over about 20,000 characters are never colored.
 
 ### My `{{key}}` shows the braces
 
@@ -105,7 +105,7 @@ When you open a pull request, a check runs on your pages. A red mark means it fo
 | is N KB, please shrink it | A picture is over about 500 KB. | Crop or shrink it. |
 | is not used by any page | A picture is uploaded but no page uses it. | Use it, or remove it. |
 | pictures are easier to find in an images folder | A picture is not in an `images` folder. | Move it into one. |
-| the code box language is not one the site colours | The language name is not on the list. | Use a listed name, or none. |
+| the code box language is not one the site colors | The language name is not on the list. | Use a listed name, or none. |
 | the notice box type is not one the site knows | The tag is not one of the five. | Use NOTE, TIP, IMPORTANT, WARNING or CAUTION. |
 | link `[[x]]` matches no guide page or topic yet | Nothing has that title. | Fix the spelling, or write the page. |
 | the category is spelled more than one way | Two pages spell the same category differently. | Use one spelling. |

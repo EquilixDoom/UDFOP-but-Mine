@@ -1,6 +1,6 @@
 ---
 title: How to write a guide page
-category: Contributing
+category: Site Guide
 summary: A step-by-step walkthrough for adding a page to the Game Guide or fixing one, from your first fork to seeing it live.
 ---
 
@@ -134,7 +134,7 @@ Raw HTML is shown as plain text, so leave it out. The [[Formatting reference]] l
 > - **Use sources, not their words.** Release notes, developer posts and other sites are good sources, but put what they say in your own words and say where it came from. Quote only short passages, set off as quotations, with who said it and where.
 > - **Only upload pictures you made yourself.** The rule is repeated under **Adding pictures** above.
 >
-> Your writing is released under a free licence, as explained under **Credit** below.
+> Your writing is released under a free license, as explained under **Credit** below.
 
 ## Checking your page
 
@@ -150,7 +150,7 @@ Once your page is live, look for these:
 
 ### Review
 
-A maintainer reads every new or edited page before it goes live, and may ask for changes. You make those on the same pull request (step 7 of the short version). Once it is merged, the page appears on the site within a few minutes.
+A maintainer reads every new or edited page before it goes live, and may ask for changes. You make those on the same pull request (step 7 of the short version). Once it is merged, the page appears on the site within a few minutes. Reviewers have their own guide: [[Reviewing a pull request]].
 
 If a mistake is found after a page is live, it is fixed the same way: someone edits the page and sends another pull request. Nothing has to be undone first.
 
@@ -170,7 +170,7 @@ Folders are optional, and most pages sit directly in `web/guide/`. A page's addr
 
 **What a folder changes**
 
-- **The category.** The page's category is the name of its first folder, with hyphens shown as spaces and the first letter capitalised, unless the page sets its own `category` line, which always wins. Only the first folder counts, so deeper folders only organise the files.
+- **The category.** The page's category is the name of its first folder, with hyphens shown as spaces and the first letter capitalized, unless the page sets its own `category` line, which always wins. Only the first folder counts, so deeper folders only organize the files.
 - **The address.** The folder is part of the address. Moving a page to another folder changes its address and breaks every plain link to the old one. Links written with the title, `[[Party rest]]`, keep working wherever the file is, so prefer those.
 - **The picture path.** A picture path starts from the folder the page is in. See the table below.
 
@@ -193,14 +193,6 @@ Folders are optional, and most pages sit directly in `web/guide/`. A page's addr
 
 A picture kept in an `images` folder beside the page, such as `web/guide/combat/images/camp.png`, is written `images/camp.png` from that page.
 
-## Where to go next
-
-- [[Formatting reference]]: every kind of formatting, with examples.
-- [[Anatomy of a page]]: what the site builds around your text.
-- [[Troubleshooting and FAQ]]: when a page does not show up or looks wrong, and what each page-check message means.
-- [[Reviewing a pull request]]: for maintainers and anyone who reviews pages.
-- The [Site Guide](#/site): all of these in one place.
-
 ## Previewing on your computer
 
 > [!NOTE]
@@ -214,3 +206,11 @@ python -m http.server 8000 --directory web
 ```
 
 `guide.py` rebuilds the page list the site reads and reports problems such as duplicate titles. The deploy runs it for you.
+
+## Where to go next
+
+- [[Formatting reference]]: every kind of formatting, with examples.
+- [[Anatomy of a page]]: what the site builds around your text.
+- [[Troubleshooting and FAQ]]: when a page does not show up or looks wrong, and what each page-check message means.
+- [[Reviewing a pull request]]: for maintainers and anyone who reviews pages.
+- The [Site Guide](#/site): all of these in one place.
