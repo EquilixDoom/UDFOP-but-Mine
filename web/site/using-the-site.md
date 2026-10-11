@@ -11,7 +11,7 @@ How to find things on UDFOP and set it up the way you like. Nothing here needs a
 - The [Game Guide](#/guide) is written by players. It explains how things in Daggerfall Online work, and anyone can add or fix a page.
 - The [Patch Notes](#/patchnotes) record every change from the developers' release notes, patch by patch and topic by topic. A script builds them.
 
-The two are connected only by links. A guide page can link to a Patch Notes topic, and the other way round there is no automatic list. This page is part of the Site Guide, which is help for the people who write and look after the Game Guide.
+The two are connected only by links. A guide page can link to a Patch Notes topic, but Patch Notes pages do not list guide pages. This page is part of the Site Guide, which is help for the people who write and look after the Game Guide.
 
 ## Finding things
 
@@ -19,10 +19,11 @@ The two are connected only by links. A guide page can link to a Patch Notes topi
 
 The search box is at the top of every page. As you type, it suggests matching Game Guide pages, Site Guide pages and Patch Notes topics, with a "Search for" line at the bottom for the full search.
 
+- Press {{Down}} and {{Up}} to move through the suggestions, and {{Enter}} to open the highlighted one.
 - Press {{Enter}} with a topic's exact name typed to go straight to that topic.
 - Press {{Enter}} with anything else to see the full results.
 - The full results show Game Guide pages first, then Site Guide pages, matching topics and matching changes. Every word you type must appear. Guide pages whose title contains your words come first.
-- Long lists show the first part and a "Show the other…" button for the rest.
+- Long lists of guide pages and topics show the first part and a "Show the other…" button for the rest. The table of changes shows the 100 newest matches and says how many older ones are not shown, so add a word to narrow it.
 
 ### Browsing the Patch Notes
 
@@ -48,7 +49,7 @@ Hide it with its **hide** button, and a **☰** button appears beside the page t
 
 ### Settings
 
-Open Settings with the **⚙** button at the top right. On a wide window it starts docked in the right sidebar. Use its dock button to switch between docked and a pop-up.
+On a wide window, Settings starts docked in the right sidebar, and the **⚙** gear is not shown in the header. Press its **hide** button to put it away, and the gear appears at the top right. The gear opens Settings as a pop-up, which has a **move to sidebar** button to dock it again. On a narrow window, Settings is always a pop-up from the gear.
 
 | Setting | Choices | What it does |
 |---|---|---|
@@ -80,7 +81,7 @@ A link with no marker goes to another part of this site, such as a category. A *
 
 ### Previews
 
-On a computer, pointing at a link to a page, topic, patch or category shows a short preview card. Turn previews off in Settings if you find them distracting.
+On a computer, pointing at a link to a page, topic, patch, category or game system shows a short preview card. Turn previews off in Settings if you find them distracting.
 
 ### Keys and spoilers
 
@@ -88,7 +89,7 @@ Keys and buttons are drawn as keycaps, such as {{W}} or {{Shift+Right click}}. G
 
 ### Code boxes
 
-A grey box with a bar on top is code or a command. The bar names the language, and the **Copy** button copies the text exactly as written, without the colors.
+A box with a bar on top holds code or a command. The bar shows the language when the writer gave one, and the **Copy** button copies the text exactly as written, without the colors.
 
 ## On a phone or a narrow window
 
@@ -101,6 +102,6 @@ Under about 860 pixels wide, the site becomes one column.
 ## Keyboard
 
 - {{Tab}} moves between links and buttons, and {{Enter}} follows one.
-- {{Esc}} closes the main menu pop-up and the Contents pop-up.
+- {{Esc}} closes whichever pop-up is open: the suggestions list, the main menu, Contents, Settings or a link preview.
 
 Back to the [Site Guide](#/site).
