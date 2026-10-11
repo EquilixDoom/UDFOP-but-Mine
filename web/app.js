@@ -1342,7 +1342,62 @@
   }
 
   /* router */
+  /* Scroll position is remembered for each history entry, so Back, Forward and reload return to where you were, and a new link starts at the top.
+     Every entry gets an id in its history state (a new link has none yet); positions are kept in sessionStorage under that id. A page that is still
+     drawing (a guide page waits for its text) is scrolled again for a moment until it is tall enough, unless the reader scrolls first. */
+  var scrollMem = (function () {
+    var KEY = "udfop.scroll", pos = {}, id = null, saving = false, saveTimer = null, stopRestore = null;
+    try { history.scrollRestoration = "manual"; } catch (e) {}
+    try { pos = JSON.parse(sessionStorage.getItem(KEY) || "{}") || {}; } catch (e) { pos = {}; }
+    function persist() {
+      clearTimeout(saveTimer);
+      try {
+        var ids = Object.keys(pos); ids.slice(0, Math.max(0, ids.length - 80)).forEach(function (k) { delete pos[k]; });   /* keep the newest 80 entries */
+        sessionStorage.setItem(KEY, JSON.stringify(pos));
+      } catch (e) {}
+    }
+    window.addEventListener("scroll", function () {
+      if (!saving || !id) return;
+      pos[id] = Math.round(window.pageYOffset);
+      clearTimeout(saveTimer); saveTimer = setTimeout(persist, 300);
+    }, { passive: true });
+    function snap() { if (saving && id) pos[id] = Math.round(window.pageYOffset); persist(); }   /* the position as the page is closed, reloaded or hidden */
+    window.addEventListener("pagehide", snap);
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") snap(); });
+    function restoreTo(y) {
+      if (stopRestore) stopRestore();
+      var tries = 0, events = ["wheel", "touchstart", "keydown", "mousedown"], tick;
+      function stop() { clearInterval(tick); events.forEach(function (n) { window.removeEventListener(n, stop, true); }); stopRestore = null; saving = true; }
+      function step() {
+        tries++;
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        window.scrollTo(0, Math.min(y, Math.max(0, max)));
+        if ((max >= y && Math.abs(window.pageYOffset - y) < 2 && tries > 3) || tries > 25) stop();   /* about 2.5 seconds at most */
+      }
+      events.forEach(function (n) { window.addEventListener(n, stop, true); });
+      stopRestore = stop; tick = setInterval(step, 100); step();
+    }
+    return {
+      leave: function () {   /* the page about to be replaced keeps the position it has now */
+        if (saving && id) pos[id] = Math.round(window.pageYOffset);
+        if (stopRestore) stopRestore();
+        saving = false; persist();
+      },
+      arrive: function () {
+        var st = history.state && history.state.udfop, want = 0;
+        if (st && st.id) { id = st.id; want = pos[id] || 0; }
+        else {
+          id = "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+          try { history.replaceState({ udfop: { id: id } }, ""); } catch (e) {}
+        }
+        if (want > 0) restoreTo(want);
+        else { window.scrollTo(0, 0); pos[id] = 0; saving = true; }
+      }
+    };
+  })();
+
   function route() {
+    scrollMem.leave();
     var parts = location.hash.replace(/^#\/?/, "").split("/"), name = parts[0] || "home", arg = parts.slice(1).join("/");
     if (name !== "search") { try { arg = decodeURIComponent(arg); } catch (e) {} }
     if (name === "settings") { location.replace("#/"); settingsPanel.open(); return; }
@@ -1370,7 +1425,7 @@
     if (res.toc !== false) buildToc();
     if (res.after) res.after();
     setMenu(false); sug.hidden = true;
-    window.scrollTo(0, 0);
+    scrollMem.arrive();
   }
   window.addEventListener("hashchange", route);
   route();

@@ -97,6 +97,10 @@ On a computer, pointing at a link to a page, topic, patch, category or game syst
 
 Click any picture to open it, fitted to the window. A page with several pictures opens them as a carousel: use the **‹** and **›** buttons, the {{Left}} and {{Right}} keys, or a swipe on a touch screen to move through them, and the count at the top left shows where you are. Click the picture to zoom in, and once more to zoom out. When it is zoomed in, scroll to move around it. To close it, click the dark area around it, press {{Esc}}, or use the **×** button. With the keyboard, {{Tab}} to a picture and press {{Enter}} to open it, and {{Enter}} again to zoom.
 
+### Where you were
+
+The site remembers how far down each page you had scrolled. Press your browser's **Back** or **Forward** button, or reload the page, and you return to the same spot. A link you click starts at the top of the new page. The memory lasts as long as the browser tab is open.
+
 ### Keys and spoilers
 
 Keys and buttons are drawn as keycaps, such as {{W}} or {{Shift+Right click}}. Gamepad buttons are round: {{pad:RT}}. A dark bar over some words is a **spoiler**. Click it, or press {{Enter}} or {{Space}} while it is selected, to show it, and do the same to hide it again.
