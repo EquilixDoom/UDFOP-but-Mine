@@ -8,44 +8,37 @@ A Game Guide page looks like more than the file you wrote. The site builds a tit
 
 ## The whole screen
 
-```text
-+--------------------------------------------------------------+
-| header:  ☰ Main menu   logo   search box                  ⚙  |
-+------------+------------------------------------+------------+
-| left       | title block                        | right      |
-| sidebar    | ------------------------------     | sidebar    |
-|            | your text, in sections             |            |
-| Contents   |   ...                              | Settings   |
-| (and the   | References                         |            |
-| Main menu, | Edit this page                     |            |
-| if docked) | ------------------------------     |            |
-|            | footer                             |            |
-+------------+------------------------------------+------------+
-```
+![A guide page on a wide window, with the header, the Contents list on the left, the page in the middle and Settings on the right, each outlined and numbered](images/anatomy-screen.png "A guide page on a wide window with its default layout. The numbers are explained below."){center 900}
 
-- **The header** is on every page. It holds the Main menu button, the logo, the search box and the Settings gear.
-- **The left sidebar** holds the Contents list, and the Main menu if the reader docked it there. It is empty when both are hidden.
-- **The right sidebar** holds Settings, which is docked there by default on wide windows.
-- **The middle column** is the page itself. Its width is the reader's choice (see [[Using the site]]), not yours.
+1. **The Main menu button.** The main menu is hidden until the reader opens it with this button.
+2. **The logo.** It links to the Main Page.
+3. **The search box.**
+4. **The left sidebar**, which holds the Contents list. If the reader docks the main menu there too, it sits above Contents. The sidebar is empty when both are hidden.
+5. **The page.** This is the only part you write.
+6. **The right sidebar**, which holds Settings. It is docked here by default on wide windows. When it is, the Settings gear leaves the header, so it is not in the picture.
 
-You write only the middle column. Readers decide what appears in the sidebars.
+The width of the page column is the reader's choice (see [[Using the site]]), not yours.
 
 ## The page itself
 
-From the top of the middle column down:
+![A guide page from the title to the footer, with each part outlined and numbered](images/anatomy-page.png "A guide page from top to bottom. The Contents list is hidden here, so its button appears beside the title."){center 760}
 
-| Part | Where it comes from |
-|---|---|
-| **Title** | Your `title` line. If your text starts with a heading that repeats the title, the site drops it. |
-| **"From Unofficial Daggerfall Online Pages"** | Added by the site on every page. |
-| **Breadcrumb** | Built from your `category`: Game Guide › your category, with both parts linked. A page with `unlisted: yes` has none. |
-| **Contents button (☰)** | Added by the site, and shown only when the reader has not docked Contents in the sidebar. It sits beside the title, and once the reader scrolls past the title it floats at the top left of the window. It opens the Contents as a pop-up. |
-| **Your text** | Everything below the front matter. Each `##` and `###` heading starts a section. |
-| **References** | Built from the links in your text and your `related` line. |
-| **Edit line** | "Edit this page (fork the project first) · How to contribute." Added by the site. |
-| **Footer** | The change, topic and patch counts, the Feedback & Bugs link and the disclaimer. Added by the site. |
+From the top of the page down. The numbers match the picture.
 
-A Site Guide page, such as this one, has the same parts, except its breadcrumb reads "Site Guide", and the Site Guide front page has none.
+| # | Part | Where it comes from |
+|---|---|---|
+| 1 | **Title** | Your `title` line. If your text starts with a heading that repeats the title, the site drops it. |
+| 2 | **"From Unofficial Daggerfall Online Pages"** | Added by the site on every page. |
+| 3 | **Breadcrumb** | Built from your `category`: Game Guide › your category, with both parts linked. A page with `unlisted: yes` has none. |
+| 4 | **Contents button (☰)** | Added by the site, and shown only when the reader has not docked Contents in the sidebar. It sits beside the title, and once the reader scrolls past the title it floats at the top left of the window. It opens the Contents as a pop-up. |
+| 5 | **Section heading** | A `##` line in your text. It starts a section, with a rule under it. |
+| 6 | **Notice box** | A quotation that starts with a tag such as `[!NOTE]`. |
+| 7 | **Table** | A table you wrote. It is as wide as its content needs. |
+| 8 | **References** | Built from the links in your text and your `related` line. |
+| 9 | **Edit line** | "Edit this page (fork the project first) · How to contribute." Added by the site. |
+| 10 | **Footer** | The change, topic and patch counts, the Feedback & Bugs link and the disclaimer. Added by the site. |
+
+Your text is everything between the breadcrumb and the References. A Site Guide page, such as this one, has the same parts, except its breadcrumb reads "Site Guide", and the Site Guide front page has none.
 
 ## Your text
 
@@ -77,6 +70,8 @@ You do not write any of these. They come from what you wrote, or from the site i
 - **The preview card, the link markers and the colors in code boxes.**
 
 ## On a narrow screen
+
+![A guide page on a phone, with its sections folded closed](images/anatomy-narrow.png "The same page on a phone: 1 the Main menu button, 2 the search box, 3 the Settings gear, 4 the title, 5 the folded sections."){right 240}
 
 On a phone, or any window under about 860 pixels wide, the page is one column. The sidebars are gone, so:
 
