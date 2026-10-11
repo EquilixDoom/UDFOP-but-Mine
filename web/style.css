@@ -296,7 +296,7 @@ body.settings-open #settings-panel { display: block; }
 }
 
 /* Game Guide pages */
-.portals.two { grid-template-columns: repeat(auto-fit, minmax(16em, 1fr)); }
+.portals.two, .portals.three { grid-template-columns: repeat(auto-fit, minmax(16em, 1fr)); }
 a.missing, a.missing:visited { color: var(--nerf); }
 .editline { margin-top: 2em; padding-top: .6em; border-top: 1px solid var(--line); font-size: .85rem; color: var(--muted); }
 #app blockquote { margin: 0 0 1em; padding: .1em 1em; border-left: 3px solid var(--line); background: var(--softer); }
