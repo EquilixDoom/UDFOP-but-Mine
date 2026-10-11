@@ -95,7 +95,7 @@ On a computer, pointing at a link to a page, topic, patch, category or game syst
 
 ### Pictures
 
-Click any picture to see it full size. Click again, press {{Esc}}, or use the **×** button to close it. With the keyboard, {{Tab}} to a picture and press {{Enter}}.
+Click any picture to open it, fitted to the window. Click it again to zoom in, and once more to zoom out. When it is zoomed in, scroll to move around it. To close it, click the dark area around it, press {{Esc}}, or use the **×** button. With the keyboard, {{Tab}} to a picture and press {{Enter}} to open it, and {{Enter}} again to zoom.
 
 ### Keys and spoilers
 

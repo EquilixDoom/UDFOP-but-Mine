@@ -1017,29 +1017,48 @@
     if (sp && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleSpoiler(sp); }
   });
 
-  /* pictures in a page open full size on top of the page when clicked (or {{Enter}} or {{Space}} on a focused one); a click, a close button or {{Esc}} closes it */
+  /* Pictures in a page: the first click opens the picture on top of the page, fitted to the window; a click on the picture zooms in, another click zooms out.
+     A click on the dark area, the close button or {{Esc}} closes it. A picture can also be reached with {{Tab}} and opened with {{Enter}} or {{Space}}. */
   var lightbox = (function () {
-    var box = null, shot, cap, closeBtn, from = null;
+    var box = null, fig, shot, cap, closeBtn, from = null, zoomed = false;
     function build() {
       box = document.createElement("div");
       box.id = "lightbox"; box.hidden = true; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Picture, full size");
-      box.innerHTML = '<button type="button" class="lb-close" aria-label="Close picture">×</button><figure><img alt=""><figcaption></figcaption></figure>';
-      shot = box.querySelector("img"); cap = box.querySelector("figcaption"); closeBtn = box.querySelector(".lb-close");
-      box.addEventListener("click", close);
+      box.innerHTML = '<button type="button" class="lb-close" aria-label="Close picture">×</button><figure><img alt="" tabindex="0" role="button"><figcaption></figcaption></figure>';
+      fig = box.querySelector("figure"); shot = box.querySelector("img"); cap = box.querySelector("figcaption"); closeBtn = box.querySelector(".lb-close");
+      box.addEventListener("click", function (e) { if (e.target === shot) setZoom(!zoomed, e); else close(); });
       document.body.appendChild(box);
+    }
+    function label() { shot.setAttribute("aria-label", (zoomed ? "Zoom out" : "Zoom in") + ": " + (shot.alt || "picture")); }
+    /* zoom in to the picture's own size, or to nearly twice the fitted size if that is larger, keeping the point that was clicked under the pointer */
+    function setZoom(on, e) {
+      if (on === zoomed) return;
+      var r = shot.getBoundingClientRect(),
+          px = e && e.clientX !== undefined ? (e.clientX - r.left) / r.width : .5, py = e && e.clientY !== undefined ? (e.clientY - r.top) / r.height : .5,
+          cx = e && e.clientX !== undefined ? e.clientX : window.innerWidth / 2, cy = e && e.clientY !== undefined ? e.clientY : window.innerHeight / 2;
+      if (on) {
+        var w = Math.min(Math.max(shot.naturalWidth, r.width * 1.8), 6000);
+        fig.style.setProperty("--lb-w", w + "px"); box.classList.add("lb-zoomed");
+        var n = shot.getBoundingClientRect();
+        box.scrollLeft += (n.left + px * n.width) - cx; box.scrollTop += (n.top + py * n.height) - cy;
+      } else {
+        box.classList.remove("lb-zoomed"); fig.style.removeProperty("--lb-w"); box.scrollLeft = 0; box.scrollTop = 0;
+      }
+      zoomed = on; label();
     }
     function open(img) {
       if (!box) build();
       if (!img.naturalWidth) return;   /* not loaded (or broken): nothing to enlarge */
-      var fig = img.closest("figure"), text = fig && fig.querySelector("figcaption") ? fig.querySelector("figcaption").textContent : img.alt;
-      shot.src = img.currentSrc || img.src; shot.alt = img.alt;
+      var f = img.closest("figure"), text = f && f.querySelector("figcaption") ? f.querySelector("figcaption").textContent : img.alt;
+      zoomed = false; box.classList.remove("lb-zoomed"); fig.style.removeProperty("--lb-w");
+      shot.src = img.currentSrc || img.src; shot.alt = img.alt; label();
       cap.textContent = text || ""; cap.hidden = !text;
-      from = img; box.hidden = false; document.body.classList.add("lb-open");
+      from = img; box.hidden = false; box.scrollLeft = 0; box.scrollTop = 0; document.body.classList.add("lb-open");
       closeBtn.focus();
     }
     function close() {
       if (!box || box.hidden) return;
-      box.hidden = true; document.body.classList.remove("lb-open"); shot.removeAttribute("src");
+      box.hidden = true; document.body.classList.remove("lb-open"); shot.removeAttribute("src"); zoomed = false;
       if (from && document.body.contains(from)) from.focus();
       from = null;
     }
@@ -1059,7 +1078,8 @@
     document.addEventListener("keydown", function (e) {
       if (isOpen()) {
         if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); }
-        else if (e.key === "Tab") { e.preventDefault(); closeBtn.focus(); }
+        else if (e.key === "Tab") { e.preventDefault(); (document.activeElement === closeBtn ? shot : closeBtn).focus(); }   /* focus stays inside the viewer */
+        else if ((e.key === "Enter" || e.key === " ") && document.activeElement === shot) { e.preventDefault(); setZoom(!zoomed); }
         return;
       }
       if ((e.key === "Enter" || e.key === " ") && e.target.getAttribute && e.target.getAttribute("data-lb")) { e.preventDefault(); open(e.target); }
