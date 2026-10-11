@@ -4,7 +4,7 @@ Thank you to everyone who has written, fixed or reviewed something in UDFOP. Gui
 
 A name is added only with the person's agreement, and only as a GitHub username (no email addresses or real names unless the person asks). To be added, or removed, open an issue or say so in your pull request.
 
-## Maintainer
+## Maintainers
 
 - [tau-samsara](https://github.com/tau-samsara)
 - [SylviaBun](https://github.com/SylviaBun)
