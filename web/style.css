@@ -487,6 +487,13 @@ kbd.k-pad { border-radius: 999px; border-color: var(--accent); }
 #lightbox.lb-zoomed img { max-width: none; max-height: none; width: 100%; cursor: zoom-out; }
 #lightbox.lb-zoomed figcaption { display: none; }
 #lightbox .lb-close { position: fixed; top: 10px; right: 14px; z-index: 1; width: 38px; height: 38px; padding: 0; border: 1px solid rgba(255, 255, 255, .5); border-radius: 50%; background: rgba(0, 0, 0, .55); color: #fff; font: 28px/34px var(--sans, sans-serif); cursor: pointer; }
+#lightbox .lb-count { position: fixed; top: 18px; left: 18px; z-index: 1; color: #eaecf0; font-size: .9rem; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
+#lightbox .lb-nav { position: fixed; top: 50%; z-index: 1; width: 44px; height: 64px; margin-top: -32px; padding: 0 0 4px; border: 1px solid rgba(255, 255, 255, .45); background: rgba(0, 0, 0, .5); color: #fff; font: 40px/58px var(--sans, sans-serif); cursor: pointer; }
+#lightbox .lb-nav[hidden] { display: none; }
+#lightbox .lb-prev { left: 12px; border-radius: 0 6px 6px 0; }
+#lightbox .lb-next { right: 12px; border-radius: 6px 0 0 6px; }
+#lightbox .lb-nav:hover { background: rgba(255, 255, 255, .22); }
+#lightbox .lb-nav:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 #lightbox .lb-close:hover { background: rgba(255, 255, 255, .2); }
 #lightbox .lb-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 body.lb-open { overflow: hidden; }

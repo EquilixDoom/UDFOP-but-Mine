@@ -1017,16 +1017,32 @@
     if (sp && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleSpoiler(sp); }
   });
 
-  /* Pictures in a page: the first click opens the picture on top of the page, fitted to the window; a click on the picture zooms in, another click zooms out.
+  /* Pictures in a page: a click opens the picture on top of the page, fitted to the window, as one of a carousel of every picture on the page.
+     Next and previous buttons, the arrow keys or a swipe move through them; a click on the picture zooms in and another zooms out.
      A click on the dark area, the close button or {{Esc}} closes it. A picture can also be reached with {{Tab}} and opened with {{Enter}} or {{Space}}. */
   var lightbox = (function () {
-    var box = null, fig, shot, cap, closeBtn, from = null, zoomed = false;
+    var box = null, fig, shot, cap, count, prevBtn, nextBtn, closeBtn, from = null, list = [], at = 0, zoomed = false;
     function build() {
       box = document.createElement("div");
-      box.id = "lightbox"; box.hidden = true; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Picture, full size");
-      box.innerHTML = '<button type="button" class="lb-close" aria-label="Close picture">×</button><figure><img alt="" tabindex="0" role="button"><figcaption></figcaption></figure>';
-      fig = box.querySelector("figure"); shot = box.querySelector("img"); cap = box.querySelector("figcaption"); closeBtn = box.querySelector(".lb-close");
-      box.addEventListener("click", function (e) { if (e.target === shot) setZoom(!zoomed, e); else close(); });
+      box.id = "lightbox"; box.hidden = true; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Pictures on this page");
+      box.innerHTML = '<button type="button" class="lb-close" aria-label="Close picture">×</button>' +
+        '<span class="lb-count" aria-live="polite"></span>' +
+        '<button type="button" class="lb-nav lb-prev" aria-label="Previous picture">‹</button><button type="button" class="lb-nav lb-next" aria-label="Next picture">›</button>' +
+        '<figure><img alt="" tabindex="0" role="button"><figcaption></figcaption></figure>';
+      fig = box.querySelector("figure"); shot = box.querySelector("img"); cap = box.querySelector("figcaption"); count = box.querySelector(".lb-count");
+      closeBtn = box.querySelector(".lb-close"); prevBtn = box.querySelector(".lb-prev"); nextBtn = box.querySelector(".lb-next");
+      box.addEventListener("click", function (e) { if (e.target === shot) setZoom(!zoomed, e); else if (!e.target.closest(".lb-nav, .lb-close")) close(); });
+      closeBtn.addEventListener("click", close);
+      prevBtn.addEventListener("click", function () { go(-1); });
+      nextBtn.addEventListener("click", function () { go(1); });
+      /* a swipe moves to the next or previous picture while the picture is not zoomed */
+      var sx = null, sy = null;
+      box.addEventListener("touchstart", function (e) { sx = zoomed || e.touches.length !== 1 ? null : e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+      box.addEventListener("touchend", function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+      }, { passive: true });
       document.body.appendChild(box);
     }
     function label() { shot.setAttribute("aria-label", (zoomed ? "Zoom out" : "Zoom in") + ": " + (shot.alt || "picture")); }
@@ -1034,8 +1050,8 @@
     function setZoom(on, e) {
       if (on === zoomed) return;
       var r = shot.getBoundingClientRect(),
-          px = e && e.clientX !== undefined ? (e.clientX - r.left) / r.width : .5, py = e && e.clientY !== undefined ? (e.clientY - r.top) / r.height : .5,
-          cx = e && e.clientX !== undefined ? e.clientX : window.innerWidth / 2, cy = e && e.clientY !== undefined ? e.clientY : window.innerHeight / 2;
+          px = e && e.clientX !== undefined ? (e.clientX - r.left) / r.width : .5, py = e && e.clientX !== undefined ? (e.clientY - r.top) / r.height : .5,
+          cx = e && e.clientX !== undefined ? e.clientX : window.innerWidth / 2, cy = e && e.clientX !== undefined ? e.clientY : window.innerHeight / 2;
       if (on) {
         var w = Math.min(Math.max(shot.naturalWidth, r.width * 1.8), 6000);
         fig.style.setProperty("--lb-w", w + "px"); box.classList.add("lb-zoomed");
@@ -1046,21 +1062,29 @@
       }
       zoomed = on; label();
     }
-    function open(img) {
-      if (!box) build();
-      if (!img.naturalWidth) return;   /* not loaded (or broken): nothing to enlarge */
-      var f = img.closest("figure"), text = f && f.querySelector("figcaption") ? f.querySelector("figcaption").textContent : img.alt;
-      zoomed = false; box.classList.remove("lb-zoomed"); fig.style.removeProperty("--lb-w");
+    /* show picture number i of the page */
+    function show(i) {
+      var img = list[i], f = img.closest("figure"), text = f && f.querySelector("figcaption") ? f.querySelector("figcaption").textContent : img.alt;
+      at = i; zoomed = false; box.classList.remove("lb-zoomed"); fig.style.removeProperty("--lb-w"); box.scrollLeft = 0; box.scrollTop = 0;
       shot.src = img.currentSrc || img.src; shot.alt = img.alt; label();
       cap.textContent = text || ""; cap.hidden = !text;
-      from = img; box.hidden = false; box.scrollLeft = 0; box.scrollTop = 0; document.body.classList.add("lb-open");
-      closeBtn.focus();
+      count.textContent = list.length > 1 ? (i + 1) + " of " + list.length : "";
+      prevBtn.hidden = nextBtn.hidden = list.length < 2;
+      from = img;
+    }
+    function go(step) { if (list.length > 1) show((at + step + list.length) % list.length); }
+    function open(img) {
+      if (!box) build();
+      if (img.complete && !img.naturalWidth) return;   /* broken: nothing to enlarge */
+      list = Array.prototype.filter.call(app.querySelectorAll("img[data-lb]"), function (x) { return !(x.complete && !x.naturalWidth); });
+      var i = list.indexOf(img); if (i < 0) return;
+      show(i); box.hidden = false; document.body.classList.add("lb-open"); closeBtn.focus();
     }
     function close() {
       if (!box || box.hidden) return;
       box.hidden = true; document.body.classList.remove("lb-open"); shot.removeAttribute("src"); zoomed = false;
       if (from && document.body.contains(from)) from.focus();
-      from = null;
+      from = null; list = [];
     }
     function isOpen() { return !!box && !box.hidden; }
     /* make the pictures of the page reachable from the keyboard */
@@ -1078,7 +1102,13 @@
     document.addEventListener("keydown", function (e) {
       if (isOpen()) {
         if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); }
-        else if (e.key === "Tab") { e.preventDefault(); (document.activeElement === closeBtn ? shot : closeBtn).focus(); }   /* focus stays inside the viewer */
+        else if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+        else if (e.key === "Tab") {   /* focus stays inside the viewer */
+          e.preventDefault();
+          var order = [closeBtn, prevBtn, nextBtn, shot].filter(function (b) { return !b.hidden; }), k = order.indexOf(document.activeElement);
+          order[(k + (e.shiftKey ? -1 : 1) + order.length) % order.length].focus();
+        }
         else if ((e.key === "Enter" || e.key === " ") && document.activeElement === shot) { e.preventDefault(); setZoom(!zoomed); }
         return;
       }

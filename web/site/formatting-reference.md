@@ -306,7 +306,7 @@ Rendered:
 
 ![Sarsaparilla looking majestic](images/sarsaparilla-01s.jpg)
 
-Readers can click any picture to open it, and click again to zoom in, so a screenshot can be shown small on the page without losing its detail.
+Readers can click any picture to open it, move through the page's pictures as a carousel, and click again to zoom in, so a screenshot can be shown small on the page without losing its detail.
 
 ## Extended features
 
