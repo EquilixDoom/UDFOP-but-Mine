@@ -83,7 +83,8 @@ def scan():
             unlisted = meta.get('unlisted', '').strip().lower() in ('yes', 'true', '1', 'on')
             pages.append(dict(slug=slug, title=title, category=category, summary=meta.get('summary', ''), unlisted=unlisted,
                               text=plain(body)[:6000], _body=body,
-                              _related=[x.strip() for x in meta.get('related', '').split(',') if x.strip()]))
+                              _related=[x.strip() for x in meta.get('related', '').split(',') if x.strip()],
+                              _expected={x.strip().lower() for x in meta.get('expected-missing', '').split(',') if x.strip()}))
     return pages, problems
 
 
@@ -199,7 +200,7 @@ def main():
     for p in pages:
         for target in LINK.findall(re.sub(r'```.*?```|`[^`\n]*`', ' ', p['_body'], flags=re.S)):
             t = target.strip().rstrip('\\').strip().lower()   # a table cell writes the alias bar as \|
-            if t not in seen and t not in topics and not t.startswith(('patch:', 'topic:')):
+            if t not in seen and t not in topics and t not in p['_expected'] and not t.startswith(('patch:', 'topic:')):
                 problems.append(('warn', p['slug'] + '.md', 'link [[%s]] matches no guide page or topic yet' % target.strip()))
     cats = {}
     for p in pages:
