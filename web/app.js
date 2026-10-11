@@ -704,12 +704,12 @@
         buildToc();
       }).catch(function () {
         if (guideFailed) { box.innerHTML = guideUnavailable(); return; }
-        var sim = similarPages(missingWords(title));
-        box.innerHTML = '<p>There is no guide page called “' + esc(title) + '” yet.</p>' +
-          '<p><a href="' + newPageUrl(title) + '"' + newAttr(title) + ' rel="noopener">Create this page</a> (you need your own fork first: see <a href="' + HOWTO + '">how to contribute</a>).</p>' +
-          '<p>Or search for <a href="#/search/' + enc(title) + '">' + esc(title) + '</a>, or browse the <a href="#/guide">Game Guide</a>.</p>' +
-          (sim.length ? '<p class="muted">Pages with a similar name</p><ul>' + sim.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" : "") +
-          categoryOffer(slug);
+        /* the same page as any other missing address, with a way to write this one */
+        document.title = "Not found – " + SHORT;
+        document.querySelector("h1.title").textContent = "Page not found";
+        var hat = document.querySelector(".hat"); if (hat) hat.remove();
+        box.innerHTML = notFoundBody(title, '<p><a href="' + newPageUrl(title) + '"' + newAttr(title) + ' rel="noopener">Create this page</a> (you need your own fork first: see <a href="' + HOWTO + '">how to contribute</a>).</p>', slug);
+        wireNotFound();
       });
     }, toc: false };
   };
@@ -787,13 +787,16 @@
     var f = document.getElementById("nf-search");
     if (f) f.addEventListener("submit", function (e) { e.preventDefault(); var q = document.getElementById("nf-q").value.trim(); if (q) location.hash = "#/search/" + encodeURIComponent(q); });
   }
-  function notFound(name) {
+  /* the body shared by every not-found page: what was asked for, the search box, similar names, the category offer and the link boxes. "extra" is added after the opening sentence */
+  function notFoundBody(name, extra, offerFrom) {
     var isAddr = String(name || "").charAt(0) === "#", words = missingWords(name), sim = similarPages(words);
-    var h = "<p>" + (isAddr ? "There is no page at <code>" + esc(name) + "</code>." : "There is no page called “" + esc(name || "") + "”.") + " It may have moved, or the link may be mistyped.</p>";
+    var h = "<p>" + (isAddr ? "There is no page at <code>" + esc(name) + "</code>." : "There is no page called “" + esc(name || "") + "”.") + " It may have moved, or the link may be mistyped.</p>" + (extra || "");
     h += notFoundSearch(words.join(" "));
     if (sim.length) h += '<p class="muted">Pages with a similar name</p><ul>' + sim.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
-    h += categoryOffer(name) + notFoundLinks();
-    return { title: "Not found", html: page("Page not found", h), toc: false, after: wireNotFound };
+    return h + categoryOffer(offerFrom || name) + notFoundLinks();
+  }
+  function notFound(name) {
+    return { title: "Not found", html: page("Page not found", notFoundBody(name)), toc: false, after: wireNotFound };
   }
 
   /* ---------- behaviours ---------- */
