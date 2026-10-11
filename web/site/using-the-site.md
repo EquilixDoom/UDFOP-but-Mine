@@ -37,7 +37,7 @@ The [Game Guide](#/guide) lists pages under their categories, with the first doz
 
 ### The main menu
 
-The main menu has the five main pages: Main Page, Game Guide, Patch Notes, About UDFOP and Feedback & Bugs. Under **Contribute** are the instructions for writing a page, and the Site Guide.
+The main menu lists the main pages: Main Page, Game Guide, Patch Notes, Site Guide, Using the Site (this page), About UDFOP and Feedback & Bugs. Under **Contribute** is a link to the instructions for writing a page.
 
 It starts hidden. Open it with the **☰** button at the top left of the header. Inside it, the **move to sidebar** button docks it as a permanent sidebar on the left, and the **hide** button puts it away again.
 
