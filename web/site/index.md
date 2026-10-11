@@ -10,7 +10,12 @@ Help for the people who write and look after the Game Guide. These pages are abo
 
 - [[How to write a guide page]]: the steps from forking the project to seeing your page on the site.
 - [[Formatting reference]]: every kind of formatting, with the syntax and how it looks.
+- [[Anatomy of a page]]: the parts of a page, which part of your file makes each one, and what the site adds.
 - [[Troubleshooting and FAQ]]: fixes for common problems, and what each page-check message means.
+
+## Using the site
+
+- [[Using the site]]: search, the menus, Contents, Settings, previews and the phone layout.
 
 ## Looking after the Game Guide
 

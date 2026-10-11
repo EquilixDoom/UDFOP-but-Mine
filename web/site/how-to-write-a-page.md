@@ -195,6 +195,7 @@ A picture kept in an `images` folder beside the page, such as `web/guide/combat/
 ## Where to go next
 
 - [[Formatting reference]]: every kind of formatting, with examples.
+- [[Anatomy of a page]]: what the site builds around your text.
 - [[Troubleshooting and FAQ]]: when a page does not show up or looks wrong, and what each page-check message means.
 - [[Reviewing a pull request]]: for maintainers and anyone who reviews pages.
 - The [Site Guide](#/site): all of these in one place.

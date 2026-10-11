@@ -1,11 +1,11 @@
 ---
 title: Formatting reference
 category: Contributing
-summary: Every bit of formatting a guide page can use, with the syntax and how it looks.
+summary: All of the guide formatting features and how to implement them.
 expected-missing: Example of a missing page
 ---
 
-Everything you can write in a guide page, with the plain syntax as you type it and then how it looks to readers. For the steps of adding a page, see [[How to write a guide page]]. If something does not look right, see [[Troubleshooting and FAQ]].
+Everything you can write in a guide page, with examples in plain text syntax and rendered. For information on adding/editing a page, see [[How to write a guide page]]. If something does not look right, check here first [[Troubleshooting and FAQ]].
 
 ## Quick reference
 
@@ -17,7 +17,7 @@ Everything you can write in a guide page, with the plain syntax as you type it a
 | `> words` | a quotation | Quotations |
 | `---` | a divider | Horizontal divider |
 | `` `inline code` `` | `inline code` | Inline code |
-| three backticks, then a language name | a code box with a Copy button | Code blocks |
+| three backticks, then a language name `` ```[language] `` | a code box with a Copy button | Code blocks |
 | `[words](https://example.com)` | a link to another website | Links to other websites |
 | `[[Page title]]` | a link to a guide page | Links to other pages |
 | `[[topic:Name]]` and `[[patch:0.1.6656]]` | a link to a Patch Notes topic or patch | Links to other pages |
