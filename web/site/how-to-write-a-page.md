@@ -125,6 +125,7 @@ Raw HTML is shown as plain text, so leave it out. The [[Formatting reference]] l
 
 - **Say how you know.** Write what you know to be true, and say where it comes from, such as testing in the game, a patch number or a developer post. Facts that can change, such as a default key or a number, are easier to trust when they say which game version you checked, so add the patch number when you know it.
 - **One subject per page.** Link to other pages instead of repeating them.
+- **Let every heading say what is inside.** On a phone, sections start folded closed, so the headings are all a reader sees at first. See [[Anatomy of a page]].
 - **Say how it works now.** The Patch Notes already record *what changed*. A guide page should explain *how it works now*, and can link to the topic for the history, for example [[topic:Revenants]].
 
 > [!IMPORTANT]
