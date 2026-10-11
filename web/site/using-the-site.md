@@ -4,14 +4,14 @@ category: Reading
 summary: Search, the menus, Contents, Settings and previews, and how the site looks on a phone.
 ---
 
-How to find things on UDFOP and set it up the way you like. Nothing here needs an account, and your choices stay in your browser.
+This page is for readers. It explains how to find things on UDFOP with search and browsing, how the menus work, and how to change the look in Settings. Nothing here needs an account, and your choices stay in your browser.
 
 ## The two parts
 
 - The [Game Guide](#/guide) is written by players. It explains how things in Daggerfall Online work, and anyone can add or fix a page.
 - The [Patch Notes](#/patchnotes) record every change from the developers' release notes, patch by patch and topic by topic. A script builds them.
 
-The two are connected only by links. A guide page can link to a Patch Notes topic, but Patch Notes pages do not list guide pages. This page is part of the Site Guide, which is help for the people who write and look after the Game Guide.
+The two are connected only by links. A guide page can link to a Patch Notes topic, but Patch Notes pages do not list guide pages.
 
 ## Finding things
 

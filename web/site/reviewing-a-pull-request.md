@@ -4,7 +4,7 @@ category: Maintaining
 summary: What to check, how to give feedback and how to merge when someone sends a guide page.
 ---
 
-A maintainer reads every new or edited guide page before it goes live. This page is for the people who do that. You need only a browser and your own reading. For what contributors are told, see [[How to write a guide page]].
+This page is for the people who review guide pages: what to check, how to give feedback, and how to merge. A maintainer reads every new or edited guide page before it goes live. You need only a browser and your own reading. For what contributors are told, see [[How to write a guide page]].
 
 ## Before you start
 

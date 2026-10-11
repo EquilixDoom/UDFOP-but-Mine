@@ -4,7 +4,7 @@ category: Contributing
 summary: Help for writing, fixing and reviewing Game Guide pages.
 ---
 
-Help for the people who write and look after the Game Guide. These pages are about the project itself. The pages about the game are in the [Game Guide](#/guide).
+The Site Guide is the help section of UDFOP. It explains how to write, fix and review Game Guide pages, and how to use the site. These pages are about the project itself. The pages about the game are in the [Game Guide](#/guide). New here? Start with [[How to write a guide page]].
 
 ## Writing a page
 

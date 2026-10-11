@@ -4,7 +4,7 @@ category: Contributing
 summary: Fixes for the problems people hit most when writing a guide page, and what each page-check message means.
 ---
 
-Something not working? Find your problem below. If it is not here, report it from [Feedback & Bugs](#/feedback) and say what you tried.
+This page lists the problems people meet most when writing a guide page, with a fix for each, and explains every message the page check can show. If yours is not here, report it from [Feedback & Bugs](#/feedback) and say what you tried.
 
 For the steps of adding a page, see [[How to write a guide page]]. For the syntax, see [[Formatting reference]].
 

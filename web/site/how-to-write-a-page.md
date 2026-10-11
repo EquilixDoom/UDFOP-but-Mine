@@ -4,7 +4,7 @@ category: Contributing
 summary: Add or fix a Game Guide page in a few minutes, and see how it connects to the rest of the site.
 ---
 
-Anyone can add to the Game Guide. A page is one plain text file, and you can write it entirely in your browser. You need a free GitHub account, and nothing installed.
+This page walks you through adding a page to the Game Guide, or fixing an existing one, from your first fork to seeing the page on the site. Anyone can do it: a page is one plain text file that you write in your browser, and you need only a free GitHub account, with nothing installed.
 
 > [!IMPORTANT]
 > The project must be forked before you can contribute to the wiki. Fork from the [project’s own page](https://github.com/tau-samsara/udfop/fork) first. Don’t rely on “Edit this page”, because forking from there often fails.
