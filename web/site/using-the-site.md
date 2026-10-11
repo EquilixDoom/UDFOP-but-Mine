@@ -19,6 +19,8 @@ The two are connected only by links. A guide page can link to a Patch Notes topi
 
 The search box is at the top of every page. As you type, it suggests matching Game Guide pages, Site Guide pages and Patch Notes topics, with a "Search for" line at the bottom for the full search.
 
+![The search box with the word guide typed and a list of suggestions under it](images/use-search.png "Typing guide in the search box. Each suggestion is labeled guide, site guide or full text, and the last line runs the full search."){center 680}
+
 - Press {{Down}} and {{Up}} to move through the suggestions, and {{Enter}} to open the highlighted one.
 - Press {{Enter}} with a topic's exact name typed to go straight to that topic.
 - Press {{Enter}} with anything else to see the full results.
@@ -41,15 +43,21 @@ The main menu lists the main pages: Main Page, Game Guide, Patch Notes, Site Gui
 
 It starts hidden. Open it with the **☰** button at the top left of the header. Inside it, the **move to sidebar** button docks it as a permanent sidebar on the left, and the **hide** button puts it away again.
 
+![The main menu open under the menu button, with a move to sidebar button at its top](images/use-menu.png "The main menu, opened from the ☰ button."){right 300}
+
 ### Contents
 
 Every page with headings has a **Contents** list. It starts docked in the left sidebar. It begins with **(Top)**, which takes you back to the start of the page. Sections with subsections have a small arrow at the left, and you open one to see its subsections. The section you are reading is highlighted.
+
+![The Contents list docked on the left, with one section opened to show its subsections](images/use-contents.png "The Contents list. The small arrow opens a section's subsections."){right 190}
 
 Hide it with its **hide** button, and a **☰** button appears beside the page title. It opens the Contents as a pop-up, and it floats at the top left of the window once you scroll past the title. Choosing an entry does not close the pop-up. Press {{Esc}} or click elsewhere to close it.
 
 ### Settings
 
 On a wide window, Settings starts docked in the right sidebar, and the **⚙** gear is not shown in the header. Press its **hide** button to put it away, and the gear appears at the top right. The gear opens Settings as a pop-up, which has a **move to sidebar** button to dock it again. On a narrow window, Settings is always a pop-up from the gear.
+
+![The Settings panel with the Theme, Color and Text size choices](images/use-settings.png "Settings docked on the right."){center 300}
 
 | Setting | Choices | What it does |
 |---|---|---|
@@ -83,6 +91,8 @@ A link with no marker goes to another part of this site, such as a category. A *
 
 On a computer, pointing at a link to a page, topic, patch, category or game system shows a short preview card. Turn previews off in Settings if you find them distracting.
 
+![A link in a list, with a small card under it showing the page's kind, title and summary](images/use-preview.png "Pointing at a link shows a preview card."){center 620}
+
 ### Keys and spoilers
 
 Keys and buttons are drawn as keycaps, such as {{W}} or {{Shift+Right click}}. Gamepad buttons are round: {{pad:RT}}. A dark bar over some words is a **spoiler**. Click it, or press {{Enter}} or {{Space}} while it is selected, to show it, and do the same to hide it again.
@@ -98,6 +108,8 @@ Under about 860 pixels wide, the site becomes one column.
 - The main menu and Settings open as pop-ups from the header buttons.
 - There is no Contents list. Instead, the sections of a page fold, closed to begin with, and you tap a heading to open it.
 - A floated picture moves above the text.
+
+![Two phone screens: the main menu open, and a page whose first section has been opened](images/use-phone.png "On a phone. Left: the main menu, opened from the ☰ button. Right: a page with its sections folded, and the first one opened."){center 600}
 
 ## Keyboard
 
