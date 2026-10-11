@@ -140,7 +140,9 @@ html[data-width="wide"] .head-in { max-width: none; }   /* only Wide mode runs t
 /* content */
 #content { background: var(--paper); border: 1px solid var(--line); border-bottom: 0; padding: 20px 28px 0; min-width: 0; }
 html[data-width="wide"] #content { border-right: 0; }
-#app { min-height: 60vh; }
+#content { display: flex; flex-direction: column; }   /* the footer sits at the bottom of the column even on a short page */
+#app { flex: 1 0 auto; }
+#app > :last-child { margin-bottom: 0; }   /* a flex item no longer lets its last margin merge with the footer's, so the gap above the footer stays 40px */
 h1.title { font: 400 1.9rem/1.25 var(--serif); margin: 0 0 2px; padding-bottom: 2px; border-bottom: 1px solid var(--line); }
 .tagline { font-size: .85rem; color: var(--muted); margin: 4px 0 14px; }
 .hat { font-size: .88rem; font-style: italic; padding: 2px 0 2px 1.6em; margin: 0 0 10px; }
