@@ -15,8 +15,8 @@ Everything you can write in a guide page, with the plain syntax as you type it a
 | `**bold**` and `*italic*` | **bold** and *italic* | Bold and italic |
 | `- item` or `1. item` | a bullet or a numbered list | Lists |
 | `> words` | a quotation | Quotations |
-| three dashes on their own line | a divider | Horizontal divider |
-| text between single backticks | `inline code` | Inline code |
+| `---` | a divider | Horizontal divider |
+| `` `inline code` `` | `inline code` | Inline code |
 | three backticks, then a language name | a code box with a Copy button | Code blocks |
 | `[words](https://example.com)` | a link to another website | Links to other websites |
 | `[[Page title]]` | a link to a guide page | Links to other pages |
@@ -141,6 +141,20 @@ Rendered:
 
 Press `Jump` to climb, and write `[[a page]]` to link.
 
+**Showing a backtick.** To put a backtick inside inline code, open and close the code with more backticks than the code contains, and leave a space inside each end so the backticks do not touch. The code ends at the next run of backticks of the same length as the one that opened it.
+
+```md
+Write `` `word` `` to show word in backticks, and `` ` `` for one backtick on its own.
+```
+
+Rendered:
+
+Write `` `word` `` to show word in backticks, and `` ` `` for one backtick on its own.
+
+- One space is dropped from each end when both ends have one, so `` ` `` shows a single backtick and not a backtick with spaces around it.
+- A backslash does nothing inside code, so `` \` `` does not escape a backtick.
+- A run of backticks with no matching run to close it is shown as plain text.
+
 ### Code blocks
 
 For several lines shown exactly as typed, put a line of three backticks above them and another below. That suits commands, in-game chat lines, settings and data, and it is how the grey boxes in this page are written. Spacing and line breaks are kept, and long lines scroll sideways. Every box has a **Copy** button in its top bar, which copies the text exactly as typed, without the colours.
@@ -166,7 +180,15 @@ For several lines shown exactly as typed, put a line of three backticks above th
 > [!NOTE]
 > The colouring is a guide for the eye, not a full reader of the language, so unusual code may be coloured imperfectly. That does no harm, and the text itself is never changed. Very long boxes (over about 20,000 characters) are shown without colours.
 
-A code box cannot be placed inside another, so the plain syntax is described here and not shown in a box. Each box below was written with the name shown in its top bar:
+**Showing the fence itself.** A code box ends only at a line of backticks that is at least as long as the line that opened it. To show a box that contains three backticks, open and close it with four. Tildes, written `~~~`, work as fences too.
+
+````md
+```bash
+echo "a box inside a box"
+```
+````
+
+Each box below was written with the name shown in its top bar:
 
 ```json
 {"name": "my-mod", "version": 2, "enabled": true, "tags": ["audio", null]}

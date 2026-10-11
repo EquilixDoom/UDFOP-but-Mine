@@ -523,10 +523,31 @@
     });
     return caps.length === 1 ? caps[0] : '<span class="keys">' + caps.join('<span class="kplus">+</span>') + "</span>";
   }
+  /* Inline code: a run of backticks opens it and the next run of the same length closes it, so `` ` `` can hold a backtick.
+     One space is dropped from each end when both ends have one, and nothing inside is read as markup. A run with no match stays plain text. */
+  function codeSpans(s, keep) {
+    var out = "", i = 0, n = s.length;
+    while (i < n) {
+      if (s.charAt(i) !== "`") { var j = s.indexOf("`", i); if (j < 0) { out += s.slice(i); break; } out += s.slice(i, j); i = j; continue; }
+      var run = i; while (i < n && s.charAt(i) === "`") i++;
+      var len = i - run, k = i, close = -1;
+      while (k < n) {
+        var b = s.indexOf("`", k); if (b < 0) break;
+        var e = b; while (e < n && s.charAt(e) === "`") e++;
+        if (e - b === len) { close = b; break; }
+        k = e;
+      }
+      if (close < 0) { out += s.slice(run, i); continue; }
+      var c = s.slice(i, close);
+      if (c.length > 2 && c.charAt(0) === " " && c.charAt(c.length - 1) === " " && c.trim()) c = c.slice(1, -1);
+      out += keep("<code>" + esc(c) + "</code>"); i = close + len;
+    }
+    return out;
+  }
   function inline(s) {
     var stash = [];
     function keep(h) { stash.push(h); return "\u0000" + (stash.length - 1) + "\u0000"; }
-    s = s.replace(/`([^`]+)`/g, function (m, c) { return keep("<code>" + esc(c) + "</code>"); });
+    s = codeSpans(s, keep);
     s = s.replace(/\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g, function (m, t, l) { return keep(wikiLink(t, l)); });
     s = s.replace(/\{\{([^{}]+)\}\}/g, function (m, t) { return keep(keycaps(t)); });
     s = s.replace(IMG_RE, function (m, alt, src) {
@@ -599,9 +620,9 @@
     while (i < lines.length) {
       var l = lines[i], m;
       if (!l.trim()) { i++; continue; }
-      if ((m = /^```\s*([A-Za-z0-9+#.-]{1,20})?\s*$/.exec(l))) {
-        var code = [], lang = (m[1] || "").toLowerCase(); i++;
-        while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]);
+      if ((m = /^(`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$/.exec(l))) {   /* a code box: three or more backticks or tildes; only a bare fence at least as long closes it */
+        var code = [], lang = (m[2] || "").toLowerCase(), fence = m[1], fm; i++;
+        while (i < lines.length && !((fm = /^(`{3,}|~{3,})\s*$/.exec(lines[i])) && fm[1].charAt(0) === fence.charAt(0) && fm[1].length >= fence.length)) code.push(lines[i++]);
         i++; out.push(codeBox(lang, code.join("\n"))); continue;
       }
       if ((m = /^(#{1,6})\s+(.*?)(?:\s+#+)?\s*$/.exec(l))) {
@@ -641,7 +662,7 @@
       }
       if ((m = FIG_LINE.exec(l.trim())) && (m[3] || m[4] !== undefined)) { out.push(figure(m)); figSince = true; i++; continue; }
       var buf = [];
-      while (i < lines.length && lines[i].trim() && !/^(```|#{1,6}\s|>)/.test(lines[i]) && !/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) &&
+      while (i < lines.length && lines[i].trim() && !/^(```|~~~|#{1,6}\s|>)/.test(lines[i]) && !/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) &&
              !((m = FIG_LINE.exec(lines[i].trim())) && (m[3] || m[4] !== undefined))) buf.push(lines[i++].trim());
       para(buf);
     }

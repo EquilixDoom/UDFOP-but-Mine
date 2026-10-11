@@ -34,9 +34,49 @@ def split_front(raw):
     return meta, body, None
 
 
+def strip_spans(line):
+    """Blank out inline code: a run of backticks closed by a run of the same length (so `` ` `` is code)."""
+    return re.sub(r'(?<!`)(`+)(?!`).+?(?<!`)\1(?!`)', ' ', line)
+
+
+def strip_code(text, spans=True):
+    """Blank out code boxes (three or more backticks or tildes, closed by a bare fence at least as long) and, unless spans is False, inline code."""
+    out, fence = [], None
+    for line in text.split('\n'):
+        if fence is None:
+            m = re.match(r'^(`{3,})[^`]*$|^(~{3,}).*$', line)
+            if m:
+                fence = m.group(1) or m.group(2); out.append(''); continue
+            out.append(strip_spans(line) if spans else line)
+        else:
+            m = re.match(r'^(`{3,}|~{3,})[ \t]*$', line)
+            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence):
+                fence = None
+            out.append('')
+    return '\n'.join(out)
+
+
+def fence_languages(text):
+    """The language names written after the opening fences of code boxes."""
+    langs, fence = [], None
+    for line in text.split('\n'):
+        if fence is None:
+            m = re.match(r'^(`{3,}|~{3,})[ \t]*([A-Za-z0-9+#.-]{1,20})?[ \t]*$', line)
+            if m:
+                fence = m.group(1)
+                if m.group(2): langs.append(m.group(2))
+            elif re.match(r'^(`{3,})[^`]*$|^(~{3,}).*$', line):
+                fence = re.match(r'^(`{3,}|~{3,})', line).group(1)
+        else:
+            m = re.match(r'^(`{3,}|~{3,})[ \t]*$', line)
+            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence):
+                fence = None
+    return langs
+
+
 def plain(md):
     """Rough plain text of a Markdown body, for the site search."""
-    t = re.sub(r'```.*?```', ' ', md, flags=re.S)
+    t = strip_code(md, spans=False)
     t = re.sub(r'!\[[^\]]*\]\([^)]*\)(\{[^}]*\})?', ' ', t)
     t = re.sub(r'\[\[([^\]\|]+)(?:\|([^\]]*))?\]\]', lambda m: m.group(2) or m.group(1), t)
     t = re.sub(r'\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]', ' ', t, flags=re.I)
@@ -104,7 +144,7 @@ def check_images(pages, problems, root=ROOT, prefix=''):
     """Pictures live under the section's folder (the convention is an images folder). Report broken, unused, oversized and odd files."""
     used = set()
     for p in pages:
-        body = re.sub(r'```.*?```|`[^`\n]*`', ' ', p['_body'], flags=re.S)
+        body = strip_code(p['_body'])
         folder = os.path.dirname(p['slug'])
         for ref in IMAGE.findall(body):
             if re.match(r'^([a-z][a-z0-9+.-]*:|//|/)', ref, flags=re.I):
@@ -114,7 +154,7 @@ def check_images(pages, problems, root=ROOT, prefix=''):
             if not os.path.isfile(os.path.join(root, rel)):
                 problems.append(('error', p['_where'], 'the picture "%s" does not exist (put it in an images folder, such as web/guide/images/ or one beside the page, and use the path from the page folder)' % ref))
     for p in pages:
-        body = re.sub(r'```.*?```', ' ', p['_body'], flags=re.S)
+        body = strip_code(p['_body'], spans=False)
         for m in FIGURE.finditer(body):
             for tok in [x for x in re.split(r'[\s,]+', m.group(2).strip().lower()) if x]:
                 if tok in ('left', 'right', 'center'):
@@ -159,7 +199,7 @@ def check_code_languages(pages, problems):
     if not names:
         return
     for p in pages:
-        for lang in re.findall(r'^```[ 	]*([A-Za-z0-9+#.-]{1,20})[ 	]*$', p['_body'], flags=re.M):
+        for lang in fence_languages(p['_body']):
             if lang.lower() not in names:
                 problems.append(('warn', p['_where'], 'the code box language "%s" is not one the site colours, so it will be shown plain (see "Code blocks" in the how-to page for the names)' % lang))
 
@@ -170,7 +210,7 @@ ALERTS = ('note', 'tip', 'important', 'warning', 'caution')
 def check_alerts(pages, problems):
     """A quote that starts [!SOMETHING] is a notice box only for the five known names; any other name stays a plain quote, so say so."""
     for p in pages:
-        body = re.sub(r'```.*?```', ' ', p['_body'], flags=re.S)
+        body = strip_code(p['_body'], spans=False)
         for name in re.findall(r'^>[ \t]*\[!([A-Za-z]+)\][ \t]*$', body, flags=re.M):
             if name.lower() not in ALERTS:
                 problems.append(('warn', p['_where'], 'the notice box type "[!%s]" is not one the site knows, so it will show as an ordinary quote (use NOTE, TIP, IMPORTANT, WARNING or CAUTION)' % name))
@@ -210,7 +250,7 @@ def main():
     check_alerts(pages, problems)
     topics = topic_names()
     for p in pages:
-        for target in LINK.findall(re.sub(r'```.*?```|`[^`\n]*`', ' ', p['_body'], flags=re.S)):
+        for target in LINK.findall(strip_code(p['_body'])):
             t = target.strip().rstrip('\\').strip().lower()   # a table cell writes the alias bar as \|
             if t not in seen and t not in topics and t not in p['_expected'] and not t.startswith(('patch:', 'topic:')):
                 problems.append(('warn', p['_where'], 'link [[%s]] matches no guide page or topic yet' % target.strip()))
