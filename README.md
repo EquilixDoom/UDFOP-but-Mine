@@ -82,6 +82,9 @@ Needs Python 3 only. Run from this folder. The quickest route is to ask Claude: 
 ### Data files
 `python tools/notes.py build` writes `web/data.js` (hubs, every release, descriptions, and a change count and last patch for each topic) and `web/shards/<period>.js` (the change rows). The site loads a shard only when a page needs it: a patch page loads its own month, a topic, category or search page loads them all, and lists of topics, categories and patches load none. Each shard stays under 500 KB gzipped (a provisional limit, `SHARD_LIMIT_GZ` in `tools/update_data.py`); a bigger month is split by patch into `2026-10a`, `2026-10b` and so on. Do not edit these files by hand. Topic, category, system and search pages take a date range in the address (`?from=2026-10-01&to=2026-10-12`, either end optional); such a page loads only the shards whose dates (`d` in `data.js`) touch the range.
 
+### Former names and legacy topics
+A topic merged into another in `data/merges.csv` keeps its old name: the old address redirects to the topic, search finds it, and the topic page lists it under "Formerly recorded as". Removed content is marked by hand in `data/legacy.csv` (`topic,removed_in,note`): a legacy topic keeps its page and a Legacy banner, but is left out of the topic list, categories, random page and home-page lists (it is listed under a "Legacy topics" fold). `build` lists candidates (topics whose latest change is a Removal) but never marks one itself, because a removal is sometimes only part of a feature that still exists.
+
 ### Descriptions
 `data/descriptions/*.txt`, one `Topic ||| text` per line. Files are read in alphabetical order and a later file overrides an earlier one, so new work goes in `patch-<version>.txt` files. A topic with no description falls back to an auto-generated sentence.
 

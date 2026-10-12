@@ -90,8 +90,9 @@
   var versions = Object.keys(D.releases).filter(function (v) { return D.releases[v].c; }).sort(vcmp).reverse();   /* releases with recorded changes */
   var allVersions = Object.keys(D.releases).sort(vcmp).reverse();   /* every release, including those with no recorded changes */
   var systems = Object.keys(D.systems).sort();
-  var hubs = {};
-  topics.forEach(function (t) { var h = D.hubs[t] || "Uncategorised"; (hubs[h] = hubs[h] || []).push(t); });
+  var hubs = {}, hubsLegacy = {};   /* legacy topics (removed content, listed in data/legacy.csv) stay out of the default lists and categories */
+  var liveTopics = topics.filter(function (t) { return !D.legacy[t]; });
+  topics.forEach(function (t) { var h = D.hubs[t] || "Uncategorised"; var set = D.legacy[t] ? hubsLegacy : hubs; (set[h] = set[h] || []).push(t); });
   var hubNames = Object.keys(hubs).sort(function (a, b) {
     if (a === "Uncategorised") return 1; if (b === "Uncategorised") return -1; return a.localeCompare(b);
   });
@@ -179,7 +180,9 @@
   function vlink(v) { return '<a href="#/patch/' + enc(v) + '">' + esc(v) + "</a>"; }
   function slink(s) { return '<a href="#/system/' + enc(s) + '">' + esc(s) + "</a>"; }
   function hlink(h) { return '<a href="#/hub/' + enc(h) + '">' + esc(h) + "</a>"; }
-  function typeTag(r) { return '<span class="tp" data-type="' + esc(r.t) + '">' + esc(r.t) + "</span>"; }
+  /* "Other" means the change has not been sorted into a more specific type, so say so where a reader meets it */
+  function typeTag(r) { return '<span class="tp" data-type="' + esc(r.t) + '"' + (r.t === "Other" ? ' title="Not sorted into a more specific type"' : "") + ">" + esc(r.t) + "</span>"; }
+  var DIR_TITLE = { "+": "Increased", "\u2212": "Decreased", "~": "Changed, neither clearly up nor down" };
   function dir(r) { return r.r === "+" ? " (increase)" : r.r === "−" ? " (decrease)" : ""; }
   function text(r) { return esc(cap(r.x)) + (r.n ? '<span class="dev">Developer note: ' + esc(r.n) + "</span>" : ""); }
 
@@ -193,13 +196,14 @@
   function sec(id, title, lvl) { return "<h" + lvl + ' class="sec" id="' + slugId(id) + '" data-toc="' + esc(title) + '">' + esc(title) + "</h" + lvl + ">"; }
 
   var RELEASES_URL = "https://github.com/Lattymoy/daggerfall-js-source/releases";   /* each release is the tag app-v plus its version */
+  var moreSeq = 0;   /* numbers the hidden parts behind Show-the-other buttons */
   function table(list, cols, limit) {
     list = list.slice().sort(newest);
-    var more = limit && list.length > limit ? list.length - limit : 0;
-    if (more) list = list.slice(0, limit);
-    var h = '<div class="wrap"><table class="wikitable"><thead><tr>' + cols.map(function (c) { return "<th>" + c + "</th>"; }).join("") + "</tr></thead><tbody>";
-    list.forEach(function (r) {
-      h += "<tr>" + cols.map(function (c) {
+    var rest = limit && list.length > limit ? list.slice(limit) : [], id = "more-" + (++moreSeq);
+    if (rest.length) list = list.slice(0, limit);
+    var h = '<div class="wrap"><table class="wikitable stack"><thead><tr>' + cols.map(function (c) { return "<th>" + c + "</th>"; }).join("") + "</tr></thead><tbody>";
+    function row(r) {
+      return "<tr>" + cols.map(function (c) {
         switch (c) {
           case "Patch": return '<td class="nowrap">' + vlink(r.v) + "</td>";
           case "Date": return '<td class="nowrap">' + esc(r.d) + "</td>";
@@ -207,12 +211,13 @@
           case "Topic": return "<td>" + tlink(r.e) + "</td>";
           case "System": return "<td>" + slink(r.s) + "</td>";
           case "Type": return "<td>" + typeTag(r) + "</td>";
-          case "Direction": return '<td data-dir="' + esc(r.r) + '">' + (r.r === "n/a" ? "" : esc(r.r)) + "</td>";
+          case "Direction": return '<td data-dir="' + esc(r.r) + '"' + (DIR_TITLE[r.r] ? ' title="' + DIR_TITLE[r.r] + '"' : "") + ">" + (r.r === "n/a" ? "" : esc(r.r)) + "</td>";
           default: return "<td>" + text(r) + "</td>";
         }
       }).join("") + "</tr>";
-    });
-    return h + "</tbody></table></div>" + (more ? '<p class="muted">' + plural(more, "older change") + " not shown.</p>" : "");
+    }
+    h += list.map(row).join("") + "</tbody>" + (rest.length ? '<tbody id="' + id + '" hidden>' + rest.map(row).join("") + "</tbody>" : "") + "</table></div>";
+    return h + (rest.length ? '<p><button type="button" class="more" data-more="' + id + '">Show the other ' + plural(rest.length, "change") + "</button></p>" : "");
   }
 
   /* Changes are shown by kind first (what is new, what is fixed, what is reworked), then by topic. Small kinds that belong together share a heading. */
@@ -228,6 +233,7 @@
     { key: "other", label: "Other changes", types: ["Other"] }
   ];
   /* a list of changes, by topic, each line starting with the topic; the kind is spelled out only where a heading covers more than one */
+  var PAGE_ROWS = 200, LIST_SHOWN = 50, TOPICS_ON_PAGE = 40;   /* a page with more changes than PAGE_ROWS shows LIST_SHOWN of each list (TOPICS_ON_PAGE topics) and a button for the rest */
   function typeBullets(list, showType) {
     return '<ul class="bul">' + list.slice().sort(function (a, b) { return a.e.localeCompare(b.e, undefined, { sensitivity: "base" }) || (a.id < b.id ? -1 : 1); }).map(function (r) {
       return "<li><b>" + tlink(r.e) + "</b> – " + (showType ? typeTag(r) + ": " : "") + text(r) + "</li>";
@@ -242,7 +248,10 @@
       var l = list.filter(function (r) { return g.types.indexOf(r.t) >= 0 || (g.key === "other" && known.indexOf(r.t) < 0); });
       if (!l.length) return;
       var title = g.label + " (" + l.length + ")";
-      h += (ids ? sec("type-" + g.key, title, lvl) : "<h" + lvl + ' class="sec">' + esc(title) + "</h" + lvl + ">") + typeBullets(l, g.types.length > 1);
+      var many = list.length > PAGE_ROWS && l.length > LIST_SHOWN, showType = g.types.length > 1;
+      if (many) l = l.slice().sort(function (a, b) { return a.e.localeCompare(b.e, undefined, { sensitivity: "base" }) || (a.id < b.id ? -1 : 1); });
+      h += (ids ? sec("type-" + g.key, title, lvl) : "<h" + lvl + ' class="sec">' + esc(title) + "</h" + lvl + ">") +
+        (many ? shownThenMore(l, LIST_SHOWN, function (x) { return typeBullets(x, showType); }, "changes", "pt-" + g.key + "-" + (++moreSeq)) : typeBullets(l, showType));
     });
     return h;
   }
@@ -270,7 +279,7 @@
 
   function topicList(list, cols) {
     return '<ul class="cols">' + list.map(function (t) {
-      return "<li>" + tlink(t) + (cols === false ? "" : " <small>(" + D.tstat[t][0] + ")</small>") + "</li>";
+      return "<li>" + tlink(t) + (cols === false ? "" : " <small>(" + D.tstat[t][0] + ")</small>") + (D.legacy[t] ? ' <small class="muted">(legacy)</small>' : "") + "</li>";
     }).join("") + "</ul>";
   }
 
@@ -284,7 +293,7 @@
   function relatedTopics(t) {
     var mine = tagIndex[t], hub = D.hubs[t], score = {};
     topics.forEach(function (o) {
-      if (o === t) return;
+      if (o === t || D.legacy[o]) return;
       var s = 0, om = tagIndex[o];
       Object.keys(mine).forEach(function (g) { if (om[g]) s += 2; });
       if (hub && D.hubs[o] === hub) s += 1;
@@ -347,8 +356,8 @@
   }
   views.patchnotes = function () {
     var latest = versions[0], lrows = byVersion[latest];
-    var recent = uniq(rows.slice().sort(newest).slice(0, 80).map(function (r) { return r.e; })).slice(0, 12);
-    var big = topics.slice().sort(function (a, b) { return byTopic[b].length - byTopic[a].length; }).slice(0, 12);
+    var recent = uniq(rows.slice().sort(newest).slice(0, 80).map(function (r) { return r.e; })).filter(function (t) { return !D.legacy[t]; }).slice(0, 12);
+    var big = liveTopics.slice().sort(function (a, b) { return byTopic[b].length - byTopic[a].length; }).slice(0, 12);
     var h = '<p>The patch notes record what has changed in Daggerfall Online, patch by patch and topic by topic. They cover <b>' +
       rows.length.toLocaleString() + "</b> recorded changes to <b>" + topics.length + '</b> topics across <b>' + versions.length + "</b> patches, from version " +
       esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
@@ -390,11 +399,13 @@
 
   views.topics = function () {
     var letters = {}, h = "";
-    topics.forEach(function (t) { var c = /^[A-Za-z]/.test(t) ? t.charAt(0).toUpperCase() : "#"; (letters[c] = letters[c] || []).push(t); });
+    liveTopics.forEach(function (t) { var c = /^[A-Za-z]/.test(t) ? t.charAt(0).toUpperCase() : "#"; (letters[c] = letters[c] || []).push(t); });
+    var legacyAll = topics.filter(function (t) { return D.legacy[t]; });
     var all = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
-    h += "<p>" + plural(topics.length, "topic") + ", listed alphabetically. The number in brackets is how many changes are recorded.</p>" + filterBox("Filter topics…");
+    h += "<p>" + plural(liveTopics.length, "topic") + ", listed alphabetically. The number in brackets is how many changes are recorded.</p>" + filterBox("Filter topics…");
     h += '<div class="alpha">' + all.map(function (c) { return letters[c] ? '<a href="#/topics" data-scroll="' + slugId("L" + c) + '">' + c + "</a>" : "<span>" + c + "</span>"; }).join(" ") + "</div>";
     all.forEach(function (c) { if (letters[c]) h += '<div class="letter"><h2 class="sec" id="' + slugId("L" + c) + '">' + c + "</h2>" + topicList(letters[c]) + "</div>"; });
+    if (legacyAll.length) h += '<details class="legacy"><summary>Legacy topics (' + legacyAll.length + ")</summary><p>Removed content, kept as a record.</p>" + topicList(legacyAll) + "</details>";
     return { title: "All topics", html: page("All topics", h, { hat: PN_HAT + "All topics" }), after: function () { wireFilter(".letter li", ".letter"); } };
   };
 
@@ -408,15 +419,22 @@
     if (!hubs[n]) return notFound(n);
     var rg = getRange(), base = "#/hub/" + enc(n), all = [], total = 0;
     hubs[n].forEach(function (t) { total += D.tstat[t][0]; all = all.concat(byTopic[t] || []); });
+    var legacyHere = hubsLegacy[n] || [];
     if (rg.active) all = all.filter(inRange);
     var hatH = '<a href="#/hubs">Categories</a> › ' + esc(n);
     if (!all.length) return { title: "Category: " + n, html: page("Category: " + esc(n), rangeBox(base, rg) + noneInRange("the " + esc(n) + " category", rg, total), { hat: PN_HAT + hatH }), toc: false, after: function () { wireRange(base); } };
     var h = "<p><b>" + esc(n) + "</b> contains " + plural(hubs[n].length, "topic") + " with " + plural(all.length, "recorded change") + (rg.active ? " " + esc(rangeText(rg)) + " (" + total + " in all)" : "") + ".</p>" + rangeBox(base, rg) +
-      sec("Topics", "Topics", 2) + topicList(hubs[n]) + sec("Latest changes", "Latest changes", 2) + table(all, ["Patch", "Date", "Topic", "Type", "Change"], 25) +
+      sec("Topics", "Topics", 2) + topicList(hubs[n]) + (legacyHere.length ? '<details class="legacy"><summary>Legacy topics in this category (' + legacyHere.length + ")</summary>" + topicList(legacyHere) + "</details>" : "") +
+      sec("Latest changes", "Latest changes", 2) + table(all, ["Patch", "Date", "Topic", "Type", "Change"], 25) +
       cats([ '<a href="#/hubs">All categories</a>' ]);
     return { title: "Category: " + n, html: page("Category: " + esc(n), h, { hat: PN_HAT + hatH }), after: function () { wireRange(base); } };
   };
 
+  function legacyBox(t) {
+    var lg = D.legacy[t];
+    return lg ? '<div class="mbox"><b>Legacy.</b> This was removed' + (lg.v ? " in patch " + vlink(lg.v) + " (" + esc(dateOf(lg.v)) + ")" : "") + "." + (lg.n ? " " + esc(lg.n) : "") +
+      " The page is kept as a record, and legacy topics are left out of the topic lists and categories.</div>" : "";
+  }
   views.topic = function (t) {
     var ts = D.tstat[t];
     if (!ts) return notFound(t);
@@ -424,7 +442,7 @@
     var hat = PN_HAT + (hub ? '<a href="#/hubs">Categories</a> › ' + hlink(hub) : '<a href="#/topics">All topics</a>') + " › " + esc(t);
     var aiNote = D.desc && D.desc[t] ? '<p class="srcnote"><small class="muted">AI-assisted summary; it may be wrong or out of date. The History table below is the record to trust. <a href="#/about">About UDFOP</a></small></p>' : "";
     if (!l.length) {
-      var h0 = (D.desc && D.desc[t] ? "<p>" + esc(D.desc[t]).replace(esc(t), "<b>" + esc(t) + "</b>") + "</p>" : "") + aiNote + rangeBox(base, rg) +
+      var h0 = legacyBox(t) + (D.desc && D.desc[t] ? "<p>" + esc(D.desc[t]).replace(esc(t), "<b>" + esc(t) + "</b>") + "</p>" : "") + aiNote + rangeBox(base, rg) +
         noneInRange(esc(t), rg, ts[0], ", the latest in patch " + vlink(ts[1]) + " (" + esc(dateOf(ts[1])) + ")");
       return { title: t, html: page(esc(t), h0, { hat: hat }), toc: false, after: function () { wireRange(base); } };
     }
@@ -434,11 +452,13 @@
 
     var ib = '<table class="infobox"><caption class="ibt">' + esc(t) + "</caption><tbody>" +
       "<tr><th>Category</th><td>" + (hub ? hlink(hub) : "Uncategorised") + "</td></tr>" +
+      (D.legacy[t] ? "<tr><th>Status</th><td>Legacy</td></tr>" : "") +
+      (D.aka[t] ? "<tr><th>Formerly recorded as</th><td>" + D.aka[t].map(esc).join(", ") + "</td></tr>" : "") +
       "<tr><th>Systems</th><td>" + sys.map(slink).join(", ") + "</td></tr>" +
       "<tr><th>First recorded</th><td>" + vlink(ts[2]) + "<br><small class='muted'>" + esc(dateOf(ts[2])) + "</small></td></tr>" +
       "<tr><th>Latest change</th><td>" + vlink(ts[1]) + "<br><small class='muted'>" + esc(dateOf(ts[1])) + "</small></td></tr>" +
       "<tr><th>Changes</th><td>" + (rg.active ? l.length + " in " + plural(vs.length, "patch") + " in this range<br><small class='muted'>" + ts[0] + " in all</small>" : l.length + " in " + plural(vs.length, "patch")) + "</td></tr>" +
-      '<tr><td colspan="2" class="sub">Change types' + (rg.active ? " in this range" : "") + '</td></tr><tr><td colspan="2"><div class="bar">' +
+      '<tr><td colspan="2" class="sub">Change types' + (rg.active ? " in this range" : "") + '</td></tr><tr><td colspan="2"><div class="bar" role="img" aria-label="Change types: ' + order.map(function (x) { return esc(x) + " " + g[x].length; }).join(", ") + '">' +
       order.map(function (x) { return '<i title="' + esc(x) + ": " + g[x].length + '" style="width:' + (100 * g[x].length / l.length) + "%;background:" + (TYPE_COLOR[x] || "var(--other)") + '"></i>'; }).join("") +
       "</div></td></tr>" +
       order.map(function (x) { return "<tr><th>" + esc(x) + "</th><td>" + g[x].length + "</td></tr>"; }).join("") +
@@ -450,9 +470,9 @@
       (ts[2] !== ts[1] ? " to " + vlink(ts[1]) : "") + ". " +
       (!rg.active && order.length > 1 ? "Most of them are " + esc(TYPE_LABEL[top] ? TYPE_LABEL[top].toLowerCase() : top.toLowerCase()) + " (" + g[top].length + ")." : "") + "</p>";
 
-    var h = ib + lead + aiNote + rangeBox(base, rg);
+    var h = ib + legacyBox(t) + lead + aiNote + rangeBox(base, rg);
     h += sec("Latest changes", "Latest changes", 2) + bullets(l.slice().sort(newest).slice(0, Math.min(5, l.length)), false);
-    h += sec("History", "History", 2) + table(l, ["Patch", "Source", "Date", "System", "Type", "Direction", "Change"]);   /* Change stays last: the stylesheet gives the last column its width */
+    h += sec("History", "History", 2) + table(l, ["Patch", "Source", "Date", "System", "Type", "Direction", "Change"], PAGE_ROWS);   /* Change stays last: the stylesheet gives the last column its width */
     if (order.length > 1) {
       h += sec("By type", "Changes by type", 2);
       order.forEach(function (x) { h += sec("type-" + x, TYPE_LABEL[x] || x, 3) + bullets(g[x], false).replace(/<span class="tp"[^>]*>[^<]*<\/span>: /g, ""); });
@@ -537,17 +557,21 @@
     var mode = routeQuery.group === "topic" ? "topic" : "type";
     if (l.length) h += groupSwitch("#/patch/" + enc(v), mode, { type: plural(typeGroupCount(l), "group"), topic: plural(names.length, "topic") });
     if (!l.length) h += "<p>No change is recorded for this release here. The developers&rsquo; original notes, linked above, may say more.</p>";
-    else if (mode === "topic") names.forEach(function (t) { h += sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); });
+    else if (mode === "topic") {
+      var topicSections = function (ns) { return ns.map(function (t) { return sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); }).join(""); };
+      h += l.length > PAGE_ROWS && names.length > TOPICS_ON_PAGE ? shownThenMore(names, TOPICS_ON_PAGE, topicSections, "topics", "pt-topics-" + (++moreSeq)) : topicSections(names);
+    }
     else h += changesByType(l, 2, true);
-    if (rel && rel.prs.length) h += sec("Pull requests", "Source pull requests", 2) + '<ul class="bul">' + rel.prs.map(function (p) {
-      return '<li><a href="' + esc(p.u) + '" rel="noopener">#' + p.n + "</a> " + esc(p.t) + "</li>"; }).join("") + "</ul>";
+    if (rel && rel.prs.length) h += sec("Pull requests", "Source pull requests", 2) + shownThenMore(rel.prs, LIST_SHOWN, function (ps) {
+      return '<ul class="bul">' + ps.map(function (p) { return '<li><a href="' + esc(p.u) + '" rel="noopener">#' + p.n + "</a> " + esc(p.t) + "</li>"; }).join("") + "</ul>"; }, "pull requests", "pt-prs-" + (++moreSeq));
     return { title: "Patch " + v, html: page("Patch " + esc(v), h, { hat: PN_HAT + '<a href="#/patches">Patch index</a> › ' + esc(v) }) };
   };
 
   views.search = function (q) {
     q = decodeURIComponent(q || "");
     var words = q.toLowerCase().split(/\s+/).filter(Boolean);
-    var tm = topics.filter(function (t) { return words.every(function (w) { return t.toLowerCase().indexOf(w) >= 0; }); });
+    var tm = topics.filter(function (t) { var names = (t + " " + (D.aka[t] || []).join(" ")).toLowerCase(); return words.every(function (w) { return names.indexOf(w) >= 0; }); });
+    var renamed = topicByLower[q.trim().toLowerCase()];
     var rg = getRange(), base = "#/search/" + enc(q);
     var hit = rows.filter(function (r) {
       var s = (r.e + " " + r.x + " " + (r.n || "") + " " + (r.g || []).join(" ")).toLowerCase();
@@ -573,7 +597,8 @@
         h += sec("Game Guide", "Game Guide", 2) + shownThenMore(gp, SEARCH_SHOWN, guideList, "guide pages", "gp-rest");
       }
       if (sp.length) h += sec("Site Guide", "Site Guide", 2) + guideList(sp);
-      if (tm.length === 1 && tm[0].toLowerCase() === q.toLowerCase()) h = '<div class="mbox">There is a topic named “' + tlink(tm[0]) + "”.</div>" + h;
+      if (renamed && renamed.toLowerCase() !== q.trim().toLowerCase()) h = '<div class="mbox">&ldquo;' + esc(q.trim()) + "&rdquo; is now recorded under " + tlink(renamed) + ".</div>" + h;
+      else if (tm.length === 1 && tm[0].toLowerCase() === q.toLowerCase()) h = '<div class="mbox">There is a topic named “' + tlink(tm[0]) + "”.</div>" + h;
       if (tm.length) h += sec("Topics", "Topics", 2) + shownThenMore(tm, TOPICS_SHOWN, topicList, "topics", "tm-rest");
       if (hit.length || rg.active) h += sec("Changes", "Changes", 2) + rangeBox(base, rg) + (hit.length ? table(hit, ["Patch", "Topic", "Type", "Change"], 100) :
         '<div class="mbox">No matching changes ' + esc(rangeText(rg)) + '. <a href="' + base + '">Show all dates</a>.</div>');
@@ -612,6 +637,7 @@
   var siteGuide = [], siteBySlug = {}, siteByTitle = {};   /* the Site Guide: pages in web/site/, listed by site/index.json */
   var topicByLower = {};
   topics.forEach(function (t) { topicByLower[t.toLowerCase()] = t; });
+  Object.keys(D.alias).forEach(function (o) { if (!topicByLower[o.toLowerCase()]) topicByLower[o.toLowerCase()] = D.alias[o]; });
 
   function guideLoaded(list) {
     guide = list || []; guideBySlug = {}; guideByTitle = {};
@@ -663,6 +689,8 @@
   }
   function revealMore() {
     Array.prototype.forEach.call(document.querySelectorAll("button[data-more]"), function (b) {
+      if (b.getAttribute("data-wired")) return;
+      b.setAttribute("data-wired", "1");
       b.addEventListener("click", function () { document.getElementById(b.getAttribute("data-more")).hidden = false; b.parentNode.remove(); });
     });
   }
@@ -1076,7 +1104,7 @@
   };
 
   views.random = function () {
-    location.replace("#/topic/" + enc(topics[Math.floor(Math.random() * topics.length)]));
+    location.replace("#/topic/" + enc(liveTopics[Math.floor(Math.random() * liveTopics.length)]));
     return null;
   };
 
@@ -1781,17 +1809,19 @@
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";
-    var path = pagePath(), qi = path.indexOf("?");
+    var path = pagePath(), qi = path.indexOf("?"), qs = qi >= 0 ? path.slice(qi) : "";
     routeQuery = {};
     if (qi >= 0) { path.slice(qi + 1).split("&").forEach(function (kv) { var e = kv.indexOf("="); if (kv) routeQuery[decodeURIComponent(kv.slice(0, e < 0 ? kv.length : e))] = e < 0 ? "" : decodeURIComponent(kv.slice(e + 1)); }); path = path.slice(0, qi); }
     var parts = path.replace(/^#\/?/, "").split("/"), name = parts[0] || "home", arg = parts.slice(1).join("/");
     if (name !== "search") { try { arg = decodeURIComponent(arg); } catch (e) {} }
     if (name === "settings") { location.replace("#/"); settingsPanel.open(); return; }
+    if (name === "topic" && !D.tstat[arg] && D.alias[arg]) { location.replace("#/topic/" + enc(D.alias[arg]) + qs); return; }   /* a merged topic's old name leads to the topic it became */
     var need = shardsNeeded(name, arg).filter(function (k) { return !loadedShards[k]; });
     if (need.length) { loadThenRoute(need); return; }
     var view = views[name], res = view ? view(arg) : notFound(path);
     if (!res) return;
     app.innerHTML = res.html;
+    revealMore();
     document.title = (name === "home" ? SITE : res.title.indexOf(SHORT) >= 0 ? res.title : res.title + " – " + SHORT);
     if (name !== "feedback") feedbackPage = location.href;
     var fr = document.getElementById("foot-report");

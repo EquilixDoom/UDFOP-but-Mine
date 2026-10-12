@@ -204,6 +204,14 @@ button.more { font: inherit; padding: 5px 14px; border: 1px solid var(--line); b
 button.more:hover { background: var(--soft); }
 input.filter { width: 100%; max-width: 26em; padding: 6px 10px; font: inherit; border: 1px solid var(--line); background: var(--softer); color: var(--fg); margin: .3em 0 .8em; }
 details { margin: .4em 0; } summary { cursor: pointer; font-weight: 600; }
+/* on a phone a list of changes stacks: each change is a block with its patch, date and type on one line and the text below, so no column hides the text */
+@media (max-width: 600px) {
+  table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.stack, table.stack tbody, table.stack tr { display: block; width: 100%; }
+  table.stack tr { padding: 8px 0; border-top: 1px solid var(--line); }
+  table.stack td { display: inline-block; border: 0; padding: 0 10px 0 0; background: none; }
+  table.stack td:last-child { display: block; margin-top: 4px; padding: 0; min-width: 0; }
+}
 /* date range above a list of changes */
 form.rangebar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: .8em 0; padding: 8px 10px; border: 1px solid var(--line); background: var(--softer); font-size: .9rem; clear: both; }
 form.rangebar label { display: inline-flex; align-items: center; gap: 6px; }

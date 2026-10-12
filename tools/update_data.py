@@ -86,7 +86,28 @@ for month in sorted(by_month):
 for f in glob.glob('web/shards/*.js'):      # a month that has been split leaves its old file behind
     if os.path.abspath(f) not in keep: os.remove(f)
 
+# Former names: a topic merged into another keeps its old name as a redirect and a "Formerly recorded as" note.
+# legacy: topics kept as a record of removed content, listed by hand in data/legacy.csv (topic, removed_in, note).
+aka = {}
+for old, new in sorted(alias.items()):
+    if new in tstat: aka.setdefault(new, []).append(old)
+legacy = {}
+if os.path.exists('data/legacy.csv'):
+    for r in csv.DictReader(open('data/legacy.csv', encoding='utf-8-sig')):
+        if r['topic'] not in tstat:
+            print('  WARNING: data/legacy.csv names a topic that does not exist:', r['topic'])
+        elif r['removed_in'] and r['removed_in'] not in rels:
+            print('  WARNING: data/legacy.csv: %s was removed in %s, which is not a release' % (r['topic'], r['removed_in']))
+        else:
+            legacy[r['topic']] = {'v': r['removed_in'], 'n': r.get('note', '')}
+last_row = {}
+for r in sorted(out, key=lambda r: (vkey(r['v']), r['id'])): last_row[r['e']] = r
+cands = sorted(t for t, r in last_row.items() if r['t'] == 'Removal' and t not in legacy)
+if cands:
+    print('  Legacy candidates (the latest change is a Removal; a person decides, add real ones to data/legacy.csv):', ', '.join(cands))
+
 core = dict(hubs=hub, releases=rels, desc=desc, tstat=tstat, systems=dict(systems), shards=shards, shardOf=shard_of,
+            alias={o: n for o, n in alias.items() if n in tstat}, aka=aka, legacy=legacy,
             totals=dict(rows=len(out), topics=len(tstat), versions=sum(1 for v in nrows if nrows[v])))
 open('web/data.js', 'w', encoding='utf-8').write('window.DATA=' + js(core) + ';\n')
 print('  core  web/data.js %d KB gzipped' % (gz(core) // 1024))
