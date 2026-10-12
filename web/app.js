@@ -84,6 +84,7 @@
   var byTopic = group(rows, "e"), bySystem = group(rows, "s"), byVersion = group(rows, "v");
   var topics = Object.keys(byTopic).sort(function (a, b) { return a.localeCompare(b); });
   var versions = Object.keys(byVersion).sort(vcmp).reverse();
+  var allVersions = Object.keys(D.releases).sort(vcmp).reverse();   /* every release, including those with no recorded changes */
   var systems = Object.keys(bySystem).sort();
   var hubs = {};
   topics.forEach(function (t) { var h = D.hubs[t] || "Uncategorised"; (hubs[h] = hubs[h] || []).push(t); });
@@ -394,27 +395,59 @@
     return { title: s + " system", html: page(esc(s) + " system", h, { hat: PN_HAT + '<a href="#/systems">Game systems</a> › ' + esc(s) }) };
   };
 
+  /* a release's tags: its Update name, then a hint when its title says "fix" and a mark on the one bulk import */
+  function relTags(v) {
+    var rel = D.releases[v] || {}, h = "";
+    if (rel.u) h += '<span class="tg" title="The developers&rsquo; name for this release">Update ' + esc(rel.u) + "</span>";
+    if (rel.k === "likely-hotfix") h += '<span class="tag" title="The title mentions a fix. This is a guess from the title, not a record.">Likely hotfix</span>';
+    if (rel.k === "bulk-import") h += '<span class="tag" title="A catch-up release that lists hundreds of earlier changes at once">Bulk import</span>';
+    return h;
+  }
   views.patches = function () {
-    var h = "<p>" + plural(versions.length, "patch") + ", newest first.</p>" + filterBox("Filter by version or date…") +
-      '<table class="wikitable"><thead><tr><th>Patch</th><th>Date</th><th>Changes</th><th>Topics</th></tr></thead><tbody>' +
-      versions.map(function (v) {
-        return "<tr><td>" + vlink(v) + "</td><td>" + esc(dateOf(v)) + "</td><td>" + byVersion[v].length + "</td><td>" +
-          uniq(byVersion[v].map(function (r) { return r.e; })).length + "</td></tr>";
-      }).join("") + "</tbody></table>";
-    return { title: "Patch index", html: page("Patch index", h, { hat: PN_HAT + "Patch index" }), after: function () { wireFilter("tbody tr", "tbody tr"); } };
+    var byDay = {}, days = [];
+    allVersions.forEach(function (v) { var d = dateOf(v); if (!byDay[d]) { byDay[d] = []; days.push(d); } byDay[d].push(v); });
+    days.sort().reverse();
+    var h = "<p>" + plural(allVersions.length, "release") + " on " + plural(days.length, "day") + ", newest first. A release is listed with its title and Update name when the developers gave one; a release with no recorded changes says so.</p>" +
+      filterBox("Filter by version, title or date…");
+    days.forEach(function (d, k) {
+      var vs = byDay[d], n = 0;
+      vs.forEach(function (v) { n += byVersion[v] ? byVersion[v].length : 0; });
+      h += '<details class="day"' + (k === 0 ? " open" : "") + '><summary><b>' + esc(d) + "</b><span>" + plural(vs.length, "release") + " · " + plural(n, "change") + "</span></summary><ul class=\"rels\">" +
+        vs.map(function (v) {
+          var rel = D.releases[v], c = byVersion[v] ? byVersion[v].length : 0;
+          return '<li class="rel"><span class="rb">' + vlink(v) + '</span><span class="rt">' + (rel.t ? esc(rel.t) : '<span class="muted">No title</span>') + relTags(v) + '</span><span class="rn">' +
+            (c ? plural(c, "change") : "no recorded changes") + "</span></li>";
+        }).join("") + "</ul></details>";
+    });
+    return { title: "Patch index", html: page("Patch index", h, { hat: PN_HAT + "Patch index" }), toc: false, after: function () {
+      var box = document.getElementById("f"); if (!box) return;
+      box.addEventListener("input", function () {
+        var q = box.value.trim().toLowerCase();
+        Array.prototype.forEach.call(app.querySelectorAll("details.day"), function (dt, i) {
+          var any = false;
+          Array.prototype.forEach.call(dt.querySelectorAll("li.rel"), function (li) {
+            var hit = !q || (dt.querySelector("summary b").textContent + " " + li.textContent).toLowerCase().indexOf(q) >= 0;
+            li.hidden = !hit; if (hit) any = true;
+          });
+          dt.hidden = !any;
+          if (q) dt.open = any; else dt.open = i === 0;
+        });
+      });
+    } };
   };
 
   views.patch = function (v) {
-    var l = byVersion[v];
-    if (!l) return notFound("Patch " + v);
-    var i = versions.indexOf(v), rel = D.releases[v], g = group(l, "e"), names = Object.keys(g).sort();
-    var h = '<div class="pager">' + (i < versions.length - 1 ? '<a href="#/patch/' + enc(versions[i + 1]) + '">← Older: ' + esc(versions[i + 1]) + "</a>" : "") +
-      (i > 0 ? '<a href="#/patch/' + enc(versions[i - 1]) + '">Newer: ' + esc(versions[i - 1]) + " →</a>" : "") + "</div>";
-    h += "<p><b>Patch " + esc(v) + "</b> was released on " + esc(dateOf(v)) + ". It records " + plural(l.length, "change") + " to " + plural(names.length, "topic") + ".</p>";
+    var l = byVersion[v] || [];
+    if (!byVersion[v] && !D.releases[v]) return notFound("Patch " + v);
+    var i = allVersions.indexOf(v), rel = D.releases[v], g = group(l, "e"), names = Object.keys(g).sort();
+    var h = '<div class="pager">' + (i < allVersions.length - 1 ? '<a href="#/patch/' + enc(allVersions[i + 1]) + '">← Older: ' + esc(allVersions[i + 1]) + "</a>" : "") +
+      (i > 0 ? '<a href="#/patch/' + enc(allVersions[i - 1]) + '">Newer: ' + esc(allVersions[i - 1]) + " →</a>" : "") + "</div>";
+    h += "<p><b>Patch " + esc(v) + "</b>" + (rel && rel.t ? " (" + esc(rel.t) + ")" : "") + " was released on " + esc(dateOf(v)) + ". " + (l.length ? "It records " + plural(l.length, "change") + " to " + plural(names.length, "topic") + "." : "It has no recorded changes in this wiki.") + relTags(v) + "</p>";
     h += '<p class="srcnote">These changes are compiled from the developers&rsquo; notes. <a href="' + RELEASES_URL + "/tag/app-v" + enc(v) + '" rel="noopener">Read the original release notes for patch ' + esc(v) + " on GitHub ↗</a></p>";   /* every release's tag is app-v plus its version */
     var mode = routeQuery.group === "topic" ? "topic" : "type";
-    h += groupSwitch("#/patch/" + enc(v), mode, { type: plural(typeGroupCount(l), "group"), topic: plural(names.length, "topic") });
-    if (mode === "topic") names.forEach(function (t) { h += sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); });
+    if (l.length) h += groupSwitch("#/patch/" + enc(v), mode, { type: plural(typeGroupCount(l), "group"), topic: plural(names.length, "topic") });
+    if (!l.length) h += "<p>No change is recorded for this release here. The developers&rsquo; original notes, linked above, may say more.</p>";
+    else if (mode === "topic") names.forEach(function (t) { h += sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); });
     else h += changesByType(l, 2, true);
     if (rel && rel.prs.length) h += sec("Pull requests", "Source pull requests", 2) + '<ul class="bul">' + rel.prs.map(function (p) {
       return '<li><a href="' + esc(p.u) + '" rel="noopener">#' + p.n + "</a> " + esc(p.t) + "</li>"; }).join("") + "</ul>";
