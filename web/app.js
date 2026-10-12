@@ -116,6 +116,7 @@
   }
   function sec(id, title, lvl) { return "<h" + lvl + ' class="sec" id="' + slugId(id) + '" data-toc="' + esc(title) + '">' + esc(title) + "</h" + lvl + ">"; }
 
+  var RELEASES_URL = "https://github.com/Lattymoy/daggerfall-js-source/releases";   /* each release is the tag app-v plus its version */
   function table(list, cols, limit) {
     list = list.slice().sort(newest);
     var more = limit && list.length > limit ? list.length - limit : 0;
@@ -126,6 +127,7 @@
         switch (c) {
           case "Patch": return '<td class="nowrap">' + vlink(r.v) + "</td>";
           case "Date": return '<td class="nowrap">' + esc(r.d) + "</td>";
+          case "Source": return '<td class="nowrap"><a href="' + RELEASES_URL + "/tag/app-v" + enc(r.v) + '" rel="noopener" title="The developers&rsquo; original release notes for patch ' + esc(r.v) + ', on GitHub">Dev notes ↗</a></td>';
           case "Topic": return "<td>" + tlink(r.e) + "</td>";
           case "System": return "<td>" + slink(r.s) + "</td>";
           case "Type": return "<td>" + typeTag(r) + "</td>";
@@ -266,7 +268,7 @@
 
     var h = ib + lead;
     h += sec("Latest changes", "Latest changes", 2) + bullets(l.slice().sort(newest).slice(0, Math.min(5, l.length)), false);
-    h += sec("History", "History", 2) + table(l, ["Patch", "Date", "System", "Type", "Direction", "Change"]);
+    h += sec("History", "History", 2) + table(l, ["Patch", "Source", "Date", "System", "Type", "Direction", "Change"]);   /* Change stays last: the stylesheet gives the last column its width */
     if (order.length > 1) {
       h += sec("By type", "Changes by type", 2);
       order.forEach(function (x) { h += sec("type-" + x, TYPE_LABEL[x] || x, 3) + bullets(g[x], false).replace(/<span class="tp"[^>]*>[^<]*<\/span>: /g, ""); });
@@ -304,7 +306,6 @@
     return { title: "Patch index", html: page("Patch index", h, { hat: PN_HAT + "Patch index" }), after: function () { wireFilter("tbody tr", "tbody tr"); } };
   };
 
-  var RELEASES_URL = "https://github.com/Lattymoy/daggerfall-js-source/releases";
   views.patch = function (v) {
     var l = byVersion[v];
     if (!l) return notFound("Patch " + v);
