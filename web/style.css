@@ -519,3 +519,9 @@ img[data-missing] { background: var(--softer); cursor: default; }
 img.img-missing-inline { height: 1.3em; width: 1.7em; vertical-align: -.3em; }
 .img-dev.inline { display: inline-block; vertical-align: baseline; outline-offset: 0; }
 .img-dev small { position: absolute; left: 6px; bottom: 6px; max-width: calc(100% - 12px); padding: 1px 6px; border-radius: 3px; background: #fdecea; color: #8c1d18; font: 600 .72rem/1.4 var(--sans); overflow-wrap: anywhere; }
+
+/* the link at the end of a section heading that copies that section's address */
+.hlink { margin-left: .45em; font-size: .7em; font-weight: normal; text-decoration: none; color: var(--muted); opacity: 0; }
+h2:hover > .hlink, h3:hover > .hlink, .hlink:focus-visible, .hlink.on { opacity: 1; }
+@media (hover: none) { .hlink { opacity: .5; } }
+@media (max-width: 860px), (max-height: 500px) and (max-width: 1100px) { .hlink { display: none; } }   /* on a narrow screen a heading folds its section instead */

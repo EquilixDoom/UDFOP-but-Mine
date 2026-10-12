@@ -787,7 +787,7 @@
         rendered += buildReferences(refs, (fm.meta.related || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean)); refs = null;
         box.innerHTML = rendered +
           '<p class="editline footer-note"><a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
-        buildToc();
+        buildToc(); addHeadingLinks(); jumpPending();
       }).catch(function () {
         if (guideFailed) { box.innerHTML = guideUnavailable(); return; }
         /* the same page as any other missing address (a Game Guide page also gets a way to write it) */
@@ -915,11 +915,11 @@
     /* sections, each with its subsections folded behind an expander that the reader opens (it is never opened for them) */
     var items = [], meta = [];
     Array.prototype.forEach.call(hs, function (el) {
-      var text = el.getAttribute("data-toc"), link = '<a href="' + location.hash + '" data-scroll="' + el.id + '">' + esc(text) + "</a>";
+      var text = el.getAttribute("data-toc"), link = '<a href="' + pagePath() + '" data-scroll="' + el.id + '">' + esc(text) + "</a>";
       if (el.tagName === "H3" && items.length) { items[items.length - 1].subs.push(link); meta.push(false); }
       else { items.push({ text: text, link: link, subs: [] }); meta.push(true); }
     });
-    var h = '<ol><li><a href="' + location.hash + '" data-scroll="top">(Top)</a></li>' + items.map(function (it) {
+    var h = '<ol><li><a href="' + pagePath() + '" data-scroll="top">(Top)</a></li>' + items.map(function (it) {
       return it.subs.length ? '<li class="has-sub"><button type="button" class="exp" aria-expanded="false" aria-label="Show the subsections of ' + esc(it.text) + '"></button>' + it.link +
         "<ol>" + it.subs.map(function (l) { return "<li>" + l + "</li>"; }).join("") + "</ol></li>" : "<li>" + it.link + "</li>";
     }).join("") + "</ol>";
@@ -1189,9 +1189,54 @@
     }
   });
 
-  function scrollTo(id) {
-    if (id === "top") { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
-    var el = document.getElementById(id); if (el && isCompact()) { revealFolds(el); var fo = foldFor(el); if (fo) toggleFold(fo, true); } if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  /* A section's address is the page's address plus a second hash and the heading's id, for example #/guide/controls#s-mouse (the first hash belongs to the router).
+     Choosing a Contents entry or a heading link puts it in the address bar without adding a history entry, so the address can be copied; opening such an address scrolls to the section. */
+  function pagePath() { var h = location.hash, i = h.indexOf("#", 1); return i > 0 ? h.slice(0, i) : h; }
+  function sectionOf() {
+    var h = location.hash, i = h.indexOf("#", 1); if (i < 0) return "";
+    try { return decodeURIComponent(h.slice(i + 1)); } catch (e) { return h.slice(i + 1); }
+  }
+  function markSection(id) {
+    try { history.replaceState(history.state, "", location.pathname + location.search + pagePath() + (id && id !== "top" ? "#" + encodeURIComponent(id) : "")); } catch (e) {}
+  }
+  function copyText(text, done) {
+    function legacy() {
+      var ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;left:-9999px;top:0";
+      document.body.appendChild(ta); ta.select(); var ok = false; try { ok = document.execCommand("copy"); } catch (err) {} ta.remove(); done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, legacy);
+    else legacy();
+  }
+  /* jump: arriving at a section address, so no smooth scroll and the address stays as it is */
+  function scrollTo(id, jump) {
+    if (id === "top") { if (!jump) markSection(""); window.scrollTo({ top: 0, behavior: jump ? "auto" : "smooth" }); return true; }
+    var el = document.getElementById(id);
+    if (el && isCompact()) { revealFolds(el); var fo = foldFor(el); if (fo) toggleFold(fo, true); }
+    if (el) { if (!jump) markSection(id); el.scrollIntoView({ behavior: jump ? "auto" : "smooth", block: "start" }); }
+    return !!el;
+  }
+  var pendingSection = "";   /* a section named by the address, waiting for the page (a guide page draws after its text arrives) */
+  function jumpPending() { if (pendingSection && scrollTo(pendingSection, true)) pendingSection = ""; }
+  /* a small link at the end of each section heading that copies the address of that section */
+  function addHeadingLinks() {
+    Array.prototype.forEach.call(app.querySelectorAll("h2.sec[id], h3.sec[id]"), function (h) {
+      if (h.querySelector(".hlink")) return;
+      var a = document.createElement("a");
+      a.className = "hlink popup"; a.href = pagePath() + "#" + encodeURIComponent(h.id); a.textContent = "¶";
+      a.setAttribute("aria-label", "Copy the link to this section"); a.title = "Copy the link to this section";
+      h.appendChild(a);
+    });
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest(".hlink");
+    if (!a) return;
+    e.preventDefault();
+    var id = a.parentNode.id; markSection(id);
+    copyText(location.origin + location.pathname + location.search + pagePath() + "#" + encodeURIComponent(id), function (ok) {
+      a.textContent = ok ? "Copied" : "Copy failed"; a.classList.add("on"); clearTimeout(a.__t);
+      a.__t = setTimeout(function () { a.textContent = "¶"; a.classList.remove("on"); }, 1600);
+    });
+  });
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("[data-scroll]");
     if (a) { e.preventDefault(); scrollTo(a.getAttribute("data-scroll")); if (a.closest("#side")) setMenu(false); }
@@ -1374,7 +1419,7 @@
     }
     function target(e) {
       var a = e.target.closest && e.target.closest("#app a[href^='#/']");
-      if (!a || a.classList.contains("missing") || a.hasAttribute("data-scroll") || a.getAttribute("href") === location.hash) return null;
+      if (!a || a.classList.contains("missing") || a.hasAttribute("data-scroll") || a.getAttribute("href") === pagePath()) return null;
       return a;
     }
     document.addEventListener("mouseover", function (e) {
@@ -1447,18 +1492,18 @@
           id = "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
           try { history.replaceState({ udfop: { id: id } }, ""); } catch (e) {}
         }
-        if (want > 0) restoreTo(want);
-        else { window.scrollTo(0, 0); pos[id] = 0; saving = true; }
+        if (want > 0) { restoreTo(want); return true; }
+        window.scrollTo(0, 0); pos[id] = 0; saving = true; return false;
       }
     };
   })();
 
   function route() {
-    scrollMem.leave();
-    var parts = location.hash.replace(/^#\/?/, "").split("/"), name = parts[0] || "home", arg = parts.slice(1).join("/");
+    scrollMem.leave(); pendingSection = "";
+    var parts = pagePath().replace(/^#\/?/, "").split("/"), name = parts[0] || "home", arg = parts.slice(1).join("/");
     if (name !== "search") { try { arg = decodeURIComponent(arg); } catch (e) {} }
     if (name === "settings") { location.replace("#/"); settingsPanel.open(); return; }
-    var view = views[name], res = view ? view(arg) : notFound(location.hash);
+    var view = views[name], res = view ? view(arg) : notFound(pagePath());
     if (!res) return;
     app.innerHTML = res.html;
     document.title = (name === "home" ? SITE : res.title.indexOf(SHORT) >= 0 ? res.title : res.title + " – " + SHORT);
@@ -1482,7 +1527,9 @@
     if (res.toc !== false) buildToc();
     if (res.after) res.after();
     setMenu(false); sug.hidden = true;
-    scrollMem.arrive();
+    var restored = scrollMem.arrive();
+    addHeadingLinks();
+    if (!restored) { pendingSection = sectionOf(); jumpPending(); }
   }
   /* Firefox decides whether to offer reader view when the address changes, which is before this page has drawn its text. Once the text is there,
      a replaceState that changes nothing makes it look again. */
