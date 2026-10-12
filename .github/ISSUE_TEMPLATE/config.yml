@@ -3,3 +3,6 @@ contact_links:
   - name: Write or fix a Game Guide page yourself
     url: https://tau-samsara.github.io/udfop/#/site/how-to-write-a-page
     about: Anyone can add or correct a page, with no tools needed.
+  - name: Report a bug in the game itself
+    url: https://discord.com/channels/1345035007164678226/1552054193441869907
+    about: Bugs in Daggerfall Online go in the bug-reports channel of the DFO Online Discord. This project only covers the website.

@@ -818,10 +818,12 @@
     return REPO + "/issues/new?template=" + template + "&title=" + enc(prefix) + "&page=" + enc(feedbackPage);
   }
   var feedbackPage = location.href;
+  var GAME_BUGS = "https://discord.com/channels/1345035007164678226/1552054193441869907";   /* where bugs in the game itself are reported (the bug-reports channel of the DFO Online Discord) */
   views.feedback = function () {
-    var h = "<p>Found something broken, wrong or confusing? Tell us. Reports are made on GitHub, so they are public and need a free GitHub account. The site itself collects nothing about you.</p>";
+    var h = '<div class="mbox"><b>Found a bug in the game itself?</b> This page is only for this website. Report bugs in Daggerfall Online in the <b>bug-reports</b> channel of the DFO Online Discord: <a href="' + GAME_BUGS + '" rel="noopener">open bug-reports</a>.</div>';
+    h += "<p>Found something broken, wrong or confusing on this site? Tell us. Reports are made on GitHub, so they are public and need a free GitHub account. The site itself collects nothing about you.</p>";
     h += '<div class="portals">' +
-      '<div class="portal"><h3>Report a bug</h3><div><p>The site is broken, looks wrong, or does not work on your device.</p><p><a class="btn" data-issue="bug.yml" data-prefix="[Bug] " href="' + issueUrl("bug.yml", "[Bug] ") + '" rel="noopener">Report a bug</a></p></div></div>' +
+      '<div class="portal"><h3>Report a site bug</h3><div><p>The site is broken, looks wrong, or does not work on your device.</p><p><a class="btn" data-issue="bug.yml" data-prefix="[Bug] " href="' + issueUrl("bug.yml", "[Bug] ") + '" rel="noopener">Report a site bug</a></p></div></div>' +
       '<div class="portal"><h3>Wrong or missing information</h3><div><p>A guide page or patch note is wrong, out of date or incomplete.</p><p><a class="btn" data-issue="content.yml" data-prefix="[Content] " href="' + issueUrl("content.yml", "[Content] ") + '" rel="noopener">Report an error</a></p></div></div>' +
       '<div class="portal"><h3>Suggestion or feedback</h3><div><p>An idea, a request, or what you think of the site.</p><p><a class="btn" data-issue="feedback.yml" data-prefix="[Feedback] " href="' + issueUrl("feedback.yml", "[Feedback] ") + '" rel="noopener">Give feedback</a></p></div></div>' +
       "</div>";
