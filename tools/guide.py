@@ -135,7 +135,7 @@ def topic_names():
     try:
         raw = open(os.path.join('web', 'data.js'), encoding='utf-8').read()
         d = json.loads(raw[raw.index('{'):raw.rindex('}') + 1])
-        return {r['e'].lower() for r in d['rows']}
+        return {t.lower() for t in d['tstat']}
     except Exception:
         return set()
 
@@ -263,7 +263,7 @@ def check_alerts(pages, problems):
 def patch_versions():
     try:
         raw = open(os.path.join('web', 'data.js'), encoding='utf-8').read()
-        return {r['v'] for r in json.loads(raw[raw.index('{'):raw.rindex('}') + 1])['rows']}
+        return set(json.loads(raw[raw.index('{'):raw.rindex('}') + 1])['releases'])
     except Exception:
         return set()
 

@@ -9,7 +9,7 @@
   python tools/notes.py ingest             validate rows.jsonl, append to data/normalized, assign hubs
   python tools/notes.py describe           write data/inbox/describe.md (topics needing a new description)
   (descriptions: write data/descriptions/patch-<version>.txt, lines "Topic ||| text")
-  python tools/notes.py build              rebuild web/data.js and report problems
+  python tools/notes.py build              rebuild web/data.js and web/shards/ and report problems
   python tools/notes.py backtest [--last N] score the prefill guesses against already-ingested releases
   python tools/notes.py selftest           run the whole pipeline in a temp copy and check your real files are untouched
   python tools/notes.py backup             snapshot data/ and web/ into _backups/
@@ -546,7 +546,7 @@ def cmd_selftest(a):
     if behind:
         sys.exit(f"selftest needs release_notes.md to be current: it ends at {behind[0]} but the ingested rows reach {behind[1]} "
                  "(someone else added newer patches). Run `python tools/notes.py fetch` first.")
-    real = [ALL, RELS, HUBS, "web/data.js", NOTES, f"{D}/merges.csv"] + sorted(glob.glob(f"{DESC}/*.txt"))
+    real = [ALL, RELS, HUBS, "web/data.js", NOTES, f"{D}/merges.csv"] + sorted(glob.glob("web/shards/*.js")) + sorted(glob.glob(f"{DESC}/*.txt"))
     before = {p: _hash(p) for p in real}
     results = []
 
@@ -610,8 +610,8 @@ def cmd_selftest(a):
         check("new topic got a hub", "Selftest Topic" in open(t(HUBS), encoding="utf-8").read())
         check("describe wrote a worklist", os.path.exists(t(f"{INBOX}/describe.md")))
         rc, out = run("build")
-        js = open(t("web/data.js"), encoding="utf-8").read()
-        check("build regenerates web/data.js with the new versions", rc == 0 and all(f'"v":"{v}"' in js for v in withbody), out[-300:])
+        js = "".join(open(f, encoding="utf-8").read() for f in glob.glob(t("web/shards/*.js")))
+        check("build regenerates the data shards with the new versions", rc == 0 and all(f'"v":"{v}"' in js for v in withbody), out[-300:])
         rc, out = run("status")
         check("status shows nothing pending afterwards", "pending (in notes, not ingested): none" in out, out[-200:])
     finally:
@@ -791,7 +791,7 @@ def cmd_build(a):
     stale, _, _ = stale_topics()
     missing = [t for t in cnt if t not in desc]
     unknown = [t for t in desc if t not in cnt]
-    print(f"web/data.js rebuilt: {sum(cnt.values())} changes, {len(cnt)} topics, {len(desc)} descriptions")
+    print(f"web/data.js and web/shards/ rebuilt: {sum(cnt.values())} changes, {len(cnt)} topics, {len(desc)} descriptions")
     if missing:
         print("topics with NO description:", ", ".join(sorted(missing)[:20]), "..." if len(missing) > 20 else "")
     if unknown:

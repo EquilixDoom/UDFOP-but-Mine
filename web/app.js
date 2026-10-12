@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var D = window.DATA, rows = D.rows, app = document.getElementById("app");
+  var D = window.DATA, rows = [], app = document.getElementById("app");
   var SITE = "Unofficial Daggerfall Online Pages", SHORT = "UDFOP";
   var TYPES = ["Buff", "Nerf", "Removal", "New", "Rework", "Fix", "Performance", "Economy", "QoL", "UI", "Other"];
   var TYPE_LABEL = { Buff: "Buffs", Nerf: "Nerfs", Removal: "Removals", New: "Additions", Rework: "Reworks", Fix: "Fixes",
@@ -81,23 +81,52 @@
   function vers(list) { return uniq(list.map(function (r) { return r.v; })).sort(vcmp); }
   function slugId(s) { return "s-" + s.toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
 
-  var byTopic = group(rows, "e"), bySystem = group(rows, "s"), byVersion = group(rows, "v");
-  var topics = Object.keys(byTopic).sort(function (a, b) { return a.localeCompare(b); });
-  var versions = Object.keys(byVersion).sort(vcmp).reverse();
+  /* The change rows come in shards, one file per period (see tools/update_data.py). The core file (data.js) already holds every release, the
+     descriptions and a count and last patch for each topic, so lists of topics, categories and patches need no rows; a page that does need them
+     loads the shards first (shardsNeeded). Whatever is built from the rows is rebuilt each time a shard arrives. */
+  var loadedShards = {}, shardLoads = {};
+  var byTopic = {}, bySystem = {}, byVersion = {}, tagIndex = {};
+  var topics = Object.keys(D.tstat).sort(function (a, b) { return a.localeCompare(b); });
+  var versions = Object.keys(D.releases).filter(function (v) { return D.releases[v].c; }).sort(vcmp).reverse();   /* releases with recorded changes */
   var allVersions = Object.keys(D.releases).sort(vcmp).reverse();   /* every release, including those with no recorded changes */
-  var systems = Object.keys(bySystem).sort();
+  var systems = Object.keys(D.systems).sort();
   var hubs = {};
   topics.forEach(function (t) { var h = D.hubs[t] || "Uncategorised"; (hubs[h] = hubs[h] || []).push(t); });
   var hubNames = Object.keys(hubs).sort(function (a, b) {
     if (a === "Uncategorised") return 1; if (b === "Uncategorised") return -1; return a.localeCompare(b);
   });
-  function dateOf(v) { var r = D.releases[v]; return r ? r.date : byVersion[v][0].d; }
-  function lastVer(list) { return vers(list).pop(); }
-  var tagIndex = {};
-  topics.forEach(function (t) {
-    var m = {}; byTopic[t].forEach(function (r) { (r.g || []).forEach(function (g) { m[g] = (m[g] || 0) + 1; }); });
-    tagIndex[t] = m;
-  });
+  function dateOf(v) { var r = D.releases[v]; return r ? r.date : ""; }
+  function reindex() {
+    byTopic = group(rows, "e"); bySystem = group(rows, "s"); byVersion = group(rows, "v"); tagIndex = {};
+    topics.forEach(function (t) {
+      var m = {}; (byTopic[t] || []).forEach(function (r) { (r.g || []).forEach(function (g) { m[g] = (m[g] || 0) + 1; }); });
+      tagIndex[t] = m;
+    });
+  }
+  window.UDFOP_SHARD = function (key, rs) {   /* each shard file calls this with its rows */
+    if (loadedShards[key]) return;
+    loadedShards[key] = true;
+    rs.forEach(function (r) { rows.push(r); });
+  };
+  function loadShard(key) {
+    if (loadedShards[key]) return Promise.resolve();
+    if (!shardLoads[key]) shardLoads[key] = new Promise(function (ok, fail) {
+      var el = document.createElement("script");
+      el.src = "shards/" + key + ".js?v=" + D.shards[key].h;   /* the hash changes with the content, so a changed shard is never served from an old cache */
+      el.onload = function () { el.remove(); ok(); };
+      el.onerror = function () { el.remove(); delete shardLoads[key]; fail(new Error("shard " + key)); };
+      document.head.appendChild(el);
+    });
+    return shardLoads[key];
+  }
+  function loadShards(keys) { return Promise.all(keys.map(loadShard)).then(reindex); }
+  /* which shards a page needs: one patch needs its own; pages that read every change (a topic's history, search, a category) need all of them;
+     lists of topics, categories and patches, the home page, About and the guides need none */
+  function shardsNeeded(name, arg) {
+    if (name === "patch") { var k = D.shardOf[arg]; return k ? [k] : []; }
+    if (["patchnotes", "recent", "topic", "hub", "system", "systems", "search"].indexOf(name) >= 0) return Object.keys(D.shards);
+    return [];
+  }
 
   /* ---------- fragments ---------- */
   function tlink(t) { return '<a href="#/topic/' + enc(t) + '">' + esc(t) + "</a>"; }
@@ -195,8 +224,7 @@
 
   function topicList(list, cols) {
     return '<ul class="cols">' + list.map(function (t) {
-      var l = byTopic[t];
-      return "<li>" + tlink(t) + (cols === false ? "" : " <small>(" + l.length + ")</small>") + "</li>";
+      return "<li>" + tlink(t) + (cols === false ? "" : " <small>(" + D.tstat[t][0] + ")</small>") + "</li>";
     }).join("") + "</ul>";
   }
 
@@ -411,10 +439,10 @@
       filterBox("Filter by version, title or date…");
     days.forEach(function (d, k) {
       var vs = byDay[d], n = 0;
-      vs.forEach(function (v) { n += byVersion[v] ? byVersion[v].length : 0; });
+      vs.forEach(function (v) { n += D.releases[v].c; });
       h += '<details class="day"' + (k === 0 ? " open" : "") + '><summary><b>' + esc(d) + "</b><span>" + plural(vs.length, "release") + " · " + plural(n, "change") + "</span></summary><ul class=\"rels\">" +
         vs.map(function (v) {
-          var rel = D.releases[v], c = byVersion[v] ? byVersion[v].length : 0;
+          var rel = D.releases[v], c = rel.c;
           return '<li class="rel"><span class="rb">' + vlink(v) + '</span><span class="rt">' + (rel.t ? esc(rel.t) : '<span class="muted">No title</span>') + relTags(v) + '</span><span class="rn">' +
             (c ? plural(c, "change") : "no recorded changes") + "</span></li>";
         }).join("") + "</ul></details>";
@@ -501,7 +529,7 @@
     h += sec("Credits and licence", "Credits and licence", 2) +
       "<p>Started and maintained by <b>tau</b>, with Game Guide pages written by their contributors. The site code is released under the MIT licence and the topic descriptions and other original text are licensed CC BY 4.0. The change data is derived from the developer's release notes, which are published under the developer's own MIT licence (<a href=\"https://github.com/tau-samsara/udfop/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">notice</a>), and the game and its names belong to their owners.</p>";
     h += sec("Feedback", "Feedback", 2) + '<p>Found a mistake or a bug? See <a href="#/feedback">Feedback &amp; Bugs</a>. Pages are written by their contributors, may be wrong or out of date, and carry no warranty.</p>';
-    h += sec("Coverage", "Coverage", 2) + "<p>" + rows.length.toLocaleString() + " changes in " + topics.length + " topics across " + versions.length + " patches, from " + esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
+    h += sec("Coverage", "Coverage", 2) + "<p>" + D.totals.rows.toLocaleString() + " changes in " + topics.length + " topics across " + versions.length + " patches, from " + esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
     return { title: "About UDFOP", html: page("About UDFOP", h) };
   };
 
@@ -630,7 +658,7 @@
   function wikiLink(target, label) {
     var raw = target.trim(), low = raw.toLowerCase(), t;
     if (low.indexOf("topic:") === 0) { t = topicByLower[low.slice(6).trim()]; if (t) noteRef("topic", t, t); return t ? tlink(t).replace(">" + esc(t) + "<", ">" + esc(label || t) + "<") + MARK_PN : esc(label || raw.slice(6)); }
-    if (low.indexOf("patch:") === 0) { var v = raw.slice(6).trim(); if (byVersion[v]) noteRef("patch", v, v); return byVersion[v] ? '<a href="#/patch/' + enc(v) + '">' + esc(label || v) + "</a>" + MARK_PN : esc(label || v); }
+    if (low.indexOf("patch:") === 0) { var v = raw.slice(6).trim(); if (D.releases[v]) noteRef("patch", v, v); return D.releases[v] ? '<a href="#/patch/' + enc(v) + '">' + esc(label || v) + "</a>" + MARK_PN : esc(label || v); }
     var g = findPage(low);
     if (g) { if (pageKey(g) !== refs_self()) noteRef("guide", pageKey(g), g); }
     if (g) return '<a href="' + purl(g) + '">' + esc(label || g.title) + "</a>" + (g.area === "site" ? MARK_SG : MARK_GP);
@@ -765,7 +793,7 @@
     (related || []).forEach(function (name) {
       /* "guide:Name", "topic:Name" and "patch:0.1.2" say which kind; with no prefix a guide page wins over a topic of the same name */
       var pm = /^(guide|topic|patch)\s*:\s*(.*)$/i.exec(name), mode = pm ? pm[1].toLowerCase() : "", rest = (pm ? pm[2] : name).trim();
-      if (mode === "patch") { if (byVersion[rest]) noteRef("patch", rest, rest); return; }
+      if (mode === "patch") { if (D.releases[rest]) noteRef("patch", rest, rest); return; }
       var low = rest.toLowerCase(), g = mode === "topic" ? null : findPage(low), t = mode === "guide" ? null : topicByLower[low];
       if (g && pageKey(g) !== r.self) noteRef("guide", pageKey(g), g); else if (!g && t) noteRef("topic", t, t);
     });
@@ -778,7 +806,7 @@
           return "<li>" + glink(g) + (g.summary ? " – " + esc(g.summary) : "") + "</li>"; }).join("") + "</ol>";
       });
       if (r.topic.length || r.patch.length) h += sec("Patch Notes", "Patch Notes", 3) + '<ol class="refs">' +
-        r.topic.map(function (t) { var v = lastVer(byTopic[t]); return "<li>" + tlink(t) + " – last patched " + vlink(v) + " (" + esc(dateOf(v)) + ")</li>"; }).join("") +
+        r.topic.map(function (t) { var v = D.tstat[t][1]; return "<li>" + tlink(t) + " – last patched " + vlink(v) + " (" + esc(dateOf(v)) + ")</li>"; }).join("") +
         r.patch.map(function (v) { return "<li>Patch " + vlink(v) + " – released " + esc(dateOf(v)) + "</li>"; }).join("") + "</ol>";
     }
     if (r.ext.length) h += sec("External Links", "External Links", 2) + '<ol class="refs">' + r.ext.map(function (e) {
@@ -955,7 +983,7 @@
     var h = '<p>Welcome to <b>UDFOP</b>, the <b>Unofficial Daggerfall Online Pages</b>: a fan-made, community-edited reference for Daggerfall Online. It has two parts, plus a Site Guide that explains how to contribute. The <b>☰</b> button at the top left opens the main menu.</p>';
     h += '<div class="portals three">';
     h += '<div class="portal"><h3>Game Guide</h3><div><p>How things work, written by players. ' + (n ? "<b>" + plural(n, "page") + "</b> so far." : "Be the first to add a page.") + '</p><p><a href="#/guide">Browse the Game Guide →</a><br><a href="' + HOWTO + '">How to write a page</a></p></div></div>';
-    h += '<div class="portal"><h3>Patch Notes</h3><div><p>Every recorded change, patch by patch: <b>' + rows.length.toLocaleString() + "</b> changes to <b>" + topics.length + "</b> topics. Latest: <b>" + vlink(versions[0]) + "</b> (" + esc(dateOf(versions[0])) + ').</p><p><a href="#/patchnotes">Browse the Patch Notes →</a><br><a href="#/recent">Recent changes</a></p></div></div>';
+    h += '<div class="portal"><h3>Patch Notes</h3><div><p>Every recorded change, patch by patch: <b>' + D.totals.rows.toLocaleString() + "</b> changes to <b>" + topics.length + "</b> topics. Latest: <b>" + vlink(versions[0]) + "</b> (" + esc(dateOf(versions[0])) + ').</p><p><a href="#/patchnotes">Browse the Patch Notes →</a><br><a href="#/recent">Recent changes</a></p></div></div>';
     var sg = siteBySlug["index"];   /* the Site Guide's front page supplies the card's text */
     h += '<div class="portal"><h3>Site Guide</h3><div><p>' + esc(sg ? sg.summary : "Help for writing, fixing and reviewing Game Guide pages, and for getting around the site.") + '</p><p><a href="#/site">Open the Site Guide →</a><br><a href="#/site/using-the-site">Using the site</a></p></div></div>';
     h += "</div>";
@@ -1430,7 +1458,7 @@
       return fetch("site/index.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(siteLoaded).catch(function () { siteLoaded([]); });
     })
     .then(function () { if (/^#\/(guide|site|search)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
-  document.getElementById("foot-stats").textContent = rows.length.toLocaleString() + " changes · " + topics.length + " topics · " + versions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
+  document.getElementById("foot-stats").textContent = D.totals.rows.toLocaleString() + " changes · " + topics.length + " topics · " + versions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
 
   /* search box with suggestions */
   var q = document.getElementById("q"), sug = document.getElementById("suggest"), cur = -1;
@@ -1538,15 +1566,17 @@
       if (!m) return null;
       try { arg = decodeURIComponent(m[2]); } catch (e) { arg = m[2]; }
       if (m[1] === "topic") {
-        var l = byTopic[arg]; if (!l) return null;
-        var vs = vers(l), last = vs[vs.length - 1];
+        var ts = D.tstat[arg]; if (!ts) return null;
         return { kind: "Patch Notes topic", title: arg,
-          text: D.desc && D.desc[arg] ? clip(D.desc[arg], 280) : "A topic with " + plural(l.length, "recorded change") + ".",
-          meta: plural(l.length, "change") + " · last patched " + last + " (" + dateOf(last) + ")" };
+          text: D.desc && D.desc[arg] ? clip(D.desc[arg], 280) : "A topic with " + plural(ts[0], "recorded change") + ".",
+          meta: plural(ts[0], "change") + " · last patched " + ts[1] + " (" + dateOf(ts[1]) + ")" };
       }
       if (m[1] === "patch") {
-        var pl = byVersion[arg]; if (!pl) return null;
-        var rel = D.releases[arg], per = group(pl, "e"), names = Object.keys(per).sort(function (a, b) { return per[b].length - per[a].length || a.localeCompare(b); });
+        var rel = D.releases[arg]; if (!rel) return null;
+        var pl = byVersion[arg];
+        if (!pl) return { kind: "Patch", title: "Patch " + arg, text: (rel.t ? rel.t + ". " : "") + plural(rel.c, "change") + " recorded.",
+          meta: "Released " + dateOf(arg) + (rel.prs.length ? " · " + plural(rel.prs.length, "pull request") : "") };   /* its shard is not loaded yet */
+        var per = group(pl, "e"), names = Object.keys(per).sort(function (a, b) { return per[b].length - per[a].length || a.localeCompare(b); });
         return { kind: "Patch", title: "Patch " + arg, text: plural(pl.length, "change") + " to " + plural(names.length, "topic") + ":",
           items: names.slice(0, 10).map(function (t) { return [t, per[t].length]; }), more: Math.max(0, names.length - 10),
           meta: "Released " + dateOf(arg) + (rel && rel.prs.length ? " · " + plural(rel.prs.length, "pull request") : "") };
@@ -1556,8 +1586,8 @@
         return { kind: "Patch Notes category", title: arg, text: clip(ht.slice(0, 8).join(", ") + (ht.length > 8 ? ", …" : ""), 200), meta: plural(ht.length, "topic") };
       }
       if (m[1] === "system") {
-        var sl = bySystem[arg]; if (!sl) return null;
-        return { kind: "Game system", title: arg, text: "Changes to the " + arg + " system.", meta: plural(sl.length, "change") };
+        if (!D.systems[arg]) return null;
+        return { kind: "Game system", title: arg, text: "Changes to the " + arg + " system.", meta: plural(D.systems[arg], "change") };
       }
       if (m[1] === "site") {
         var sg = siteBySlug[arg.toLowerCase()] || siteByTitle[arg.toLowerCase()];
@@ -1670,6 +1700,19 @@
     };
   })();
 
+  /* a page that needs rows shows a short message while its shards load, then draws as usual; if the address changed meanwhile, that change draws its own page */
+  function loadThenRoute(need) {
+    var target = location.hash;
+    document.title = "Loading – " + SHORT;
+    app.innerHTML = '<h1 class="title">Loading</h1><p role="status">Loading the change data…</p>';
+    document.getElementById("side-toc").hidden = true;
+    loadShards(need).then(function () { if (location.hash === target) route(); }, function () {
+      if (location.hash !== target) return;
+      document.title = "Could not load – " + SHORT;
+      app.innerHTML = '<h1 class="title">Could not load the change data</h1><div class="mbox">A data file did not load. Check your connection, then <a href="' + esc(target) + '" id="retry">try again</a>. If you opened <code>index.html</code> straight from a folder, serve the <code>web</code> folder instead.</div>';
+      document.getElementById("retry").addEventListener("click", function (e) { e.preventDefault(); loadThenRoute(need); });
+    });
+  }
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";
@@ -1679,6 +1722,8 @@
     var parts = path.replace(/^#\/?/, "").split("/"), name = parts[0] || "home", arg = parts.slice(1).join("/");
     if (name !== "search") { try { arg = decodeURIComponent(arg); } catch (e) {} }
     if (name === "settings") { location.replace("#/"); settingsPanel.open(); return; }
+    var need = shardsNeeded(name, arg).filter(function (k) { return !loadedShards[k]; });
+    if (need.length) { loadThenRoute(need); return; }
     var view = views[name], res = view ? view(arg) : notFound(path);
     if (!res) return;
     app.innerHTML = res.html;
