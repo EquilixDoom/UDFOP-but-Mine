@@ -2,6 +2,7 @@
 _archive/
 _backups/
 _sandbox/
+_notes/
 data/inbox/
 __pycache__/
 .claude/launch.json
