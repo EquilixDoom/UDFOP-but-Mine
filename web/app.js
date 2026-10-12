@@ -221,23 +221,53 @@
   /* ---------- views ---------- */
   var views = {};
 
-  /* the newest patches that added something (kind "New" only): how many additions, in how many topics, and which topics (the most-added-to first), in a portal box like the others */
-  var RECENT_ADDITIONS = 5, ADDITION_TOPICS = 8;
-  function recentAdditions() {
-    var list = [];
-    for (var i = 0; i < versions.length && list.length < RECENT_ADDITIONS; i++) {
-      var v = versions[i], adds = byVersion[v].filter(function (r) { return r.t === "New"; });
-      if (adds.length) list.push({ v: v, adds: adds });
-    }
-    if (!list.length) return "";
-    var h = '<div class="portal wide"><h3>Recent additions</h3><div><div class="wrap"><table class="wikitable"><thead><tr><th>Patch</th><th class="dt">Date</th><th>Additions</th><th>Topics</th></tr></thead><tbody>';
-    list.forEach(function (it) {
-      var per = group(it.adds, "e"), names = Object.keys(per).sort(function (a, b) { return per[b].length - per[a].length || a.localeCompare(b); });
-      var to = "#/patch/" + enc(it.v) + "#" + slugId("type-additions");
-      h += '<tr><td class="nowrap">' + vlink(it.v) + '</td><td class="nowrap dt">' + esc(dateOf(it.v)) + '</td><td class="nowrap"><a href="' + to + '">' + it.adds.length + "</a></td><td>" +
-        names.slice(0, ADDITION_TOPICS).map(tlink).join(", ") + (names.length > ADDITION_TOPICS ? ' and <a href="' + to + '">' + (names.length - ADDITION_TOPICS) + " more</a>" : "") + "</td></tr>";
+  /* "Recent changes by type": a portal with a tab for each kind of change; a tab's table lists the newest patches that made changes of that kind (how many, in how many topics, and which topics, the most-changed first) */
+  var RECENT_PATCHES = 5, RECENT_TOPICS = 8;
+  var TAB_LABEL = { additions: "Additions", reworks: "Reworks", fixes: "Fixes", performance: "Performance", economy: "Economy", interface: "Interface", balance: "Balance", removals: "Removals", other: "Other" };
+  function recentByType() {
+    var known = [];
+    TYPE_GROUPS.forEach(function (g) { known = known.concat(g.types); });
+    var tabs = "", panels = "", first = true;
+    TYPE_GROUPS.forEach(function (g) {
+      var list = [];
+      for (var i = 0; i < versions.length && list.length < RECENT_PATCHES; i++) {
+        var v = versions[i], hit = byVersion[v].filter(function (r) { return g.types.indexOf(r.t) >= 0 || (g.key === "other" && known.indexOf(r.t) < 0); });
+        if (hit.length) list.push({ v: v, hit: hit });
+      }
+      if (!list.length) return;
+      tabs += '<button type="button" role="tab" id="rt-' + g.key + '" aria-controls="rp-' + g.key + '" aria-selected="' + first + '" tabindex="' + (first ? 0 : -1) + '">' + TAB_LABEL[g.key] + "</button>";
+      panels += '<div role="tabpanel" id="rp-' + g.key + '" aria-labelledby="rt-' + g.key + '"' + (first ? "" : " hidden") + '><div class="wrap"><table class="wikitable"><thead><tr><th>Patch</th><th class="dt">Date</th><th>' + esc(g.label.replace(/ \(.*$/, "")) + '</th><th>Topics</th></tr></thead><tbody>';
+      list.forEach(function (it) {
+        var per = group(it.hit, "e"), names = Object.keys(per).sort(function (x, y) { return per[y].length - per[x].length || x.localeCompare(y); });
+        var to = "#/patch/" + enc(it.v) + "#" + slugId("type-" + g.key);
+        panels += '<tr><td class="nowrap">' + vlink(it.v) + '</td><td class="nowrap dt">' + esc(dateOf(it.v)) + '</td><td class="nowrap"><a href="' + to + '">' + it.hit.length + "</a></td><td>" +
+          names.slice(0, RECENT_TOPICS).map(tlink).join(", ") + (names.length > RECENT_TOPICS ? ' and <a href="' + to + '">' + (names.length - RECENT_TOPICS) + " more</a>" : "") + "</td></tr>";
+      });
+      panels += "</tbody></table></div></div>";
+      first = false;
     });
-    return h + '</tbody></table></div><p class="muted">New things only: fixes and reworks are on each patch page. The number opens that patch\'s additions.</p></div></div>';
+    if (!tabs) return "";
+    return '<div class="portal wide"><h3>Recent changes by type</h3><div><div class="gtabs" role="tablist" aria-label="Kind of change">' + tabs + "</div>" + panels +
+      '<p class="muted">Each row is a patch that made changes of that kind. The number opens that patch\'s section for them.</p></div></div>';
+  }
+  /* switching tabs on the front page (no new address: the tabs only show or hide tables) */
+  function wireRecentTabs() {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll("#app [role=tab]"));
+    function pick(t) {
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.setAttribute("aria-selected", on ? "true" : "false"); x.tabIndex = on ? 0 : -1;
+        document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
+      });
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener("click", function () { pick(t); });
+      t.addEventListener("keydown", function (e) {
+        var j = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
+        if (j < 0) return;
+        e.preventDefault(); j = (j + tabs.length) % tabs.length; pick(tabs[j]); tabs[j].focus();
+      });
+    });
   }
   views.patchnotes = function () {
     var latest = versions[0], lrows = byVersion[latest];
@@ -247,7 +277,7 @@
       rows.length.toLocaleString() + "</b> recorded changes to <b>" + topics.length + '</b> topics across <b>' + versions.length + "</b> patches, from version " +
       esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
     h += '<p class="browse"><b>Browse:</b> <a href="#/recent">Recent changes</a> · <a href="#/topics">All topics</a> · <a href="#/hubs">Categories</a> · <a href="#/systems">Game systems</a> · <a href="#/patches">Patch index</a> · <a href="#/random">Random topic</a></p>';
-    h += '<div class="portals">' + recentAdditions();
+    h += '<div class="portals">' + recentByType();
     h += '<div class="portal"><h3>Latest patch</h3><div><p><b>' + vlink(latest) + "</b> – " + esc(dateOf(latest)) + "<br>" + plural(lrows.length, "change") + " to " +
       plural(uniq(lrows.map(function (r) { return r.e; })).length, "topic") + ".</p><ul>" +
       uniq(lrows.map(function (r) { return r.e; })).slice(0, 8).map(function (t) { return "<li>" + tlink(t) + "</li>"; }).join("") +
@@ -259,7 +289,7 @@
       return "<li>" + hlink(n) + " <small>(" + hubs[n].length + ")</small></li>"; }).join("") + "</ul>";
     h += sec("Browse by game system", "Browse by game system", 2) + '<ul class="cols">' + systems.map(function (s) {
       return "<li>" + slink(s) + " <small>(" + bySystem[s].length + ")</small></li>"; }).join("") + "</ul>";
-    return { title: "Patch Notes", html: page("Patch Notes", h) };
+    return { title: "Patch Notes", html: page("Patch Notes", h), after: wireRecentTabs };
   };
 
   views.recent = function () {
