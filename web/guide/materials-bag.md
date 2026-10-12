@@ -8,7 +8,7 @@ related: topic:Gathering, topic:Stores, topic:Crafting, topic:Professions
 The **Materials Bag** is an item you buy once and keep. It gives the things you gather, such as logs, ore, herbs, hides and fish, a place of their own, so they stop filling your pack. If you plan to gather or craft online, it is one of the first things worth buying.
 
 > [!NOTE]
-> This page describes the online game as of patch [[patch:0.1.8020]]. The [[topic:Materials Bag]] page in the Patch Notes lists every change to the bag itself.
+> **Applies to:** online play. As of patch [[patch:0.1.8020]]. The [[topic:Materials Bag]] page in the Patch Notes lists every change to the bag itself.
 
 ## What it does
 

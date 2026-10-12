@@ -107,6 +107,19 @@ Resting restores **health** while the party camps. See [[Camping]] and [[topic:R
 
 Start at `##`, because the page title is added for you. Everything else, including pictures with captions, tables, code boxes, notice boxes, spoilers and keycaps for keys and buttons, is in the [[Formatting reference]].
 
+### The shape of a page
+
+The starter template follows the shape that suits most pages about how something works in the game. Delete any section that does not fit yours.
+
+1. **An "Applies to" box.** Which play it covers (online, offline or both; classic or enhanced; any setting that turns it on or off), and the patch you checked it against.
+2. **Two sentences** saying what the thing is and why a player would care.
+3. **How it works.** The steps, in the order a player does them.
+4. **Limits and things to know.** Costs, caps, and what catches people out.
+5. **Quick start.** Three or four steps for a first try.
+6. **Sources.** Where the information comes from.
+
+The [[Materials Bag]] page is an example. Pages that are not about a game system, such as a fix for a technical problem, can drop sections or change them.
+
 Raw HTML is shown as plain text, so leave it out. The [[Formatting reference]] lists what is not supported.
 
 ## Adding pictures
@@ -125,6 +138,7 @@ Raw HTML is shown as plain text, so leave it out. The [[Formatting reference]] l
 
 - **Say how you know.** Write what you know to be true, and say where it comes from, such as testing in the game, a patch number or a developer post. Facts that can change, such as a default key or a number, are easier to trust when they say which game version you checked, so add the patch number when you know it.
 - **One subject per page.** Link to other pages instead of repeating them.
+- **Say what it applies to.** Many features differ between online and offline play, between classic and enhanced, or depend on a setting. Say which near the top, with the patch you checked, as the template's "Applies to" box does, so readers know whether the page is about their game.
 - **Let every heading say what is inside.** On a phone, sections start folded closed, so the headings are all a reader sees at first. See [[Anatomy of a page]].
 - **Say how it works now.** The Patch Notes already record *what changed*. A guide page should explain *how it works now*, and can link to the topic for the history, for example [[topic:Revenants]].
 
