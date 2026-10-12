@@ -551,13 +551,9 @@ html[data-navbar="scroll"] { scroll-padding-top: .5rem; }
 .gtabs span.on { color: var(--fg); font-weight: 700; border-bottom-color: var(--accent); }
 .gtabs small { margin-left: .5em; font-size: .78rem; font-weight: normal; color: var(--muted); }
 
-/* Recent additions on the Patch Notes front page */
-.radd { display: flex; gap: 14px; padding: 9px 0; border-top: 1px solid var(--soft); }
-.radd:last-of-type { border-bottom: 1px solid var(--soft); margin-bottom: 1em; }
-.rv { flex: none; min-width: 6.5rem; }
-.rv small { display: block; color: var(--muted); font-size: .78rem; }
-.rb { min-width: 0; }
-.rb .chips { display: flex; flex-wrap: wrap; gap: 5px 6px; margin: 5px 0 4px; }
-.rb .chips a { padding: 1px 9px; border: 1px solid var(--line); border-radius: 12px; background: var(--softer); font-size: .86rem; text-decoration: none; }
-.rb .chips a:hover { background: var(--soft); }
-.rb .all { font-size: .88rem; }
+/* Recent additions on the Patch Notes front page: a portal that spans the whole row */
+.portal.wide { grid-column: 1 / -1; }
+.portal .wikitable { margin: 0 0 .5em; }
+.portal p.muted { margin: 0; font-size: .8rem; }
+.portal .wikitable td:last-child { min-width: 0; }
+@media (max-width: 600px) { .portal .wikitable .dt { display: none; } }   /* on a phone the date gives way so the topics fit */
