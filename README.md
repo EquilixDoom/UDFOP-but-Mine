@@ -75,6 +75,9 @@ Needs Python 3 only. Run from this folder. The quickest route is to ask Claude: 
 - **describe** lists topics whose change count has grown since their description was written, with their history and current description.
 - **build** regenerates `web/data.js`, then reports topics with no description, descriptions for unknown topics, and stale ones.
 
+### Release grouping
+`data/normalized/releases.jsonl` keeps four extra fields per release, and `ingest` fills them for new releases: `update` (the developers' "Update 0.0.N" name, empty when the release has none), `title` (the `# Patch Notes:` heading, empty when absent), `kind` and `tier`. `kind` is a hint for readers, not a record: `bulk-import` for the releases listed in `BULK_IMPORTS` in `tools/notes.py` (today only 0.1.3), `likely-hotfix` when the title contains fix, fixes, hotfix or boot, otherwise `release`. `tier` is reserved for Major or Expansion levels and stays empty until the source provides them. The Patch index groups releases by day. `python tools/notes.py relmeta` recomputes the fields for every release from `data/release_notes.md` (safe to re-run; a hand-set `tier` is kept).
+
 ### Descriptions
 `data/descriptions/*.txt`, one `Topic ||| text` per line. Files are read in alphabetical order and a later file overrides an earlier one, so new work goes in `patch-<version>.txt` files. A topic with no description falls back to an auto-generated sentence.
 

@@ -12,8 +12,14 @@ for r in rows:
         if s.startswith(p): s = s[len(p):]; break
     out.append(dict(id=r['id'], v=r['version'], d=r['date'], s=r['system'], e=e, t=r['change_type'],
                     r=r['direction'], x=s, g=r['tags'], n=r['dev_note']))
-rels = {x['version']: {'date': x['date'], 'prs': [{'n': p['number'], 't': p['title'], 'u': p['url']} for p in x['prs']]}
-        for x in (json.loads(l) for l in open('data/normalized/releases.jsonl', encoding='utf-8'))}
+from collections import Counter
+nrows = Counter(r['version'] for r in rows)
+# per release: u = Update name, t = title, k = kind (release, likely-hotfix, bulk-import), c = recorded changes, tier only when set
+rels = {}
+for x in (json.loads(l) for l in open('data/normalized/releases.jsonl', encoding='utf-8')):
+    rels[x['version']] = {'date': x['date'], 'prs': [{'n': p['number'], 't': p['title'], 'u': p['url']} for p in x['prs']],
+                          'u': x.get('update'), 't': x.get('title'), 'k': x.get('kind', 'release'), 'c': nrows.get(x['version'], 0)}
+    if x.get('tier'): rels[x['version']]['tier'] = x['tier']
 import glob
 desc = {}
 for f in sorted(glob.glob('data/descriptions/*.txt')):

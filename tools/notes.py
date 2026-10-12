@@ -62,9 +62,60 @@ def parse_notes():
         prs = [dict(number=int(n), title=t.strip(), url=u) for t, u, n in re.findall(
             r"(?m)^\* (.*?) by @\S+ in (https://github\.com/[^\s]+/pull/(\d+))", body)]
         version = tag.replace("app-v", "")
+        um = re.match(r"Update (\S+)", name.strip())
+        tm = re.search(r"(?m)^# (.+)$", body)
+        title = re.sub(r"^Patch Notes:\s*", "", tm.group(1).strip()) if tm else ""
         out.append(dict(tag=tag, version=version, published=pub, date=pub[:10], body=body, prs=prs,
+                        update=um.group(1) if um else None, title=title or None,
                         has_body_notes=bool(re.search(r"(?m)^## (?!What's Changed)", body)) or "\n- " in body))
     return out
+
+
+# Release grouping (rule 7). `kind` is a hint for readers, not a fact from the source:
+#   bulk-import     a catch-up release listed in BULK_IMPORTS (it holds hundreds of earlier changes)
+#   likely-hotfix   the title contains fix, fixes, hotfix or boot (a person may correct it by hand)
+#   release         everything else
+# `update` (the developers' "Update 0.0.N" name) and `title` are empty when the source has none. `tier` is
+# reserved for Major/Expansion levels and stays empty until the source provides them.
+BULK_IMPORTS = {"0.1.3"}
+HOTFIX_TITLE = re.compile(r"\b(fix|fixes|hotfix|boot)\b", re.I)
+
+
+def release_kind(version, title):
+    if version in BULK_IMPORTS:
+        return "bulk-import"
+    return "likely-hotfix" if title and HOTFIX_TITLE.search(title) else "release"
+
+
+def release_meta(r):
+    return dict(update=r.get("update"), title=r.get("title"), kind=release_kind(r["version"], r.get("title")), tier=None)
+
+
+def cmd_relmeta(a):
+    """Add update, title, kind and tier to every releases.jsonl entry from release_notes.md (safe to re-run)."""
+    notes = {r["version"]: r for r in parse_notes()}
+    old = read_jsonl(RELS)
+    out, missing = [], []
+    for x in old:
+        n = notes.get(x["version"])
+        if not n:
+            missing.append(x["version"])
+            meta = dict(update=x.get("update"), title=x.get("title"), kind=release_kind(x["version"], x.get("title")), tier=x.get("tier"))
+        else:
+            meta = release_meta(n)
+            meta["tier"] = x.get("tier")      # a hand-set tier is kept
+        y = {k: v for k, v in x.items() if k not in ("update", "title", "kind", "tier")}
+        y.update(meta)
+        out.append(y)
+    if missing:
+        print("not found in release_notes.md (run fetch):", ", ".join(missing[:10]))
+    if a.dry_run:
+        print(f"would update {len(out)} releases")
+        return
+    write_jsonl(RELS, out)
+    kinds = Counter(x["kind"] for x in out)
+    print(f"releases.jsonl: {len(out)} releases; {sum(1 for x in out if x['update'])} with an Update name, "
+          f"{sum(1 for x in out if x['title'])} with a title; kinds: {dict(kinds)}")
 
 
 def pending_releases():
@@ -655,7 +706,7 @@ def cmd_ingest(a):
     rows = [{k: v for k, v in r.items() if k != "source"} for r in rows]
     # releases.jsonl entries for every pending release, including ones with no rows
     rel = [dict(version=r["version"], date=r["date"], published_utc=r["published"], source_tag=r["tag"],
-                has_body_notes=r["has_body_notes"], prs=[dict(number=p["number"], title=p["title"], url=p["url"]) for p in r["prs"]])
+                has_body_notes=r["has_body_notes"], prs=[dict(number=p["number"], title=p["title"], url=p["url"]) for p in r["prs"]], **release_meta(r))
            for r in sorted(pend, key=lambda r: vkey(r["version"]))]
     hub = {h["topic"]: h["primary_hub"] for h in csv.DictReader(open(HUBS, encoding="utf-8"))}
     newt = defaultdict(list)
@@ -780,7 +831,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     for name, fn in [("status", cmd_status), ("fetch", cmd_fetch), ("prepare", cmd_prepare), ("approve", cmd_approve),
-                     ("ingest", cmd_ingest), ("describe", cmd_describe), ("build", cmd_build), ("backtest", cmd_backtest), ("selftest", cmd_selftest), ("backup", cmd_backup)]:
+                     ("ingest", cmd_ingest), ("describe", cmd_describe), ("build", cmd_build), ("backtest", cmd_backtest), ("selftest", cmd_selftest), ("backup", cmd_backup), ("relmeta", cmd_relmeta)]:
         p = sp.add_parser(name)
         p.add_argument("--dry-run", action="store_true")
         p.add_argument("--force", action="store_true", help="prepare: overwrite an existing rows.draft.jsonl")
