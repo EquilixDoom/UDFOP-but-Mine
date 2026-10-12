@@ -31,3 +31,7 @@ SOFTWARE.
 UDFOP is not affiliated with or endorsed by the developers. The release notes remain the authoritative record. Where UDFOP's change data and the original notes differ, the original notes are right.
 
 *The Elder Scrolls*, *Daggerfall* and related names and marks belong to their respective owners (see [LICENSE-CONTENT.md](LICENSE-CONTENT.md)).
+
+## Kingthings Petrock (font)
+
+The Oblivion theme's headings use Kingthings Petrock by Kevin King, <https://www.kingthingsfonts.co.uk>. It is served unchanged from `web/fonts/Kingthings Petrock.ttf`, with the author's end user licence beside it (`web/fonts/kingthingsEULA.txt`). That licence says the free fonts may be used for any purpose and that the original font files must not be changed. It is not covered by this project's MIT or CC BY licences.

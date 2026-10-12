@@ -67,14 +67,26 @@ html[data-skin="iliac"][data-theme="dark"] {
     color-scheme: dark;
   }
 }
-/* oblivion */
+@font-face { font-family: "Kingthings Petrock"; src: url("fonts/Kingthings%20Petrock.ttf") format("truetype"); font-display: swap; }   /* the author's original file, unchanged, as his licence asks */
+/* oblivion: light is a parchment journal (aged vellum on a tan desk, brown ink, oxblood links, a wax-seal mark, ruled and
+   double-ruled headings); the --j-* values are the journal's decoration, read by the hooks at the end of this file, and
+   the dark blocks below reset them so dark stays a flat theme */
 html[data-skin="oblivion"] {
-  --page: #efe7e4; --paper: #fcf8f6; --fg: #201615; --muted: #6a5a56; --line: #c2b0aa; --soft: #f1e4df; --softer: #f7efec; --link: #a3281a;
-  --visited: #6b3a6e; --red: #bb382a; --head: #f7efec; --accent: #a3281a; --infobox: #f7efec; --buff: #1e7547; --nerf: #c2185b; --new: #1d4fa8;
-  --rework: #7a3a9a; --fix: #905d00; --other: #6a5a56; --perf: #167187; --econ: #5d6e1a; --ui: #b23483; --qol: #9a552d; --notice: #f7e3d8; --notice-line: #c46a3a;
+  --page: #d8c59b; --paper: #f0e3c2; --fg: #2a1c0f; --muted: #5c4730; --line: #9c7e52; --soft: #e2d0a4; --softer: #eadab4; --link: #7a2012;
+  --visited: #5e3560; --red: #9a2a1a; --head: #ecdcb2; --accent: #7a2012; --infobox: #eadab4; --buff: #1a5d38; --nerf: #9f1e37; --new: #1d4a9a;
+  --rework: #70358f; --fix: #734900; --other: #5c4730; --perf: #105a6c; --econ: #4a5814; --ui: #90296c; --qol: #7d4321; --notice: #f3dfb0; --notice-line: #b8862c;
+  --sans: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif; --serif: "Kingthings Petrock", var(--sans);
+  --j-sheet: inset 0 0 60px rgba(120, 82, 30, .28), 0 2px 10px rgba(60, 38, 12, .35);
+  --j-paper: radial-gradient(ellipse at 12% 8%, rgba(255, 248, 225, .55), transparent 55%), radial-gradient(ellipse at 90% 96%, rgba(150, 100, 40, .16), transparent 50%);
+  --j-frame: 4px double #6e5030; --j-rule: 3px double #8a6a3e; --j-head: 3px double #6e5030; --j-caps: small-caps; --j-track: .03em;
+  --j-seal: radial-gradient(circle at 35% 30%, #b8452f, #7a2012 60%, #5a160b); --j-inset: inset 0 1px 3px rgba(60, 38, 12, .25);
+ --j-desk: repeating-linear-gradient(35deg, rgba(255, 220, 160, .035) 0 2px, transparent 2px 5px), radial-gradient(ellipse at 50% 0%, #4a3320, #2a1c10 75%); --j-rail: var(--page);
+  --j-orn: ""; --j-dc-float: left; --j-dc-size: 4em; --j-dc-color: #7a2012; --j-dc-font: "Kingthings Petrock", Palatino, Georgia, serif;
+  --j-cell: #c3a87a; --j-select: rgba(122, 32, 18, .22);
   color-scheme: light;
 }
 html[data-skin="oblivion"][data-theme="dark"] {
+  --j-sheet: initial; --j-paper: initial; --j-frame: initial; --j-rule: initial; --j-head: initial; --j-caps: initial; --j-track: initial; --j-seal: initial; --j-inset: initial; --j-cell: initial; --j-select: initial; --j-desk: initial; --j-rail: initial; --j-orn: initial; --j-dc-float: initial; --j-dc-size: initial; --j-dc-color: initial; --j-dc-font: initial;
   --page: #0c0a0b; --paper: #171213; --fg: #f0e8e5; --muted: #b7a9a4; --line: #4a3b38; --soft: #261c1d; --softer: #1e1617; --link: #ff9d7e;
   --visited: #d9a0c0; --red: #ff7e6e; --head: #120d0e; --accent: #e4583f; --infobox: #1e1617; --buff: #6fd49a; --nerf: #ff7a96; --new: #7db3ff;
   --rework: #c9a0ee; --fix: #f0e052; --other: #b7a9a4; --perf: #50c5e2; --econ: #bfd85a; --ui: #d161a8; --qol: #d18a61; --notice: #2a1a14; --notice-line: #a8532e;
@@ -82,6 +94,7 @@ html[data-skin="oblivion"][data-theme="dark"] {
 }
 @media (prefers-color-scheme: dark) {
   html[data-skin="oblivion"]:not([data-theme="light"]) {
+    --j-sheet: initial; --j-paper: initial; --j-frame: initial; --j-rule: initial; --j-head: initial; --j-caps: initial; --j-track: initial; --j-seal: initial; --j-inset: initial; --j-cell: initial; --j-select: initial; --j-desk: initial; --j-rail: initial; --j-orn: initial; --j-dc-float: initial; --j-dc-size: initial; --j-dc-color: initial; --j-dc-font: initial;
     --page: #0c0a0b; --paper: #171213; --fg: #f0e8e5; --muted: #b7a9a4; --line: #4a3b38; --soft: #261c1d; --softer: #1e1617; --link: #ff9d7e;
     --visited: #d9a0c0; --red: #ff7e6e; --head: #120d0e; --accent: #e4583f; --infobox: #1e1617; --buff: #6fd49a; --nerf: #ff7a96; --new: #7db3ff;
     --rework: #c9a0ee; --fix: #f0e052; --other: #b7a9a4; --perf: #50c5e2; --econ: #bfd85a; --ui: #d161a8; --qol: #d18a61; --notice: #2a1a14; --notice-line: #a8532e;
@@ -600,3 +613,20 @@ html[data-navbar="scroll"] { scroll-padding-top: .5rem; }
 .portal p.muted { margin: 0; font-size: .8rem; }
 .portal .wikitable td:last-child { min-width: 0; }
 @media (max-width: 600px) { .portal .wikitable .dt { display: none; } }   /* on a phone the date gives way so the topics fit */
+
+/* skin hooks: decoration an individual skin can opt into through --j-* values (unset means the plain flat look) */
+::selection { background: var(--j-select, Highlight); }
+#head { border-bottom: var(--j-head, 1px solid var(--line)); }
+#content { border: var(--j-frame, 1px solid var(--line)); border-bottom: 0; background-image: var(--j-paper, none); box-shadow: var(--j-sheet, none); }
+h1.title, h2.sec { border-bottom: var(--j-rule, 1px solid var(--line)); font-variant: var(--j-caps, normal); letter-spacing: var(--j-track, 0); }
+h2.sec { border-bottom-width: 1px; border-bottom-style: solid; }
+.wikitable, .wikitable th, .wikitable td, .portal, .infobox, .cats, .alpha, form.rangebar { border-color: var(--j-cell, var(--line)); }
+.mark { background: var(--j-seal, var(--accent)); }
+#q, input.filter, form.rangebar input[type=date] { box-shadow: var(--j-inset, none); }
+body { background: var(--j-desk, var(--page)); background-attachment: fixed; }
+#rail { background: var(--j-rail, transparent); }
+/* a diamond set in the rule under a title or section heading, and a drop cap on a page's opening paragraph */
+h1.title, h2.sec { position: relative; }
+h1.title::after, h2.sec::after { content: var(--j-orn, none); position: absolute; left: 50%; bottom: -5px; width: 8px; height: 8px; transform: translateX(-50%) rotate(45deg); background: var(--line); box-shadow: 0 0 0 2px var(--paper); }
+#app > :is(.tagline, .hat) ~ p:first-of-type:not(:is(h2, h3) ~ p)::first-letter, #app > :is(.tagline, .hat) ~ div:not([class]) > p:first-child::first-letter { float: var(--j-dc-float, none); font-size: var(--j-dc-size, 1em); font-family: var(--j-dc-font, inherit); color: var(--j-dc-color, inherit); line-height: .8; padding: .08em .1em 0 0; }
+@media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) { html[data-panel="sidebar"] #settings-panel { background: var(--j-rail, none); } }   /* a docked Settings column sits on the skin's rail color, not straight on the desk */
