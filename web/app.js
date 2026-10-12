@@ -1217,14 +1217,14 @@
   }
   var pendingSection = "";   /* a section named by the address, waiting for the page (a guide page draws after its text arrives) */
   function jumpPending() { if (pendingSection && scrollTo(pendingSection, true)) pendingSection = ""; }
-  /* a small link at the end of each section heading that copies the address of that section */
+  /* a small link in the left margin of each section heading that copies the address of that section */
   function addHeadingLinks() {
     Array.prototype.forEach.call(app.querySelectorAll("h2.sec[id], h3.sec[id]"), function (h) {
       if (h.querySelector(".hlink")) return;
       var a = document.createElement("a");
-      a.className = "hlink popup"; a.href = pagePath() + "#" + encodeURIComponent(h.id); a.textContent = "¶";
+      a.className = "hlink popup"; a.href = pagePath() + "#" + encodeURIComponent(h.id); a.textContent = "🔗";
       a.setAttribute("aria-label", "Copy the link to this section"); a.title = "Copy the link to this section";
-      h.appendChild(a);
+      h.insertBefore(a, h.firstChild);
     });
   }
   document.addEventListener("click", function (e) {
@@ -1233,8 +1233,8 @@
     e.preventDefault();
     var id = a.parentNode.id; markSection(id);
     copyText(location.origin + location.pathname + location.search + pagePath() + "#" + encodeURIComponent(id), function (ok) {
-      a.textContent = ok ? "Copied" : "Copy failed"; a.classList.add("on"); clearTimeout(a.__t);
-      a.__t = setTimeout(function () { a.textContent = "¶"; a.classList.remove("on"); }, 1600);
+      a.textContent = ok ? "✓" : "!"; a.title = ok ? "Link copied" : "Could not copy; the link is in the address bar"; a.classList.add("on"); clearTimeout(a.__t);
+      a.__t = setTimeout(function () { a.textContent = "🔗"; a.classList.remove("on"); a.title = "Copy the link to this section"; }, 1600);
     });
   });
   document.addEventListener("click", function (e) {
