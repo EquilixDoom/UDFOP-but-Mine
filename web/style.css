@@ -227,8 +227,8 @@ details { margin: .4em 0; } summary { cursor: pointer; font-weight: 600; }
   #side { display: none; position: fixed; top: 0; left: 0; bottom: 0; height: auto; align-self: auto; width: 15em; z-index: 15; background: var(--paper);
     border-right: 1px solid var(--line); overflow: auto; }
   body.menu-open #side { display: block; }
-  #content { padding: 14px 14px 0; border-left: 0; border-right: 0; }
-  #foot { margin: 32px -14px 0; padding: 12px 14px 20px; }
+  #content { padding: 14px 20px 0; border-left: 0; border-right: 0; }   /* the side margin leaves room for the section link beside each heading */
+  #foot { margin: 32px -20px 0; padding: 12px 20px 20px; }
   h1.title { font-size: 1.55rem; }
 }
 
@@ -533,8 +533,8 @@ h3.sec > .hlink { top: .1em; }
 h2:hover > .hlink, h3:hover > .hlink, .hlink:focus-visible { opacity: .75; }
 .hlink:hover { opacity: 1 !important; }
 @media (hover: none) { .hlink { opacity: .55; } }
-@media (max-width: 860px), (max-height: 500px) and (max-width: 1100px) {   /* narrow screen: the link sits in the heading's left margin, before the fold arrow */
-  h2.foldable, h3.foldable { padding-left: calc(1.05em + 1.3rem); }
-  h2.foldable::before, h3.foldable::before { left: 1.3rem; }
-  .hlink { left: 0; width: 1.3rem; opacity: .6; }
+@media (max-width: 860px), (max-height: 500px) and (max-width: 1100px) {   /* narrow screen: always shown, in the page's small left margin beside the heading and its fold arrow */
+  .hlink { left: -1.2rem; width: 1.2rem; opacity: .6; }
+  .hlink svg { width: .8rem; height: .8rem; }
+  h3.sec > .hlink { top: .05em; }
 }
