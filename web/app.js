@@ -114,7 +114,7 @@
     return '<h1 class="title">' + title + '</h1><div class="tagline banner">From ' + SITE + "</div>" +
       (opts.hat ? '<div class="hat breadcrumbs">' + opts.hat + "</div>" : "") + body;
   }
-  function sec(id, title, lvl) { return "<h" + lvl + ' class="sec" id="' + slugId(id) + '" data-toc="' + esc(title) + '">' + esc(title) + "</h" + lvl + ">"; }
+  function sec(id, title, lvl, open) { return "<h" + lvl + ' class="sec" id="' + slugId(id) + '" data-toc="' + esc(title) + '"' + (open ? ' data-open="1"' : "") + ">" + esc(title) + "</h" + lvl + ">"; }   /* open: on a narrow screen the section starts unfolded */
 
   var RELEASES_URL = "https://github.com/Lattymoy/daggerfall-js-source/releases";   /* each release is the tag app-v plus its version */
   function table(list, cols, limit) {
@@ -221,6 +221,25 @@
   /* ---------- views ---------- */
   var views = {};
 
+  /* the newest patches that added something: how many additions, in how many topics, and which topics (the most-added-to first) */
+  var RECENT_ADDITIONS = 5, ADDITION_CHIPS = 8;
+  function recentAdditions() {
+    var list = [];
+    for (var i = 0; i < versions.length && list.length < RECENT_ADDITIONS; i++) {
+      var v = versions[i], adds = byVersion[v].filter(function (r) { return r.t === "New"; });
+      if (adds.length) list.push({ v: v, adds: adds });
+    }
+    if (!list.length) return "";
+    var h = sec("Recent additions", "Recent additions", 2, true) + "<p>The newest patches that added something new, with the topics that gained it. Fixes and reworks are not counted here.</p>";
+    list.forEach(function (it) {
+      var per = group(it.adds, "e"), names = Object.keys(per).sort(function (a, b) { return per[b].length - per[a].length || a.localeCompare(b); });
+      var to = "#/patch/" + enc(it.v) + "#" + slugId("type-additions");
+      h += '<div class="radd"><div class="rv"><b>' + vlink(it.v) + "</b><small>" + esc(dateOf(it.v)) + '</small></div><div class="rb"><b>' + plural(it.adds.length, "addition") + "</b> in " + plural(names.length, "topic") +
+        '<div class="chips">' + names.slice(0, ADDITION_CHIPS).map(tlink).join("") + (names.length > ADDITION_CHIPS ? '<a href="' + to + '">+' + (names.length - ADDITION_CHIPS) + " more</a>" : "") +
+        '</div><a class="all" href="' + to + '">Read these additions →</a></div></div>';
+    });
+    return h;
+  }
   views.patchnotes = function () {
     var latest = versions[0], lrows = byVersion[latest];
     var recent = uniq(rows.slice().sort(newest).slice(0, 80).map(function (r) { return r.e; })).slice(0, 12);
@@ -229,11 +248,8 @@
       rows.length.toLocaleString() + "</b> recorded changes to <b>" + topics.length + '</b> topics across <b>' + versions.length + "</b> patches, from version " +
       esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
     h += '<p class="browse"><b>Browse:</b> <a href="#/recent">Recent changes</a> · <a href="#/topics">All topics</a> · <a href="#/hubs">Categories</a> · <a href="#/systems">Game systems</a> · <a href="#/patches">Patch index</a> · <a href="#/random">Random topic</a></p>';
-    h += '<div class="portals">';
-    h += '<div class="portal"><h3>Latest patch</h3><div><p><b>' + vlink(latest) + "</b> – " + esc(dateOf(latest)) + "<br>" + plural(lrows.length, "change") + " to " +
-      plural(uniq(lrows.map(function (r) { return r.e; })).length, "topic") + ".</p><ul>" +
-      uniq(lrows.map(function (r) { return r.e; })).slice(0, 8).map(function (t) { return "<li>" + tlink(t) + "</li>"; }).join("") +
-      '</ul><p><a href="#/recent">All recent changes →</a></p></div></div>';
+    h += recentAdditions();
+    h += sec("Topics to explore", "Topics to explore", 2, true) + '<div class="portals">';
     h += '<div class="portal"><h3>Recently changed topics</h3><div><ul>' + recent.map(function (t) { return "<li>" + tlink(t) + "</li>"; }).join("") + "</ul></div></div>";
     h += '<div class="portal"><h3>Most documented topics</h3><div><ul>' + big.map(function (t) { return "<li>" + tlink(t) + " <small class='muted'>(" + byTopic[t].length + ")</small></li>"; }).join("") + "</ul></div></div>";
     h += "</div>";
@@ -1027,6 +1043,7 @@
       f.h.classList.add("foldable");
       f.members.forEach(function (el) { el.__fh = (el.__fh || 0) + 1; el.classList.add("fold-hide"); });
     });
+    folds.forEach(function (f) { if (f.h.hasAttribute("data-open")) toggleFold(f, true); });
     syncFoldMode();
   }
   function toggleFold(f, open) {
