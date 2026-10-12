@@ -214,7 +214,7 @@ A picture kept in an `images` folder beside the page, such as `web/guide/combat/
 > [!NOTE]
 > You do not need this to contribute.
 
-To see a page before proposing it, run these from the project folder, then open [localhost:8000](http://localhost:8000)
+To see a page before proposing it, run these from the project folder, then open <http://localhost:8000>
 
 ```py
 python tools/guide.py --check
