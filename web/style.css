@@ -221,7 +221,7 @@ form.rangebar .rr.sub { margin-top: 6px; gap: 2px 14px; }
 form.rangebar label { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: .8rem; color: var(--muted); }   /* the label sits above its field, so From and To line up whatever the width */
 form.rangebar input[type=date] { font: inherit; font-size: .85rem; padding: 3px 6px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper); color: var(--fg); min-width: 0; }
 form.rangebar input[type=date]:focus-visible { outline: 2px solid var(--link); outline-offset: 0; }
-form.rangebar .dock { font-size: 1em; padding: 3px 12px; align-self: flex-end; }   /* last in the fields row, level with the fields; on a narrow box it wraps under them */
+form.rangebar .dock { font-size: 1em; padding: 3px 12px; align-self: flex-end; margin-left: auto; }   /* last in the fields row, level with the fields and at the right edge, also when a narrow box wraps it under them */
 form.rangebar .rangenote { color: var(--muted); }
 /* patch index: one folded group per day, a row per release */
 details.day, details.legacy { border: 1px solid var(--line); background: var(--paper); margin: .5em 0; }
