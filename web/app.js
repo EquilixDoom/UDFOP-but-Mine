@@ -1482,6 +1482,14 @@
     setMenu(false); sug.hidden = true;
     scrollMem.arrive();
   }
+  /* Firefox decides whether to offer reader view when the address changes, which is before this page has drawn its text. Once the text is there,
+     a replaceState that changes nothing makes it look again. */
+  var readerNudge;
+  new MutationObserver(function () {
+    clearTimeout(readerNudge);
+    readerNudge = setTimeout(function () { try { history.replaceState(history.state, "", location.href); } catch (e) {} }, 400);
+  }).observe(app, { childList: true, subtree: true });
+
   window.addEventListener("hashchange", route);
   route();
 })();
