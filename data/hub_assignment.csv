@@ -929,3 +929,34 @@ The Shattered Hour,Arena and Quests,,6,World,
 The Unmoored Steps,World and Overworld,,3,World,
 Gem Sockets,Items and Equipment,,6,Items; UI,
 Gems,Items and Equipment,,4,Items,
+Adventuring Companies,World and Overworld,,6,UI; World,
+Boss Fight Integrity,Platform and Engine,,6,Online,
+Captain Standing,Naval,,2,World,yes
+Captain Tab,Naval,,1,UI,yes
+Caravans,World and Overworld,,11,Graphics; World,
+Crew Halls,Naval,,5,UI; World,
+DFO Grimoire,Interface,,10,UI,
+Damned Weapons,Items and Equipment,,1,Items,yes
+Deep Waters,Naval,,1,World,yes
+Elite Gates,Oblivion Gates,,1,World,yes
+Etheric Sea,Naval,,10,Combat; Graphics; UI; World,
+Exchange,Naval,,2,World,yes
+Harbourmaster,Naval,,3,UI; World,
+Home Votes,Homes and Property,,5,Online,
+Lighthouses,Naval,,6,Graphics; World,
+Morrowind People,Rendering,,12,Engine; Graphics; Online; UI,
+Outlaws,World and Overworld,,3,UI; World,
+Readied Spellcasting Hands,Combat and AI,,1,Combat,yes
+Room Copies,Platform and Engine,,1,Online,yes
+Shipyards,Naval,,10,Graphics; UI; World,
+Spite of the Spurned,Items and Equipment,,1,Combat,yes
+Spyglass,Naval,,5,Controls; UI; World,
+Thorns,Items and Equipment,,3,Combat,
+Town Buyers,Economy and Trade,,4,Online,
+Town News,World and Overworld,,1,World,yes
+Treasure Charts,Naval,,1,Items,yes
+Troll's Blood,Items and Equipment,,2,Items,yes
+Tutorials,Interface,,10,UI,
+Wagon Parking,World and Overworld,,10,Online; World,
+Wagon Yards,World and Overworld,,12,Graphics; UI; World,
+Weapon Techniques,Combat and AI,,27,Combat; Controls; Graphics; UI,
