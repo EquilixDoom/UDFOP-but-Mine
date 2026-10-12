@@ -364,6 +364,7 @@
       (order.length > 1 ? "Most of them are " + esc(TYPE_LABEL[top] ? TYPE_LABEL[top].toLowerCase() : top.toLowerCase()) + " (" + g[top].length + ")." : "") + "</p>";
 
     var h = ib + lead;
+    if (D.desc && D.desc[t]) h += '<p class="srcnote"><small class="muted">AI-assisted summary; it may be wrong or out of date. The History table below is the record to trust. <a href="#/about">About UDFOP</a></small></p>';
     h += sec("Latest changes", "Latest changes", 2) + bullets(l.slice().sort(newest).slice(0, Math.min(5, l.length)), false);
     h += sec("History", "History", 2) + table(l, ["Patch", "Source", "Date", "System", "Type", "Direction", "Change"]);   /* Change stays last: the stylesheet gives the last column its width */
     if (order.length > 1) {
