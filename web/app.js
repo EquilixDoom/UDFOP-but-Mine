@@ -787,7 +787,7 @@
         rendered += buildReferences(refs, (fm.meta.related || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean)); refs = null;
         box.innerHTML = rendered +
           '<p class="editline footer-note"><a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
-        buildToc(); addHeadingLinks(); jumpPending();
+        buildToc(); addHeadingLinks(); fitEndPad(); jumpPending();
       }).catch(function () {
         if (guideFailed) { box.innerHTML = guideUnavailable(); return; }
         /* the same page as any other missing address (a Game Guide page also gets a way to write it) */
@@ -1215,6 +1215,24 @@
     if (el) { if (!jump) markSection(id); el.scrollIntoView({ behavior: jump ? "auto" : "smooth", block: "start" }); }
     return !!el;
   }
+  /* Scrolling past the end: on a wide screen the page gets just enough empty space after the article that, scrolled to the very end, its last heading sits at the top of the window
+     (where a heading link lands). That lets the Contents list reach and highlight the last short sections. No space on a narrow screen, on a page with no headings, on a page
+     that fits the window, or when the last section is already taller than the window. */
+  var endpad = document.getElementById("endpad"), endpadQueued = false;
+  function fitEndPad() {
+    var last = null, hs = app.querySelectorAll(".sec[id]");
+    if (hs.length) last = hs[hs.length - 1];
+    var now = endpad.offsetHeight, need = 0;
+    if (last && !isCompact() && document.documentElement.scrollHeight - now > window.innerHeight) {
+      var tail = document.getElementById("foot").getBoundingClientRect().bottom - last.getBoundingClientRect().top - now;
+      var line = window.innerHeight - (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);   /* the same offset a heading link scrolls to */
+      need = Math.max(0, Math.ceil(line - tail));
+    }
+    if (need !== now) endpad.style.height = need + "px";
+  }
+  function queueEndPad() { if (endpadQueued) return; endpadQueued = true; requestAnimationFrame(function () { endpadQueued = false; fitEndPad(); }); }
+  window.addEventListener("resize", queueEndPad);
+  if (window.ResizeObserver) new ResizeObserver(queueEndPad).observe(app);   /* pictures loading, a changed text size, a guide page drawing */
   var pendingSection = "";   /* a section named by the address, waiting for the page (a guide page draws after its text arrives) */
   function jumpPending() { if (pendingSection && scrollTo(pendingSection, true)) pendingSection = ""; }
   /* a small link in the left margin of each section heading that copies the address of that section. It is a drawn icon, not an emoji, so its color can change
@@ -1529,6 +1547,7 @@
     if (res.toc !== false) buildToc();
     if (res.after) res.after();
     setMenu(false); sug.hidden = true;
+    fitEndPad();
     var restored = scrollMem.arrive();
     addHeadingLinks();
     if (!restored) { pendingSection = sectionOf(); jumpPending(); }
