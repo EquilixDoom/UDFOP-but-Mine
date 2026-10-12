@@ -218,8 +218,8 @@ form.rangebar .rh { display: flex; align-items: baseline; justify-content: space
 form.rangebar .rl { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 form.rangebar .rr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
 form.rangebar .rr.sub { margin-top: 6px; gap: 2px 14px; }
-form.rangebar label { display: inline-flex; align-items: center; gap: 6px; }
-form.rangebar input[type=date] { font: inherit; padding: 3px 6px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper); color: var(--fg); min-width: 0; }
+form.rangebar label { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: .8rem; color: var(--muted); }   /* the label sits above its field, so From and To line up whatever the width */
+form.rangebar input[type=date] { font: inherit; font-size: .85rem; padding: 3px 6px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper); color: var(--fg); min-width: 0; }
 form.rangebar input[type=date]:focus-visible { outline: 2px solid var(--link); outline-offset: 0; }
 form.rangebar .dock { font-size: 1em; padding: 2px 12px; }
 form.rangebar .rangenote { color: var(--muted); }
