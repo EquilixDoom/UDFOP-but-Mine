@@ -544,6 +544,9 @@ h2:hover > .hlink, h3:hover > .hlink, .hlink:focus-visible { opacity: .75; }
 html[data-navbar="scroll"] #head { position: static; }
 html[data-navbar="scroll"] { scroll-padding-top: .5rem; }
 
-/* the Type / Topic switch above a list of changes */
-.groupby { margin: .2em 0 .9em; font-size: .9rem; color: var(--muted); }
-.groupby b { color: var(--fg); }
+/* the By type / By topic tabs above a list of changes */
+.gtabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin: .6em 0 1em; }
+.gtabs a, .gtabs span { padding: 9px 18px; margin-bottom: -1px; border-bottom: 3px solid transparent; text-decoration: none; }
+.gtabs a:hover { background: var(--soft); text-decoration: none; }
+.gtabs span.on { color: var(--fg); font-weight: 700; border-bottom-color: var(--accent); }
+.gtabs small { margin-left: .5em; font-size: .78rem; font-weight: normal; color: var(--muted); }

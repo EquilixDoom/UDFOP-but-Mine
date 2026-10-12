@@ -170,10 +170,20 @@
     });
     return h;
   }
-  /* the Type / Topic switch above a list of changes; mode is "type" or "topic" and base is the page's address */
-  function groupSwitch(base, mode) {
-    return '<p class="groupby">Group changes by: ' + (mode === "type" ? "<b>Type</b>" : '<a href="' + base + '">Type</a>') + " · " +
-      (mode === "topic" ? "<b>Topic</b>" : '<a href="' + base + '?group=topic">Topic</a>') + "</p>";
+  /* how many headings a list of changes gets when it is grouped by kind */
+  function typeGroupCount(list) {
+    var known = [];
+    TYPE_GROUPS.forEach(function (g) { known = known.concat(g.types); });
+    return TYPE_GROUPS.filter(function (g) { return list.some(function (r) { return g.types.indexOf(r.t) >= 0 || (g.key === "other" && known.indexOf(r.t) < 0); }); }).length;
+  }
+  /* the By type / By topic tabs above a list of changes; mode is "type" or "topic", base is the page's address, hint (optional) says what each choice gives */
+  function groupSwitch(base, mode, hint) {
+    function tab(key, label) {
+      var small = hint && hint[key] ? "<small>" + esc(hint[key]) + "</small>" : "";
+      return mode === key ? '<span class="on" aria-current="page">' + label + small + "</span>"
+        : '<a href="' + base + (key === "topic" ? "?group=topic" : "") + '">' + label + small + "</a>";
+    }
+    return '<nav class="gtabs" aria-label="Group the changes">' + tab("type", "By type") + tab("topic", "By topic") + "</nav>";
   }
 
   function bullets(list, withTopic) {
@@ -353,7 +363,7 @@
     h += "<p><b>Patch " + esc(v) + "</b> was released on " + esc(dateOf(v)) + ". It records " + plural(l.length, "change") + " to " + plural(names.length, "topic") + ".</p>";
     h += '<p class="srcnote">These changes are compiled from the developers&rsquo; notes. <a href="' + RELEASES_URL + "/tag/app-v" + enc(v) + '" rel="noopener">Read the original release notes for patch ' + esc(v) + " on GitHub ↗</a></p>";   /* every release's tag is app-v plus its version */
     var mode = routeQuery.group === "topic" ? "topic" : "type";
-    h += groupSwitch("#/patch/" + enc(v), mode);
+    h += groupSwitch("#/patch/" + enc(v), mode, { type: plural(typeGroupCount(l), "group"), topic: plural(names.length, "topic") });
     if (mode === "topic") names.forEach(function (t) { h += sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); });
     else h += changesByType(l, 2, true);
     if (rel && rel.prs.length) h += sec("Pull requests", "Source pull requests", 2) + '<ul class="bul">' + rel.prs.map(function (p) {

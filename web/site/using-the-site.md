@@ -31,7 +31,7 @@ The search box is at the top of every page. As you type, it suggests matching Ga
 
 The [Patch Notes](#/patchnotes) front page has a **Browse** line: Recent changes, All topics, Categories, Game systems, Patch index and Random topic. Use **Random topic** to wander.
 
-A patch page and the Recent changes page sort the changes by kind first: Additions, Reworks, Fixes, then performance, economy, interface, balance, removals and other changes, so you can read what is new without the fixes mixed in. Each heading shows how many changes it holds and appears in Contents. Above the list, **Group changes by** switches to the older layout, one heading per topic. The patch page also links to the developers' original release notes on GitHub.
+A patch page and the Recent changes page sort the changes by kind first: Additions, Reworks, Fixes, then performance, economy, interface, balance, removals and other changes, so you can read what is new without the fixes mixed in. Each heading shows how many changes it holds and appears in Contents. Above the list, the **By type** and **By topic** tabs switch between that and the older layout, one heading per topic. The patch page also links to the developers' original release notes on GitHub.
 
 ### Browsing the Game Guide
 
