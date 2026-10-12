@@ -304,6 +304,7 @@
     return { title: "Patch index", html: page("Patch index", h, { hat: PN_HAT + "Patch index" }), after: function () { wireFilter("tbody tr", "tbody tr"); } };
   };
 
+  var RELEASES_URL = "https://github.com/Lattymoy/daggerfall-js-source/releases";
   views.patch = function (v) {
     var l = byVersion[v];
     if (!l) return notFound("Patch " + v);
@@ -311,6 +312,7 @@
     var h = '<div class="pager">' + (i < versions.length - 1 ? '<a href="#/patch/' + enc(versions[i + 1]) + '">← Older: ' + esc(versions[i + 1]) + "</a>" : "") +
       (i > 0 ? '<a href="#/patch/' + enc(versions[i - 1]) + '">Newer: ' + esc(versions[i - 1]) + " →</a>" : "") + "</div>";
     h += "<p><b>Patch " + esc(v) + "</b> was released on " + esc(dateOf(v)) + ". It records " + plural(l.length, "change") + " to " + plural(names.length, "topic") + ".</p>";
+    h += '<p class="srcnote">These changes are compiled from the developers&rsquo; notes. <a href="' + RELEASES_URL + "/tag/app-v" + enc(v) + '" rel="noopener">Read the original release notes for patch ' + esc(v) + " on GitHub ↗</a></p>";   /* every release's tag is app-v plus its version */
     names.forEach(function (t) { h += sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); });
     if (rel && rel.prs.length) h += sec("Pull requests", "Source pull requests", 2) + '<ul class="bul">' + rel.prs.map(function (p) {
       return '<li><a href="' + esc(p.u) + '" rel="noopener">#' + p.n + "</a> " + esc(p.t) + "</li>"; }).join("") + "</ul>";
