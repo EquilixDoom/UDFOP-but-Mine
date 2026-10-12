@@ -6,9 +6,6 @@ summary: One sentence that says what the creature is and how a player deals with
 # related: topic:Name, guide:Page title
 ---
 
-> [!TIP]
-> Replace each *[bracketed line]* with your own words, delete any row or section that does not fit your page (delete the `image:` line if you have no picture), and delete this box when you are done. Put short facts in the panel and explanations in the text. Link other pages with `[[Page title]]` and Patch Notes topics with `[[topic:Name]]`.
-
 > [!INFO]
 > image: images/creature-name.png
 > Type: *[animal, undead, humanoid, Daedra, elite, world boss, ...]*
@@ -22,6 +19,9 @@ summary: One sentence that says what the creature is and how a player deals with
 > Always: *[what it always drops, or "nothing"]*
 > Sometimes: *[common drops]*
 > Rare: *[rare drops]*
+
+> [!TIP]
+> Replace each *[bracketed line]* with your own words, delete any row or section that does not fit your page (delete the `image:` line if you have no picture), and delete this box when you are done. Put short facts in the panel and explanations in the text. Link other pages with `[[Page title]]` and Patch Notes topics with `[[topic:Name]]`.
 
 > [!NOTE]
 > **As of patch** *[the latest version you checked, for example 0.1.8020]*.

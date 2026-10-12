@@ -500,8 +500,8 @@ kbd.k-pad { border-radius: 999px; border-color: var(--accent); }
 #lightbox .lb-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 body.lb-open { overflow: hidden; }
 
-/* an infobox: a fact panel beside the page's first paragraphs */
-.infobox { float: right; clear: right; width: 15.5rem; max-width: 100%; box-sizing: border-box; margin: .3em 0 .9em 1.1em; border: 1px solid var(--line); background: var(--paper); font-size: .85rem; line-height: 1.4; }
+/* an infobox in a guide page (a fact panel beside the page's first paragraphs); the patch notes' topic infobox is a different thing, styled above */
+.factbox { float: right; clear: right; width: 15.5rem; max-width: 100%; box-sizing: border-box; margin: 0 0 .9em 1.1em; border: 1px solid var(--line); background: var(--paper); font-size: .85rem; line-height: 1.4; }
 .ib-title { padding: 5px 8px; background: var(--soft); border-bottom: 1px solid var(--line); text-align: center; font: 700 .95rem var(--sans); }
 .ib-img { display: block; max-width: calc(100% - 16px); height: auto; margin: 8px auto; }
 .ib-row { display: flex; border-top: 1px solid var(--line); }
@@ -509,5 +509,5 @@ body.lb-open { overflow: hidden; }
 .ib-k { flex: 0 0 38%; padding: 4px 8px; background: var(--softer); color: var(--muted); }
 .ib-v { flex: 1; min-width: 0; padding: 4px 8px; overflow-wrap: anywhere; }
 .ib-sec { padding: 3px 8px; background: var(--soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; font-weight: 700; font-size: .8rem; }
-#gp .infobox ~ .wrap, #gp .infobox ~ .codebox { clear: right; }
-@media (max-width: 860px), (max-height: 500px) and (max-width: 1100px) { .infobox { float: none; width: auto; margin: .6em 0 1em; } }
+#gp .alert, #gp .codebox, #gp blockquote { display: flow-root; }   /* a box with a background stays beside a floated panel instead of running under it */
+@media (max-width: 860px), (max-height: 500px) and (max-width: 1100px) { .factbox { float: none; width: auto; margin: .6em 0 1em; } }

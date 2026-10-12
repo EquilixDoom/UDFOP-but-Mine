@@ -232,9 +232,13 @@ def infoboxes(body):
 
 
 def check_infoboxes(pages, problems):
-    """An infobox row needs a value, and a page needs only one box."""
+    """An infobox row needs a value, a page needs only one box, and the box comes first."""
     for p in pages:
         boxes = infoboxes(p['_body'])
+        if boxes:
+            first = next((ln for ln in p['_body'].split('\n') if ln.strip()), '')
+            if not INFO_START.match(first):
+                problems.append(('warn', p['_where'], 'the infobox is not the first thing on the page; move it to the top, right after the front matter, so it lines up with the first paragraph'))
         if len(boxes) > 1:
             problems.append(('warn', p['_where'], 'the page has %d infoboxes; one is enough, and a table can hold the rest' % len(boxes)))
         for block in boxes:

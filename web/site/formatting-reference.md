@@ -5,6 +5,15 @@ summary: Every kind of formatting a guide page can use, with the syntax to type 
 expected-missing: Example of a missing page
 ---
 
+> [!INFO]
+> Kind: Reference
+> Covers: Every kind of formatting a guide page can use
+> Used on: Game Guide and Site Guide pages
+> Written in: Markdown, with a few extras
+> ## Related
+> Steps: [[How to write a guide page]]
+> Problems: [[Troubleshooting and FAQ]]
+
 Everything you can write in a guide page, with examples in plain text syntax and rendered. For the steps of adding or editing a page, see [[How to write a guide page]]. If something does not look right, see [[Troubleshooting and FAQ]].
 
 ## Quick reference
@@ -475,23 +484,16 @@ An infobox is a small panel of key facts that floats beside the first paragraphs
 > Sold at: General Stores
 ```
 
-Rendered:
-
-> [!INFO] Example item
-> image: images/sarsaparilla-01s.jpg
-> Type: Example
-> Value: 100 gold
-> ## Where found
-> Sold at: General Stores
+The panel at the top of this page is an infobox written the same way, without the picture row. A picture row draws the picture under the title, above the rows.
 
 - **Title.** Written after `[!INFO]`. Leave it out and the page's own title is used.
 - **Rows.** Each `Key: value` line is one row. The value can hold bold text and links. A line with no colon carries on the row above it.
 - **Picture.** An optional `image:` line, with the path from the page's folder, puts a picture under the title. Readers can click it to enlarge it, like any other picture.
 - **Group headings.** A line starting `## ` adds a grey heading that splits the rows into groups. It is not a section of the page, so it does not appear in the Contents list.
-- **Placement.** The panel floats on the right and the text wraps around it, as captioned pictures do. A heading, table or code box starts below it. On a phone it moves above the text.
+- **Placement.** Put the infobox first, right after the front matter, so it lines up with the top of the page text. It floats on the right, and the text, headings, notice boxes and tables sit beside it. On a phone it moves above the text.
 
 > [!NOTE]
-> Use one infobox per page, near the top, and keep it to the facts a reader looks up. Long explanations belong in the text. The page check notes a row with no value and a page with more than one panel. In GitHub's preview the panel shows as an ordinary quotation with its text readable.
+> Use one infobox per page, as the first thing on the page, and keep it to the facts a reader looks up. Long explanations belong in the text. The page check notes a row with no value, a page with more than one panel, and a panel that is not the first thing on the page. In GitHub's preview the panel shows as an ordinary quotation with its text readable.
 
 ### Spoilers
 

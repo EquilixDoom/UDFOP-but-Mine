@@ -527,7 +527,7 @@
       if (rows.length && rows[rows.length - 1].k !== undefined) rows[rows.length - 1].v += " " + t;
     });
     var src = img ? imgSrc(img) : "";
-    var h = '<aside class="infobox" aria-label="Facts: ' + esc(plainText(titleText)) + '"><div class="ib-title">' + inline(titleText) + "</div>";
+    var h = '<aside class="factbox" aria-label="Facts: ' + esc(plainText(titleText)) + '"><div class="ib-title">' + inline(titleText) + "</div>";
     if (src) h += '<img class="ib-img" src="' + esc(src) + '" alt="' + esc(plainText(titleText)) + '" loading="lazy">';
     h += rows.map(function (r) {
       return r.group !== undefined ? '<div class="ib-sec">' + inline(r.group) + "</div>" : '<div class="ib-row"><div class="ib-k">' + inline(r.k) + '</div><div class="ib-v">' + inline(r.v) + "</div></div>";
@@ -669,7 +669,7 @@
         while (i < lines.length && /^>(?!!.*!<)/.test(lines[i])) q.push(lines[i++].replace(/^>\s?/, ""));
         /* a quote whose first line is [!NOTE], [!TIP], [!IMPORTANT], [!WARNING] or [!CAUTION] is a notice box (GitHub's alert syntax); any other quote stays a quote */
         var inf = /^\[!INFO\](?:[ \t]+(.*?))?\s*$/i.exec(q[0]);
-        if (inf) { out.push(infobox(inf[1] || title || "", q.slice(1))); figSince = true; continue; }   /* a fact panel: floats right like a captioned picture */
+        if (inf) { out.push(infobox(inf[1] || title || "", q.slice(1))); continue; }   /* a fact panel: floats right like a captioned picture */
         var al = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$/i.exec(q[0]);
         if (al) {
           var kind = al[1].toLowerCase();
