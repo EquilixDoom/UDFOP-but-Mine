@@ -1217,12 +1217,14 @@
   }
   var pendingSection = "";   /* a section named by the address, waiting for the page (a guide page draws after its text arrives) */
   function jumpPending() { if (pendingSection && scrollTo(pendingSection, true)) pendingSection = ""; }
-  /* a small link in the left margin of each section heading that copies the address of that section */
+  /* a small link in the left margin of each section heading that copies the address of that section. It is a drawn icon, not an emoji, so its color can change
+     (an emoji keeps its own colors on many devices). */
+  var LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l.5-.5a5 5 0 0 1 7.1 7.1l-.6.5"/><path d="M13 18l-.4.5a5.1 5.1 0 0 1-7.1 0 5 5 0 0 1 0-7.1l.5-.5"/></svg>';
   function addHeadingLinks() {
     Array.prototype.forEach.call(app.querySelectorAll("h2.sec[id], h3.sec[id]"), function (h) {
       if (h.querySelector(".hlink")) return;
       var a = document.createElement("a");
-      a.className = "hlink popup"; a.href = pagePath() + "#" + encodeURIComponent(h.id); a.textContent = "🔗";
+      a.className = "hlink popup"; a.href = pagePath() + "#" + encodeURIComponent(h.id); a.innerHTML = LINK_ICON;
       a.setAttribute("aria-label", "Copy the link to this section"); a.title = "Copy the link to this section";
       h.insertBefore(a, h.firstChild);
     });
@@ -1233,8 +1235,8 @@
     e.preventDefault();
     var id = a.parentNode.id; markSection(id);
     copyText(location.origin + location.pathname + location.search + pagePath() + "#" + encodeURIComponent(id), function (ok) {
-      a.textContent = ok ? "✓" : "!"; a.title = ok ? "Link copied" : "Could not copy; the link is in the address bar"; a.classList.add("on"); clearTimeout(a.__t);
-      a.__t = setTimeout(function () { a.textContent = "🔗"; a.classList.remove("on"); a.title = "Copy the link to this section"; }, 1600);
+      a.title = ok ? "Link copied" : "Could not copy; the link is in the address bar"; a.classList.remove("on", "bad"); a.classList.add(ok ? "on" : "bad"); clearTimeout(a.__t);
+      a.__t = setTimeout(function () { a.classList.remove("on", "bad"); a.title = "Copy the link to this section"; }, 1600);
     });
   });
   document.addEventListener("click", function (e) {

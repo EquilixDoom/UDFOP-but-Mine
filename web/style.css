@@ -522,10 +522,14 @@ img.img-missing-inline { height: 1.3em; width: 1.7em; vertical-align: -.3em; }
 
 /* the link in the left margin of a section heading that copies that section's address */
 h2.sec, h3.sec { position: relative; }
-.hlink { position: absolute; left: -1.75rem; top: .35em; width: 1.5rem; text-align: center; font-size: .8rem; font-weight: normal; line-height: 1.5; text-decoration: none; opacity: 0; }
+.hlink { position: absolute; left: -1.75rem; top: .35em; width: 1.5rem; text-align: center; font-size: .8rem; font-weight: normal; line-height: 1.5; text-decoration: none; color: var(--muted); opacity: 0; transition: color .3s ease, opacity .2s ease; }
+.hlink:hover { text-decoration: none; }
+.hlink svg { width: .85rem; height: .85rem; vertical-align: -.12em; }
+.hlink.on { color: var(--link); }   /* the link is in the clipboard */
+.hlink.bad { color: var(--red); }
 h3.sec > .hlink { top: .1em; }
-.hlink.on { opacity: 1; }
-h2:hover > .hlink, h3:hover > .hlink, .hlink:focus-visible, .hlink.on { opacity: .75; }
+.hlink.on, .hlink.bad { opacity: 1; }
+h2:hover > .hlink, h3:hover > .hlink, .hlink:focus-visible { opacity: .75; }
 .hlink:hover { opacity: 1 !important; }
 @media (hover: none) { .hlink { opacity: .55; } }
 @media (max-width: 860px), (max-height: 500px) and (max-width: 1100px) {   /* narrow screen: the link sits in the heading's left margin, before the fold arrow */
