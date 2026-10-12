@@ -152,12 +152,13 @@
   function rangeBox(base, rg) {
     var newestDay = dateOf(versions[0]), oldestDay = dateOf(versions[versions.length - 1]);
     function link(label, from) { return '<a href="' + base + (from ? "?from=" + from : "") + '">' + label + "</a>"; }
-    return '<form class="rangebar" id="range-form" aria-label="Date range"><b>Date range</b> ' +
-      '<label>From <input type="date" name="from" value="' + esc(rg.from) + '" min="' + oldestDay + '" max="' + newestDay + '"></label> ' +
-      '<label>To <input type="date" name="to" value="' + esc(rg.to) + '" min="' + oldestDay + '" max="' + newestDay + '"></label> ' +
-      '<button type="submit" class="more">Show</button>' +
-      '<span class="presets">' + link("Last 7 days", shiftDay(newestDay, -6)) + " · " + link("Last 30 days", shiftDay(newestDay, -29)) + (rg.active ? " · " + link("All dates") : "") + "</span>" +
-      (rg.active ? '<span class="rangenote" role="status">Showing changes ' + esc(rangeText(rg)) + ". " + esc(rg.note) + "</span>" : (rg.note ? '<span class="rangenote">' + esc(rg.note) + "</span>" : "")) + "</form>";
+    var presets = link("Last 7 days", shiftDay(newestDay, -6)) + " · " + link("Last 30 days", shiftDay(newestDay, -29)) + (rg.active ? " · " + link("All dates") : "");
+    var note = rg.active ? "Showing changes " + esc(rangeText(rg)) + ". " + esc(rg.note) : esc(rg.note);
+    return '<form class="rangebar" id="range-form" aria-label="Date range"><div class="rr"><span class="rl">Date range</span>' +
+      '<label>From <input type="date" name="from" value="' + esc(rg.from) + '" min="' + oldestDay + '" max="' + newestDay + '"></label>' +
+      '<label>To <input type="date" name="to" value="' + esc(rg.to) + '" min="' + oldestDay + '" max="' + newestDay + '"></label>' +
+      '<button type="submit" class="dock">Apply</button></div>' +
+      '<div class="rr sub"><span>' + presets + "</span>" + (note ? '<span class="rangenote" role="status">' + note + "</span>" : "") + "</div></form>";
   }
   function wireRange(base) {
     var f = document.getElementById("range-form"); if (!f) return;
@@ -359,7 +360,7 @@
     var recent = uniq(rows.slice().sort(newest).slice(0, 80).map(function (r) { return r.e; })).filter(function (t) { return !D.legacy[t]; }).slice(0, 12);
     var big = liveTopics.slice().sort(function (a, b) { return byTopic[b].length - byTopic[a].length; }).slice(0, 12);
     var h = '<p>The patch notes record what has changed in Daggerfall Online, patch by patch and topic by topic. They cover <b>' +
-      rows.length.toLocaleString() + "</b> recorded changes to <b>" + topics.length + '</b> topics across <b>' + versions.length + "</b> patches, from version " +
+      rows.length.toLocaleString() + "</b> recorded changes to <b>" + topics.length + '</b> topics across <b>' + allVersions.length + "</b> patches, from version " +
       esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
     h += '<p class="browse"><b>Browse:</b> <a href="#/recent">Recent changes</a> · <a href="#/topics">All topics</a> · <a href="#/hubs">Categories</a> · <a href="#/systems">Game systems</a> · <a href="#/patches">Patch index</a> · <a href="#/random">Random topic</a></p>';
     h += '<div class="portals">' + recentByType();
@@ -508,21 +509,21 @@
   /* a release's tags: its Update name, then a hint when its title says "fix" and a mark on the one bulk import */
   function relTags(v) {
     var rel = D.releases[v] || {}, h = "";
-    if (rel.u) h += '<span class="tg" title="The developers&rsquo; name for this release">Update ' + esc(rel.u) + "</span>";
+    if (rel.u) h += '<span class="upd" title="The developers&rsquo; name for this patch">Update ' + esc(rel.u) + "</span>";
     if (rel.k === "likely-hotfix") h += '<span class="tag" title="The title mentions a fix. This is a guess from the title, not a record.">Likely hotfix</span>';
-    if (rel.k === "bulk-import") h += '<span class="tag" title="A catch-up release that lists hundreds of earlier changes at once">Bulk import</span>';
+    if (rel.k === "bulk-import") h += '<span class="tag" title="A catch-up patch that lists hundreds of earlier changes at once">Bulk import</span>';
     return h;
   }
   views.patches = function () {
     var byDay = {}, days = [];
     allVersions.forEach(function (v) { var d = dateOf(v); if (!byDay[d]) { byDay[d] = []; days.push(d); } byDay[d].push(v); });
     days.sort().reverse();
-    var h = "<p>" + plural(allVersions.length, "release") + " on " + plural(days.length, "day") + ", newest first. A release is listed with its title and Update name when the developers gave one; a release with no recorded changes says so.</p>" +
+    var h = "<p>" + plural(allVersions.length, "patch") + " on " + plural(days.length, "day") + ", newest first. Each patch is listed with its title and Update name when the developers gave one; a patch with no recorded changes says so.</p>" +
       filterBox("Filter by version, title or date…");
     days.forEach(function (d, k) {
       var vs = byDay[d], n = 0;
       vs.forEach(function (v) { n += D.releases[v].c; });
-      h += '<details class="day"' + (k === 0 ? " open" : "") + '><summary><b>' + esc(d) + "</b><span>" + plural(vs.length, "release") + " · " + plural(n, "change") + "</span></summary><ul class=\"rels\">" +
+      h += '<details class="day"' + (k === 0 ? " open" : "") + '><summary><b>' + esc(d) + "</b><span>" + plural(vs.length, "patch") + " · " + plural(n, "change") + "</span></summary><ul class=\"rels\">" +
         vs.map(function (v) {
           var rel = D.releases[v], c = rel.c;
           return '<li class="rel"><span class="rb">' + vlink(v) + '</span><span class="rt">' + (rel.t ? esc(rel.t) : '<span class="muted">No title</span>') + relTags(v) + '</span><span class="rn">' +
@@ -556,7 +557,7 @@
     h += '<p class="srcnote">These changes are compiled from the developers&rsquo; notes. <a href="' + RELEASES_URL + "/tag/app-v" + enc(v) + '" rel="noopener">Read the original release notes for patch ' + esc(v) + " on GitHub ↗</a></p>";   /* every release's tag is app-v plus its version */
     var mode = routeQuery.group === "topic" ? "topic" : "type";
     if (l.length) h += groupSwitch("#/patch/" + enc(v), mode, { type: plural(typeGroupCount(l), "group"), topic: plural(names.length, "topic") });
-    if (!l.length) h += "<p>No change is recorded for this release here. The developers&rsquo; original notes, linked above, may say more.</p>";
+    if (!l.length) h += "<p>No change is recorded for this patch here. The developers&rsquo; original notes, linked above, may say more.</p>";
     else if (mode === "topic") {
       var topicSections = function (ns) { return ns.map(function (t) { return sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); }).join(""); };
       h += l.length > PAGE_ROWS && names.length > TOPICS_ON_PAGE ? shownThenMore(names, TOPICS_ON_PAGE, topicSections, "topics", "pt-topics-" + (++moreSeq)) : topicSections(names);
@@ -619,7 +620,7 @@
     h += sec("Credits and licence", "Credits and licence", 2) +
       "<p>Started and maintained by <b>tau</b>, with Game Guide pages written by their contributors. The site code is released under the MIT licence and the topic descriptions and other original text are licensed CC BY 4.0. The change data is derived from the developer's release notes, which are published under the developer's own MIT licence (<a href=\"https://github.com/tau-samsara/udfop/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">notice</a>), and the game and its names belong to their owners.</p>";
     h += sec("Feedback", "Feedback", 2) + '<p>Found a mistake or a bug? See <a href="#/feedback">Feedback &amp; Bugs</a>. Pages are written by their contributors, may be wrong or out of date, and carry no warranty.</p>';
-    h += sec("Coverage", "Coverage", 2) + "<p>" + D.totals.rows.toLocaleString() + " changes in " + topics.length + " topics across " + versions.length + " patches, from " + esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
+    h += sec("Coverage", "Coverage", 2) + "<p>" + D.totals.rows.toLocaleString() + " changes in " + topics.length + " topics across " + allVersions.length + " patches, from " + esc(versions[allVersions.length - 1]) + " (" + esc(dateOf(versions[allVersions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
     return { title: "About UDFOP", html: page("About UDFOP", h) };
   };
 
@@ -1551,7 +1552,7 @@
       return fetch("site/index.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(siteLoaded).catch(function () { siteLoaded([]); });
     })
     .then(function () { if (/^#\/(guide|site|search)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
-  document.getElementById("foot-stats").textContent = D.totals.rows.toLocaleString() + " changes · " + topics.length + " topics · " + versions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
+  document.getElementById("foot-stats").textContent = D.totals.rows.toLocaleString() + " changes · " + topics.length + " topics · " + allVersions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
 
   /* search box with suggestions */
   var q = document.getElementById("q"), sug = document.getElementById("suggest"), cur = -1;

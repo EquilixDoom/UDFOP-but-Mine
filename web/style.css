@@ -208,25 +208,34 @@ details { margin: .4em 0; } summary { cursor: pointer; font-weight: 600; }
 @media (max-width: 600px) {
   table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   table.stack, table.stack tbody, table.stack tr { display: block; width: 100%; }
-  table.stack tr { padding: 8px 0; border-top: 1px solid var(--line); }
+  table.stack tr { padding: 8px 10px; border-top: 1px solid var(--line); background: var(--paper); }
   table.stack td { display: inline-block; border: 0; padding: 0 10px 0 0; background: none; }
   table.stack td:last-child { display: block; margin-top: 4px; padding: 0; min-width: 0; }
 }
-/* date range above a list of changes */
-form.rangebar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: .8em 0; padding: 8px 10px; border: 1px solid var(--line); background: var(--softer); font-size: .9rem; clear: both; }
+/* date range above a list of changes: a bordered box like .cats, a small label like the sidebar headings, fields like the search box, a small button like Settings' */
+form.rangebar { margin: .8em 0 1em; padding: 6px 10px; border: 1px solid var(--line); background: var(--softer); font-size: .85rem; }
+form.rangebar .rr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+form.rangebar .rr.sub { margin-top: 5px; gap: 2px 14px; }
+form.rangebar .rl { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 form.rangebar label { display: inline-flex; align-items: center; gap: 6px; }
-form.rangebar input[type=date] { font: inherit; padding: 3px 6px; border: 1px solid var(--line); background: var(--paper); color: var(--fg); min-width: 0; }
-form.rangebar .presets, form.rangebar .rangenote { flex-basis: 100%; }
+form.rangebar input[type=date] { font: inherit; padding: 3px 6px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper); color: var(--fg); min-width: 0; }
+form.rangebar input[type=date]:focus-visible { outline: 2px solid var(--link); outline-offset: 0; }
+form.rangebar .dock { font-size: 1em; padding: 3px 12px; }
 form.rangebar .rangenote { color: var(--muted); }
 /* patch index: one folded group per day, a row per release */
-details.day { border: 1px solid var(--line); background: var(--paper); margin: .5em 0; }
-details.day > summary { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 7px 10px; background: var(--softer); font-weight: 400; }
+details.day, details.legacy { border: 1px solid var(--line); background: var(--paper); margin: .5em 0; }
+details.day > summary, details.legacy > summary { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; position: relative; padding: 7px 10px 7px 26px; background: var(--softer); font-weight: 400; }
+details.legacy > p, details.legacy > ul { margin-left: 26px; margin-right: 10px; }
+details.day > summary, details.legacy > summary { cursor: pointer; }
+details.day > summary::before, details.legacy > summary::before { content: "\25B8"; position: absolute; left: 10px; top: 10px; color: var(--muted); font-size: .8em; }   /* the same arrows as a folding heading */
+details.day[open] > summary::before, details.legacy[open] > summary::before { content: "\25BE"; }
+details.day > summary:focus-visible, details.legacy > summary:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
 details.day > summary b { font-weight: 600; } details.day > summary span { color: var(--muted); font-size: .9rem; }
 ul.rels { list-style: none; margin: 0; padding: 0; }
 li.rel { display: grid; grid-template-columns: 5.5em 1fr auto; gap: 4px 12px; padding: 6px 10px; border-top: 1px solid var(--soft); align-items: baseline; }
 li.rel .rn { color: var(--muted); font-size: .85rem; text-align: right; }
-.tg, .tag { display: inline-block; margin-left: 6px; padding: 0 6px; border: 1px solid var(--line); font-size: .75rem; color: var(--fg); white-space: nowrap; }
-.tag { border-style: dashed; }
+.upd { margin-left: 8px; font-size: .8rem; color: var(--muted); white-space: nowrap; }   /* the developers' name is plain muted text; only a guess or a warning gets a box */
+.tag { display: inline-block; margin-left: 8px; padding: 0 6px; border: 1px dashed var(--line); font-size: .75rem; color: var(--fg); white-space: nowrap; }
 @media (max-width: 600px) { li.rel { grid-template-columns: 1fr auto; } li.rel .rb { grid-column: 1 / 3; } li.rel .rt { grid-column: 1; } }
 
 /* footer */
