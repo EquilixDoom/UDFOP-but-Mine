@@ -1218,8 +1218,8 @@
   var pendingSection = "";   /* a section named by the address, waiting for the page (a guide page draws after its text arrives) */
   function jumpPending() { if (pendingSection && scrollTo(pendingSection, true)) pendingSection = ""; }
   /* a small link in the left margin of each section heading that copies the address of that section. It is a drawn icon, not an emoji, so its color can change
-     (an emoji keeps its own colors on many devices). */
-  var LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15l6-6"/><path d="M11 6l.5-.5a5 5 0 0 1 7.1 7.1l-.6.5"/><path d="M13 18l-.4.5a5.1 5.1 0 0 1-7.1 0 5 5 0 0 1 0-7.1l.5-.5"/></svg>';
+     (an emoji keeps its own colors on many devices). The shape follows the RuneScape Wiki's link icon. */
+  var LINK_ICON = '<svg viewBox="0 0 150 150" fill="currentColor" aria-hidden="true"><path d="M95.3,54.7c3.7,3.7,6.5,7.9,8.3,12.4L90.9,79.9c-0.5-5.1-2.7-10-6.7-14c-9.4-9.4-24.2-8.8-33.9,0.4L23.2,93.3c-9.6,9.6-10.4,24.7-0.8,34.3s24.7,8.8,34.3-0.8l11.2-11.2c6.4,1.6,13.5,2.4,20.7,1.6l-20.7,20.7c-15.9,15.9-41.4,15.9-56.6,0.8c-15.1-15.1-15.1-40.6,0.8-56.6c0,0,26.2-26.1,27.1-27.1C54.5,39.8,80.6,39.9,95.3,54.7z"/><path d="M54.7,95.3c-3.7-3.7-6.5-7.9-8.3-12.4l12.7-12.7c0.5,5.1,2.7,10,6.7,14c9.4,9.4,24.2,8.8,33.9-0.4l27.1-27.1c9.6-9.6,10.4-24.7,0.8-34.3s-24.7-8.8-34.3,0.8L82.2,34.4c-6.4-1.6-13.5-2.4-20.7-1.6l20.7-20.7c15.9-15.9,41.4-15.9,56.6-0.8c15.1,15.1,15.1,40.6-0.8,56.6c0,0-26.2,26.1-27.1,27.1C95.5,110.2,69.4,110.1,54.7,95.3z"/></svg>';
   function addHeadingLinks() {
     Array.prototype.forEach.call(app.querySelectorAll("h2.sec[id], h3.sec[id]"), function (h) {
       if (h.querySelector(".hlink")) return;
