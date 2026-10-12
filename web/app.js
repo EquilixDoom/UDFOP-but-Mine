@@ -1222,9 +1222,10 @@
   function fitEndPad() {
     var last = null, hs = app.querySelectorAll(".sec[id]");
     if (hs.length) last = hs[hs.length - 1];
-    var now = endpad.offsetHeight, need = 0;
+    var foot = document.getElementById("foot"), now = endpad.offsetHeight, need = 0;
+    document.documentElement.style.setProperty("--foot-h", foot.offsetHeight + "px");   /* the footer's own height: it sticks where its top is a footer's height above the window's bottom */
     if (last && !isCompact() && document.documentElement.scrollHeight - now > window.innerHeight) {
-      var tail = document.getElementById("foot").getBoundingClientRect().bottom - last.getBoundingClientRect().top;   /* the space comes after the footer, so the footer is seen as soon as the article ends */
+      var tail = foot.getBoundingClientRect().bottom - last.getBoundingClientRect().top;   /* the space comes after the footer, so the footer is seen as soon as the article ends */
       var line = window.innerHeight - (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);   /* the same offset a heading link scrolls to */
       need = Math.max(0, Math.ceil(line - tail));
     }

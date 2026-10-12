@@ -454,6 +454,7 @@ kbd.k-pad { border-radius: 999px; border-color: var(--accent); }
 #menu:hover, body.menu-open #menu { background: var(--soft); }
 #menu { border-radius: 3px; line-height: 1; padding: 4px 8px; margin-right: 6px; }
 @media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) {
+  #foot { position: sticky; top: calc(100vh - var(--foot-h, 8rem)); z-index: 5; }   /* once the footer is fully in view it stays at the bottom of the window while the page scrolls on past the end */
   html[data-menu="popover"] #menu { display: block; }
   html:not([data-menu="popover"]) #logo { width: calc(14.5em - 12px); }
   html[data-menu="popover"] #side { display: none; position: fixed; top: var(--head-h, 3.6rem); left: var(--menu-left, 8px); max-height: calc(100vh - var(--head-h, 3.6rem) - 12px);
