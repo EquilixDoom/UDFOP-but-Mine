@@ -13,7 +13,7 @@ This page walks you through adding a page to the Game Guide, or fixing an existi
 
 1. **Sign in to GitHub.** A free account is enough, and a new account must have its email address confirmed.
 2. **Fork the project, once.** Go to the project page, [github.com/tau-samsara/udfop](https://github.com/tau-samsara/udfop), click **Fork** at the top right, then **Create fork**. You are taken to your own copy, at `github.com/your-name/udfop`. Everything below happens in your copy. (Or go straight to the [fork page](https://github.com/tau-samsara/udfop/fork).)
-3. **Create your page in your copy.** Open the `web/guide` folder, click **Add file**, then **Create new file**. Name it in lower case with hyphens and end it with `.md`, such as `party-rest.md`. For the starting text, open [the template](https://github.com/tau-samsara/udfop/blob/main/web/guide/_template.md), use its **Copy raw file** button, and paste it in.
+3. **Create your page in your copy.** Open the `web/guide` folder, click **Add file**, then **Create new file**. Name it in lower case with hyphens and end it with `.md`, such as `party-rest.md`. For the starting text, open [the template](https://github.com/tau-samsara/udfop/blob/main/web/guide/_template.md), use its **Copy raw file** button, and paste it in. Writing about an item, a place or a creature? Use [the item template](https://github.com/tau-samsara/udfop/blob/main/web/guide/_template-item.md), [the place template](https://github.com/tau-samsara/udfop/blob/main/web/guide/_template-place.md) or [the creature template](https://github.com/tau-samsara/udfop/blob/main/web/guide/_template-creature.md) instead.
 4. **Write the page.** Fill in the three lines at the top (`title`, `category` and `summary`), then write underneath.
 5. **Save it.** Click **Commit changes**. Choose **Create a new branch for this commit and start a pull request**, then click **Propose new file**.
 6. **Create the pull request.** GitHub shows a comparison of your change. Click **Create pull request**, then click **Create pull request** once more on the next screen.
@@ -119,6 +119,8 @@ The starter template follows the shape that suits most pages about how something
 6. **Sources.** Where the information comes from.
 
 Pages that are not about a game system, such as a fix for a technical problem, can drop sections or change them.
+
+Items, places and creatures have templates of their own. Each starts with a fact panel (an infobox, see the [[Formatting reference]]) holding the numbers readers look up, followed by sections that suit that kind of page: how to get an item, how to reach a place, or how to beat a creature. When you start a missing page from its red link, the "Create this page" screen offers all of them.
 
 Raw HTML is shown as plain text, so leave it out. The [[Formatting reference]] lists what is not supported.
 

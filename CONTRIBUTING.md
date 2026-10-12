@@ -16,7 +16,7 @@ The short version: **fork the project first, on its GitHub page** ([github.com/t
 
 Do not rely on the site's **Edit this page** link or the red links to missing pages to create your fork: forking from GitHub's editor can fail. They are shortcuts for people who already have one. The site's guide spells out each screen.
 
-The starter template is [`web/guide/_template.md`](web/guide/_template.md). It is the only copy: the site's editor links (red links to missing pages) load it, so edit that file to change what new pages start with.
+The starter template is [`web/guide/_template.md`](web/guide/_template.md), for pages about how something works. Items, places and creatures have their own: [`_template-item.md`](web/guide/_template-item.md), [`_template-place.md`](web/guide/_template-place.md) and [`_template-creature.md`](web/guide/_template-creature.md). Each exists once: the site's editor links (red links to missing pages) load them, so edit those files to change what new pages start with.
 
 ## Licence of what you contribute
 

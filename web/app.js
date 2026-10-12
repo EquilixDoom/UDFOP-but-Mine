@@ -422,22 +422,30 @@
       b.addEventListener("click", function () { document.getElementById(b.getAttribute("data-more")).hidden = false; b.parentNode.remove(); });
     });
   }
-  /* The editor's starter text is web/guide/_template.md (the one template); this is only a fallback if it cannot be fetched. */
+  /* The editor's starter text is a template in web/guide/: _template.md for a page about how something works, and one for each other kind of page; this is only a fallback if they cannot be fetched. */
   var FALLBACK_TPL = "---\ntitle: Page title\ncategory: \nsummary: \n---\n\nWrite your page here.\n";
-  var guideTemplate = null;
-  function newPageUrl(title) {
-    var tpl = guideTemplate || FALLBACK_TPL;
+  var TEMPLATES = [["", "How it works", "_template.md"], ["item", "Item", "_template-item.md"], ["place", "Place", "_template-place.md"], ["creature", "Creature or boss", "_template-creature.md"]];
+  var guideTemplates = {};   /* kind -> text; "" is the default */
+  function newPageUrl(title, kind) {
+    var tpl = guideTemplates[kind || ""] || guideTemplates[""] || FALLBACK_TPL;
     if (title) tpl = tpl.replace(/^title:.*$/m, function () { return "title: " + title; });
     var name = title ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "";
     return REPO + "/new/main/web/guide?" + (name ? "filename=" + enc(name + ".md") + "&" : "") + "value=" + enc(tpl);
   }
-  function newAttr(title) { return ' data-new="' + esc(title) + '"'; }
-  function refreshNewLinks() {
-    Array.prototype.forEach.call(document.querySelectorAll("a[data-new]"), function (a) { a.href = newPageUrl(a.getAttribute("data-new")); });
+  function newAttr(title, kind) { return ' data-new="' + esc(title) + '"' + (kind ? ' data-tpl="' + kind + '"' : ""); }
+  /* "or start it from another kind of template": one link for each kind of page */
+  function templateChoices(title) {
+    return '<p>Not a page about how something works? Start it from another kind of template: ' + TEMPLATES.filter(function (t) { return t[0]; }).map(function (t) {
+      return '<a href="' + newPageUrl(title, t[0]) + '"' + newAttr(title, t[0]) + ' rel="noopener">' + esc(t[1]) + "</a>"; }).join(" · ") + ".</p>";
   }
-  fetch("guide/_template.md").then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-    .then(function (t) { guideTemplate = t.replace(/^\ufeff/, "").replace(/\r\n/g, "\n"); refreshNewLinks(); })
-    .catch(function () {});
+  function refreshNewLinks() {
+    Array.prototype.forEach.call(document.querySelectorAll("a[data-new]"), function (a) { a.href = newPageUrl(a.getAttribute("data-new"), a.getAttribute("data-tpl") || ""); });
+  }
+  TEMPLATES.forEach(function (t) {
+    fetch("guide/" + t[2]).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (txt) { guideTemplates[t[0]] = txt.replace(/^\ufeff/, "").replace(/\r\n/g, "\n"); refreshNewLinks(); })
+      .catch(function () {});
+  });
   function contribBox() {
     return '<div class="mbox"><b>Anyone can add or fix a page.</b> You need a free GitHub account and your own copy (a <b>fork</b>) of the project, which you make on the project\'s GitHub page first. ' +
       '<a href="' + HOWTO + '">Step-by-step: how to write a guide page</a>.</div>';
@@ -785,7 +793,7 @@
         document.title = "Not found – " + SHORT;
         document.querySelector("h1.title").textContent = "Page not found";
         var hat = document.querySelector(".hat"); if (hat) hat.remove();
-        box.innerHTML = notFoundBody(title, site ? "" : '<p><a href="' + newPageUrl(title) + '"' + newAttr(title) + ' rel="noopener">Create this page</a> (you need your own fork first: see <a href="' + HOWTO + '">how to contribute</a>).</p>', site ? "" : slug);
+        box.innerHTML = notFoundBody(title, site ? "" : '<p><a href="' + newPageUrl(title) + '"' + newAttr(title) + ' rel="noopener">Create this page</a> (you need your own fork first: see <a href="' + HOWTO + '">how to contribute</a>).</p>' + templateChoices(title), site ? "" : slug);
         wireNotFound();
       });
     }, toc: false };
