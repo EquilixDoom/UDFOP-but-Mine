@@ -506,6 +506,27 @@
       (cap ? "<figcaption>" + inline(cap) + "</figcaption>" : "") + "</figure>";
   }
 
+  /* An infobox: a quote that starts [!INFO] and an optional title, then lines of "Key: value", an optional "image: path", and "## Group" headings.
+     It becomes a small fact panel that floats on the right of the page, like a captioned picture. A line with no colon carries on the row above. */
+  function infobox(titleText, lines) {
+    var rows = [], img = "";
+    lines.forEach(function (ln) {
+      var t = ln.trim(), m;
+      if (!t) return;
+      if ((m = /^##\s+(.+?)\s*$/.exec(t))) { rows.push({ group: m[1] }); return; }
+      if ((m = /^image\s*:\s*(\S+)\s*$/i.exec(t))) { img = m[1]; return; }
+      if ((m = /^([^:|]{1,40}?)\s*:\s*(.*)$/.exec(t))) { rows.push({ k: m[1], v: m[2] }); return; }
+      if (rows.length && rows[rows.length - 1].k !== undefined) rows[rows.length - 1].v += " " + t;
+    });
+    var src = img ? imgSrc(img) : "";
+    var h = '<aside class="infobox" aria-label="Facts: ' + esc(plainText(titleText)) + '"><div class="ib-title">' + inline(titleText) + "</div>";
+    if (src) h += '<img class="ib-img" src="' + esc(src) + '" alt="' + esc(plainText(titleText)) + '" loading="lazy">';
+    h += rows.map(function (r) {
+      return r.group !== undefined ? '<div class="ib-sec">' + inline(r.group) + "</div>" : '<div class="ib-row"><div class="ib-k">' + inline(r.k) + '</div><div class="ib-v">' + inline(r.v) + "</div></div>";
+    }).join("");
+    return h + "</aside>";
+  }
+
   /* Keys and buttons: {{W}}, {{Shift+Right click}}, {{Mouse 4}}, {{pad:RT}} become keycaps */
   /* the four arrow keys are written as words and shown as arrows */
   var ARROW_KEYS = { up: ["↑", "Up"], down: ["↓", "Down"], left: ["←", "Left"], right: ["→", "Right"] };
@@ -639,6 +660,8 @@
         var q = [];
         while (i < lines.length && /^>(?!!.*!<)/.test(lines[i])) q.push(lines[i++].replace(/^>\s?/, ""));
         /* a quote whose first line is [!NOTE], [!TIP], [!IMPORTANT], [!WARNING] or [!CAUTION] is a notice box (GitHub's alert syntax); any other quote stays a quote */
+        var inf = /^\[!INFO\](?:[ \t]+(.*?))?\s*$/i.exec(q[0]);
+        if (inf) { out.push(infobox(inf[1] || title || "", q.slice(1))); figSince = true; continue; }   /* a fact panel: floats right like a captioned picture */
         var al = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$/i.exec(q[0]);
         if (al) {
           var kind = al[1].toLowerCase();

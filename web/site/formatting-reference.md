@@ -23,6 +23,7 @@ Everything you can write in a guide page, with examples in plain text syntax and
 | `[[topic:Name]]` and `[[patch:0.1.6656]]` | a link to a Patch Notes topic or patch | Links to other pages |
 | `![alt](images/x.png "Caption"){right 220}` | a picture, with a caption, on one side | Picture captions and placement |
 | `> [!NOTE]` then the text on the next line | a notice box | Notice boxes |
+| `> [!INFO]` then `Key: value` lines | a fact panel beside the text | Infoboxes |
 | `>!hidden words!<` | words hidden until clicked | Spoilers |
 | `{{W}}` and `{{Shift+Right click}}` | keycaps | Keys and buttons |
 
@@ -460,6 +461,37 @@ Rendered, one of each:
 Anything you can write in a page also works inside a box: several paragraphs, lists, links, keys and code boxes. Put `>` at the start of every line of the box, including blank lines between paragraphs. Keep each box short. On a normal guide page use them sparingly, since a page full of boxes stops anything standing out. The pages about the site itself use many because each one is something a contributor must not miss.
 
 A tag the site does not know, such as `[!DANGER]`, leaves an ordinary quotation, and the page check mentions it. When you edit on GitHub, its preview draws these boxes too, in its own colors.
+
+### Infoboxes
+
+An infobox is a small panel of key facts that floats beside the first paragraphs of a page, as on most wikis. Players can read the numbers they look up most, such as a price or a weight, at a glance. Start a quotation with `[!INFO]` and an optional title, then write one fact per line as `Key: value`.
+
+```markdown
+> [!INFO] Example item
+> image: images/sarsaparilla-01s.jpg
+> Type: Example
+> Value: 100 gold
+> ## Where found
+> Sold at: General Stores
+```
+
+Rendered:
+
+> [!INFO] Example item
+> image: images/sarsaparilla-01s.jpg
+> Type: Example
+> Value: 100 gold
+> ## Where found
+> Sold at: General Stores
+
+- **Title.** Written after `[!INFO]`. Leave it out and the page's own title is used.
+- **Rows.** Each `Key: value` line is one row. The value can hold bold text and links. A line with no colon carries on the row above it.
+- **Picture.** An optional `image:` line, with the path from the page's folder, puts a picture under the title. Readers can click it to enlarge it, like any other picture.
+- **Group headings.** A line starting `## ` adds a grey heading that splits the rows into groups. It is not a section of the page, so it does not appear in the Contents list.
+- **Placement.** The panel floats on the right and the text wraps around it, as captioned pictures do. A heading, table or code box starts below it. On a phone it moves above the text.
+
+> [!NOTE]
+> Use one infobox per page, near the top, and keep it to the facts a reader looks up. Long explanations belong in the text. The page check notes a row with no value and a page with more than one panel. In GitHub's preview the panel shows as an ordinary quotation with its text readable.
 
 ### Spoilers
 

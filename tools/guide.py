@@ -79,7 +79,7 @@ def plain(md):
     t = strip_code(md, spans=False)
     t = re.sub(r'!\[[^\]]*\]\([^)]*\)(\{[^}]*\})?', ' ', t)
     t = re.sub(r'\[\[([^\]\|]+)(?:\|([^\]]*))?\]\]', lambda m: m.group(2) or m.group(1), t)
-    t = re.sub(r'\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]', ' ', t, flags=re.I)
+    t = re.sub(r'\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO)\]', ' ', t, flags=re.I)
     t = re.sub(r'\{\{(?:pad\s*:\s*)?([^{}]+)\}\}', r'\1', t)
     t = re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', t)
     t = re.sub(r'>!|!<', ' ', t)
@@ -146,7 +146,12 @@ def check_images(pages, problems, root=ROOT, prefix=''):
     for p in pages:
         body = strip_code(p['_body'])
         folder = os.path.dirname(p['slug'])
-        for ref in IMAGE.findall(body):
+        refs = IMAGE.findall(body)
+        for block in infoboxes(p['_body']):
+            for ln in block[1:]:
+                mi = re.match(r'^image\s*:\s*(\S+)\s*$', ln.strip(), re.I)
+                if mi: refs.append(mi.group(1))
+        for ref in refs:
             if re.match(r'^([a-z][a-z0-9+.-]*:|//|/)', ref, flags=re.I):
                 continue
             rel = os.path.normpath(os.path.join(folder, ref.lstrip('./') if ref.startswith('./') else ref)).replace(os.sep, '/')
@@ -204,7 +209,42 @@ def check_code_languages(pages, problems):
                 problems.append(('warn', p['_where'], 'the code box language "%s" is not one the site colors, so it will be shown plain (see "Code blocks" in the Formatting reference for the names)' % lang))
 
 
-ALERTS = ('note', 'tip', 'important', 'warning', 'caution')
+ALERTS = ('note', 'tip', 'important', 'warning', 'caution', 'info')   # info is the infobox, which has its own checks
+
+
+INFO_START = re.compile(r'^>[ \t]*\[!INFO\]', re.I | re.M)
+
+
+def infoboxes(body):
+    """Each infobox in a page: (tag line, [its lines without the leading >])."""
+    lines = strip_code(body, spans=False).split('\n')
+    boxes, i = [], 0
+    while i < len(lines):
+        if INFO_START.match(lines[i]):
+            block = [re.sub(r'^>[ \t]?', '', lines[i])]
+            i += 1
+            while i < len(lines) and lines[i].startswith('>'):
+                block.append(re.sub(r'^>[ \t]?', '', lines[i])); i += 1
+            boxes.append(block)
+        else:
+            i += 1
+    return boxes
+
+
+def check_infoboxes(pages, problems):
+    """An infobox row needs a value, and a page needs only one box."""
+    for p in pages:
+        boxes = infoboxes(p['_body'])
+        if len(boxes) > 1:
+            problems.append(('warn', p['_where'], 'the page has %d infoboxes; one is enough, and a table can hold the rest' % len(boxes)))
+        for block in boxes:
+            for ln in block[1:]:
+                t = ln.strip()
+                m = re.match(r'^([^:|]{1,40}?)\s*:\s*(.*)$', t)
+                if m and not m.group(2).strip() and not re.match(r'^image\s*$', m.group(1), re.I):
+                    problems.append(('warn', p['_where'], 'the infobox row "%s" has no value' % m.group(1).strip()))
+                if re.match(r'^image\s*:\s*$', t, re.I):
+                    problems.append(('warn', p['_where'], 'the infobox has an "image:" line with no picture path'))
 
 
 def check_alerts(pages, problems):
@@ -213,7 +253,7 @@ def check_alerts(pages, problems):
         body = strip_code(p['_body'], spans=False)
         for name in re.findall(r'^>[ \t]*\[!([A-Za-z]+)\][ \t]*$', body, flags=re.M):
             if name.lower() not in ALERTS:
-                problems.append(('warn', p['_where'], 'the notice box type "[!%s]" is not one the site knows, so it will show as an ordinary quote (use NOTE, TIP, IMPORTANT, WARNING or CAUTION)' % name))
+                problems.append(('warn', p['_where'], 'the notice box type "[!%s]" is not one the site knows, so it will show as an ordinary quote (use NOTE, TIP, IMPORTANT, WARNING or CAUTION, or INFO for a fact panel)' % name))
 
 
 def patch_versions():
@@ -248,6 +288,7 @@ def main():
         check_images(by_area[area], problems, root, prefix)
     check_code_languages(pages, problems)
     check_alerts(pages, problems)
+    check_infoboxes(pages, problems)
     topics = topic_names()
     for p in pages:
         for target in LINK.findall(strip_code(p['_body'])):
