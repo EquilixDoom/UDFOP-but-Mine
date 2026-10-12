@@ -254,6 +254,7 @@
   function wireRecentTabs() {
     var tabs = Array.prototype.slice.call(document.querySelectorAll("#app [role=tab]"));
     function pick(t) {
+      t.scrollIntoView({ block: "nearest", inline: "nearest" });   /* a tab that is half off the edge of the scrolling row comes fully into view */
       tabs.forEach(function (x) {
         var on = x === t;
         x.setAttribute("aria-selected", on ? "true" : "false"); x.tabIndex = on ? 0 : -1;

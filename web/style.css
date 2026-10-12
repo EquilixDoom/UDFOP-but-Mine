@@ -557,6 +557,8 @@ html[data-navbar="scroll"] { scroll-padding-top: .5rem; }
 .portal.wide { grid-column: 1 / -1; }
 .portal .wikitable { margin: 0 0 .5em; }
 .portal .gtabs { margin: 0 0 .7em; }
+.gtabs[role="tablist"] { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }   /* the kinds of change scroll sideways instead of wrapping */
+.gtabs[role="tablist"] button { flex: none; white-space: nowrap; }
 .portal .gtabs button, .portal .gtabs span, .portal .gtabs a { padding: 7px 13px; }
 .portal p.muted { margin: 0; font-size: .8rem; }
 .portal .wikitable td:last-child { min-width: 0; }
