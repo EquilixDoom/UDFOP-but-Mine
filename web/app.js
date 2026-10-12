@@ -154,10 +154,9 @@
     function link(label, from) { return '<a href="' + base + (from ? "?from=" + from : "") + '">' + label + "</a>"; }
     var presets = link("Last 7 days", shiftDay(newestDay, -6)) + " · " + link("Last 30 days", shiftDay(newestDay, -29)) + (rg.active ? " · " + link("All dates") : "");
     var note = rg.active ? "Showing changes " + esc(rangeText(rg)) + ". " + esc(rg.note) : esc(rg.note);
-    return '<form class="rangebar" id="range-form" aria-label="Date range"><div class="rr"><span class="rl">Date range</span>' +
-      '<label>From <input type="date" name="from" value="' + esc(rg.from) + '" min="' + oldestDay + '" max="' + newestDay + '"></label>' +
-      '<label>To <input type="date" name="to" value="' + esc(rg.to) + '" min="' + oldestDay + '" max="' + newestDay + '"></label>' +
-      '<button type="submit" class="dock">Apply</button></div>' +
+    return '<form class="rangebar" id="range-form" aria-label="Date range"><div class="rh"><span class="rl">Date range</span><button type="submit" class="dock">Apply</button></div>' +
+      '<div class="rr"><label>From <input type="date" name="from" value="' + esc(rg.from) + '" min="' + oldestDay + '" max="' + newestDay + '"></label>' +
+      '<label>To <input type="date" name="to" value="' + esc(rg.to) + '" min="' + oldestDay + '" max="' + newestDay + '"></label></div>' +
       '<div class="rr sub"><span>' + presets + "</span>" + (note ? '<span class="rangenote" role="status">' + note + "</span>" : "") + "</div></form>";
   }
   function wireRange(base) {
