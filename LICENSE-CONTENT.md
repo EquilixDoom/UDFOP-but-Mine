@@ -20,7 +20,8 @@ the public release notes of the Daggerfall Online project, written by its develo
 <https://github.com/Lattymoy/daggerfall-js-source/releases>. That project is published under the
 MIT licence, which allows copying, modifying and republishing as long as its copyright and
 permission notice are kept. The notice is in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-The summaries are rewritten, but the facts, the pull-request titles and the developer notes quoted in the data
+The summaries are condensed from the release notes and many keep the developers' own wording in whole or in part.
+Those summaries, the facts, the pull-request titles (quoted as written) and the developer notes in the data
 belong to the developers, so this CC BY 4.0 licence does not cover them: if you reuse the data, keep that
 notice and credit the developers.
 

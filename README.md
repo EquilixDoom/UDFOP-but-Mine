@@ -9,7 +9,7 @@ at `https://tau-samsara.github.io/udfop/`.
 - **Settings:** theme (default, Parchment, Iliac Bay, Oblivion), color (auto, light, dark), text size (small, medium, large), page width (standard, wide), and link previews (on, off) are chosen in the Settings panel, which is docked on the right on a wide screen (its **hide** link turns it into a pop-up under the gear icon) and is a drawer on narrow ones. The main menu is a pop-up behind the ☰ button and the page's Contents list is docked on the left; each has a **move to sidebar** or **hide** link to switch. Choices are remembered in the visitor's own browser; nothing is sent anywhere. On a phone there is no Contents list: each section and subsection folds instead, closed until the reader taps its heading.
 
 All Patch Notes changes come from the project's public
-[release notes](https://github.com/Lattymoy/daggerfall-js-source/releases), rewritten in short plain sentences.
+[release notes](https://github.com/Lattymoy/daggerfall-js-source/releases), condensed into short plain sentences. Many summaries keep the developers' own wording, in whole or in part, and the pull-request titles are quoted as written.
 The release notes remain the authoritative record. The opening description on each topic was written with the help of an AI assistant (Claude) from that topic's change history, so it can be wrong or out of date; the History table is the thing to trust.
 
 ## Corrections and contributions
