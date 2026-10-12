@@ -74,7 +74,7 @@
   function newest(a, b) { return vcmp(b.v, a.v) || (a.id < b.id ? 1 : -1); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function enc(s) { return encodeURIComponent(s); }
-  function plural(n, w) { return n + " " + w + (n === 1 ? "" : "s"); }
+  function plural(n, w) { return n + " " + w + (n === 1 ? "" : /(s|x|ch|sh)$/.test(w) ? "es" : "s"); }
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
   function group(list, key) { var m = {}; list.forEach(function (r) { (m[r[key]] = m[r[key]] || []).push(r); }); return m; }
   function uniq(list) { var m = {}; list.forEach(function (k) { m[k] = 1; }); return Object.keys(m); }
@@ -124,8 +124,54 @@
      lists of topics, categories and patches, the home page, About and the guides need none */
   function shardsNeeded(name, arg) {
     if (name === "patch") { var k = D.shardOf[arg]; return k ? [k] : []; }
-    if (["patchnotes", "recent", "topic", "hub", "system", "systems", "search"].indexOf(name) >= 0) return Object.keys(D.shards);
+    var all = Object.keys(D.shards);
+    if (["topic", "hub", "system", "search"].indexOf(name) >= 0) {   /* these take a date range: only the shards whose dates touch it */
+      var rg = getRange();
+      return !rg.active ? all : all.filter(function (k) { var d = D.shards[k].d; return (!rg.to || d[0] <= rg.to) && (!rg.from || d[1] >= rg.from); });
+    }
+    if (["patchnotes", "recent", "systems"].indexOf(name) >= 0) return all;
     return [];
+  }
+
+  /* ---------- date range ---------- */
+  /* A date range is written in the address as ?from=2026-10-01&to=2026-10-12 (either end may be left out). It narrows the changes shown on topic, category,
+     system and search pages, and only the shards whose dates touch it are loaded. A bad date is ignored; a From after the To is swapped. */
+  function realDate(s) { var d = new Date(s + "T00:00:00Z"); return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(d) && d.toISOString().slice(0, 10) === s; }
+  function getRange() {
+    var f = routeQuery.from || "", t = routeQuery.to || "", note = "";
+    if (f && !realDate(f)) { f = ""; note = "A date that is not written as year-month-day was ignored."; }
+    if (t && !realDate(t)) { t = ""; note = "A date that is not written as year-month-day was ignored."; }
+    if (f && t && f > t) { var x = f; f = t; t = x; note = "The From date was after the To date, so they were swapped."; }
+    return { from: f, to: t, active: !!(f || t), note: note };
+  }
+  function inRange(r) { var rg = getRange(); return (!rg.from || r.d >= rg.from) && (!rg.to || r.d <= rg.to); }
+  function rangeText(rg) { return rg.from && rg.to ? "from " + rg.from + " to " + rg.to : rg.from ? "since " + rg.from : "up to " + rg.to; }
+  function shiftDay(iso, n) { var d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  /* the form above a list of changes; base is the page's address without a query. Presets count back from the newest recorded release, not from today's date. */
+  function rangeBox(base, rg) {
+    var newestDay = dateOf(versions[0]), oldestDay = dateOf(versions[versions.length - 1]);
+    function link(label, from) { return '<a href="' + base + (from ? "?from=" + from : "") + '">' + label + "</a>"; }
+    return '<form class="rangebar" id="range-form" aria-label="Date range"><b>Date range</b> ' +
+      '<label>From <input type="date" name="from" value="' + esc(rg.from) + '" min="' + oldestDay + '" max="' + newestDay + '"></label> ' +
+      '<label>To <input type="date" name="to" value="' + esc(rg.to) + '" min="' + oldestDay + '" max="' + newestDay + '"></label> ' +
+      '<button type="submit" class="more">Show</button>' +
+      '<span class="presets">' + link("Last 7 days", shiftDay(newestDay, -6)) + " · " + link("Last 30 days", shiftDay(newestDay, -29)) + (rg.active ? " · " + link("All dates") : "") + "</span>" +
+      (rg.active ? '<span class="rangenote" role="status">Showing changes ' + esc(rangeText(rg)) + ". " + esc(rg.note) + "</span>" : (rg.note ? '<span class="rangenote">' + esc(rg.note) + "</span>" : "")) + "</form>";
+  }
+  function wireRange(base) {
+    var f = document.getElementById("range-form"); if (!f) return;
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var q = [];
+      if (f.from.value) q.push("from=" + f.from.value);
+      if (f.to.value) q.push("to=" + f.to.value);
+      location.hash = base + (q.length ? "?" + q.join("&") : "");
+    });
+  }
+  /* what a page says when its range holds no changes; what is the thing asked about ("Market", "the Combat system") and total how many it has in all */
+  function noneInRange(what, rg, total, tail) {
+    return '<div class="mbox">No changes to ' + what + " " + esc(rangeText(rg)) + ". " + (total ? "It has " + plural(total, "recorded change") + " in all" + (tail || "") + ". " : "") +
+      '<a href="' + esc(location.hash.split("?")[0]) + '">Show all dates</a>.</div>';
   }
 
   /* ---------- fragments ---------- */
@@ -360,52 +406,66 @@
 
   views.hub = function (n) {
     if (!hubs[n]) return notFound(n);
-    var all = []; hubs[n].forEach(function (t) { all = all.concat(byTopic[t]); });
-    var h = "<p><b>" + esc(n) + "</b> contains " + plural(hubs[n].length, "topic") + " with " + plural(all.length, "recorded change") + ".</p>" +
+    var rg = getRange(), base = "#/hub/" + enc(n), all = [], total = 0;
+    hubs[n].forEach(function (t) { total += D.tstat[t][0]; all = all.concat(byTopic[t] || []); });
+    if (rg.active) all = all.filter(inRange);
+    var hatH = '<a href="#/hubs">Categories</a> › ' + esc(n);
+    if (!all.length) return { title: "Category: " + n, html: page("Category: " + esc(n), rangeBox(base, rg) + noneInRange("the " + esc(n) + " category", rg, total), { hat: PN_HAT + hatH }), toc: false, after: function () { wireRange(base); } };
+    var h = "<p><b>" + esc(n) + "</b> contains " + plural(hubs[n].length, "topic") + " with " + plural(all.length, "recorded change") + (rg.active ? " " + esc(rangeText(rg)) + " (" + total + " in all)" : "") + ".</p>" + rangeBox(base, rg) +
       sec("Topics", "Topics", 2) + topicList(hubs[n]) + sec("Latest changes", "Latest changes", 2) + table(all, ["Patch", "Date", "Topic", "Type", "Change"], 25) +
       cats([ '<a href="#/hubs">All categories</a>' ]);
-    return { title: "Category: " + n, html: page("Category: " + esc(n), h, { hat: PN_HAT + '<a href="#/hubs">Categories</a> › ' + esc(n) }) };
+    return { title: "Category: " + n, html: page("Category: " + esc(n), h, { hat: PN_HAT + hatH }), after: function () { wireRange(base); } };
   };
 
   views.topic = function (t) {
-    var l = byTopic[t];
-    if (!l) return notFound(t);
-    var sys = uniq(l.map(function (r) { return r.s; })).sort(), g = group(l, "t"), hub = D.hubs[t], vs = vers(l);
+    var ts = D.tstat[t];
+    if (!ts) return notFound(t);
+    var rg = getRange(), every = byTopic[t] || [], l = rg.active ? every.filter(inRange) : every, base = "#/topic/" + enc(t), hub = D.hubs[t];
+    var hat = PN_HAT + (hub ? '<a href="#/hubs">Categories</a> › ' + hlink(hub) : '<a href="#/topics">All topics</a>') + " › " + esc(t);
+    var aiNote = D.desc && D.desc[t] ? '<p class="srcnote"><small class="muted">AI-assisted summary; it may be wrong or out of date. The History table below is the record to trust. <a href="#/about">About UDFOP</a></small></p>' : "";
+    if (!l.length) {
+      var h0 = (D.desc && D.desc[t] ? "<p>" + esc(D.desc[t]).replace(esc(t), "<b>" + esc(t) + "</b>") + "</p>" : "") + aiNote + rangeBox(base, rg) +
+        noneInRange(esc(t), rg, ts[0], ", the latest in patch " + vlink(ts[1]) + " (" + esc(dateOf(ts[1])) + ")");
+      return { title: t, html: page(esc(t), h0, { hat: hat }), toc: false, after: function () { wireRange(base); } };
+    }
+    var sys = uniq(l.map(function (r) { return r.s; })).sort(), g = group(l, "t"), vs = vers(l);
     var order = TYPES.filter(function (x) { return g[x]; }).concat(Object.keys(g).filter(function (x) { return TYPES.indexOf(x) < 0; }));
     var top = order.slice().sort(function (a, b) { return g[b].length - g[a].length; })[0];
 
     var ib = '<table class="infobox"><caption class="ibt">' + esc(t) + "</caption><tbody>" +
       "<tr><th>Category</th><td>" + (hub ? hlink(hub) : "Uncategorised") + "</td></tr>" +
       "<tr><th>Systems</th><td>" + sys.map(slink).join(", ") + "</td></tr>" +
-      "<tr><th>First recorded</th><td>" + vlink(vs[0]) + "<br><small class='muted'>" + esc(dateOf(vs[0])) + "</small></td></tr>" +
-      "<tr><th>Latest change</th><td>" + vlink(vs[vs.length - 1]) + "<br><small class='muted'>" + esc(dateOf(vs[vs.length - 1])) + "</small></td></tr>" +
-      "<tr><th>Changes</th><td>" + l.length + " in " + plural(vs.length, "patch") + "</td></tr>" +
-      '<tr><td colspan="2" class="sub">Change types</td></tr><tr><td colspan="2"><div class="bar">' +
+      "<tr><th>First recorded</th><td>" + vlink(ts[2]) + "<br><small class='muted'>" + esc(dateOf(ts[2])) + "</small></td></tr>" +
+      "<tr><th>Latest change</th><td>" + vlink(ts[1]) + "<br><small class='muted'>" + esc(dateOf(ts[1])) + "</small></td></tr>" +
+      "<tr><th>Changes</th><td>" + (rg.active ? l.length + " in " + plural(vs.length, "patch") + " in this range<br><small class='muted'>" + ts[0] + " in all</small>" : l.length + " in " + plural(vs.length, "patch")) + "</td></tr>" +
+      '<tr><td colspan="2" class="sub">Change types' + (rg.active ? " in this range" : "") + '</td></tr><tr><td colspan="2"><div class="bar">' +
       order.map(function (x) { return '<i title="' + esc(x) + ": " + g[x].length + '" style="width:' + (100 * g[x].length / l.length) + "%;background:" + (TYPE_COLOR[x] || "var(--other)") + '"></i>'; }).join("") +
       "</div></td></tr>" +
       order.map(function (x) { return "<tr><th>" + esc(x) + "</th><td>" + g[x].length + "</td></tr>"; }).join("") +
       "</tbody></table>";
 
     var lead = D.desc && D.desc[t] ? "<p>" + esc(D.desc[t]).replace(esc(t), "<b>" + esc(t) + "</b>") + "</p>" :
-      "<p><b>" + esc(t) + "</b> is a topic" + (hub ? " in the " + hlink(hub) + " category" : "") + ". It has " + plural(l.length, "recorded change") +
-      " across " + (sys.length > 1 ? "the " + sys.map(slink).join(", ") + " systems" : "the " + slink(sys[0]) + " system") + ", from patch " + vlink(vs[0]) +
-      (vs.length > 1 ? " to " + vlink(vs[vs.length - 1]) : "") + ". " +
-      (order.length > 1 ? "Most of them are " + esc(TYPE_LABEL[top] ? TYPE_LABEL[top].toLowerCase() : top.toLowerCase()) + " (" + g[top].length + ")." : "") + "</p>";
+      "<p><b>" + esc(t) + "</b> is a topic" + (hub ? " in the " + hlink(hub) + " category" : "") + ". It has " + plural(ts[0], "recorded change") +
+      (rg.active ? "" : " across " + (sys.length > 1 ? "the " + sys.map(slink).join(", ") + " systems" : "the " + slink(sys[0]) + " system")) + ", from patch " + vlink(ts[2]) +
+      (ts[2] !== ts[1] ? " to " + vlink(ts[1]) : "") + ". " +
+      (!rg.active && order.length > 1 ? "Most of them are " + esc(TYPE_LABEL[top] ? TYPE_LABEL[top].toLowerCase() : top.toLowerCase()) + " (" + g[top].length + ")." : "") + "</p>";
 
-    var h = ib + lead;
-    if (D.desc && D.desc[t]) h += '<p class="srcnote"><small class="muted">AI-assisted summary; it may be wrong or out of date. The History table below is the record to trust. <a href="#/about">About UDFOP</a></small></p>';
+    var h = ib + lead + aiNote + rangeBox(base, rg);
     h += sec("Latest changes", "Latest changes", 2) + bullets(l.slice().sort(newest).slice(0, Math.min(5, l.length)), false);
     h += sec("History", "History", 2) + table(l, ["Patch", "Source", "Date", "System", "Type", "Direction", "Change"]);   /* Change stays last: the stylesheet gives the last column its width */
     if (order.length > 1) {
       h += sec("By type", "Changes by type", 2);
       order.forEach(function (x) { h += sec("type-" + x, TYPE_LABEL[x] || x, 3) + bullets(g[x], false).replace(/<span class="tp"[^>]*>[^<]*<\/span>: /g, ""); });
     }
-    var rel = relatedTopics(t);
-    if (rel.length) h += sec("See also", "See also", 2) + '<ul class="cols">' + rel.map(function (o) { return "<li>" + tlink(o) + "</li>"; }).join("") + "</ul>";
-    h += cats((hub ? [hlink(hub)] : []).concat(sys.map(function (s) { return slink(s) + " system"; })).concat(
-      Object.keys(tagIndex[t]).sort(function (a, b) { return tagIndex[t][b] - tagIndex[t][a]; }).slice(0, 4).map(function (g2) {
-        return '<a href="#/search/' + enc(g2) + '">' + esc(g2) + "</a>"; })));
-    return { title: t, html: page(esc(t), h, { hat: PN_HAT + (hub ? '<a href="#/hubs">Categories</a> › ' + hlink(hub) : '<a href="#/topics">All topics</a>') + " › " + esc(t) }), toc: true };
+    /* "See also" and the tag links are worked out from every change, so they appear only when all the shards are loaded */
+    if (every.length === ts[0]) {
+      var rel = relatedTopics(t);
+      if (rel.length) h += sec("See also", "See also", 2) + '<ul class="cols">' + rel.map(function (o) { return "<li>" + tlink(o) + "</li>"; }).join("") + "</ul>";
+      h += cats((hub ? [hlink(hub)] : []).concat(sys.map(function (s) { return slink(s) + " system"; })).concat(
+        Object.keys(tagIndex[t]).sort(function (a, b) { return tagIndex[t][b] - tagIndex[t][a]; }).slice(0, 4).map(function (g2) {
+          return '<a href="#/search/' + enc(g2) + '">' + esc(g2) + "</a>"; })));
+    }
+    return { title: t, html: page(esc(t), h, { hat: hat }), toc: true, after: function () { wireRange(base); } };
   };
 
   views.systems = function () {
@@ -415,12 +475,14 @@
   };
 
   views.system = function (s) {
-    var l = bySystem[s];
-    if (!l) return notFound(s);
+    if (!D.systems[s]) return notFound(s);
+    var rg = getRange(), base = "#/system/" + enc(s), l = rg.active ? (bySystem[s] || []).filter(inRange) : bySystem[s];
+    var hatS = PN_HAT + '<a href="#/systems">Game systems</a> › ' + esc(s);
+    if (!l.length) return { title: s + " system", html: page(esc(s) + " system", rangeBox(base, rg) + noneInRange("the " + esc(s) + " system", rg, D.systems[s]), { hat: hatS }), toc: false, after: function () { wireRange(base); } };
     var tp = uniq(l.map(function (r) { return r.e; })).sort();
-    var h = "<p><b>" + esc(s) + "</b> has " + plural(l.length, "recorded change") + " across " + plural(tp.length, "topic") + ".</p>" +
+    var h = "<p><b>" + esc(s) + "</b> has " + plural(l.length, "recorded change") + (rg.active ? " " + esc(rangeText(rg)) + " (" + D.systems[s] + " in all)" : "") + " across " + plural(tp.length, "topic") + ".</p>" + rangeBox(base, rg) +
       sec("Topics", "Topics", 2) + topicList(tp) + sec("Latest changes", "Latest changes", 2) + table(l, ["Patch", "Date", "Topic", "Type", "Direction", "Change"], 30);
-    return { title: s + " system", html: page(esc(s) + " system", h, { hat: PN_HAT + '<a href="#/systems">Game systems</a> › ' + esc(s) }) };
+    return { title: s + " system", html: page(esc(s) + " system", h, { hat: hatS }), after: function () { wireRange(base); } };
   };
 
   /* a release's tags: its Update name, then a hint when its title says "fix" and a mark on the one bulk import */
@@ -486,9 +548,11 @@
     q = decodeURIComponent(q || "");
     var words = q.toLowerCase().split(/\s+/).filter(Boolean);
     var tm = topics.filter(function (t) { return words.every(function (w) { return t.toLowerCase().indexOf(w) >= 0; }); });
+    var rg = getRange(), base = "#/search/" + enc(q);
     var hit = rows.filter(function (r) {
       var s = (r.e + " " + r.x + " " + (r.n || "") + " " + (r.g || []).join(" ")).toLowerCase();
-      return words.every(function (w) { return s.indexOf(w) >= 0; });
+      if (!words.every(function (w) { return s.indexOf(w) >= 0; })) return false;
+      return !rg.active || inRange(r);
     });
     var gp = (guide || []).map(function (p) {
       var all = (p.title + " " + p.summary + " " + p.category + " " + p.text).toLowerCase();
@@ -504,17 +568,18 @@
     var h = "";
     if (!words.length) h = "<p>Type something in the search box.</p>";
     else {
-      h = '<p>Results for <b>' + esc(q) + "</b>: " + plural(gp.length, "guide page") + ", " + plural(sp.length, "Site Guide page") + ", " + plural(tm.length, "matching topic") + " and " + plural(hit.length, "matching change") + ".</p>";
+      h = '<p>Results for <b>' + esc(q) + "</b>: " + plural(gp.length, "guide page") + ", " + plural(sp.length, "Site Guide page") + ", " + plural(tm.length, "matching topic") + " and " + plural(hit.length, "matching change") + (rg.active ? " " + esc(rangeText(rg)) : "") + ".</p>";
       if (gp.length) {
         h += sec("Game Guide", "Game Guide", 2) + shownThenMore(gp, SEARCH_SHOWN, guideList, "guide pages", "gp-rest");
       }
       if (sp.length) h += sec("Site Guide", "Site Guide", 2) + guideList(sp);
       if (tm.length === 1 && tm[0].toLowerCase() === q.toLowerCase()) h = '<div class="mbox">There is a topic named “' + tlink(tm[0]) + "”.</div>" + h;
       if (tm.length) h += sec("Topics", "Topics", 2) + shownThenMore(tm, TOPICS_SHOWN, topicList, "topics", "tm-rest");
-      if (hit.length) h += sec("Changes", "Changes", 2) + table(hit, ["Patch", "Topic", "Type", "Change"], 100);
-      if (!tm.length && !hit.length && !gp.length && !sp.length) h += "<p>No results. Try fewer or different words.</p>";
+      if (hit.length || rg.active) h += sec("Changes", "Changes", 2) + rangeBox(base, rg) + (hit.length ? table(hit, ["Patch", "Topic", "Type", "Change"], 100) :
+        '<div class="mbox">No matching changes ' + esc(rangeText(rg)) + '. <a href="' + base + '">Show all dates</a>.</div>');
+      if (!tm.length && !hit.length && !gp.length && !sp.length && !rg.active) h += "<p>No results. Try fewer or different words.</p>";
     }
-    return { title: "Search: " + q, html: page("Search", h), after: revealMore };
+    return { title: "Search: " + q, html: page("Search", h), after: function () { revealMore(); wireRange(base); } };
   };
 
   views.about = function () {

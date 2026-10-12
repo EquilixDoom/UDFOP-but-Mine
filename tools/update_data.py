@@ -45,11 +45,12 @@ def js(o): return json.dumps(o, ensure_ascii=False, separators=(',', ':'))
 def gz(o): return len(gzip.compress(js(o).encode('utf-8')))
 
 
-# topic stats for the core file: [changes, last patch]; system counts
+# topic stats for the core file: [changes, last patch, first patch]; system counts
 tstat, systems = {}, Counter()
 for r in out:
-    c, last = tstat.get(r['e'], [0, ''])
-    tstat[r['e']] = [c + 1, r['v'] if not last or vkey(r['v']) > vkey(last) else last]
+    c, last, first = tstat.get(r['e'], [0, '', ''])
+    tstat[r['e']] = [c + 1, r['v'] if not last or vkey(r['v']) > vkey(last) else last,
+                     r['v'] if not first or vkey(r['v']) < vkey(first) else first]
     systems[r['s']] += 1
 
 # shards: one per month of the release date; a month over the limit is split in two by patch, and so on
@@ -78,7 +79,8 @@ for month in sorted(by_month):
         fn = 'web/shards/%s.js' % key
         open(fn, 'w', encoding='utf-8', newline='\n').write('window.UDFOP_SHARD(%s,%s);\n' % (js(key), body))
         keep.add(os.path.abspath(fn))
-        shards[key] = {'h': h, 'n': len(rs)}
+        days = sorted(rels[r['v']]['date'] for r in rs)
+        shards[key] = {'h': h, 'n': len(rs), 'd': [days[0], days[-1]]}   # d: the first and last release date it holds, so a date range can pick shards
         for v in {r['v'] for r in rs}: shard_of[v] = key
         print('  shard %-9s %5d changes %5d KB gzipped' % (key, len(rs), gz(rs) // 1024))
 for f in glob.glob('web/shards/*.js'):      # a month that has been split leaves its old file behind
