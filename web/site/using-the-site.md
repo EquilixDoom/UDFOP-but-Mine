@@ -65,6 +65,7 @@ On a wide window, Settings starts docked in the right sidebar, and the **⚙** g
 | **Color** | Auto, Light, Dark | Auto follows your device's light or dark setting. |
 | **Text size** | Small, Medium, Large | Scales all text and spacing. |
 | **Page width** | Standard, Wide | Standard keeps lines comfortable to read. Wide uses the whole window. |
+| **Top bar** | Stays visible, Scrolls away | Stays visible keeps the top bar on screen while you scroll. Scrolls away lets it move off the screen, so the page has more room. |
 | **Link previews** | On, Off | A short preview when you point at a link to a page or topic. Not shown on touch screens. |
 
 **Reset to defaults** at the bottom puts everything back, including where the sidebars sit.

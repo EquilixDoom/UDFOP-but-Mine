@@ -9,8 +9,8 @@
 
   /* ---------- display settings (saved in this browser only) ---------- */
   var SETTINGS_KEY = "udfop.settings";
-  var SETTING_OPTIONS = { skin: ["default", "parchment", "iliac", "oblivion"], size: ["small", "medium", "large"], width: ["standard", "wide"], theme: ["auto", "light", "dark"], previews: ["on", "off"], menu: ["sidebar", "popover"], panel: ["popover", "sidebar"], contents: ["popover", "sidebar"] };
-  var SETTING_DEFAULTS = { skin: "default", size: "medium", width: "standard", theme: "auto", previews: "on", menu: "popover", panel: "sidebar", contents: "sidebar" };
+  var SETTING_OPTIONS = { skin: ["default", "parchment", "iliac", "oblivion"], size: ["small", "medium", "large"], width: ["standard", "wide"], navbar: ["stay", "scroll"], theme: ["auto", "light", "dark"], previews: ["on", "off"], menu: ["sidebar", "popover"], panel: ["popover", "sidebar"], contents: ["popover", "sidebar"] };
+  var SETTING_DEFAULTS = { skin: "default", size: "medium", width: "standard", navbar: "stay", theme: "auto", previews: "on", menu: "popover", panel: "sidebar", contents: "sidebar" };
   function loadSettings() {
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") || {}; } catch (e) {}
@@ -23,7 +23,7 @@
   }
   function applySettings(st) {
     var d = document.documentElement;
-    [["skin", "default"], ["size", "medium"], ["width", "standard"], ["theme", "auto"], ["previews", "on"], ["menu", "sidebar"], ["panel", "popover"], ["contents", "popover"]].forEach(function (p) {
+    [["skin", "default"], ["size", "medium"], ["width", "standard"], ["navbar", "stay"], ["theme", "auto"], ["previews", "on"], ["menu", "sidebar"], ["panel", "popover"], ["contents", "popover"]].forEach(function (p) {
       if (st[p[0]] === p[1]) d.removeAttribute("data-" + p[0]); else d.setAttribute("data-" + p[0], st[p[0]]);
     });
     syncDocks(st);
@@ -36,11 +36,24 @@
       b.textContent = st[b.getAttribute("data-dock")] === "sidebar" ? "hide" : "move to sidebar";
     });
   }
+  /* --head-h is how much of the top bar is on screen (all of it while it stays visible, less as it scrolls away); --head-full is its whole height */
+  function headOcc() {
+    var h = document.getElementById("head");
+    if (!h) return 0;
+    return document.documentElement.getAttribute("data-navbar") === "scroll" ? Math.max(0, Math.round(h.getBoundingClientRect().bottom)) : h.offsetHeight;
+  }
+  function syncHeadOcc() { document.documentElement.style.setProperty("--head-h", headOcc() + "px"); }
   function syncHeadH() {
     var h = document.getElementById("head");
-    if (h) document.documentElement.style.setProperty("--head-h", h.offsetHeight + "px");
+    if (h) document.documentElement.style.setProperty("--head-full", h.offsetHeight + "px");
+    syncHeadOcc();
     syncAnchors();
   }
+  var headScrollQueued = false;
+  window.addEventListener("scroll", function () {
+    if (headScrollQueued || document.documentElement.getAttribute("data-navbar") !== "scroll") return;
+    headScrollQueued = true; requestAnimationFrame(function () { headScrollQueued = false; syncHeadOcc(); });
+  }, { passive: true });
   /* the main menu and Settings pop-ups hang from their buttons: the menu from the left edge of the ☰, Settings from the right edge of the gear */
   function syncAnchors() {
     var d = document.documentElement, m = document.getElementById("menu"), g = document.getElementById("gear");
@@ -991,7 +1004,7 @@
   /* highlight the section being read, and open its sub-list */
   function spyToc() {
     if (!tocSpy.length) return;
-    var line = (document.getElementById("head").offsetHeight || 60) + 24, cur = -1;
+    var line = headOcc() + 24, cur = -1;
     tocSpy.forEach(function (t, k) { if (t.el.getBoundingClientRect().top <= line) cur = k; });
     var parent = null;
     if (cur >= 0) for (var k = cur; k >= 0; k--) if (tocSpy[k].top) { parent = tocSpy[k]; break; }
@@ -1005,13 +1018,13 @@
     var a = document.querySelector(".toc-anchor"), b = document.querySelector(".toc-btn");
     if (!a || !b) return;
     if (getComputedStyle(a).display === "none") { b.classList.remove("floating"); b.style.left = ""; return; }   /* hidden (docked or narrow): nothing to measure */
-    var fl = a.getBoundingClientRect().top <= (document.getElementById("head").offsetHeight || 60) + 11;
+    var fl = a.getBoundingClientRect().top <= headOcc() + 11;
     b.classList.toggle("floating", fl);
     b.style.left = fl ? (document.getElementById("rail").getBoundingClientRect().width + 8) + "px" : "";   /* clear of a docked main menu */
   }
   function placeToc() {
     var panel = document.getElementById("side-toc"), btn = document.querySelector(".toc-btn");
-    var r = btn ? btn.getBoundingClientRect() : { left: 8, bottom: 0 }, top = Math.max(r.bottom + 6, (document.getElementById("head").offsetHeight || 60) + 6);
+    var r = btn ? btn.getBoundingClientRect() : { left: 8, bottom: 0 }, top = Math.max(r.bottom + 6, headOcc() + 6);
     panel.style.top = top + "px"; panel.style.left = Math.max(8, r.left) + "px"; panel.style.maxHeight = "calc(100vh - " + (top + 12) + "px)";
   }
   function followToc() { syncTocBtn(); if (document.body.classList.contains("toc-open")) placeToc(); }
@@ -1324,6 +1337,7 @@
       { key: "theme", legend: "Color", help: "Auto follows your device's light or dark setting.", labels: ["Auto", "Light", "Dark"] },
       { key: "size", legend: "Text size", help: "Scales all text and spacing.", labels: ["Small", "Medium", "Large"] },
       { key: "width", legend: "Page width", help: "Standard keeps lines comfortable to read; Wide uses the whole window.", labels: ["Standard", "Wide"] },
+      { key: "navbar", legend: "Top bar", help: "Stays visible keeps the top bar on screen while you scroll. Scrolls away lets it move off the screen, so the page has more room.", labels: ["Stays visible", "Scrolls away"] },
       { key: "previews", legend: "Link previews", help: "A short preview appears when you point at a link to a page or topic. Not shown on touch screens.", labels: ["On", "Off"] }
     ];
     body.innerHTML = GROUPS.map(function (g) {
