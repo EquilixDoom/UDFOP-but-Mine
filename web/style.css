@@ -81,7 +81,7 @@ html[data-skin="oblivion"] {
   --j-frame: 4px double #6e5030; --j-rule: 3px double #8a6a3e; --j-head: 3px double #6e5030; --j-caps: small-caps; --j-track: .03em;
   --j-seal: radial-gradient(circle at 35% 30%, #b8452f, #7a2012 60%, #5a160b); --j-inset: inset 0 1px 3px rgba(60, 38, 12, .25);
  --j-desk: repeating-linear-gradient(35deg, rgba(255, 220, 160, .035) 0 2px, transparent 2px 5px), radial-gradient(ellipse at 50% 0%, #4a3320, #2a1c10 75%); --j-rail: var(--page);
-  --j-orn: ""; --j-dc-float: left; --j-dc-size: 4em; --j-dc-contain: flow-root; --j-dc-color: #7a2012; --j-dc-font: "Kingthings Petrock", Palatino, Georgia, serif;
+  --j-orn: ""; --j-dc-float: left; --j-dc-size: 5.8em; --j-dc-contain: flow-root; --j-dc-color: #7a2012; --j-dc-font: "Kingthings Petrock", Palatino, Georgia, serif;
   --j-cell: #c3a87a; --j-select: rgba(122, 32, 18, .22);
   color-scheme: light;
 }
