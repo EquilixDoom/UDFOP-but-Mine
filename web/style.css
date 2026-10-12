@@ -81,12 +81,12 @@ html[data-skin="oblivion"] {
   --j-frame: 4px double #6e5030; --j-rule: 3px double #8a6a3e; --j-head: 3px double #6e5030; --j-caps: small-caps; --j-track: .03em;
   --j-seal: radial-gradient(circle at 35% 30%, #b8452f, #7a2012 60%, #5a160b); --j-inset: inset 0 1px 3px rgba(60, 38, 12, .25);
  --j-desk: repeating-linear-gradient(35deg, rgba(255, 220, 160, .035) 0 2px, transparent 2px 5px), radial-gradient(ellipse at 50% 0%, #4a3320, #2a1c10 75%); --j-rail: var(--page);
-  --j-orn: ""; --j-dc-float: left; --j-dc-size: 4em; --j-dc-color: #7a2012; --j-dc-font: "Kingthings Petrock", Palatino, Georgia, serif;
+  --j-orn: ""; --j-dc-float: left; --j-dc-size: 4em; --j-dc-contain: flow-root; --j-dc-color: #7a2012; --j-dc-font: "Kingthings Petrock", Palatino, Georgia, serif;
   --j-cell: #c3a87a; --j-select: rgba(122, 32, 18, .22);
   color-scheme: light;
 }
 html[data-skin="oblivion"][data-theme="dark"] {
-  --j-sheet: initial; --j-paper: initial; --j-frame: initial; --j-rule: initial; --j-head: initial; --j-caps: initial; --j-track: initial; --j-seal: initial; --j-inset: initial; --j-cell: initial; --j-select: initial; --j-desk: initial; --j-rail: initial; --j-orn: initial; --j-dc-float: initial; --j-dc-size: initial; --j-dc-color: initial; --j-dc-font: initial;
+  --j-sheet: initial; --j-paper: initial; --j-frame: initial; --j-rule: initial; --j-head: initial; --j-caps: initial; --j-track: initial; --j-seal: initial; --j-inset: initial; --j-cell: initial; --j-select: initial; --j-desk: initial; --j-rail: initial; --j-orn: initial; --j-dc-float: initial; --j-dc-size: initial; --j-dc-color: initial; --j-dc-font: initial; --j-dc-contain: initial;
   --page: #0c0a0b; --paper: #171213; --fg: #f0e8e5; --muted: #b7a9a4; --line: #4a3b38; --soft: #261c1d; --softer: #1e1617; --link: #ff9d7e;
   --visited: #d9a0c0; --red: #ff7e6e; --head: #120d0e; --accent: #e4583f; --infobox: #1e1617; --buff: #6fd49a; --nerf: #ff7a96; --new: #7db3ff;
   --rework: #c9a0ee; --fix: #f0e052; --other: #b7a9a4; --perf: #50c5e2; --econ: #bfd85a; --ui: #d161a8; --qol: #d18a61; --notice: #2a1a14; --notice-line: #a8532e;
@@ -630,3 +630,4 @@ h1.title, h2.sec { position: relative; }
 h1.title::after, h2.sec::after { content: var(--j-orn, none); position: absolute; left: 50%; bottom: -5px; width: 8px; height: 8px; transform: translateX(-50%) rotate(45deg); background: var(--line); box-shadow: 0 0 0 2px var(--paper); }
 #app > :is(.tagline, .hat) ~ p:first-of-type:not(:is(h2, h3) ~ p)::first-letter, #app > :is(.tagline, .hat) ~ div:not([class]) > p:first-child::first-letter { float: var(--j-dc-float, none); font-size: var(--j-dc-size, 1em); font-family: var(--j-dc-font, inherit); color: var(--j-dc-color, inherit); line-height: .8; padding: .08em .1em 0 0; }
 @media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) { html[data-panel="sidebar"] #settings-panel { background: var(--j-rail, none); } }   /* a docked Settings column sits on the skin's rail color, not straight on the desk */
+#app > :is(.tagline, .hat) ~ p:first-of-type:not(:is(h2, h3) ~ p), #app > :is(.tagline, .hat) ~ div:not([class]) > p:first-child { display: var(--j-dc-contain, block); }   /* the paragraph holds its own drop cap, so a short opener never lets the next box slide up beside it */
