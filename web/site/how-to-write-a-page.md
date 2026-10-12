@@ -118,7 +118,7 @@ The starter template follows the shape that suits most pages about how something
 5. **Quick start.** Three or four steps for a first try.
 6. **Sources.** Where the information comes from.
 
-The [[Materials Bag]] page is an example. Pages that are not about a game system, such as a fix for a technical problem, can drop sections or change them.
+Pages that are not about a game system, such as a fix for a technical problem, can drop sections or change them.
 
 Raw HTML is shown as plain text, so leave it out. The [[Formatting reference]] lists what is not supported.
 
