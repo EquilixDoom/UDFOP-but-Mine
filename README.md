@@ -25,7 +25,7 @@ Then run `python tools/notes.py build` and open `web/index.html` to check the re
 
 - **Code** (the site, the tools, the workflow): [MIT](LICENSE).
 - **Original text** (Game Guide pages, topic descriptions, About page, this README): [CC BY 4.0](LICENSE-CONTENT.md). Credit "UDFOP (Unofficial Daggerfall Online Pages), by tau".
-- **The change data** is derived from the developers' release notes and is not licensed by this project; see [LICENSE-CONTENT.md](LICENSE-CONTENT.md).
+- **The change data** is derived from the developers' release notes, which are published under the developers' own MIT licence. This project does not relicense it; their notice is in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), and see [LICENSE-CONTENT.md](LICENSE-CONTENT.md).
 
 UDFOP is not affiliated with or endorsed by the developers of Daggerfall Online, Bethesda Softworks or ZeniMax. *The Elder Scrolls* and *Daggerfall* belong to their respective owners.
 
