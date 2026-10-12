@@ -1216,7 +1216,7 @@
     return !!el;
   }
   /* Scrolling past the end: on a wide screen the page gets just enough empty space after the article that, scrolled to the very end, its last heading sits at the top of the window
-     (where a heading link lands). That lets the Contents list reach and highlight the last short sections. No space on a narrow screen, on a page with no headings, on a page
+     (where a heading link lands), with the footer right under the article and the space below the footer. That lets the Contents list reach and highlight the last short sections. No space on a narrow screen, on a page with no headings, on a page
      that fits the window, or when the last section is already taller than the window. */
   var endpad = document.getElementById("endpad"), endpadQueued = false;
   function fitEndPad() {
@@ -1224,7 +1224,7 @@
     if (hs.length) last = hs[hs.length - 1];
     var now = endpad.offsetHeight, need = 0;
     if (last && !isCompact() && document.documentElement.scrollHeight - now > window.innerHeight) {
-      var tail = document.getElementById("foot").getBoundingClientRect().bottom - last.getBoundingClientRect().top - now;
+      var tail = document.getElementById("foot").getBoundingClientRect().bottom - last.getBoundingClientRect().top;   /* the space comes after the footer, so the footer is seen as soon as the article ends */
       var line = window.innerHeight - (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);   /* the same offset a heading link scrolls to */
       need = Math.max(0, Math.ceil(line - tail));
     }

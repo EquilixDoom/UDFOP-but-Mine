@@ -141,7 +141,7 @@ html[data-width="wide"] .head-in { max-width: none; }   /* only Wide mode runs t
 #content { background: var(--paper); border: 1px solid var(--line); border-bottom: 0; padding: 20px 28px 0; min-width: 0; }
 html[data-width="wide"] #content { border-right: 0; }
 #content { display: flex; flex-direction: column; }
-#endpad { flex: none; height: 0; }   /* empty space after the article on a wide screen, sized by fitEndPad so the last heading can scroll to the top */   /* the footer sits at the bottom of the column even on a short page */
+#endpad { flex: none; height: 0; }   /* empty space after the footer on a wide screen, sized by fitEndPad so the last heading can scroll to the top; the footer stays right after the article */   /* the footer sits at the bottom of the column even on a short page */
 #app { flex: 1 0 auto; }
 #app > :last-child { margin-bottom: 0; }   /* a flex item no longer lets its last margin merge with the footer's, so the gap above the footer stays 40px */
 h1.title { font: 400 1.9rem/1.25 var(--serif); margin: 0 0 2px; padding-bottom: 2px; border-bottom: 1px solid var(--line); }
