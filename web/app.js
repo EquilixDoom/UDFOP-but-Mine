@@ -97,8 +97,9 @@
   var PN_HAT = '<a href="#/patchnotes">Patch Notes</a> › ';   /* every patch-notes page starts its breadcrumb here */
   function page(title, body, opts) {
     opts = opts || {};
-    return '<h1 class="title">' + title + '</h1><div class="tagline">From ' + SITE + "</div>" +
-      (opts.hat ? '<div class="hat">' + opts.hat + "</div>" : "") + body;
+    /* the extra class names (banner, breadcrumbs, footer, sidebar, popup) tell reader view this is page furniture, not article text */
+    return '<h1 class="title">' + title + '</h1><div class="tagline banner">From ' + SITE + "</div>" +
+      (opts.hat ? '<div class="hat breadcrumbs">' + opts.hat + "</div>" : "") + body;
   }
   function sec(id, title, lvl) { return "<h" + lvl + ' class="sec" id="' + slugId(id) + '" data-toc="' + esc(title) + '">' + esc(title) + "</h" + lvl + ">"; }
 
@@ -785,7 +786,7 @@
         var rendered = markdown(fm.body, t); mdBase = ""; mdRoot = "guide/";
         rendered += buildReferences(refs, (fm.meta.related || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean)); refs = null;
         box.innerHTML = rendered +
-          '<p class="editline"><a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
+          '<p class="editline footer-note"><a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
         buildToc();
       }).catch(function () {
         if (guideFailed) { box.innerHTML = guideUnavailable(); return; }
@@ -923,7 +924,7 @@
     list.innerHTML = h; side.hidden = false; document.documentElement.classList.add("has-toc");
     if (!app.querySelector(".toc-btn")) {   /* the button sits in the article's left margin and follows the scroll, so Contents is always one click away */
       var anchor = document.createElement("div"), btn = document.createElement("button");
-      anchor.className = "toc-anchor";
+      anchor.className = "toc-anchor popup";
       btn.type = "button"; btn.className = "toc-btn"; btn.title = "Contents"; btn.setAttribute("aria-label", "Contents");
       btn.setAttribute("aria-controls", "side-toc"); btn.setAttribute("aria-expanded", "false"); btn.textContent = "☰";
       anchor.appendChild(btn); app.insertBefore(anchor, app.firstChild);
