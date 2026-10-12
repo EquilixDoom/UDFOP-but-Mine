@@ -543,3 +543,7 @@ h2:hover > .hlink, h3:hover > .hlink, .hlink:focus-visible { opacity: .75; }
 /* Settings > Top bar > Scrolls away: the top bar is an ordinary part of the page instead of staying at the top of the window. --head-h (set by script) then follows how much of it is still on screen, so sticky panels and pop-ups move up with it */
 html[data-navbar="scroll"] #head { position: static; }
 html[data-navbar="scroll"] { scroll-padding-top: .5rem; }
+
+/* the Type / Topic switch above a list of changes */
+.groupby { margin: .2em 0 .9em; font-size: .9rem; color: var(--muted); }
+.groupby b { color: var(--fg); }

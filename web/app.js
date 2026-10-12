@@ -139,6 +139,43 @@
     return h + "</tbody></table></div>" + (more ? '<p class="muted">' + plural(more, "older change") + " not shown.</p>" : "");
   }
 
+  /* Changes are shown by kind first (what is new, what is fixed, what is reworked), then by topic. Small kinds that belong together share a heading. */
+  var TYPE_GROUPS = [
+    { key: "additions", label: "Additions", types: ["New"] },
+    { key: "reworks", label: "Reworks", types: ["Rework"] },
+    { key: "fixes", label: "Fixes", types: ["Fix"] },
+    { key: "performance", label: "Performance", types: ["Performance"] },
+    { key: "economy", label: "Economy", types: ["Economy"] },
+    { key: "interface", label: "Interface and quality of life", types: ["UI", "QoL"] },
+    { key: "balance", label: "Balance (buffs and nerfs)", types: ["Buff", "Nerf"] },
+    { key: "removals", label: "Removals", types: ["Removal"] },
+    { key: "other", label: "Other changes", types: ["Other"] }
+  ];
+  /* a list of changes, by topic, each line starting with the topic; the kind is spelled out only where a heading covers more than one */
+  function typeBullets(list, showType) {
+    return '<ul class="bul">' + list.slice().sort(function (a, b) { return a.e.localeCompare(b.e, undefined, { sensitivity: "base" }) || (a.id < b.id ? -1 : 1); }).map(function (r) {
+      return "<li><b>" + tlink(r.e) + "</b> – " + (showType ? typeTag(r) + ": " : "") + text(r) + "</li>";
+    }).join("") + "</ul>";
+  }
+  /* headings for each kind of change (with its count), each followed by that kind's changes; ids makes them linkable and lists them in Contents */
+  function changesByType(list, lvl, ids) {
+    var known = [];
+    TYPE_GROUPS.forEach(function (g) { known = known.concat(g.types); });
+    var h = "";
+    TYPE_GROUPS.forEach(function (g) {
+      var l = list.filter(function (r) { return g.types.indexOf(r.t) >= 0 || (g.key === "other" && known.indexOf(r.t) < 0); });
+      if (!l.length) return;
+      var title = g.label + " (" + l.length + ")";
+      h += (ids ? sec("type-" + g.key, title, lvl) : "<h" + lvl + ' class="sec">' + esc(title) + "</h" + lvl + ">") + typeBullets(l, g.types.length > 1);
+    });
+    return h;
+  }
+  /* the Type / Topic switch above a list of changes; mode is "type" or "topic" and base is the page's address */
+  function groupSwitch(base, mode) {
+    return '<p class="groupby">Group changes by: ' + (mode === "type" ? "<b>Type</b>" : '<a href="' + base + '">Type</a>') + " · " +
+      (mode === "topic" ? "<b>Topic</b>" : '<a href="' + base + '?group=topic">Topic</a>') + "</p>";
+  }
+
   function bullets(list, withTopic) {
     return '<ul class="bul">' + list.slice().sort(newest).map(function (r) {
       return "<li>" + (withTopic ? "<b>" + tlink(r.e) + "</b> – " : "") + typeTag(r) + ": " + text(r) + "</li>";
@@ -198,8 +235,8 @@
   };
 
   views.recent = function () {
-    var shown = 8;
-    var html = page("Recent changes", '<p>The newest patches first. Each entry is one change recorded in the official release notes.</p><div id="rc"></div><p><button class="more" id="more">Show older patches</button></p>', { hat: PN_HAT + "Recent changes" });
+    var shown = 8, mode = routeQuery.group === "topic" ? "topic" : "type";
+    var html = page("Recent changes", '<p>The newest patches first. Each entry is one change recorded in the official release notes.</p>' + groupSwitch("#/recent", mode) + '<div id="rc"></div><p><button class="more" id="more">Show older patches</button></p>', { hat: PN_HAT + "Recent changes" });
     return { title: "Recent changes", html: html, after: function () {
       var box = document.getElementById("rc"), btn = document.getElementById("more"), n = 0;
       function more() {
@@ -207,7 +244,8 @@
         for (; n < end; n++) {
           var v = versions[n], g = group(byVersion[v], "e");
           h += '<h2 class="sec">' + vlink(v) + ' <small class="muted">– ' + esc(dateOf(v)) + "</small></h2>";
-          Object.keys(g).sort().forEach(function (t) { h += "<h3 class='sec'>" + tlink(t) + "</h3>" + bullets(g[t], false); });
+          if (mode === "topic") Object.keys(g).sort().forEach(function (t) { h += "<h3 class='sec'>" + tlink(t) + "</h3>" + bullets(g[t], false); });
+          else h += changesByType(byVersion[v], 3, false);
         }
         box.insertAdjacentHTML("beforeend", h);
         if (n >= versions.length) btn.parentNode.hidden = true;
@@ -314,7 +352,10 @@
       (i > 0 ? '<a href="#/patch/' + enc(versions[i - 1]) + '">Newer: ' + esc(versions[i - 1]) + " →</a>" : "") + "</div>";
     h += "<p><b>Patch " + esc(v) + "</b> was released on " + esc(dateOf(v)) + ". It records " + plural(l.length, "change") + " to " + plural(names.length, "topic") + ".</p>";
     h += '<p class="srcnote">These changes are compiled from the developers&rsquo; notes. <a href="' + RELEASES_URL + "/tag/app-v" + enc(v) + '" rel="noopener">Read the original release notes for patch ' + esc(v) + " on GitHub ↗</a></p>";   /* every release's tag is app-v plus its version */
-    names.forEach(function (t) { h += sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); });
+    var mode = routeQuery.group === "topic" ? "topic" : "type";
+    h += groupSwitch("#/patch/" + enc(v), mode);
+    if (mode === "topic") names.forEach(function (t) { h += sec("p-" + t, t, 2).replace(">" + esc(t) + "</h2>", ">" + tlink(t) + "</h2>") + bullets(g[t], false); });
+    else h += changesByType(l, 2, true);
     if (rel && rel.prs.length) h += sec("Pull requests", "Source pull requests", 2) + '<ul class="bul">' + rel.prs.map(function (p) {
       return '<li><a href="' + esc(p.u) + '" rel="noopener">#' + p.n + "</a> " + esc(p.t) + "</li>"; }).join("") + "</ul>";
     return { title: "Patch " + v, html: page("Patch " + esc(v), h, { hat: PN_HAT + '<a href="#/patches">Patch index</a> › ' + esc(v) }) };
@@ -1536,12 +1577,16 @@
     };
   })();
 
+  var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";
-    var parts = pagePath().replace(/^#\/?/, "").split("/"), name = parts[0] || "home", arg = parts.slice(1).join("/");
+    var path = pagePath(), qi = path.indexOf("?");
+    routeQuery = {};
+    if (qi >= 0) { path.slice(qi + 1).split("&").forEach(function (kv) { var e = kv.indexOf("="); if (kv) routeQuery[decodeURIComponent(kv.slice(0, e < 0 ? kv.length : e))] = e < 0 ? "" : decodeURIComponent(kv.slice(e + 1)); }); path = path.slice(0, qi); }
+    var parts = path.replace(/^#\/?/, "").split("/"), name = parts[0] || "home", arg = parts.slice(1).join("/");
     if (name !== "search") { try { arg = decodeURIComponent(arg); } catch (e) {} }
     if (name === "settings") { location.replace("#/"); settingsPanel.open(); return; }
-    var view = views[name], res = view ? view(arg) : notFound(pagePath());
+    var view = views[name], res = view ? view(arg) : notFound(path);
     if (!res) return;
     app.innerHTML = res.html;
     document.title = (name === "home" ? SITE : res.title.indexOf(SHORT) >= 0 ? res.title : res.title + " – " + SHORT);
