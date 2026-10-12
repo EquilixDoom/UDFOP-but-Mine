@@ -59,7 +59,7 @@ A red link means no guide page has that title. Check the spelling, or whether th
 - Capital letters and spaces in the file name must match exactly.
 - Use PNG, JPG, WebP or GIF.
 - Make sure you uploaded the picture to the same branch as the page. If you uploaded it after opening the pull request, it joins that pull request automatically.
-- The page check names a missing picture as an error.
+- The page check names a missing picture as an error. Until it is fixed, the picture shows as a gray "No picture yet" box. On your own computer the box is outlined in red and names the path that failed.
 
 ### My table is broken
 

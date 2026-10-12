@@ -511,3 +511,11 @@ body.lb-open { overflow: hidden; }
 .ib-sec { padding: 3px 8px; background: var(--soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; font-weight: 700; font-size: .8rem; }
 #gp .alert, #gp .codebox, #gp blockquote { display: flow-root; }   /* a box with a background stays beside a floated panel instead of running under it */
 @media (max-width: 860px), (max-height: 500px) and (max-width: 1100px) { .factbox { float: none; width: auto; margin: .6em 0 1em; } }
+
+/* a picture whose file is missing: the placeholder, and the writer's hint on localhost */
+img[data-missing] { background: var(--softer); cursor: default; }
+.img-dev { position: relative; display: block; outline: 2px solid #c62828; outline-offset: -2px; }
+.img-dev img { display: block; }
+img.img-missing-inline { height: 1.3em; width: 1.7em; vertical-align: -.3em; }
+.img-dev.inline { display: inline-block; vertical-align: baseline; outline-offset: 0; }
+.img-dev small { position: absolute; left: 6px; bottom: 6px; max-width: calc(100% - 12px); padding: 1px 6px; border-radius: 3px; background: #fdecea; color: #8c1d18; font: 600 .72rem/1.4 var(--sans); overflow-wrap: anywhere; }

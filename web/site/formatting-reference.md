@@ -318,6 +318,8 @@ Rendered:
 
 Readers can click any picture to open it, move through the page's pictures as a carousel, and click again to zoom in, so a screenshot can be shown small on the page without losing its detail.
 
+If a picture's file cannot be found, readers see a gray "No picture yet" box in its place instead of a broken-picture icon. The page check still reports the missing file as an error, so it gets fixed before the page is published.
+
 ## Extended features
 
 These go beyond plain Markdown. They are what lets Game Guide pages connect to each other and to the Patch Notes, and each one is explained here with an example.
@@ -489,7 +491,7 @@ The panel at the top of this page is an infobox written the same way, without th
 - **Title.** Written after `[!INFO]`. Leave it out and the page's own title is used.
 - **Rows.** Each `Key: value` line is one row. The value can hold bold text and links. A line with no colon carries on the row above it.
 - **Picture.** An optional `image:` line, with the path from the page's folder, puts a picture under the title. Readers can click it to enlarge it, like any other picture.
-- **Group headings.** A line starting `## ` adds a grey heading that splits the rows into groups. It is not a section of the page, so it does not appear in the Contents list.
+- **Group headings.** A line starting `## ` adds a gray heading that splits the rows into groups. It is not a section of the page, so it does not appear in the Contents list.
 - **Placement.** Put the infobox first, right after the front matter, so it lines up with the top of the page text. It floats on the right, and the text, headings, notice boxes and tables sit beside it. On a phone it moves above the text.
 
 > [!NOTE]

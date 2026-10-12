@@ -1121,7 +1121,7 @@
     /* make the pictures of the page reachable from the keyboard */
     function enhance() {
       Array.prototype.forEach.call(app.querySelectorAll("img"), function (img) {
-        if (img.closest("a") || img.getAttribute("data-lb")) return;   /* a picture that is a link keeps doing that */
+        if (img.closest("a") || img.getAttribute("data-lb") || img.getAttribute("data-missing")) return;   /* a picture that is a link keeps doing that; a placeholder has nothing to enlarge */
         img.setAttribute("data-lb", "1"); img.tabIndex = 0; img.setAttribute("role", "button");
         img.setAttribute("aria-label", "Show picture full size: " + (img.alt || "no description"));
       });
@@ -1149,6 +1149,29 @@
     return { close: close, isOpen: isOpen };
   })();
   window.addEventListener("hashchange", function () { lightbox.close(); });
+
+  /* A picture whose file is missing shows "No picture yet" instead of the browser's broken-picture icon. The page check still reports the missing file as an error,
+     so this is only the last guard (a renamed file, a typo). On a writer's own computer (localhost) the placeholder is outlined and names the path that failed. */
+  var PLACEHOLDER = "placeholder.svg", DEV_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || location.protocol === "file:";
+  document.addEventListener("error", function (e) {
+    var img = e.target;
+    if (!img || img.tagName !== "IMG" || !app.contains(img) || img.getAttribute("data-missing")) return;
+    var path = img.getAttribute("src") || "";
+    img.setAttribute("data-missing", path);
+    img.removeAttribute("data-lb"); img.removeAttribute("role"); img.removeAttribute("aria-label"); img.removeAttribute("tabindex");
+    img.removeAttribute("srcset");
+    img.src = PLACEHOLDER;
+    var inl = !img.closest("figure") && !img.classList.contains("ib-img") && img.parentNode.textContent.trim() !== "";   /* a small picture in the middle of a sentence */
+    if (inl) img.classList.add("img-missing-inline");
+    img.title = "No picture yet";
+    if (DEV_HOST && img.parentNode) {   /* a hint for the writer, never shown on the published site */
+      var wrap = document.createElement("span"), shown = "Missing: " + path.replace(/^(guide|site)\//, "");
+      wrap.className = "img-dev" + (inl ? " inline" : "");
+      img.parentNode.insertBefore(wrap, img); wrap.appendChild(img);
+      if (inl) img.title = shown;
+      else { var note = document.createElement("small"); note.textContent = shown; wrap.appendChild(note); }
+    }
+  }, true);
 
   /* the Copy button on code blocks */
   document.addEventListener("click", function (e) {
