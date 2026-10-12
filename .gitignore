@@ -12,5 +12,4 @@ data/release_notes.md
 data/normalized/sources.jsonl
 
 web/guide/index.json
-web/guide/home.json
 web/site/index.json
