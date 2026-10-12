@@ -5,7 +5,8 @@
   var TYPES = ["Buff", "Nerf", "Removal", "New", "Rework", "Fix", "Performance", "Economy", "QoL", "UI", "Other"];
   var TYPE_LABEL = { Buff: "Buffs", Nerf: "Nerfs", Removal: "Removals", New: "Additions", Rework: "Reworks", Fix: "Fixes",
     Performance: "Performance", Economy: "Economy", QoL: "Quality of life", UI: "Interface", Other: "Other changes" };
-  var TYPE_COLOR = { Buff: "var(--buff)", Nerf: "var(--nerf)", Removal: "var(--nerf)", New: "var(--new)", Rework: "var(--rework)", Fix: "var(--fix)" };
+  var TYPE_COLOR = { Buff: "var(--buff)", Nerf: "var(--nerf)", Removal: "var(--nerf)", New: "var(--new)", Rework: "var(--rework)", Fix: "var(--fix)",
+    Performance: "var(--perf)", Economy: "var(--econ)", UI: "var(--ui)", QoL: "var(--qol)" };
 
   /* ---------- display settings (saved in this browser only) ---------- */
   var SETTINGS_KEY = "udfop.settings";
