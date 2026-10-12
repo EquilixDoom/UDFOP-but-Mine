@@ -1,0 +1,10 @@
+{
+  "start": [
+    { "title": "Something not working?", "text": "The Installation Guide, and fixes for known problems", "page": "Installation Guide" },
+    { "title": "Looking up a key?", "text": "Controls: every default keybind", "page": "Controls" }
+  ],
+  "categories": {
+    "Player Guide": "How the game's systems work, written from play.",
+    "Technical Support": "Installing the game and fixing what goes wrong."
+  }
+}

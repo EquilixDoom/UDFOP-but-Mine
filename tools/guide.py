@@ -1,12 +1,13 @@
 """Game Guide and Site Guide tooling. Python 3 standard library only. Run from the project root.
 
-    python tools/guide.py           rebuild web/guide/index.json and web/site/index.json (the site's lists of pages)
+    python tools/guide.py           rebuild web/guide/index.json, web/guide/home.json and web/site/index.json (the site's lists of pages)
     python tools/guide.py --check   also report problems; exit code 1 if there are errors
 
 Game Guide pages are Markdown files under web/guide/ (see CONTRIBUTING.md); Site Guide pages (help for contributors
 and reviewers) are Markdown files under web/site/. Files and folders whose name starts with "_" or "." are ignored.
-index.json is generated, git-ignored, and rebuilt by the deploy workflow, so contributors never have to run this."""
-import json, os, re, sys
+index.json and home.json are generated, git-ignored, and rebuilt by the deploy workflow, so contributors never have to run this.
+The Game Guide landing page is set up by web/guide/_home.json (the start-here links and a line about each category)."""
+import json, os, re, subprocess, sys
 
 ROOT = os.path.join('web', 'guide')
 SITE = os.path.join('web', 'site')
@@ -172,7 +173,7 @@ def check_images(pages, problems, root=ROOT, prefix=''):
     for base, dirs, files in os.walk(root):
         dirs[:] = sorted(d for d in dirs if not d.startswith(('_', '.')))
         for f in sorted(files):
-            if f.startswith(('_', '.')) or f.lower().endswith('.md') or f == 'index.json':
+            if f.startswith(('_', '.')) or f.lower().endswith('.md') or f in ('index.json', 'home.json'):
                 continue
             path = os.path.join(base, f)
             rel = os.path.relpath(path, root).replace(os.sep, '/')
@@ -268,6 +269,59 @@ def patch_versions():
         return set()
 
 
+def git_dates():
+    """The date each guide file was last changed, from git history ({} when git or the history is not there)."""
+    try:
+        out = subprocess.run(['git', 'log', '--format=%cs', '--name-only', '--', ROOT.replace(os.sep, '/')], capture_output=True, text=True, encoding='utf-8', timeout=60).stdout
+    except Exception:
+        return {}
+    dates, cur = {}, ''
+    for ln in out.splitlines():
+        ln = ln.strip()
+        if re.fullmatch(r'\d{4}-\d\d-\d\d', ln):
+            cur = ln
+        elif ln:
+            dates.setdefault(ln, cur)
+    return dates
+
+
+def build_home(pages, problems):
+    """web/guide/home.json: what the Game Guide landing page needs besides the page list (from _home.json and git)."""
+    src = os.path.join(ROOT, '_home.json')
+    where = 'guide/_home.json'
+    home = {}
+    if os.path.isfile(src):
+        try:
+            home = json.load(open(src, encoding='utf-8'))
+        except ValueError as e:
+            problems.append(('error', where, 'is not valid JSON: %s' % e))
+    listed = [p for p in pages if not p['unlisted']]
+    titles = {p['title'].lower(): p for p in listed}
+    start = []
+    for s in home.get('start', []):
+        page = titles.get(str(s.get('page', '')).lower())
+        if not page or not s.get('title'):
+            problems.append(('error', where, 'a start-here entry needs a "title" and a "page" that is the title of a listed guide page (got "%s")' % s.get('page', '')))
+            continue
+        start.append(dict(title=s['title'], text=s.get('text', ''), slug=page['slug']))
+    cats = {p['category'] for p in listed}
+    described = home.get('categories', {})
+    for c in sorted(cats):
+        if c not in described:
+            problems.append(('warn', where, 'the category "%s" has no line about it; add one under "categories" so the landing page can describe it' % c))
+    for c in described:
+        if c not in cats:
+            problems.append(('warn', where, 'describes the category "%s", which has no pages' % c))
+    dates = git_dates()
+    recent = []
+    for p in listed:
+        d = dates.get((ROOT + '/' + p['slug'] + '.md').replace(os.sep, '/'))
+        if d:
+            recent.append(dict(slug=p['slug'], title=p['title'], date=d))
+    recent.sort(key=lambda r: (r['date'], r['title'].lower()), reverse=True)
+    return dict(start=start, categories={c: described[c] for c in described if c in cats}, recent=recent[:5])
+
+
 def main():
     check = '--check' in sys.argv
     if not os.path.isdir(ROOT):
@@ -322,6 +376,9 @@ def main():
         with open(os.path.join(root, 'index.json'), 'w', encoding='utf-8') as f:
             json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
         print('%s: %d page(s) indexed' % (area, len(out)))
+        if area == 'guide':
+            with open(os.path.join(root, 'home.json'), 'w', encoding='utf-8') as f:
+                json.dump(build_home(ps, problems), f, ensure_ascii=False, separators=(',', ':'))
     errors = [x for x in problems if x[0] == 'error']
     if check or errors:
         for level, where, msg in problems:

@@ -101,7 +101,7 @@
     return '<h1 class="title">' + title + '</h1><div class="tagline banner">From ' + SITE + "</div>" +
       (opts.hat ? '<div class="hat breadcrumbs">' + opts.hat + "</div>" : "") + body;
   }
-  function sec(id, title, lvl) { return "<h" + lvl + ' class="sec" id="' + slugId(id) + '" data-toc="' + esc(title) + '">' + esc(title) + "</h" + lvl + ">"; }
+  function sec(id, title, lvl, open) { return "<h" + lvl + ' class="sec" id="' + slugId(id) + '" data-toc="' + esc(title) + '"' + (open ? ' data-open="1"' : "") + ">" + esc(title) + "</h" + lvl + ">"; }   /* open: on a narrow screen the section starts unfolded */
 
   function table(list, cols, limit) {
     list = list.slice().sort(newest);
@@ -366,6 +366,7 @@
     "how-to/reviewing-a-pull-request": "#/site/reviewing-a-pull-request", "how-to/site-guide": "#/site"
   };
   var guide = null, guideFailed = false, guideBySlug = {}, guideByTitle = {};
+  var guideHome = null;   /* web/guide/home.json: the landing page's start-here links, category lines and recent changes */
   var siteGuide = [], siteBySlug = {}, siteByTitle = {};   /* the Site Guide: pages in web/site/, listed by site/index.json */
   var topicByLower = {};
   topics.forEach(function (t) { topicByLower[t.toLowerCase()] = t; });
@@ -739,18 +740,34 @@
   views.guide = function (arg) {
     if (arg && arg.indexOf("category/") === 0) return views.guidecat(arg.slice(9));
     if (arg) return views.guidepage(arg);
-    var h = "<p>The Game Guide is the community-written part of UDFOP: how things in Daggerfall Online work, written by players. Unlike the patch notes it is edited by hand, so anyone can improve it.</p>" + contribBox();
+    var h = "<p>The Game Guide is the community-written part of UDFOP: how things in Daggerfall Online work, written by players. Unlike the patch notes it is edited by hand, so anyone can improve it.</p>";
     if (guide === null) h += "<p>Loading…</p>";
     else if (guideFailed) h += guideUnavailable();
     else if (!listedGuide().length) h += "<p>There are no guide pages yet. Be the first to write one.</p>";
     else {
-      var cats = guideCategories();
+      var cats = guideCategories(), gh = guideHome || {}, CARD_SHOWN = 5;
+      var start = (gh.start || []).filter(function (x) { return guideBySlug[String(x.slug).toLowerCase()]; });
+      if (start.length) {
+        h += sec("start", "Start here", 2, true) + '<div class="gstart">' + start.map(function (x) {
+          return '<a href="' + purl(guideBySlug[x.slug.toLowerCase()]) + '"><b>' + esc(x.title) + "</b><span>" + esc(x.text || "") + "</span></a>";
+        }).join("") + "</div>";
+      }
+      h += sec("browse", "Browse by category", 2, true) + '<div class="gcards">';
       Object.keys(cats).forEach(function (c) {
-        var all = cats[c];
-        h += sec(c, c, 2).replace(">" + esc(c) + "</h2>", '><a href="#/guide/category/' + enc(c) + '">' + esc(c) + "</a></h2>") + guideList(all.slice(0, INDEX_SHOWN));   /* the section name opens that category's page */
-        if (all.length > INDEX_SHOWN) h += '<p class="allpages"><a href="#/guide/category/' + enc(c) + '">All ' + all.length + " pages in " + esc(c) + " →</a></p>";
+        var all = cats[c], line = (gh.categories || {})[c], link = "#/guide/category/" + enc(c);
+        h += '<div class="gcard"><h3><a href="' + link + '">' + esc(c) + '</a></h3><p class="gn">' + plural(all.length, "page") + "</p>" + (line ? '<p class="gd">' + esc(line) + "</p>" : "") +
+          "<ul>" + all.slice(0, CARD_SHOWN).map(function (p) { return "<li>" + glink(p) + (p.summary ? ' <span class="gs">– ' + esc(p.summary.replace(/\.$/, "")) + "</span>" : "") + "</li>"; }).join("") + "</ul>" +
+          (all.length > CARD_SHOWN ? '<p class="gall"><a href="' + link + '">All ' + all.length + " pages →</a></p>" : "") + "</div>";
       });
+      h += "</div>";
+      var recent = (gh.recent || []).filter(function (r) { return guideBySlug[String(r.slug).toLowerCase()]; });
+      if (recent.length) {
+        h += sec("recent", "Recently updated", 2, true) + '<ul class="grecent">' + recent.map(function (r) {
+          return "<li>" + glink(guideBySlug[r.slug.toLowerCase()]) + ' <span class="gs">' + esc(r.date) + "</span></li>";
+        }).join("") + "</ul>";
+      }
     }
+    h += contribBox();
     return { title: "Game Guide", html: page("Game Guide", h) };
   };
   views.guidecat = function (c) {
@@ -958,6 +975,7 @@
       f.h.classList.add("foldable");
       f.members.forEach(function (el) { el.__fh = (el.__fh || 0) + 1; el.classList.add("fold-hide"); });
     });
+    folds.forEach(function (f) { if (f.h.hasAttribute("data-open")) toggleFold(f, true); });
     syncFoldMode();
   }
   function toggleFold(f, open) {
@@ -1210,6 +1228,9 @@
     .catch(function () { guideFailed = true; guideLoaded([]); })
     .then(function () {
       return fetch("site/index.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(siteLoaded).catch(function () { siteLoaded([]); });
+    })
+    .then(function () {
+      return fetch("guide/home.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (h) { guideHome = h; }).catch(function () {});
     })
     .then(function () { if (/^#\/(guide|site|search)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
   document.getElementById("foot-stats").textContent = rows.length.toLocaleString() + " changes · " + topics.length + " topics · " + versions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
