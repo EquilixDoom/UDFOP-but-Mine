@@ -34,8 +34,7 @@ html[data-skin="parchment"] {
   --j-paper-size: 18px 100%, auto; --j-paper-rep: no-repeat, repeat; --j-paper-pos: 0 0, 0 0;
   --j-head-style: italic; --j-head-color: var(--rubric); --j-h1-cap: var(--lapis); --j-h2-cap: var(--lapis); --j-h3-mark: "\00B6\00A0";
   --j-orn: ""; --j-orn-size: 9px; --j-orn-rot: 0deg; --j-orn-bg: var(--gilt); --j-orn-clip: circle(50%);
-  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent);
-  --j-dc-float: left; --j-dc-size: 4.4em; --j-dc-color: var(--lapis); --j-dc-glow: 1px 1px 0 var(--gilt); --j-dc-clear: ""; --j-dc-font: Georgia, "Palatino Linotype", serif; --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
+  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent); --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
   --j-cell: var(--line);
   color-scheme: light;
 }
@@ -47,8 +46,7 @@ html[data-skin="parchment"][data-theme="dark"] {
   --j-paper-size: 18px 100%, auto; --j-paper-rep: no-repeat, repeat; --j-paper-pos: 0 0, 0 0;
   --j-head-style: italic; --j-head-color: var(--rubric); --j-h1-cap: var(--lapis); --j-h2-cap: var(--lapis); --j-h3-mark: "\00B6\00A0";
   --j-orn: ""; --j-orn-size: 9px; --j-orn-rot: 0deg; --j-orn-bg: var(--gilt); --j-orn-clip: circle(50%);
-  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent);
-  --j-dc-float: left; --j-dc-size: 4.4em; --j-dc-color: var(--lapis); --j-dc-glow: 1px 1px 0 var(--gilt); --j-dc-clear: ""; --j-dc-font: Georgia, "Palatino Linotype", serif; --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
+  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent); --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
   --j-cell: var(--line);
   color-scheme: dark;
 }
@@ -61,8 +59,7 @@ html[data-skin="parchment"][data-theme="dark"] {
   --j-paper-size: 18px 100%, auto; --j-paper-rep: no-repeat, repeat; --j-paper-pos: 0 0, 0 0;
   --j-head-style: italic; --j-head-color: var(--rubric); --j-h1-cap: var(--lapis); --j-h2-cap: var(--lapis); --j-h3-mark: "\00B6\00A0";
   --j-orn: ""; --j-orn-size: 9px; --j-orn-rot: 0deg; --j-orn-bg: var(--gilt); --j-orn-clip: circle(50%);
-  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent);
-  --j-dc-float: left; --j-dc-size: 4.4em; --j-dc-color: var(--lapis); --j-dc-glow: 1px 1px 0 var(--gilt); --j-dc-clear: ""; --j-dc-font: Georgia, "Palatino Linotype", serif; --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
+  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent); --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
   --j-cell: var(--line);
   color-scheme: dark;
 }
@@ -73,10 +70,9 @@ html[data-skin="iliac"] {
   --visited: #5a3f8f; --red: #b83226; --head: #eaf1f1; --accent: #805c1b; --infobox: #e8f0ef; --buff: #0f724f; --nerf: #b53628; --new: #1d5fb8;
   --rework: #7a3fa0; --fix: #935400; --other: #53666e; --perf: #186a93; --econ: #596919; --ui: #ad3280; --qol: #7f5e25; --notice: #e6f0e8; --notice-line: #b88a2e;
   --serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif; --j-caps: small-caps; --j-track: .05em; --j-orn: ""; --j-orn-size: 16px; --j-orn-rot: 0deg; --j-orn-bg: #b88a2e; --j-orn-clip: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-  --j-seal: radial-gradient(circle, #123b4d 0 56%, transparent 58%), conic-gradient(#123b4d 0 12.5%, #b88a2e 0 25%, #123b4d 0 37.5%, #b88a2e 0 50%, #123b4d 0 62.5%, #b88a2e 0 75%, #123b4d 0 87.5%, #b88a2e 0); --j-select: rgba(184, 138, 46, .3);
-  --j-dc-float: left; --j-dc-size: 4.6em; --j-dc-clear: ""; --j-dc-font: Georgia, "Palatino Linotype", serif; --j-inset: inset 0 1px 3px rgba(18, 48, 60, .22);
+  --j-seal: radial-gradient(circle, #123b4d 0 56%, transparent 58%), conic-gradient(#123b4d 0 12.5%, #b88a2e 0 25%, #123b4d 0 37.5%, #b88a2e 0 50%, #123b4d 0 62.5%, #b88a2e 0 75%, #123b4d 0 87.5%, #b88a2e 0); --j-select: rgba(184, 138, 46, .3); --j-inset: inset 0 1px 3px rgba(18, 48, 60, .22);
   --j-sheet: inset 0 0 40px rgba(29, 74, 92, .12), 0 2px 8px rgba(18, 48, 60, .3); --j-frame: 3px double #1d4a5c; --j-head: 3px double #1d4a5c; --j-rule: 2px dotted #1d4a5c; --j-cell: #a9c0c9;
-  --j-paper: linear-gradient(rgba(29, 74, 92, .09) 1px, transparent 1px), linear-gradient(90deg, rgba(29, 74, 92, .09) 1px, transparent 1px), radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, .6), transparent 60%); --j-paper-size: 24px 24px, 24px 24px, auto; --j-dc-color: #1d4a5c;
+  --j-paper: linear-gradient(rgba(29, 74, 92, .09) 1px, transparent 1px), linear-gradient(90deg, rgba(29, 74, 92, .09) 1px, transparent 1px), radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, .6), transparent 60%); --j-paper-size: 24px 24px, 24px 24px, auto;
   --j-desk: linear-gradient(180deg, #24566a, #0f2f3d); --j-rail: var(--page);
   color-scheme: light;
 }
@@ -85,10 +81,9 @@ html[data-skin="iliac"][data-theme="dark"] {
   --visited: #b49ae8; --red: #ff8f84; --head: #0b1f28; --accent: #e0b050; --infobox: #112c38; --buff: #5fd6a6; --nerf: #ff8f84; --new: #7db8ff;
   --rework: #c9a2ee; --fix: #f0be55; --other: #8fb0bc; --perf: #50c5e2; --econ: #bfd85a; --ui: #d777b4; --qol: #d18a61; --notice: #12303a; --notice-line: #b88a2e;
   --serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif; --j-caps: small-caps; --j-track: .05em; --j-orn: ""; --j-orn-size: 16px; --j-orn-rot: 0deg; --j-orn-bg: #e0b050; --j-orn-clip: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-  --j-seal: radial-gradient(circle, #0b1f28 0 56%, transparent 58%), conic-gradient(#0b1f28 0 12.5%, #e0b050 0 25%, #0b1f28 0 37.5%, #e0b050 0 50%, #0b1f28 0 62.5%, #e0b050 0 75%, #0b1f28 0 87.5%, #e0b050 0); --j-select: rgba(224, 176, 80, .3);
-  --j-dc-float: left; --j-dc-size: 4.6em; --j-dc-clear: ""; --j-dc-font: Georgia, "Palatino Linotype", serif; --j-inset: inset 0 1px 3px rgba(0, 0, 0, .5);
+  --j-seal: radial-gradient(circle, #0b1f28 0 56%, transparent 58%), conic-gradient(#0b1f28 0 12.5%, #e0b050 0 25%, #0b1f28 0 37.5%, #e0b050 0 50%, #0b1f28 0 62.5%, #e0b050 0 75%, #0b1f28 0 87.5%, #e0b050 0); --j-select: rgba(224, 176, 80, .3); --j-inset: inset 0 1px 3px rgba(0, 0, 0, .5);
   --j-sheet: inset 0 0 60px rgba(0, 0, 0, .5); --j-frame: 3px double #5b7f8e; --j-head: 3px double #5b7f8e; --j-rule: 2px dotted #5b7f8e; --j-cell: #26414d;
-  --j-paper: linear-gradient(rgba(143, 176, 188, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(143, 176, 188, .07) 1px, transparent 1px), radial-gradient(ellipse at 50% -10%, rgba(224, 176, 80, .12), transparent 55%); --j-paper-size: 24px 24px, 24px 24px, auto; --j-dc-color: #e0b050;
+  --j-paper: linear-gradient(rgba(143, 176, 188, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(143, 176, 188, .07) 1px, transparent 1px), radial-gradient(ellipse at 50% -10%, rgba(224, 176, 80, .12), transparent 55%); --j-paper-size: 24px 24px, 24px 24px, auto;
   --j-desk: radial-gradient(ellipse at 50% 0%, #10303d, #050e13 75%); --j-rail: var(--page);
   color-scheme: dark;
 }
@@ -98,10 +93,9 @@ html[data-skin="iliac"][data-theme="dark"] {
   --visited: #b49ae8; --red: #ff8f84; --head: #0b1f28; --accent: #e0b050; --infobox: #112c38; --buff: #5fd6a6; --nerf: #ff8f84; --new: #7db8ff;
   --rework: #c9a2ee; --fix: #f0be55; --other: #8fb0bc; --perf: #50c5e2; --econ: #bfd85a; --ui: #d777b4; --qol: #d18a61; --notice: #12303a; --notice-line: #b88a2e;
   --serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif; --j-caps: small-caps; --j-track: .05em; --j-orn: ""; --j-orn-size: 16px; --j-orn-rot: 0deg; --j-orn-bg: #e0b050; --j-orn-clip: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-  --j-seal: radial-gradient(circle, #0b1f28 0 56%, transparent 58%), conic-gradient(#0b1f28 0 12.5%, #e0b050 0 25%, #0b1f28 0 37.5%, #e0b050 0 50%, #0b1f28 0 62.5%, #e0b050 0 75%, #0b1f28 0 87.5%, #e0b050 0); --j-select: rgba(224, 176, 80, .3);
-  --j-dc-float: left; --j-dc-size: 4.6em; --j-dc-clear: ""; --j-dc-font: Georgia, "Palatino Linotype", serif; --j-inset: inset 0 1px 3px rgba(0, 0, 0, .5);
+  --j-seal: radial-gradient(circle, #0b1f28 0 56%, transparent 58%), conic-gradient(#0b1f28 0 12.5%, #e0b050 0 25%, #0b1f28 0 37.5%, #e0b050 0 50%, #0b1f28 0 62.5%, #e0b050 0 75%, #0b1f28 0 87.5%, #e0b050 0); --j-select: rgba(224, 176, 80, .3); --j-inset: inset 0 1px 3px rgba(0, 0, 0, .5);
   --j-sheet: inset 0 0 60px rgba(0, 0, 0, .5); --j-frame: 3px double #5b7f8e; --j-head: 3px double #5b7f8e; --j-rule: 2px dotted #5b7f8e; --j-cell: #26414d;
-  --j-paper: linear-gradient(rgba(143, 176, 188, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(143, 176, 188, .07) 1px, transparent 1px), radial-gradient(ellipse at 50% -10%, rgba(224, 176, 80, .12), transparent 55%); --j-paper-size: 24px 24px, 24px 24px, auto; --j-dc-color: #e0b050;
+  --j-paper: linear-gradient(rgba(143, 176, 188, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(143, 176, 188, .07) 1px, transparent 1px), radial-gradient(ellipse at 50% -10%, rgba(224, 176, 80, .12), transparent 55%); --j-paper-size: 24px 24px, 24px 24px, auto;
   --j-desk: radial-gradient(ellipse at 50% 0%, #10303d, #050e13 75%); --j-rail: var(--page);
   color-scheme: dark;
 }
@@ -120,7 +114,7 @@ html[data-skin="oblivion"] {
   --j-frame: 4px double #6e5030; --j-rule: 3px double #8a6a3e; --j-head: 3px double #6e5030; --j-caps: small-caps; --j-track: .03em;
   --j-seal: radial-gradient(circle at 35% 30%, #b8452f, #7a2012 60%, #5a160b); --j-inset: inset 0 1px 3px rgba(60, 38, 12, .25);
  --j-desk: repeating-linear-gradient(35deg, rgba(255, 220, 160, .035) 0 2px, transparent 2px 5px), radial-gradient(ellipse at 50% 0%, #4a3320, #2a1c10 75%); --j-rail: var(--page);
-  --j-orn: ""; --j-dc-float: left; --j-dc-size: 5.8em; --j-dc-clear: ""; --j-dc-color: #7a2012; --j-dc-font: "Kingthings Petrock", Palatino, Georgia, serif;
+  --j-orn: "";
   --j-cell: #c3a87a; --j-select: rgba(122, 32, 18, .22);
   color-scheme: light;
 }
@@ -130,7 +124,6 @@ html[data-skin="oblivion"][data-theme="dark"] {
     --j-paper-att: fixed; --j-paper-size: 100% 240px; --j-paper-pos: 0 100%; --j-paper-rep: no-repeat;
     --j-seal: radial-gradient(circle at 35% 30%, #ff7a3d, #c23a1b 55%, #5e1409); --j-seal-glow: 0 0 12px rgba(255, 110, 50, .55); --j-inset: inset 0 1px 4px #000; --j-cell: #3d2321; --j-select: rgba(255, 110, 50, .3);
     --j-desk: radial-gradient(ellipse at 50% 0%, #1f1514, #0a0708 75%); --j-rail: var(--page); --j-orn: ""; --j-head-color: #ff9558; --j-glow: 0 0 14px rgba(255, 100, 40, .45);
-    --j-dc-float: left; --j-dc-size: 5.8em; --j-dc-color: #ff7a3d; --j-dc-glow: 0 0 16px rgba(255, 100, 40, .7); --j-dc-font: "Kingthings Petrock", Palatino, Georgia, serif; --j-dc-clear: "";
     --page: #151011; --paper: #1a1415; --fg: #eadfd8; --muted: #b3a29a; --line: #5c3228; --soft: #281b1c; --softer: #211718; --link: #ff9d7e;
     --visited: #d9a0c0; --red: #ff7e6e; --head: #171112; --accent: #e4583f; --infobox: #211718; --buff: #6fd49a; --nerf: #ff7a96; --new: #7db3ff;
     --rework: #c9a0ee; --fix: #f0e052; --other: #b7a9a4; --perf: #50c5e2; --econ: #bfd85a; --ui: #d161a8; --qol: #d18a61; --notice: #2a1a14; --notice-line: #a8532e;
@@ -143,7 +136,6 @@ html[data-skin="oblivion"][data-theme="dark"] {
     --j-paper-att: fixed; --j-paper-size: 100% 240px; --j-paper-pos: 0 100%; --j-paper-rep: no-repeat;
     --j-seal: radial-gradient(circle at 35% 30%, #ff7a3d, #c23a1b 55%, #5e1409); --j-seal-glow: 0 0 12px rgba(255, 110, 50, .55); --j-inset: inset 0 1px 4px #000; --j-cell: #3d2321; --j-select: rgba(255, 110, 50, .3);
     --j-desk: radial-gradient(ellipse at 50% 0%, #1f1514, #0a0708 75%); --j-rail: var(--page); --j-orn: ""; --j-head-color: #ff9558; --j-glow: 0 0 14px rgba(255, 100, 40, .45);
-    --j-dc-float: left; --j-dc-size: 5.8em; --j-dc-color: #ff7a3d; --j-dc-glow: 0 0 16px rgba(255, 100, 40, .7); --j-dc-font: "Kingthings Petrock", Palatino, Georgia, serif; --j-dc-clear: "";
     --page: #151011; --paper: #1a1415; --fg: #eadfd8; --muted: #b3a29a; --line: #5c3228; --soft: #281b1c; --softer: #211718; --link: #ff9d7e;
     --visited: #d9a0c0; --red: #ff7e6e; --head: #171112; --accent: #e4583f; --infobox: #211718; --buff: #6fd49a; --nerf: #ff7a96; --new: #7db3ff;
     --rework: #c9a0ee; --fix: #f0e052; --other: #b7a9a4; --perf: #50c5e2; --econ: #bfd85a; --ui: #d161a8; --qol: #d18a61; --notice: #2a1a14; --notice-line: #a8532e;
@@ -715,12 +707,10 @@ h1.title, h2.sec { font-style: var(--j-head-style, normal); color: var(--j-head-
 #q, input.filter, form.rangebar input[type=date] { box-shadow: var(--j-inset, none); }
 body { background: var(--j-desk, var(--page)); background-attachment: fixed; }
 #rail { background: var(--j-rail, transparent); }
-/* a diamond set in the rule under a title or section heading, and a drop cap on a page's opening paragraph */
+/* a diamond set in the rule under a title or section heading */
 h1.title, h2.sec { position: relative; }
 h1.title::after, h2.sec::after { content: var(--j-orn, none); position: absolute; left: 50%; bottom: calc(var(--j-orn-size, 8px) / -2 - 1px); width: var(--j-orn-size, 8px); height: var(--j-orn-size, 8px); transform: translateX(-50%) rotate(var(--j-orn-rot, 45deg)); background: var(--j-orn-bg, var(--line)); clip-path: var(--j-orn-clip, none); box-shadow: 0 0 0 2px var(--paper); }
-#app > :is(.tagline, .hat) ~ p:first-of-type:not(:is(h2, h3) ~ p)::first-letter, #app > :is(.tagline, .hat) ~ div:not([class]) > p:first-child::first-letter { float: var(--j-dc-float, none); font-size: var(--j-dc-size, 1em); font-family: var(--j-dc-font, inherit); color: var(--j-dc-color, inherit); text-shadow: var(--j-dc-glow, none); line-height: .8; padding: .08em .1em 0 0; }
 @media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) { html[data-panel="sidebar"] #settings-panel { background: var(--j-rail, none); } }   /* a docked Settings column sits on the skin's rail color, not straight on the desk */
-#app > :is(.tagline, .hat) ~ p:first-of-type:not(:is(h2, h3) ~ p)::after, #app > :is(.tagline, .hat) ~ div:not([class]) > p:first-child::after { content: var(--j-dc-clear, none); display: block; clear: left; }   /* a short opener still holds its drop cap: the paragraph ends below the cap, but only clears the cap, so text still flows around a floated infobox */
 @media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) { html[data-width="wide"] #content { border-right: var(--j-frame, 0); } }   /* a skin with a framed sheet closes it at the right too, where the sheet meets the docked Settings column or the screen edge */
 
 h1.title::first-letter { color: var(--j-h1-cap, inherit); }
