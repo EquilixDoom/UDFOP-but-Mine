@@ -798,7 +798,7 @@ html[data-skin="crier"] #app p, html[data-skin="crier"] #app li { text-align: ju
 html[data-skin="crier"] #app :is(table, .infobox, .gtabs, .cats, .alpha, .pager, form.rangebar, .tp, .dev) p, html[data-skin="crier"] #app :is(table, .infobox, .portal) li { text-align: left; hyphens: manual; }
 html[data-skin="crier"] #app a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
 html[data-skin="crier"] #app a:hover { text-decoration-thickness: 2px; }
-html[data-skin="crier"] ul.cols { column-rule: 1px solid var(--line); }
+html[data-skin="crier"] ul.cols { column-gap: 3.2em; column-rule: 1px solid var(--line); }   /* the gap is wide enough that the rule clears the bullets of the next column */
 html[data-skin="crier"] .infobox { border: 1px solid var(--fg); border-top: 4px double var(--fg); background: var(--softer); }
 html[data-skin="crier"] .infobox caption, html[data-skin="crier"] .infobox .ibt, html[data-skin="crier"] .infobox .sub { background: transparent; font-variant: small-caps; letter-spacing: .04em; text-align: center; }
 html[data-skin="crier"] .wikitable { border: 0; border-top: 3px double var(--fg); border-bottom: 1px solid var(--fg); background: transparent; }
