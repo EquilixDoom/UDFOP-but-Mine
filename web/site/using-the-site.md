@@ -59,13 +59,13 @@ Hide it with its **hide** button, and a **☰** button appears beside the page t
 
 On a wide window, Settings starts docked in the right sidebar, and the **⚙** gear is not shown in the header. Press its **hide** button to put it away, and the gear appears at the top right. The gear opens Settings as a pop-up, which has a **move to sidebar** button to dock it again. On a narrow window, Settings is always a pop-up from the gear.
 
-![The Settings panel with the Theme, Color and Text size choices](images/use-settings.png "Settings docked on the right."){center 300}
+![The Settings panel with the Theme, Mode and Text size choices](images/use-settings.png "Settings docked on the right."){center 300}
 
 | Setting | Choices | What it does |
 |---|---|---|
 | **Theme** | Default, Parchment, Iliac Bay, Oblivion, Phosphor, Cassette | The overall look. Each has a light and a dark version, except Phosphor, which is always dark. |
 | **Phosphor color** | Capital Wastes, Mojave, Anchorage, White | Shown only while the Phosphor theme is picked: its screen color (green, amber, blue or white). |
-| **Color** | Auto, Light, Dark | Auto follows your device's light or dark setting. |
+| **Mode** | Auto, Light, Dark | Auto follows your device's light or dark setting. |
 | **Text size** | Small, Medium, Large | Scales all text and spacing. |
 | **Page width** | Standard, Wide | Standard keeps lines comfortable to read. Wide uses the whole window. |
 | **Top bar** | Stays visible, Scrolls away | Stays visible keeps the top bar on screen while you scroll. Scrolls away lets it move off the screen, so the page has more room. |
