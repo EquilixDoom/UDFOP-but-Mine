@@ -826,3 +826,9 @@ html[data-skin="cassette"] .portal { overflow: hidden; }
   html:not([data-skin])[data-width="wide"] #content { border-right: 1px solid var(--line); }
   html[data-skin="cassette"][data-width="wide"] #content { border-right: 2px solid var(--frame); }
 }
+
+/* The main menu docked in the left column scrolls away with the page. A docked Contents list stays in view under the header, because it follows the reader through the page. */
+@media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) {
+  html:not([data-menu="popover"]) #rail { position: static; align-self: stretch; height: auto; overflow: visible; }
+  html:not([data-menu="popover"])[data-contents="sidebar"] #side-toc:not([hidden]) { position: sticky; top: var(--head-h, 3.6rem); max-height: calc(100vh - var(--head-h, 3.6rem)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+}
