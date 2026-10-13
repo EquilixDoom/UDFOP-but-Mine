@@ -680,7 +680,7 @@ h2:hover > .hlink, h3:hover > .hlink, .hlink:focus-visible { opacity: .75; }
 }
 
 /* Settings > Top bar > Scrolls away: the top bar is an ordinary part of the page instead of staying at the top of the window. --head-h (set by script) then follows how much of it is still on screen, so sticky panels and pop-ups move up with it */
-html[data-navbar="scroll"] #head { position: static; }
+html[data-navbar="scroll"] #head { position: relative; }   /* not static: it keeps its z-index, so the search drop-down and menus stay above positioned headings while the bar scrolls away */
 html[data-navbar="scroll"] { scroll-padding-top: .5rem; }
 
 /* the By type / By topic tabs above a list of changes */
