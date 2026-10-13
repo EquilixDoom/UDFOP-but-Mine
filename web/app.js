@@ -10,8 +10,8 @@
 
   /* ---------- display settings (saved in this browser only) ---------- */
   var SETTINGS_KEY = "udfop.settings";
-  var SETTING_OPTIONS = { skin: ["default", "parchment", "iliac", "oblivion", "phosphor", "cassette"], phosphor: ["green", "amber", "blue", "white"], size: ["small", "medium", "large"], width: ["standard", "wide"], navbar: ["stay", "scroll"], theme: ["auto", "light", "dark"], previews: ["on", "off"], menu: ["sidebar", "popover"], panel: ["popover", "sidebar"], contents: ["popover", "sidebar"] };
-  var SETTING_DEFAULTS = { skin: "default", phosphor: "green", size: "medium", width: "standard", navbar: "stay", theme: "auto", previews: "on", menu: "popover", panel: "sidebar", contents: "sidebar" };
+  var SETTING_OPTIONS = { skin: ["default", "parchment", "iliac", "oblivion", "phosphor", "cassette"], phosphor: ["green", "amber", "blue", "white"], palette: ["gold", "slate", "moss", "dusk", "terracotta", "graphite"], size: ["small", "medium", "large"], width: ["standard", "wide"], navbar: ["stay", "scroll"], theme: ["auto", "light", "dark"], previews: ["on", "off"], menu: ["sidebar", "popover"], panel: ["popover", "sidebar"], contents: ["popover", "sidebar"] };
+  var SETTING_DEFAULTS = { skin: "default", phosphor: "green", palette: "gold", size: "medium", width: "standard", navbar: "stay", theme: "auto", previews: "on", menu: "popover", panel: "sidebar", contents: "sidebar" };
   function loadSettings() {
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") || {}; } catch (e) {}
@@ -24,7 +24,7 @@
   }
   function applySettings(st) {
     var d = document.documentElement;
-    [["skin", "default"], ["phosphor", "green"], ["size", "medium"], ["width", "standard"], ["navbar", "stay"], ["theme", "auto"], ["previews", "on"], ["menu", "sidebar"], ["panel", "popover"], ["contents", "popover"]].forEach(function (p) {
+    [["skin", "default"], ["phosphor", "green"], ["palette", "gold"], ["size", "medium"], ["width", "standard"], ["navbar", "stay"], ["theme", "auto"], ["previews", "on"], ["menu", "sidebar"], ["panel", "popover"], ["contents", "popover"]].forEach(function (p) {
       if (st[p[0]] === p[1]) d.removeAttribute("data-" + p[0]); else d.setAttribute("data-" + p[0], st[p[0]]);
     });
     if (st.skin === "phosphor") d.setAttribute("data-theme", "dark");   /* Phosphor has no light version; the saved Mode choice is kept for the other themes */
@@ -1597,6 +1597,8 @@
         labels: ["Default", "Parchment", "Iliac Bay", "Oblivion", "Phosphor", "Cassette"], swatches: [["#ffffff", "#1b1f24", "#8a5a1a"], ["#f6edd3", "#241912", "#9a2418", "#b8902a"], ["#f4f7f4", "#0e2530", "#d6a43a"], ["#f0e3c2", "#1a1415", "#d4452a"], ["#1a2a1e", "#0a0f0b", "#3cff6a"], ["#efeadb", "#1d1f21", "#ff6a1f"]] },   /* [light page, dark page, logo color, optional ring]: the left half of each dot is the theme in light, the right half in dark, and the center is its logo */
       { key: "phosphor", legend: "Phosphor color", help: "The screen color of the Phosphor theme.", grid: true,
         labels: ["Capital Wastes", "Mojave", "Anchorage", "White"], swatches: [["#1a2a1e", "#0a0f0b", "#3cff6a"], ["#2a1d0a", "#0c0802", "#ffb000"], ["#0f2036", "#04080f", "#4da6ff"], ["#2a2a2a", "#0a0a0a", "#ffffff"]] },
+      { key: "palette", legend: "Default color", help: "The colors of the Default theme.", grid: true,
+        labels: ["Gold", "Slate", "Moss", "Dusk", "Terracotta", "Graphite"], swatches: [["#ffffff", "#1b1f24", "#8a5a1a"], ["#f7f9fb", "#151d27", "#2f5d8a"], ["#f6f8f2", "#161e17", "#3a6b3f"], ["#f8f6fb", "#1b1724", "#6a3f8f"], ["#fbf7f3", "#201713", "#a8472a"], ["#ffffff", "#161616", "#3a3a3a"]] },
       { key: "theme", legend: "Mode", help: "Auto follows your device's light or dark setting.", labels: ["Auto", "Light", "Dark"] },
       { key: "size", legend: "Text size", help: "Scales all text and spacing.", labels: ["Small", "Medium", "Large"] },
       { key: "width", legend: "Page width", help: "Standard keeps lines comfortable to read; Wide uses the whole window.", labels: ["Standard", "Wide"] },
@@ -1610,11 +1612,12 @@
     }).join("") + '<p><button class="more" id="reset-settings" type="button">Reset to defaults</button></p>' +
       '<p class="muted" id="settings-note">Saved in this browser only, so your choices do not follow you to another browser or device, and clearing your browser’s site data resets them. Nothing is sent anywhere.</p>';
     var inputs = body.querySelectorAll("input");
-    var phosphorSet = body.querySelector('input[name="phosphor"]').closest("fieldset"), colorHelp = body.querySelector('input[name="theme"]').closest("fieldset").querySelector("p"), colorHelpText = colorHelp.textContent;
+    var paletteSet = body.querySelector('input[name="palette"]').closest("fieldset"), phosphorSet = body.querySelector('input[name="phosphor"]').closest("fieldset"), colorHelp = body.querySelector('input[name="theme"]').closest("fieldset").querySelector("p"), colorHelpText = colorHelp.textContent;
     function sync() {
       var dark = st.skin === "phosphor";   /* Phosphor is always dark, so the Mode choice is locked while it is picked */
       Array.prototype.forEach.call(inputs, function (i) { i.checked = st[i.name] === i.value; if (i.name === "theme") i.disabled = dark; });
       colorHelp.textContent = dark ? "Phosphor is always dark." : colorHelpText;
+      paletteSet.hidden = st.skin !== "default";   /* the palettes are for the Default theme only */
       phosphorSet.hidden = !dark;   /* the screen colors only matter for Phosphor */
     }
     function change(next) {

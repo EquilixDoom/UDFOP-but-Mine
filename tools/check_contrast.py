@@ -43,11 +43,14 @@ def blocks(css):
             out.setdefault(("phosphor-" + v.group(1), "light", False), {}).update(colors(body))
             continue
         skin = m.group(1) if m else "default"
+        ac = re.search(r'data-palette="(\w+)"', sel)
+        if ac:
+            skin = "palette-" + ac.group(1)
         if ':not([data-theme="light"])' in sel:
             key = (skin, "dark", True)
         elif 'data-theme="dark"' in sel:
             key = (skin, "dark", False)
-        elif sel in (":root", f'html[data-skin="{skin}"]', f'html[data-skin="{skin}"]:root'):
+        elif sel in (":root", f'html[data-skin="{skin}"]', f'html[data-skin="{skin}"]:root') or skin.startswith("palette-"):
             key = (skin, "light", False)
         else:
             continue
@@ -85,6 +88,19 @@ def main():
                 diff = {k for k in set(b[key]) | set(b[(skin, "dark", True)])
                         if b[key].get(k) != b[(skin, "dark", True)].get(k)}
                 print(f"DRIFT {skin}: dark blocks differ in {', '.join(sorted(diff))}")
+
+    for v in ("slate", "moss", "dusk", "terracotta", "graphite"):   # Default colors: whole palettes on the base
+        key = "palette-" + v
+        for mode, pal in (("light", {**base, **b[(key, "light", False)]}), ("dark", {**base, **dark, **b[(key, "dark", False)]})):
+            for t_ in TEXT:
+                for bg in BACKGROUNDS:
+                    r = ratio(pal[t_], pal[bg])
+                    if r < MIN:
+                        failures += 1
+                        print(f"FAIL default-{v}/{mode}: {t_} {pal[t_]} on {bg} {pal[bg]} = {r:.2f}")
+        if b[(key, "dark", False)] != b.get((key, "dark", True)):
+            failures += 1
+            print(f"DRIFT default-{v}: dark blocks differ")
 
     for v in ("amber", "blue", "white"):   # Phosphor colors: the green base with a palette swapped in
         pal = {**base, **dark, **b[("phosphor", "light", False)], **b[("phosphor-" + v, "light", False)]}
