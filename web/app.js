@@ -10,8 +10,8 @@
 
   /* ---------- display settings (saved in this browser only) ---------- */
   var SETTINGS_KEY = "udfop.settings";
-  var SETTING_OPTIONS = { skin: ["default", "parchment", "iliac", "oblivion"], size: ["small", "medium", "large"], width: ["standard", "wide"], navbar: ["stay", "scroll"], theme: ["auto", "light", "dark"], previews: ["on", "off"], menu: ["sidebar", "popover"], panel: ["popover", "sidebar"], contents: ["popover", "sidebar"] };
-  var SETTING_DEFAULTS = { skin: "default", size: "medium", width: "standard", navbar: "stay", theme: "auto", previews: "on", menu: "popover", panel: "sidebar", contents: "sidebar" };
+  var SETTING_OPTIONS = { skin: ["default", "parchment", "iliac", "oblivion", "phosphor", "cassette"], phosphor: ["green", "amber", "blue", "white"], size: ["small", "medium", "large"], width: ["standard", "wide"], navbar: ["stay", "scroll"], theme: ["auto", "light", "dark"], previews: ["on", "off"], menu: ["sidebar", "popover"], panel: ["popover", "sidebar"], contents: ["popover", "sidebar"] };
+  var SETTING_DEFAULTS = { skin: "default", phosphor: "green", size: "medium", width: "standard", navbar: "stay", theme: "auto", previews: "on", menu: "popover", panel: "sidebar", contents: "sidebar" };
   function loadSettings() {
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") || {}; } catch (e) {}
@@ -24,9 +24,10 @@
   }
   function applySettings(st) {
     var d = document.documentElement;
-    [["skin", "default"], ["size", "medium"], ["width", "standard"], ["navbar", "stay"], ["theme", "auto"], ["previews", "on"], ["menu", "sidebar"], ["panel", "popover"], ["contents", "popover"]].forEach(function (p) {
+    [["skin", "default"], ["phosphor", "green"], ["size", "medium"], ["width", "standard"], ["navbar", "stay"], ["theme", "auto"], ["previews", "on"], ["menu", "sidebar"], ["panel", "popover"], ["contents", "popover"]].forEach(function (p) {
       if (st[p[0]] === p[1]) d.removeAttribute("data-" + p[0]); else d.setAttribute("data-" + p[0], st[p[0]]);
     });
+    if (st.skin === "phosphor") d.setAttribute("data-theme", "dark");   /* Phosphor has no light version; the saved Color choice is kept for the other themes */
     syncDocks(st);
     syncAnchors();
     syncTocBtn();   /* docking or undocking a panel moves where the Contents button belongs */
@@ -1592,8 +1593,10 @@
     var panel = document.getElementById("settings-panel"), body = document.getElementById("settings-body"),
         gear = document.getElementById("gear"), st = loadSettings(), warned = false;
     var GROUPS = [
-      { key: "skin", legend: "Theme", help: "The overall look. Each theme has a light and a dark version.", grid: true,
-        labels: ["Default", "Parchment", "Iliac Bay", "Oblivion"], swatches: [["#ffffff", "#8a5a1a"], ["#f8f1de", "#8a2f0c"], ["#fafdfe", "#0f766e"], ["#171213", "#e4583f"]] },
+      { key: "skin", legend: "Theme", help: "The overall look. Each theme has a light and a dark version, except Phosphor, which is always dark.", grid: true,
+        labels: ["Default", "Parchment", "Iliac Bay", "Oblivion", "Phosphor", "Cassette"], swatches: [["#fbfaf6", "#17181a", "#3b5078"], ["#f6edd3", "#241912", "#9a2418", "#b8902a"], ["#f4f7f4", "#0e2530", "#d6a43a"], ["#f0e3c2", "#1a1415", "#d4452a"], ["#1a2a1e", "#0a0f0b", "#3cff6a"], ["#efeadb", "#1d1f21", "#ff6a1f"]] },   /* [light page, dark page, logo color, optional ring]: the left half of each dot is the theme in light, the right half in dark, and the center is its logo */
+      { key: "phosphor", legend: "Phosphor color", help: "The screen color of the Phosphor theme.", grid: true,
+        labels: ["Capital Wastes", "Mojave", "Anchorage", "White"], swatches: [["#1a2a1e", "#0a0f0b", "#3cff6a"], ["#2a1d0a", "#0c0802", "#ffb000"], ["#0f2036", "#04080f", "#4da6ff"], ["#2a2a2a", "#0a0a0a", "#ffffff"]] },
       { key: "theme", legend: "Color", help: "Auto follows your device's light or dark setting.", labels: ["Auto", "Light", "Dark"] },
       { key: "size", legend: "Text size", help: "Scales all text and spacing.", labels: ["Small", "Medium", "Large"] },
       { key: "width", legend: "Page width", help: "Standard keeps lines comfortable to read; Wide uses the whole window.", labels: ["Standard", "Wide"] },
@@ -1602,12 +1605,18 @@
     ];
     body.innerHTML = GROUPS.map(function (g) {
       return '<fieldset class="setting"><legend>' + g.legend + "</legend><p class='muted'>" + g.help + '</p><div class="seg' + (g.grid ? " grid" : "") + '">' +
-        SETTING_OPTIONS[g.key].map(function (v, i) { return '<label><input type="radio" name="' + g.key + '" value="' + v + '"><span>' + (g.swatches ? '<i class="dot" style="background:linear-gradient(135deg,' + g.swatches[i][0] + " 50%," + g.swatches[i][1] + ' 50%)"></i>' : "") + g.labels[i] + "</span></label>"; }).join("") +
+        SETTING_OPTIONS[g.key].map(function (v, i) { return '<label><input type="radio" name="' + g.key + '" value="' + v + '"><span>' + (g.swatches && (g.key === "phosphor" || v === "phosphor") ? '<i class="dot crt" style="--c:' + g.swatches[i][2] + '"></i>' : g.swatches && v === "cassette" ? '<i class="dot cassette" style="--c:' + g.swatches[i][2] + '"></i>' : g.swatches ? '<i class="dot" style="background:radial-gradient(circle,' + g.swatches[i][2] + " 0 30%," + (g.swatches[i][3] ? g.swatches[i][3] + " 34% 46%," : "") + 'transparent ' + (g.swatches[i][3] ? "50%" : "34%") + '),linear-gradient(135deg,' + g.swatches[i][0] + " 50%," + g.swatches[i][1] + ' 50%)"></i>' : "") + g.labels[i] + "</span></label>"; }).join("") +
         "</div></fieldset>";
     }).join("") + '<p><button class="more" id="reset-settings" type="button">Reset to defaults</button></p>' +
       '<p class="muted" id="settings-note">Saved in this browser only, so your choices do not follow you to another browser or device, and clearing your browser’s site data resets them. Nothing is sent anywhere.</p>';
     var inputs = body.querySelectorAll("input");
-    function sync() { Array.prototype.forEach.call(inputs, function (i) { i.checked = st[i.name] === i.value; }); }
+    var phosphorSet = body.querySelector('input[name="phosphor"]').closest("fieldset"), colorHelp = body.querySelector('input[name="theme"]').closest("fieldset").querySelector("p"), colorHelpText = colorHelp.textContent;
+    function sync() {
+      var dark = st.skin === "phosphor";   /* Phosphor is always dark, so the Color choice is locked while it is picked */
+      Array.prototype.forEach.call(inputs, function (i) { i.checked = st[i.name] === i.value; if (i.name === "theme") i.disabled = dark; });
+      colorHelp.textContent = dark ? "Phosphor is always dark." : colorHelpText;
+      phosphorSet.hidden = !dark;   /* the screen colors only matter for Phosphor */
+    }
     function change(next) {
       st = next; applySettings(st); syncHeadH(); sync();
       if (!saveSettings(st) && !warned) {

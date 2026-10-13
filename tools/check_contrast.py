@@ -9,8 +9,9 @@ CSS = Path(__file__).resolve().parent.parent / "web" / "style.css"
 TEXT = ["fg", "muted", "link", "visited", "red", "accent",
         "buff", "nerf", "new", "rework", "fix", "other", "perf", "econ", "ui", "qol"]
 BACKGROUNDS = ["paper", "page", "soft"]
-SKINS = ["parchment", "iliac", "oblivion"]
+SKINS = ["fm", "parchment", "iliac", "oblivion", "phosphor", "cassette"]
 MIN = 4.5
+DARK_ONLY = {"phosphor"}   # themes with one palette, always dark
 
 
 def lum(h):
@@ -37,12 +38,16 @@ def blocks(css):
     for sel, body in re.findall(r"([^{}]+)\{([^{}]*)\}", css):
         sel = sel.strip()
         m = re.search(r'data-skin="(\w+)"', sel)
-        skin = m.group(1) if m else "default"
+        v = re.search(r'data-phosphor="(\w+)"', sel)
+        if v:
+            out.setdefault(("phosphor-" + v.group(1), "light", False), {}).update(colors(body))
+            continue
+        skin = m.group(1) if m else ("fm" if "html:not([data-skin])" in sel else "default")
         if ':not([data-theme="light"])' in sel:
             key = (skin, "dark", True)
         elif 'data-theme="dark"' in sel:
             key = (skin, "dark", False)
-        elif sel in (":root", f'html[data-skin="{skin}"]'):
+        elif sel in (":root", f'html[data-skin="{skin}"]', f'html[data-skin="{skin}"]:root', "html:not([data-skin])"):
             key = (skin, "light", False)
         else:
             continue
@@ -58,7 +63,10 @@ def main():
 
     for skin in ["default"] + SKINS:
         # a skin's dark mode layers: base, default dark, skin light, skin dark
-        if skin == "default":
+        if skin in DARK_ONLY:
+            night = {**base, **dark, **b[(skin, "light", False)]}
+            light = night
+        elif skin == "default":
             light, night = dict(base), {**base, **dark}
         else:
             light = {**base, **b[(skin, "light", False)]}
@@ -77,6 +85,15 @@ def main():
                 diff = {k for k in set(b[key]) | set(b[(skin, "dark", True)])
                         if b[key].get(k) != b[(skin, "dark", True)].get(k)}
                 print(f"DRIFT {skin}: dark blocks differ in {', '.join(sorted(diff))}")
+
+    for v in ("amber", "blue", "white"):   # Phosphor colors: the green base with a palette swapped in
+        pal = {**base, **dark, **b[("phosphor", "light", False)], **b[("phosphor-" + v, "light", False)]}
+        for t_ in TEXT:
+            for bg in BACKGROUNDS:
+                r = ratio(pal[t_], pal[bg])
+                if r < MIN:
+                    failures += 1
+                    print(f"FAIL phosphor-{v}: {t_} {pal[t_]} on {bg} {pal[bg]} = {r:.2f}")
 
     print("contrast OK" if not failures else f"{failures} problem(s)")
     return 1 if failures else 0

@@ -35,3 +35,7 @@ UDFOP is not affiliated with or endorsed by the developers. The release notes re
 ## Kingthings Petrock (font)
 
 The Oblivion theme's headings use Kingthings Petrock by Kevin King, <https://www.kingthingsfonts.co.uk>. It is served unchanged from `web/fonts/Kingthings Petrock.ttf`, with the author's end user licence beside it (`web/fonts/kingthingsEULA.txt`). That licence says the free fonts may be used for any purpose and that the original font files must not be changed. It is not covered by this project's MIT or CC BY licences.
+
+## Share Tech Mono (font)
+
+The Phosphor theme sets its text in Share Tech Mono, Copyright (c) 2012, Carrois Type Design, Ralph du Carrois (post@carrois.com, www.carrois.com), with Reserved Font Name "Share". It is licensed under the SIL Open Font License, Version 1.1, <https://openfontlicense.org>. It is served unchanged from `web/fonts/ShareTechMono-Regular.ttf`, with the full licence text beside it in `web/fonts/OFL-ShareTechMono.txt`. The font stays under that licence; it is not covered by this project's MIT or CC BY licences, and the font alone may not be sold.

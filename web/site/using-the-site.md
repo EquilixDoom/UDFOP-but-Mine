@@ -63,7 +63,8 @@ On a wide window, Settings starts docked in the right sidebar, and the **⚙** g
 
 | Setting | Choices | What it does |
 |---|---|---|
-| **Theme** | Default, Parchment, Iliac Bay, Oblivion | The overall look. Each has a light and a dark version. |
+| **Theme** | Default, Parchment, Iliac Bay, Oblivion, Phosphor, Cassette | The overall look. Each has a light and a dark version, except Phosphor, which is always dark. |
+| **Phosphor color** | Capital Wastes, Mojave, Anchorage, White | Shown only while the Phosphor theme is picked: its screen color (green, amber, blue or white). |
 | **Color** | Auto, Light, Dark | Auto follows your device's light or dark setting. |
 | **Text size** | Small, Medium, Large | Scales all text and spacing. |
 | **Page width** | Standard, Wide | Standard keeps lines comfortable to read. Wide uses the whole window. |
