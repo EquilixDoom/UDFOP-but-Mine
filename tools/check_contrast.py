@@ -9,7 +9,7 @@ CSS = Path(__file__).resolve().parent.parent / "web" / "style.css"
 TEXT = ["fg", "muted", "link", "visited", "red", "accent",
         "buff", "nerf", "new", "rework", "fix", "other", "perf", "econ", "ui", "qol"]
 BACKGROUNDS = ["paper", "page", "soft"]
-SKINS = ["fm", "parchment", "iliac", "oblivion", "phosphor", "cassette"]
+SKINS = ["parchment", "iliac", "oblivion", "phosphor", "cassette"]
 MIN = 4.5
 DARK_ONLY = {"phosphor"}   # themes with one palette, always dark
 
@@ -42,12 +42,12 @@ def blocks(css):
         if v:
             out.setdefault(("phosphor-" + v.group(1), "light", False), {}).update(colors(body))
             continue
-        skin = m.group(1) if m else ("fm" if "html:not([data-skin])" in sel else "default")
+        skin = m.group(1) if m else "default"
         if ':not([data-theme="light"])' in sel:
             key = (skin, "dark", True)
         elif 'data-theme="dark"' in sel:
             key = (skin, "dark", False)
-        elif sel in (":root", f'html[data-skin="{skin}"]', f'html[data-skin="{skin}"]:root', "html:not([data-skin])"):
+        elif sel in (":root", f'html[data-skin="{skin}"]', f'html[data-skin="{skin}"]:root'):
             key = (skin, "light", False)
         else:
             continue

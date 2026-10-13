@@ -1594,7 +1594,7 @@
         gear = document.getElementById("gear"), st = loadSettings(), warned = false;
     var GROUPS = [
       { key: "skin", legend: "Theme", help: "The overall look. Each theme has a light and a dark version, except Phosphor, which is always dark.", grid: true,
-        labels: ["Default", "Parchment", "Iliac Bay", "Oblivion", "Phosphor", "Cassette"], swatches: [["#fbfaf6", "#17181a", "#3b5078"], ["#f6edd3", "#241912", "#9a2418", "#b8902a"], ["#f4f7f4", "#0e2530", "#d6a43a"], ["#f0e3c2", "#1a1415", "#d4452a"], ["#1a2a1e", "#0a0f0b", "#3cff6a"], ["#efeadb", "#1d1f21", "#ff6a1f"]] },   /* [light page, dark page, logo color, optional ring]: the left half of each dot is the theme in light, the right half in dark, and the center is its logo */
+        labels: ["Default", "Parchment", "Iliac Bay", "Oblivion", "Phosphor", "Cassette"], swatches: [["#ffffff", "#1b1f24", "#8a5a1a"], ["#f6edd3", "#241912", "#9a2418", "#b8902a"], ["#f4f7f4", "#0e2530", "#d6a43a"], ["#f0e3c2", "#1a1415", "#d4452a"], ["#1a2a1e", "#0a0f0b", "#3cff6a"], ["#efeadb", "#1d1f21", "#ff6a1f"]] },   /* [light page, dark page, logo color, optional ring]: the left half of each dot is the theme in light, the right half in dark, and the center is its logo */
       { key: "phosphor", legend: "Phosphor color", help: "The screen color of the Phosphor theme.", grid: true,
         labels: ["Capital Wastes", "Mojave", "Anchorage", "White"], swatches: [["#1a2a1e", "#0a0f0b", "#3cff6a"], ["#2a1d0a", "#0c0802", "#ffb000"], ["#0f2036", "#04080f", "#4da6ff"], ["#2a2a2a", "#0a0a0a", "#ffffff"]] },
       { key: "theme", legend: "Color", help: "Auto follows your device's light or dark setting.", labels: ["Auto", "Light", "Dark"] },

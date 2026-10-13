@@ -723,44 +723,6 @@ h1.title::after, h2.sec::after { content: var(--j-orn, none); position: absolute
 #app > :is(.tagline, .hat) ~ p:first-of-type:not(:is(h2, h3) ~ p)::after, #app > :is(.tagline, .hat) ~ div:not([class]) > p:first-child::after { content: var(--j-dc-clear, none); display: block; clear: left; }   /* a short opener still holds its drop cap: the paragraph ends below the cap, but only clears the cap, so text still flows around a floated infobox */
 @media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) { html[data-width="wide"] #content { border-right: var(--j-frame, 0); } }   /* a skin with a framed sheet closes it at the right too, where the sheet meets the docked Settings column or the screen edge */
 
-/* default theme: Field manual. Reading first: a serif body at a comfortable measure, large display headings, quiet boxes and hairline tables,
-   and a shape beside every change type so it reads without color. The rules are scoped to html:not([data-skin]) so the other themes are untouched */
-html:not([data-skin]) {
-  --page: #f1efe8; --paper: #fbfaf6; --fg: #222222; --muted: #5f5c50; --line: #cfcabb; --soft: #ebe8dc; --softer: #f4f2ea; --link: #1d4a7a; --visited: #5a3f8f; --red: #a8203a; --head: #fbfaf6; --accent: #2a3a52; --infobox: #f4f2ea; --buff: #1e6a40; --nerf: #a8203a; --new: #1d4a9a; --rework: #70358f; --fix: #855500; --other: #5f5c50; --perf: #12677c; --econ: #556517; --ui: #a52f7c; --qol: #8f4c26; --notice: #f6efd8; --notice-line: #c9a53a;
-  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif; --j-seal: #2a3a52;
-}
-html:not([data-skin])[data-theme="dark"] {
-  --page: #101112; --paper: #17181a; --fg: #e6e3da; --muted: #a7a396; --line: #3a3c40; --soft: #222426; --softer: #1c1d1f; --link: #9cc0ee; --visited: #c4a8f0; --red: #ff8f84; --head: #17181a; --accent: #c9d6ea; --infobox: #1c1d1f; --buff: #6fd49a; --nerf: #ff8f84; --new: #7db8ff; --rework: #c9a2ee; --fix: #f0be55; --other: #a7a396; --perf: #50c5e2; --econ: #bfd85a; --ui: #e07fbb; --qol: #d99a72; --notice: #2a2415; --notice-line: #8a6d1f; --j-seal: #3b5078;
-}
-@media (prefers-color-scheme: dark) {
-  html:not([data-skin]):not([data-theme="light"]) {
-    --page: #101112; --paper: #17181a; --fg: #e6e3da; --muted: #a7a396; --line: #3a3c40; --soft: #222426; --softer: #1c1d1f; --link: #9cc0ee; --visited: #c4a8f0; --red: #ff8f84; --head: #17181a; --accent: #c9d6ea; --infobox: #1c1d1f; --buff: #6fd49a; --nerf: #ff8f84; --new: #7db8ff; --rework: #c9a2ee; --fix: #f0be55; --other: #a7a396; --perf: #50c5e2; --econ: #bfd85a; --ui: #e07fbb; --qol: #d99a72; --notice: #2a2415; --notice-line: #8a6d1f; --j-seal: #3b5078;
-  }
-}
-html:not([data-skin]) #app { font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif; font-size: 1.04rem; line-height: 1.7; }
-html:not([data-skin]) #app :is(table, .infobox, .gtabs, button, input, select, textarea, .cats, .alpha, .pager, form.rangebar, details.day, li.rel, .tp, .portal > h3, .dev) { font-family: var(--sans); }
-html:not([data-skin]) #app :is(li.rel, details.day) { font-size: .9375rem; }
-html:not([data-skin]) h1.title { font-size: clamp(1.7rem, 4vw + .6rem, 2.3rem); line-height: 1.1; letter-spacing: -.02em; border-bottom: 0; margin-bottom: 4px; }
-html:not([data-skin]) h2.sec { letter-spacing: -.01em; }
-html:not([data-skin]) h3.sec { font-family: var(--serif); font-weight: 600; }
-html:not([data-skin]) .name { font-weight: 600; letter-spacing: -.01em; }
-html:not([data-skin]) #app p a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
-html:not([data-skin]) .infobox { border: 0; border-left: 2px solid var(--accent); background: transparent; }
-html:not([data-skin]) .infobox caption, html:not([data-skin]) .infobox .ibt, html:not([data-skin]) .infobox .sub { background: transparent; text-align: left; }
-html:not([data-skin]) .wikitable { background: transparent; border: 0; }
-html:not([data-skin]) .wikitable th, html:not([data-skin]) .wikitable td { border: 0; border-bottom: 1px solid var(--line); }
-html:not([data-skin]) .wikitable td { background: transparent; }
-html:not([data-skin]) .wikitable thead th { background: transparent; border-bottom: 2px solid var(--fg); }
-html:not([data-skin]) .dev { border-left: 2px solid var(--line); padding-left: 8px; margin-top: 4px; }
-html:not([data-skin]) .tp::before { content: var(--shape, "\25CB"); margin-right: .3em; font-weight: 400; }
-html:not([data-skin]) .tp[data-type=Buff] { --shape: "\25B2"; } html:not([data-skin]) .tp[data-type=Nerf] { --shape: "\25BC"; } html:not([data-skin]) .tp[data-type=Removal] { --shape: "\00D7"; }
-html:not([data-skin]) .tp[data-type=New] { --shape: "\25CF"; } html:not([data-skin]) .tp[data-type=Rework] { --shape: "\21BB"; } html:not([data-skin]) .tp[data-type=Fix] { --shape: "\25C6"; }
-html:not([data-skin]) .tp[data-type=Other] { --shape: "\25CB"; } html:not([data-skin]) .tp[data-type=Performance] { --shape: "\25A0"; } html:not([data-skin]) .tp[data-type=Economy] { --shape: "\00A4"; }
-html:not([data-skin]) .tp[data-type=UI] { --shape: "\25A3"; } html:not([data-skin]) .tp[data-type=QoL] { --shape: "+"; }
-@media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) {
-  html:not([data-skin]):not([data-width="wide"]) #page { grid-template-columns: var(--cl) minmax(0, 62rem) var(--cr); }
-  html:not([data-skin]):not([data-width="wide"]) .head-in { max-width: calc(var(--cl) + 62rem + var(--cr)); }
-}
 h1.title::first-letter { color: var(--j-h1-cap, inherit); }
 h2.sec::first-letter { color: var(--j-h2-cap, inherit); }
 html[data-skin="parchment"] body { font-size: 1.05rem; }
@@ -823,7 +785,6 @@ html[data-skin="cassette"] #q { border-radius: 8px; border-width: 2px; border-co
 html[data-skin="cassette"] .portal > h3, html[data-skin="cassette"] .infobox caption, html[data-skin="cassette"] .infobox .ibt { border-radius: 6px 6px 0 0; }   /* the header bar follows the box's rounded corners (the box radius less its 2px border) */
 html[data-skin="cassette"] .portal { overflow: hidden; }
 @media (min-width: 861px) and (min-height: 501px), (min-width: 1101px) {   /* in Wide mode the sheet meets the docked Settings column or the screen edge, so close its frame there too */
-  html:not([data-skin])[data-width="wide"] #content { border-right: 1px solid var(--line); }
   html[data-skin="cassette"][data-width="wide"] #content { border-right: 2px solid var(--frame); }
 }
 
