@@ -25,44 +25,27 @@
 :root[data-theme="light"] { color-scheme: light; }
 
 /* themes: each skin defines light and dark; Auto color follows the device */
-/* parchment */
-html[data-skin="parchment"] {
-  --page: #e9dec2; --paper: #f6edd3; --fg: #33261a; --muted: #6a5a42; --line: #c2aa7c; --soft: #ece1c3; --softer: #f1e7cc; --link: #1f4a8a; --visited: #6a3a6e; --red: #a82a1e; --head: #f1e7cc; --accent: #a82a1e; --infobox: #f1e7cc; --buff: #2f6b3a; --nerf: #a82a1e; --new: #1f4a8a; --rework: #6b3a8a; --fix: #865700; --other: #6d604c; --perf: #156a80; --econ: #576718; --ui: #aa317d; --qol: #92502a; --notice: #f4e6b8; --notice-line: #c49a2a; --rubric: #a82a1e; --lapis: #1f4a8a; --gilt: #b8902a;
-  --sans: Garamond, "EB Garamond", "Hoefler Text", "Palatino Linotype", Georgia, serif; --serif: var(--sans);
-  --j-frame: 1px solid var(--line); --j-sheet: 0 1px 4px rgba(60, 40, 15, .25); --j-head: 2px solid var(--rubric); --j-rule: 1px solid var(--rubric);
-  --j-paper: linear-gradient(90deg, transparent 12px, var(--rubric) 12px 13px, transparent 13px 16px, var(--rubric) 16px 17px, transparent 17px), radial-gradient(ellipse at 15% 5%, rgba(255, 244, 210, .35), transparent 60%);
-  --j-paper-size: 18px 100%, auto; --j-paper-rep: no-repeat, repeat; --j-paper-pos: 0 0, 0 0;
-  --j-head-style: italic; --j-head-color: var(--rubric); --j-h1-cap: var(--lapis); --j-h2-cap: var(--lapis); --j-h3-mark: "\00B6\00A0";
-  --j-orn: ""; --j-orn-size: 9px; --j-orn-rot: 0deg; --j-orn-bg: var(--gilt); --j-orn-clip: circle(50%);
-  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent); --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
-  --j-cell: var(--line);
+/* crier: a town-crier broadsheet. Black ink on newsprint (light) or cream ink on charcoal stock (dark), a centered masthead with a double rule,
+   a dateline under it, justified serif text, thick-and-thin rules over headlines and ruled tables */
+html[data-skin="crier"] {
+  --page: #e0d9c6; --paper: #efe9da; --fg: #141414; --muted: #4a463c; --line: #8c8574; --soft: #e3dccb; --softer: #ebe4d3; --link: #8a1c1c; --visited: #5a3a5a; --red: #8a1c1c; --head: #efe9da; --accent: #8a1c1c; --infobox: #ebe4d3; --buff: #106a56; --nerf: #b61e1e; --new: #2d5ab4; --rework: #7b3fa0; --fix: #885000; --other: #595e62; --perf: #146579; --econ: #546417; --ui: #a23078; --qol: #8b4d28; --notice: #f1e6c0; --notice-line: #b89a2a;
+  --sans: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif; --serif: var(--sans);
+  --j-frame: 1px solid var(--fg); --j-head: 3px double var(--fg); --j-rule: 1px solid var(--fg); --j-cell: var(--line); --j-seal: var(--fg); --j-select: color-mix(in srgb, var(--accent) 30%, transparent);
   color-scheme: light;
 }
-html[data-skin="parchment"][data-theme="dark"] {
-  --page: #181008; --paper: #241912; --fg: #ecdcb8; --muted: #b8a07a; --line: #55402a; --soft: #31241a; --softer: #2a1f16; --link: #e8b860; --visited: #c79bb0; --red: #f08a74; --head: #1e150d; --accent: #d9a441; --infobox: #2a1f16; --buff: #7fcf8e; --nerf: #f08a74; --new: #8fb4f0; --rework: #cba0e8; --fix: #e8b64a; --other: #b8a07a; --perf: #50c5e2; --econ: #bfd85a; --ui: #d56fb0; --qol: #d19961; --notice: #33270f; --notice-line: #8a6d1f; --rubric: #e8806a; --lapis: #8fb0f0; --gilt: #d9a441;
-  --sans: Garamond, "EB Garamond", "Hoefler Text", "Palatino Linotype", Georgia, serif; --serif: var(--sans);
-  --j-frame: 1px solid var(--line); --j-sheet: 0 1px 4px rgba(60, 40, 15, .25); --j-head: 2px solid var(--rubric); --j-rule: 1px solid var(--rubric);
-  --j-paper: linear-gradient(90deg, transparent 12px, var(--rubric) 12px 13px, transparent 13px 16px, var(--rubric) 16px 17px, transparent 17px), linear-gradient(transparent, transparent);
-  --j-paper-size: 18px 100%, auto; --j-paper-rep: no-repeat, repeat; --j-paper-pos: 0 0, 0 0;
-  --j-head-style: italic; --j-head-color: var(--rubric); --j-h1-cap: var(--lapis); --j-h2-cap: var(--lapis); --j-h3-mark: "\00B6\00A0";
-  --j-orn: ""; --j-orn-size: 9px; --j-orn-rot: 0deg; --j-orn-bg: var(--gilt); --j-orn-clip: circle(50%);
-  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent); --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
-  --j-cell: var(--line);
+html[data-skin="crier"][data-theme="dark"] {
+  --page: #0e0e0e; --paper: #171717; --fg: #ece7d8; --muted: #a8a396; --line: #4a4a46; --soft: #232323; --softer: #1d1d1d; --link: #f0a898; --visited: #cfa6c4; --red: #f0a898; --head: #171717; --accent: #e88a7a; --infobox: #1d1d1d; --buff: #4cd1a9; --nerf: #ff8a80; --new: #7ab6ff; --rework: #c79bea; --fix: #e6b24d; --other: #a2a9b1; --perf: #50c5e2; --econ: #bfd85a; --ui: #d775b3; --qol: #d18a61; --notice: #2a2415; --notice-line: #8a6d1f;
+  --sans: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif; --serif: var(--sans);
+  --j-frame: 1px solid var(--fg); --j-head: 3px double var(--fg); --j-rule: 1px solid var(--fg); --j-cell: var(--line); --j-seal: var(--fg); --j-select: color-mix(in srgb, var(--accent) 30%, transparent);
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
-  html[data-skin="parchment"]:not([data-theme="light"]) {
-  --page: #181008; --paper: #241912; --fg: #ecdcb8; --muted: #b8a07a; --line: #55402a; --soft: #31241a; --softer: #2a1f16; --link: #e8b860; --visited: #c79bb0; --red: #f08a74; --head: #1e150d; --accent: #d9a441; --infobox: #2a1f16; --buff: #7fcf8e; --nerf: #f08a74; --new: #8fb4f0; --rework: #cba0e8; --fix: #e8b64a; --other: #b8a07a; --perf: #50c5e2; --econ: #bfd85a; --ui: #d56fb0; --qol: #d19961; --notice: #33270f; --notice-line: #8a6d1f; --rubric: #e8806a; --lapis: #8fb0f0; --gilt: #d9a441;
-  --sans: Garamond, "EB Garamond", "Hoefler Text", "Palatino Linotype", Georgia, serif; --serif: var(--sans);
-  --j-frame: 1px solid var(--line); --j-sheet: 0 1px 4px rgba(60, 40, 15, .25); --j-head: 2px solid var(--rubric); --j-rule: 1px solid var(--rubric);
-  --j-paper: linear-gradient(90deg, transparent 12px, var(--rubric) 12px 13px, transparent 13px 16px, var(--rubric) 16px 17px, transparent 17px), linear-gradient(transparent, transparent);
-  --j-paper-size: 18px 100%, auto; --j-paper-rep: no-repeat, repeat; --j-paper-pos: 0 0, 0 0;
-  --j-head-style: italic; --j-head-color: var(--rubric); --j-h1-cap: var(--lapis); --j-h2-cap: var(--lapis); --j-h3-mark: "\00B6\00A0";
-  --j-orn: ""; --j-orn-size: 9px; --j-orn-rot: 0deg; --j-orn-bg: var(--gilt); --j-orn-clip: circle(50%);
-  --j-seal: radial-gradient(circle, #9a2418 0 60%, var(--gilt) 62%); --j-select: color-mix(in srgb, var(--gilt) 35%, transparent); --j-inset: inset 0 1px 2px rgba(60, 40, 15, .2);
-  --j-cell: var(--line);
+  html[data-skin="crier"]:not([data-theme="light"]) {
+  --page: #0e0e0e; --paper: #171717; --fg: #ece7d8; --muted: #a8a396; --line: #4a4a46; --soft: #232323; --softer: #1d1d1d; --link: #f0a898; --visited: #cfa6c4; --red: #f0a898; --head: #171717; --accent: #e88a7a; --infobox: #1d1d1d; --buff: #4cd1a9; --nerf: #ff8a80; --new: #7ab6ff; --rework: #c79bea; --fix: #e6b24d; --other: #a2a9b1; --perf: #50c5e2; --econ: #bfd85a; --ui: #d775b3; --qol: #d18a61; --notice: #2a2415; --notice-line: #8a6d1f;
+  --sans: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif; --serif: var(--sans);
+  --j-frame: 1px solid var(--fg); --j-head: 3px double var(--fg); --j-rule: 1px solid var(--fg); --j-cell: var(--line); --j-seal: var(--fg); --j-select: color-mix(in srgb, var(--accent) 30%, transparent);
   color-scheme: dark;
-}
+  }
 }
 /* iliac */
 html[data-skin="iliac"] {
@@ -527,7 +510,7 @@ h2.sec, h3.sec { display: flow-root; }
 }
 
 /* inline code takes an accent that no theme uses for links: amber on the blue and teal themes, green on Parchment, blue on Oblivion */
-html[data-skin="parchment"] { --code: var(--buff); }
+html[data-skin="crier"] { --code: var(--buff); }
 html[data-skin="oblivion"] { --code: var(--new); }
 
 /* Contents: a pop-up under the list-button beside the page title, or docked in the left column below the main menu */
@@ -715,7 +698,6 @@ h1.title::after, h2.sec::after { content: var(--j-orn, none); position: absolute
 
 h1.title::first-letter { color: var(--j-h1-cap, inherit); }
 h2.sec::first-letter { color: var(--j-h2-cap, inherit); }
-html[data-skin="parchment"] body { font-size: 1.05rem; }
 
 /* phosphor skin structure */
 html[data-skin="phosphor"] *:not(.dot) { border-radius: 0; }
@@ -800,3 +782,31 @@ html:not([data-skin])[data-palette="graphite"] { --page: #ececec; --paper: #ffff
 html:not([data-skin])[data-palette="graphite"][data-theme="dark"] { --page: #0c0c0c; --paper: #161616; --fg: #ececec; --muted: #a0a0a0; --line: #444444; --soft: #222222; --softer: #1c1c1c; --link: #7ab2ff; --visited: #c3a5f0; --red: #ff8a80; --head: #121212; --accent: #d0d0d0; --infobox: #1c1c1c; --buff: #4cd1a9; --nerf: #ff8a80; --new: #7ab6ff; --rework: #c79bea; --fix: #e6b24d; --other: #a2a9b1; --perf: #50c5e2; --econ: #bfd85a; --ui: #d775b3; --qol: #d18a61; --notice: #2a2415; --notice-line: #8a6d1f; }
 @media (prefers-color-scheme: dark) { html:not([data-skin])[data-palette="graphite"]:not([data-theme="light"]) { --page: #0c0c0c; --paper: #161616; --fg: #ececec; --muted: #a0a0a0; --line: #444444; --soft: #222222; --softer: #1c1c1c; --link: #7ab2ff; --visited: #c3a5f0; --red: #ff8a80; --head: #121212; --accent: #d0d0d0; --infobox: #1c1c1c; --buff: #4cd1a9; --nerf: #ff8a80; --new: #7ab6ff; --rework: #c79bea; --fix: #e6b24d; --other: #a2a9b1; --perf: #50c5e2; --econ: #bfd85a; --ui: #d775b3; --qol: #d18a61; --notice: #2a2415; --notice-line: #8a6d1f; } }
 html:not([data-skin]) .mark { color: var(--paper); }   /* the logo text follows the page color, so it reads on a light dark-mode accent too */
+
+/* crier structure */
+html[data-skin="crier"] body { font-size: 1.02rem; line-height: 1.6; }
+html[data-skin="crier"] #head { border-bottom: 3px double var(--fg); }
+html[data-skin="crier"] #content { border-left: 1px solid var(--fg); border-right: 1px solid var(--fg); border-top: 0; }
+html[data-skin="crier"] .name { font-weight: 700; letter-spacing: .01em; }
+html[data-skin="crier"] .name small { font-style: italic; text-transform: none; letter-spacing: .02em; }
+html[data-skin="crier"] .mark { border-radius: 0; color: var(--paper); font-weight: 700; letter-spacing: .04em; }
+html[data-skin="crier"] h1.title { text-align: center; font-weight: 700; font-variant: small-caps; letter-spacing: .03em; font-size: clamp(1.9rem, 5vw + .5rem, 2.8rem); line-height: 1.1; border-top: 4px double var(--fg); border-bottom: 1px solid var(--fg); padding: 8px 0 6px; margin-bottom: 0; }
+html[data-skin="crier"] .tagline { text-align: center; font-size: .7rem; font-variant: small-caps; text-transform: lowercase; letter-spacing: .18em; margin: 0 0 14px; padding: 4px 0; border-bottom: 3px double var(--fg); }
+html[data-skin="crier"] h2.sec { font-weight: 700; font-size: 1.35rem; border-top: 3px double var(--fg); border-bottom: 1px solid var(--fg); padding: 4px 0 3px; }
+html[data-skin="crier"] h3.sec { font-weight: 700; font-style: italic; font-size: 1.1rem; }
+html[data-skin="crier"] #app p, html[data-skin="crier"] #app li { text-align: justify; hyphens: auto; }
+html[data-skin="crier"] #app :is(table, .infobox, .gtabs, .cats, .alpha, .pager, form.rangebar, .tp, .dev) p, html[data-skin="crier"] #app :is(table, .infobox, .portal) li { text-align: left; hyphens: manual; }
+html[data-skin="crier"] #app a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+html[data-skin="crier"] #app a:hover { text-decoration-thickness: 2px; }
+html[data-skin="crier"] ul.cols { column-rule: 1px solid var(--line); }
+html[data-skin="crier"] .infobox { border: 1px solid var(--fg); border-top: 4px double var(--fg); background: var(--softer); }
+html[data-skin="crier"] .infobox caption, html[data-skin="crier"] .infobox .ibt, html[data-skin="crier"] .infobox .sub { background: transparent; font-variant: small-caps; letter-spacing: .04em; text-align: center; }
+html[data-skin="crier"] .wikitable { border: 0; border-top: 3px double var(--fg); border-bottom: 1px solid var(--fg); background: transparent; }
+html[data-skin="crier"] .wikitable th, html[data-skin="crier"] .wikitable td { border: 0; border-bottom: 1px solid var(--line); }
+html[data-skin="crier"] .wikitable td { background: transparent; }
+html[data-skin="crier"] .wikitable thead th { background: transparent; font-variant: small-caps; letter-spacing: .05em; border-bottom: 2px solid var(--fg); }
+html[data-skin="crier"] .tp { font-variant: small-caps; letter-spacing: .03em; font-weight: 700; }
+html[data-skin="crier"] .portal, html[data-skin="crier"] .cats, html[data-skin="crier"] .alpha, html[data-skin="crier"] form.rangebar, html[data-skin="crier"] .mbox { border-color: var(--fg); }
+html[data-skin="crier"] .portal > h3 { background: transparent; font-variant: small-caps; letter-spacing: .05em; border-bottom: 3px double var(--fg); }
+html[data-skin="crier"] #foot { border-top: 3px double var(--fg); }
+.dot.news { width: 20px; height: 22px; border-radius: 1px; border: 1px solid #141414; background: linear-gradient(#141414, #141414) 3px 3px / calc(100% - 6px) 4px no-repeat, repeating-linear-gradient(#141414 0 1px, transparent 1px 3px) 3px 10px / calc(100% - 6px) 9px no-repeat, #efe9da; }   /* a broadsheet: masthead bar over columns of text lines */

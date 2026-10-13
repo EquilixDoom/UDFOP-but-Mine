@@ -9,7 +9,7 @@ CSS = Path(__file__).resolve().parent.parent / "web" / "style.css"
 TEXT = ["fg", "muted", "link", "visited", "red", "accent",
         "buff", "nerf", "new", "rework", "fix", "other", "perf", "econ", "ui", "qol"]
 BACKGROUNDS = ["paper", "page", "soft"]
-SKINS = ["parchment", "iliac", "oblivion", "phosphor", "cassette"]
+SKINS = ["crier", "iliac", "oblivion", "phosphor", "cassette"]
 MIN = 4.5
 DARK_ONLY = {"phosphor"}   # themes with one palette, always dark
 
