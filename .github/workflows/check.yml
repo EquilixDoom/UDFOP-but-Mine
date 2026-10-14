@@ -7,6 +7,10 @@ on:
       - 'web/guide/**'
       - 'web/site/**'
       - 'tools/guide.py'
+      - 'tools/update_data.py'
+      - 'data/**'
+      - 'web/data.js'
+      - 'web/shards/**'
 
 permissions:
   contents: read
@@ -20,4 +24,5 @@ jobs:
         with:
           python-version: '3.x'
       - run: python tools/guide.py --check
+      - run: python tools/notes.py build --check
       - run: python tools/check_contrast.py

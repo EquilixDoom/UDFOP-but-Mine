@@ -91,7 +91,8 @@ A topic merged into another in `data/merges.csv` keeps its old name: the old add
 ### Testing it safely
 - `python tools/notes.py selftest` copies the project to a temp folder, simulates the three newest releases as new, runs every step (including a deliberately bad batch that must be rejected and a dry run that must write nothing) and checks your real files are unchanged. Run it after changing `tools/notes.py`. It needs `data/release_notes.md` (run `fetch` first on a fresh clone).
 - `python tools/notes.py backup` snapshots `data/` and `web/` into `_backups/` (git-ignored).
-- Write-nothing commands on real data: `status`, `backtest`, `fetch --dry-run`, `ingest --dry-run`.
+- Write-nothing commands on real data: `status`, `backtest`, `fetch --dry-run`, `ingest --dry-run`, `build --check`.
+- `python tools/notes.py build --check` writes nothing and fails if `web/data.js` or `web/shards/` differ from what a build would produce. GitHub runs it before every deploy and on pull requests, so run `build` and commit the result before you push.
 
 ### How reliable is the draft?
 `python tools/notes.py backtest` scores it against releases already ingested. On the last 25 releases it found a drafted bullet for 97% of the real rows. `change_type` was right 96% of the time when the draft did not flag it (about 10% of rows) and about half the time otherwise, `entity` about a quarter of the time overall (44% of the real entities were brand-new topics), and `system` about half the time. So the draft saves the copying, numbering and skipping, but every flagged field still needs a decision.

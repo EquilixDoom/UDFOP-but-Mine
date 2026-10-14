@@ -781,6 +781,8 @@ def cmd_describe(a):
 
 # ------------------------------------------------------------------ build / status
 def cmd_build(a):
+    if a.check:        # write nothing; fail if the committed web/data.js and shards differ from what a build gives
+        sys.exit(subprocess.run([sys.executable, "tools/update_data.py", "--check"]).returncode)
     subprocess.run([sys.executable, "tools/update_data.py"], check=True)
     stale, cnt, state = stale_topics()
     desc = descriptions()
@@ -835,6 +837,7 @@ def main():
         p = sp.add_parser(name)
         p.add_argument("--dry-run", action="store_true")
         p.add_argument("--force", action="store_true", help="prepare: overwrite an existing rows.draft.jsonl")
+        p.add_argument("--check", action="store_true", help="build: write nothing, exit 1 if web/data.js or web/shards/ are out of date")
         p.add_argument("--last", type=int, default=25, help="backtest: how many recent releases to score")
         p.set_defaults(fn=fn)
     a = ap.parse_args()

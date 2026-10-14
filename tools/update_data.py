@@ -5,8 +5,21 @@ The site itself is plain HTML/CSS/JS in web/; this only refreshes its data files
   web/shards/<key>.js    the change rows, one file per period (a month, or part of a month when it would be too big);
                          a page loads only the shards it needs
 """
-import json, csv, glob, gzip, hashlib, os
+import json, csv, glob, gzip, hashlib, os, sys
 from collections import Counter
+
+CHECK = '--check' in sys.argv   # write nothing; exit 1 if the committed web/ files differ from what a build would produce
+stale = []
+
+
+def write(fn, text):
+    if CHECK:
+        try: same = open(fn, encoding='utf-8', newline='').read() == text
+        except OSError: same = False
+        if not same: stale.append(fn)
+    else:
+        open(fn, 'w', encoding='utf-8', newline='\n').write(text)
+
 
 SHARD_LIMIT_GZ = 500 * 1024   # Provisional: each shard stays under 500 KB gzipped; a bigger month is split in two, again and again
 
@@ -69,7 +82,7 @@ def split(key, rs):
 
 
 shards, shard_of = {}, {}
-os.makedirs('web/shards', exist_ok=True)
+if not CHECK: os.makedirs('web/shards', exist_ok=True)
 keep = set()
 for month in sorted(by_month):
     for key, rs in split(month, by_month[month]):
@@ -77,14 +90,16 @@ for month in sorted(by_month):
         body = js(rs)
         h = hashlib.sha1(body.encode('utf-8')).hexdigest()[:8]
         fn = 'web/shards/%s.js' % key
-        open(fn, 'w', encoding='utf-8', newline='\n').write('window.UDFOP_SHARD(%s,%s);\n' % (js(key), body))
+        write(fn, 'window.UDFOP_SHARD(%s,%s);\n' % (js(key), body))
         keep.add(os.path.abspath(fn))
         days = sorted(rels[r['v']]['date'] for r in rs)
         shards[key] = {'h': h, 'n': len(rs), 'd': [days[0], days[-1]]}   # d: the first and last release date it holds, so a date range can pick shards
-        for v in {r['v'] for r in rs}: shard_of[v] = key
+        for v in sorted({r['v'] for r in rs}, key=vkey): shard_of[v] = key   # sorted: set order differs between runs
         print('  shard %-9s %5d changes %5d KB gzipped' % (key, len(rs), gz(rs) // 1024))
 for f in glob.glob('web/shards/*.js'):      # a month that has been split leaves its old file behind
-    if os.path.abspath(f) not in keep: os.remove(f)
+    if os.path.abspath(f) not in keep:
+        if CHECK: stale.append(f)
+        else: os.remove(f)
 
 # Former names: a topic merged into another keeps its old name as a redirect and a "Formerly recorded as" note.
 # legacy: topics kept as a record of removed content, listed by hand in data/legacy.csv (topic, removed_in, note).
@@ -109,5 +124,10 @@ if cands:
 core = dict(hubs=hub, releases=rels, desc=desc, tstat=tstat, systems=dict(systems), shards=shards, shardOf=shard_of,
             alias={o: n for o, n in alias.items() if n in tstat}, aka=aka, legacy=legacy,
             totals=dict(rows=len(out), topics=len(tstat), versions=sum(1 for v in nrows if nrows[v])))
-open('web/data.js', 'w', encoding='utf-8').write('window.DATA=' + js(core) + ';\n')
+write('web/data.js', 'window.DATA=' + js(core) + ';\n')
 print('  core  web/data.js %d KB gzipped' % (gz(core) // 1024))
+if CHECK:
+    if stale:
+        print('  OUT OF DATE: run `python tools/notes.py build` and commit:', ', '.join(sorted(stale)))
+        sys.exit(1)
+    print('  web/data.js and web/shards/ match the data')
