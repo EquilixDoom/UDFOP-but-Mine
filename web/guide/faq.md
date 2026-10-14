@@ -1,21 +1,17 @@
 ---
-title: Online Mode
-category: Player Guide
-summary: A quick reference for the systems that are specific to Daggerfall Online: shared world, parties, death and resting, professions, economy, housing, guilds, territory, events and PvP.
-related: Accounts, Renown, Camps, Houses, Horse, Cart, Friends, Chat Channels, Parties, Party Travel, Voice Chat, Quests, Quest Sharing, Party Quests, Online Quests, Death Penalty, Online Death, Respawning, Resting, Party Rest, Campfire, Professions, Materials Bag, Stores, Motherlodes, Market, Notice Board, Player Trade, Empire Bank, Silver, Drakes, Wallet, Rooms to Rent, Rented Rooms, Guilds, Guild Vault, Guild Rename, Guild Hall, Guild Treasury, Heraldry, Seats, Crown Sieges, Fair Sieges, Seasons, Hall of Records, Raids, Oblivion Gates, Sea Serpent, Duels, Arena of Daggerfall, Arena Ladder, Arena Titles, Private Sessions, World Clock, Boats
+title: Official Discord FAQ
+category: FAQs
+summary: Latty's Discord FAQ
 ---
+The information provided on this page is derived from an official [Discord](https://discord.gg/daggerfallonline) [channel](https://discord.com/channels/1345035007164678226/1556664733556408432). The information derived from it may become outdated over time, please refer to in-game documentation and/or the Discord itself for more current and relevant information if something provided herein is not accurate to the current game. 
 
-A quick reference for systems specific to Online Mode. Normal Daggerfall mechanics still apply unless Online Mode changes them.
+## What do I need to play online mode?
 
-## Getting started
+You need the Daggerfall game data and a Daggerfall Online [[topic:Accounts|account]]. For more detailed installation instructions, please visit [[topic:Installation Guide]].
 
-**What do I need to play Online Mode?**
+## Are my offline and online characters separate?
 
-You need Daggerfall game data and a Daggerfall Online [[topic:Accounts|account]]. The desktop client can use an existing Daggerfall installation during setup.
-
-**Are my offline and online characters separate?**
-
-Your Daggerfall character can move between offline and online play, but online-only data is stored separately. Online systems include:
+Your Daggerfall character can move between offline and online play, but online-only data is stored separately, and offline characters can only be migrated to online once. Online systems include:
 
 - [[topic:Renown]]
 - [[topic:Professions]]
@@ -28,21 +24,19 @@ Your Daggerfall character can move between offline and online play, but online-o
 
 Your normal Daggerfall character and save still exist outside of these systems.
 
-**How do cloud saves work?**
+## How do cloud saves work?
 
 [[topic:Accounts|Cloud saves]] act as an account backup. Your local character save remains the main copy of your Daggerfall character.
 
-**Can I have multiple online characters?**
+## Can I have multiple online characters?
 
 Yes. Online progression that belongs to a character is tracked separately for each character.
 
-**Does Online Mode use the classic or enhanced ruleset?**
+## Does Online Mode use the classic or enhanced ruleset?
 
-Online Mode uses the Enhanced gameplay lane. Shared gameplay systems are kept consistent between players, so one player cannot disable something that affects the shared world.
+Online Mode uses the Enhanced gameplay lane. Shared gameplay systems are kept consistent between players, so one player cannot disable something that affects the shared world, although settings which are primarily cosmetic are able to be changed.
 
-## The shared world
-
-**Is Daggerfall Online a persistent shared world?**
+## Is Daggerfall Online a persistent shared world?
 
 Yes. Players inhabit the same Iliac Bay. Supported shared systems include:
 
@@ -60,11 +54,11 @@ Yes. Players inhabit the same Iliac Bay. Supported shared systems include:
 
 Supported world state can remain after the player currently running that area leaves.
 
-**Who controls enemies and world objects?**
+## Who controls enemies and world objects?
 
 One player acts as the authority for a shared area. That client runs the local simulation while the online system synchronizes it with everyone else in the area. If that player leaves, authority can move to another player.
 
-**Is my inventory shared?**
+## Is my inventory shared?
 
 No. Your personal character data remains yours, including:
 
@@ -77,9 +71,7 @@ No. Your personal character data remains yours, including:
 
 Shared world containers are different. Once a supported container is opened online, its state belongs to that shared world area instead of one player's local save.
 
-## Social features and parties
-
-**How do I add another player?**
+## How do I add another player?
 
 Use the Social menu or interact with another player in the world. You can:
 
@@ -88,29 +80,28 @@ Use the Social menu or interact with another player in the world. You can:
 - Inspect their profile
 - Use other supported social actions
 
-**Can I see when friends were last online?**
+## Can I see when friends were last online?
 
 Yes. The Friends list shows whether someone is online and, when available, when they were last seen.
 
-**What chat is available?**
+## What chat is available?
 
 Online Mode includes world and party [[topic:Chat Channels|communication]].
 
-**Is there voice chat?**
+## Is there voice chat?
 
-No built-in [[topic:Voice Chat|voice chat]] is currently available.
+No built-in [[topic:Voice Chat|voice chat]] is currently available, developers are researching this but cite security issues as a concern.
 
-**Can I message someone who is offline?**
+## Can I message someone who is offline?
 
 Yes. The mail system allows registered players to send letters to other players. Messages remain available until the recipient checks their mail.
 
-### Parties
 
-**How many players can be in a party?**
+## How many players can be in a party?
 
 Four.
 
-**What does joining a party give me?**
+## What does joining a party give me?
 
 Party features include:
 
@@ -126,51 +117,45 @@ Party features include:
 - [[topic:Party Buffs|Buff information]]
 - [[topic:Shared Cartography|Dungeon map sharing]]
 
-**Can I see party members on the world map?**
+## Can I see party members on the world map?
 
 Yes. Party members can appear on your world map even when they are somewhere else.
 
-**Can parties fast travel together?**
+## Can parties fast travel together?
 
 Yes. The party leader can begin a group journey. Eligible party members can accept the travel request and arrive with the leader.
 
-**Can party members resurrect each other?**
+## Can party members resurrect each other?
 
 Yes. Online Mode includes a Resurrect spell for fallen party members. A successful resurrection:
 
 - Revives the player where they died
 - Prevents the normal death gold penalty
 
-**Can parties share dungeon maps?**
+## Can parties share dungeon maps?
 
 Yes. The [[topic:Shared Cartography]] system allows supported dungeon map information to be shared between party members.
 
-## Quests
-
-**Are quests automatically shared?**
+## Are quests automatically shared?
 
 No. Normal quest state belongs to each individual character.
 
-**Can I share a quest with my party?**
+## Can I share a quest with my party?
 
 Yes, when the quest supports [[topic:Party Quests|party sharing]]. Each player still has their own quest copy, but shared quest enemies can become party encounters. Party members can fight the same quest target, and supported kills can count for everyone involved.
 
-**Can random players interfere with my shared quest enemies?**
+## Can random players interfere with my shared quest enemies?
 
 Normally no. Party-shared quest enemies belong to the party involved. Some world quests and world events are shared globally instead.
 
-## Death, resting and progression
-
-### Death
-
-**What happens when I die online?**
+## What happens when I die online?
 
 Death does not end your character. You enter the [[topic:Online Death|online death]] state and can:
 
 - Wait for resurrection
 - Respawn
 
-**How much gold do I lose?**
+## How much gold do I lose?
 
 Respawning takes 10% of the gold currently in your purse, rounded down. Examples:
 
@@ -182,11 +167,11 @@ Respawning takes 10% of the gold currently in your purse, rounded down. Examples
 
 The amount is determined when you die.
 
-**Does resurrection take my gold?**
+## Does resurrection take my gold?
 
 No. A successful resurrection prevents the normal respawn gold loss.
 
-**Where do I respawn?**
+## Where do I respawn?
 
 The game attempts to return you to a safe location. Depending on where you died, this may include:
 
@@ -196,13 +181,11 @@ The game attempts to return you to a safe location. Depending on where you died,
 - A dungeon exit
 - Another appropriate safe location
 
-### Resting
-
-**Does normal Daggerfall resting work online?**
+## Does normal Daggerfall resting work online?
 
 Online resting works differently. Resting is performed at a valid rest point instead of freely skipping the shared world's time.
 
-**What counts as a rest point?**
+## What counts as a rest point?
 
 Supported rest points include:
 
@@ -214,29 +197,27 @@ Supported rest points include:
 - Braziers
 - Other supported resting locations
 
-**How long is a full rest?**
+## How long is a full rest?
 
 A full rest advances your character's personal clock by 8 hours. The shared world clock does not jump forward for every player.
 
-**Do new online characters receive a Campfire?**
+## Do new online characters receive a Campfire?
 
 Yes. New online characters receive a reusable Campfire.
 
-**Does a Campfire need fuel?**
+## Does a Campfire need fuel?
 
 Yes. Campfires use fuel charges. Firewood can be used to refuel them.
 
-### Renown
-
-**What is Renown?**
+## What is Renown?
 
 Renown is Online Mode's separate progression system. It exists alongside normal Daggerfall leveling and does not replace your normal character level.
 
-**Does Renown affect my offline character?**
+## Does Renown affect my offline character?
 
 No. Renown is online account data.
 
-**What does Renown do?**
+## What does Renown do?
 
 Renown contributes to online progression and can provide additional online:
 
@@ -244,7 +225,7 @@ Renown contributes to online progression and can provide additional online:
 - Magicka
 - Progression benefits
 
-**How do I earn Renown?**
+## How do I earn Renown?
 
 Supported sources include:
 
@@ -253,9 +234,7 @@ Supported sources include:
 - World events
 - Town raids
 
-## Professions and gathering
-
-**How many professions are there?**
+## How many professions are there?**
 
 There are 13 professions.
 
@@ -264,7 +243,7 @@ There are 13 professions.
 | Gathering | [[topic:Mining]], [[topic:Logging]], [[topic:Herbalism]], [[topic:Hunting]], [[topic:Fishing]] |
 | Crafting | [[topic:Smithing]], [[topic:Outfitting]], [[topic:Carpentry]], [[topic:Masonry]], [[topic:Alchemy]], [[topic:Enchanting]], [[topic:Cooking]], [[topic:Jewelcrafting]] |
 
-**What are the profession ranks?**
+## What are the profession ranks?
 
 Professions run from 0 to 100.
 
@@ -276,11 +255,11 @@ Professions run from 0 to 100.
 | Expert | 75 |
 | Master | 100 |
 
-**Where do gathered materials go?**
+## Where do gathered materials go?
 
 Gathered materials are carried by your character. If you own a [[topic:Materials Bag]], eligible materials go into it first. Remaining materials can go into your normal inventory if there is room. Materials can later be deposited into [[topic:Stores]].
 
-**What is the Materials Bag?**
+## What is the Materials Bag?
 
 The Materials Bag is an online crafting-material container.
 
@@ -292,7 +271,7 @@ The Materials Bag is an online crafting-material container.
 - Cannot be stacked by owning multiple bags
 - Remains available in online shop stock
 
-**What are Stores?**
+## What are Stores?
 
 Stores are server-backed material storage. They are separate from:
 
@@ -301,31 +280,27 @@ Stores are server-backed material storage. They are separate from:
 - The bank
 - The guild vault
 
-**What are Motherlodes?**
+## What are Motherlodes?
 
 [[topic:Motherlodes]] are limited gathering opportunities containing valuable materials. Some profession specializations improve how early you receive warnings about them.
 
-## Economy and trading
-
-**What currencies exist online?**
+## What currencies exist online?
 
 Online Mode uses gold and Drakes. Older development material may refer to Drakes as Marks or Silver. Those are older names for the same realm currency system.
 
-**Is banking regional online?**
+## Is banking regional online?
 
 No. Online Mode uses an [[topic:Empire Bank|Empire-wide bank account]] for supported online banking.
 
-**Can banked gold be lost when I die?**
+## Can banked gold be lost when I die?
 
 No. The normal online death penalty applies to gold carried in your purse.
 
-### Player Market
-
-**Where is the market?**
+##Where is the market?
 
 Use a town's [[topic:Notice Board]].
 
-**What can be traded through the market?**
+##What can be traded through the market?
 
 Depending on the market section:
 
@@ -336,7 +311,7 @@ Depending on the market section:
 - Buy orders
 - Auctions
 
-**What market tools are available?**
+##What market tools are available?
 
 The Notice Board includes:
 
@@ -350,11 +325,11 @@ The Notice Board includes:
 - Active listings
 - Active orders
 
-**Can the market use gold?**
+##Can the market use gold?
 
 Yes. Some market systems use Drakes, while supported player item listings can use gold. Always check the currency before purchasing.
 
-**What is courier delivery?**
+##What is courier delivery?
 
 Items bought from another region may require delivery. Courier delivery can add:
 
@@ -365,11 +340,11 @@ Items being delivered appear as *On the Road* until they arrive.
 
 ### Direct trading
 
-**Can I trade directly with another player?**
+##Can I trade directly with another player?
 
 Yes. Players can [[topic:Player Trade|directly trade]] eligible items.
 
-**Can everything be traded?**
+##Can everything be traded?
 
 No. Protected items may include:
 
@@ -383,41 +358,41 @@ Protected items may also be prevented from being dropped, sold, or stored.
 
 ## Housing
 
-**How do I buy a house online?**
+##How do I buy a house online?
 
 Go to the house and interact with its front door. Online houses are purchased directly from the building.
 
-**Can two players own the same online house?**
+##Can two players own the same online house?
 
 No. Online ownership of that building is exclusive.
 
-**Who can enter my house?**
+##Who can enter my house?
 
 The owner controls access.
 
-**Can I decorate my house?**
+##Can I decorate my house?
 
 Yes. Online houses support placed furniture and decorations.
 
-**Can houses have crafting stations?**
+##Can houses have crafting stations?
 
 Yes. Supported furniture can become functional crafting stations.
 
-**Can I rent rooms to other players?**
+##Can I rent rooms to other players?
 
 Yes. Supported online homes include player rental systems.
 
-**Are offline and online houses the same?**
+##Are offline and online houses the same?
 
 No. Online housing and normal offline Daggerfall housing are separate systems.
 
 ## Player guilds
 
-**Are player guilds different from normal Daggerfall guilds?**
+##Are player guilds different from normal Daggerfall guilds?
 
 Yes. Normal NPC factions still exist. Player guilds are a separate Online Mode system.
 
-**How many player guild ranks are there?**
+##How many player guild ranks are there?
 
 There are four ranks:
 
@@ -426,7 +401,7 @@ There are four ranks:
 - Member
 - Recruit
 
-**What can guild permissions control?**
+##What can guild permissions control?
 
 Guild permissions can control:
 
@@ -438,15 +413,15 @@ Guild permissions can control:
 - Guild notes
 - Heraldry
 
-**Do guilds have shared storage?**
+##Do guilds have shared storage?
 
 Yes. A normal [[topic:Guild Vault|guild vault]] has 50 item slots. Owning a guild hall adds another 50 slots, so a hall-owning guild has 100 vault slots in total.
 
-**Can a guild change its name?**
+##Can a guild change its name?
 
 Yes. [[topic:Guild Rename|Renaming]] the guild or guild tag costs 25,000 gold from the treasury, and there is a 14-day rename cooldown. Certain territorial situations can prevent renaming.
 
-**Do guilds have heraldry?**
+##Do guilds have heraldry?
 
 Yes. Guild heraldry can appear on:
 
@@ -455,7 +430,7 @@ Yes. Guild heraldry can appear on:
 - Territory
 - Other guild displays
 
-**What is a guild hall?**
+##What is a guild hall?
 
 A [[topic:Guild Hall|guild hall]] is shared guild property. Depending on permissions it can support:
 
@@ -467,27 +442,27 @@ A [[topic:Guild Hall|guild hall]] is shared guild property. Depending on permiss
 
 ## Territory and sieges
 
-**Can guilds control territory?**
+##Can guilds control territory?
 
 Yes. Player guilds can compete for political holdings throughout the Iliac Bay.
 
-**What is a Seat?**
+##What is a Seat?
 
 A [[topic:Seats|Seat]] is a capturable political holding tied to a supported palace settlement. Guilds compete through influence and territorial systems to control them.
 
-**Are there larger holdings?**
+##Are there larger holdings?
 
 Yes. Major kingdom holdings form a higher level of territorial control.
 
-**Can another guild attack us whenever they want?**
+##Can another guild attack us whenever they want?
 
 No. [[topic:Siege|Sieges]] use scheduled battle windows.
 
-**How does siege combat work?**
+##How does siege combat work?
 
 Siege PvP is server-refereed. Because actual territory can change ownership, siege combat uses stronger validation than normal cooperative combat.
 
-**Can guilds build defenses?**
+##Can guilds build defenses?
 
 Territorial systems can support:
 
@@ -497,7 +472,7 @@ Territorial systems can support:
 - Camps
 - Siege equipment
 
-**Are there seasons?**
+##Are there seasons?
 
 Yes. Territorial play includes:
 
@@ -539,25 +514,25 @@ Players then enter the shared boss encounter. Eligible players receive their own
 
 ## PvP and duels
 
-**Is there open-world PvP?**
+##Is there open-world PvP?
 
-No. You cannot simply attack any player you see. PvP takes place through supported systems.
+As of [[topic:Patch 0.1.7051]], the new [[topic:Wrothgarian Zone]] acts as an open world PvP area, players are warned before entering and are able to kill one another openly here. Any held or equipped items can be looted from you, as well as anything in your cart.
 
-**How do duels work?**
+##How do duels work?
 
 Both players must agree. [[topic:Duels]] support melee weapons, bows and spells. The duel ends before the defeated player is actually killed, and both players are restored afterward.
 
-**Are duel records tracked?**
+##Are duel records tracked?
 
 Yes. Duel results are recorded on online player profiles.
 
 ## Daggerfall Arena
 
-**Where is the Arena?**
+##Where is the Arena?
 
 The Daggerfall Arena is located in Daggerfall city.
 
-**What can I do there?**
+##What can I do there?
 
 Current features include:
 
@@ -573,33 +548,33 @@ Current features include:
 - Scheduled exhibitions
 - Private sessions
 
-**How does ranked matchmaking work?**
+##How does ranked matchmaking work?
 
 Players queue through the [[topic:Arena Ladder|Arena]]. Matchmaking begins around your rating and expands the acceptable rating difference while you wait. Both players must accept before the match begins.
 
-**Can people spectate?**
+##Can people spectate?
 
 Yes. Arena fights support spectators.
 
-**What are private sessions?**
+##What are private sessions?
 
 A player can host a [[topic:Private Sessions|private session]] using a join code. The host chooses who fights and who spectates.
 
-**Are 5v5 battles, Arena betting or jousting available?**
+##Are 5v5 battles, Arena betting or jousting available?
 
 Not yet. These systems are planned but are not currently playable.
 
 ## Important online differences
 
-**Does resting skip time for everyone?**
+##Does resting skip time for everyone?
 
 No. Online Mode uses a shared event clock. Your rest advances your personal character time without forcing the rest of the server forward.
 
-**Can I disable shared online systems?**
+##Can I disable shared online systems?
 
 Not when the feature affects the shared world. Shared systems must remain consistent between players.
 
-**Are horses, carts, camps and boats shared?**
+##Are horses, carts, camps and boats shared?
 
 Supported world objects can be visible to other players and persist online. This can include:
 
@@ -612,7 +587,7 @@ Supported world objects can be visible to other players and persist online. This
 
 Some ships also support multiple players.
 
-**Does Online Mode have anti-cheat?**
+##Does Online Mode have anti-cheat?
 
 It depends on the system. Normal cooperative gameplay still trusts parts of the player's client. More competitive or valuable systems use stronger server or relay validation, including:
 
@@ -623,6 +598,6 @@ It depends on the system. Normal cooperative gameplay still trusts parts of the 
 - Account progression
 - Reward claims
 
-**What if this guide disagrees with an old Discord post?**
+##What if this guide disagrees with an old Discord post?
 
-Use the current in-game UI and announcements first. Daggerfall Online is actively developed, so older posts, screenshots and development notes may refer to systems that were changed, renamed or replaced.
+Use the current in-game UI and announcements first. Daggerfall Online is actively developed, so older posts, screenshots and development notes may refer to systems that were changed, renamed or replaced. This wiki is maintained by community members and may also become outdated, so please keep in mind that everything here is provided as-is and without guarantee of being absolutely current. Please report any issues to the mainatiners and collaborators at [github](https://github.com/tau-samsara/udfop)
