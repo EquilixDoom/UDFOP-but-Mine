@@ -529,6 +529,9 @@ def _hash(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
 
 
+KEEP_BACKUPS = 3
+
+
 def cmd_backup(a):
     import time
     dest = f"_backups/{time.strftime('%Y%m%d-%H%M%S')}"
@@ -537,6 +540,11 @@ def cmd_backup(a):
         shutil.copytree(d, f"{dest}/{d}", ignore=shutil.ignore_patterns("done"))
     size = sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(dest) for f in fs) / 1e6
     print(f"snapshot of data/ and web/ saved to {dest} ({size:.1f} MB). Restore by copying the folders back.")
+    old = sorted(d for d in os.listdir("_backups") if re.fullmatch(r"\d{8}-\d{6}", d))[:-KEEP_BACKUPS]
+    for d in old:       # only folders this command made (named by timestamp), oldest first
+        shutil.rmtree(f"_backups/{d}")
+    if old:
+        print(f"removed {len(old)} older snapshot(s); the newest {KEEP_BACKUPS} are kept.")
 
 
 def cmd_selftest(a):
