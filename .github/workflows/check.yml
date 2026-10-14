@@ -8,6 +8,7 @@ on:
       - 'web/site/**'
       - 'tools/guide.py'
       - 'tools/update_data.py'
+      - 'tools/notes.py'
       - 'data/**'
       - 'web/data.js'
       - 'web/shards/**'
@@ -27,3 +28,8 @@ jobs:
       - run: python tools/notes.py validate
       - run: python tools/notes.py build --check
       - run: python tools/check_contrast.py
+      - name: Download the release notes (kept out of the repo) for the self-test
+        run: python tools/notes.py fetch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: python tools/notes.py selftest

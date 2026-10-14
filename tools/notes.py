@@ -52,6 +52,8 @@ def write_jsonl(path, rows, mode="w"):
 
 def parse_notes():
     """release_notes.md -> list of dicts (newest first), keyed by tag."""
+    if not os.path.exists(NOTES):       # a fresh clone: `fetch` creates it
+        return []
     text = open(NOTES, encoding="utf-8-sig").read().replace("\r\n", "\n")
     out = []
     for block in re.split(r"(?m)^## (?=.*\[[^\]]+\]\n)", text):
