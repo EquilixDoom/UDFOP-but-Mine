@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - name: Validate the change records
+        run: python tools/notes.py validate
       - name: Check the site data matches the change records
         run: python tools/notes.py build --check
       - name: Build the Game Guide and Site Guide page lists

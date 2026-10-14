@@ -24,5 +24,6 @@ jobs:
         with:
           python-version: '3.x'
       - run: python tools/guide.py --check
+      - run: python tools/notes.py validate
       - run: python tools/notes.py build --check
       - run: python tools/check_contrast.py

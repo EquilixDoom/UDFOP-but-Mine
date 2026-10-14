@@ -12,6 +12,7 @@
   python tools/notes.py build              rebuild web/data.js and web/shards/ and report problems
   python tools/notes.py backtest [--last N] score the prefill guesses against already-ingested releases
   python tools/notes.py selftest           run the whole pipeline in a temp copy and check your real files are untouched
+  python tools/notes.py validate           check all stored rows and releases against the taxonomy (writes nothing; CI runs it)
   python tools/notes.py backup             snapshot data/ and web/ into _backups/
 """
 import argparse, csv, glob, json, os, re, shutil, subprocess, sys, urllib.request
@@ -735,6 +736,80 @@ def cmd_ingest(a):
 
 
 # ------------------------------------------------------------------ describe
+def cmd_validate(a):
+    """Check everything already stored: rows against the taxonomy, ids, release dates, topics against the hub list. Writes nothing."""
+    tax = json.load(open(TAX, encoding="utf-8-sig"))
+    rows, rels = read_jsonl(ALL), read_jsonl(RELS)
+    alias = merge_alias()
+    hub = {h["topic"]: h["primary_hub"] for h in csv.DictReader(open(HUBS, encoding="utf-8"))}
+    errs, warns = [], []
+    rv = {}
+    for r in rels:
+        if r["version"] in rv:
+            errs.append(f"releases: duplicate version {r['version']}")
+        rv[r["version"]] = r
+        if r.get("kind", "release") not in ("release", "likely-hotfix", "bulk-import"):
+            errs.append(f"releases: {r['version']} has kind {r.get('kind')!r}")
+    seen, per, tags_bad, prefix_off = set(), defaultdict(list), set(), []
+    need = [f for f in FIELDS if f != "source"]     # the verbatim source text is kept local, not in all.jsonl
+    for i, r in enumerate(rows, 1):
+        w = f"row {i} ({r.get('id', '?')})"
+        miss = [f for f in need if f not in r]
+        if miss:
+            errs.append(f"{w}: missing {miss}")
+            continue
+        if r["version"] not in rv:
+            errs.append(f"{w}: version {r['version']} is not in releases.jsonl")
+        elif r["date"] != rv[r["version"]]["date"]:
+            errs.append(f"{w}: date {r['date']} should be {rv[r['version']]['date']}")
+        if not re.fullmatch(re.escape(r["version"]) + r"-\d{3}", r["id"]):
+            errs.append(f"{w}: id must look like {r['version']}-001")
+        if r["id"] in seen:
+            errs.append(f"{w}: duplicate id")
+        seen.add(r["id"])
+        per[r["version"]].append(r["id"])
+        if r["system"] not in tax["systems"]:
+            errs.append(f"{w}: system {r['system']!r} not in taxonomy")
+        if r["change_type"] not in tax["change_types"]:
+            errs.append(f"{w}: change_type {r['change_type']!r} not in taxonomy")
+        if r["direction"] not in ("+", MINUS, "~", "n/a"):
+            errs.append(f"{w}: direction {r['direction']!r}")
+        tags_bad |= {t for t in r["tags"] if t not in tax["tags"]}
+        for p in r["platforms"]:
+            if p not in tax["platform_values"]:
+                errs.append(f"{w}: platform {p!r}")
+        if not r["entity"]:
+            errs.append(f"{w}: empty entity")
+        elif not r["summary"].startswith(r["entity"] + ": "):
+            prefix_off.append(r["id"])      # ingest enforces the prefix; later hand edits that moved a row to another topic leave the old one, which the site shows in full
+        if topic_of(r["entity"], alias) not in hub:
+            errs.append(f"{w}: topic {topic_of(r['entity'], alias)!r} is not in {HUBS}")
+    for v, ids in per.items():
+        if sorted(ids) != [f"{v}-{n:03d}" for n in range(1, len(ids) + 1)]:
+            errs.append(f"{v}: ids must run {v}-001 to {v}-{len(ids):03d} with no gaps")
+    if prefix_off:
+        warns.append(f"{len(prefix_off)} summary(ies) do not start with their topic name: " + ", ".join(prefix_off[:10]))
+    if tags_bad:
+        warns.append(f"{len(tags_bad)} tag(s) not in taxonomy.json: " + ", ".join(sorted(tags_bad)[:15]))
+    topics = {topic_of(r["entity"], alias) for r in rows}
+    unused = sorted(t for t in hub if t not in topics)
+    if unused:
+        warns.append(f"{len(unused)} topic(s) in {HUBS} have no rows: " + ", ".join(unused[:10]))
+    src = {r["id"] for r in read_jsonl(SOURCES)}
+    if src and not src <= seen:
+        errs.append(f"sources.jsonl has {len(src - seen)} id(s) that are not in all.jsonl")
+    for w in warns:
+        print("warn:", w)
+    if errs:
+        print(f"{len(errs)} error(s):")
+        for e in errs[:50]:
+            print("  ", e)
+        if len(errs) > 50:
+            print(f"   ... and {len(errs) - 50} more")
+        sys.exit(1)
+    print(f"ok: {len(rows)} rows, {len(rels)} releases, {len(topics)} topics")
+
+
 def stale_topics():
     cnt = row_counts()
     alias = merge_alias()
@@ -833,7 +908,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     for name, fn in [("status", cmd_status), ("fetch", cmd_fetch), ("prepare", cmd_prepare), ("approve", cmd_approve),
-                     ("ingest", cmd_ingest), ("describe", cmd_describe), ("build", cmd_build), ("backtest", cmd_backtest), ("selftest", cmd_selftest), ("backup", cmd_backup), ("relmeta", cmd_relmeta)]:
+                     ("ingest", cmd_ingest), ("describe", cmd_describe), ("build", cmd_build), ("validate", cmd_validate), ("backtest", cmd_backtest), ("selftest", cmd_selftest), ("backup", cmd_backup), ("relmeta", cmd_relmeta)]:
         p = sp.add_parser(name)
         p.add_argument("--dry-run", action="store_true")
         p.add_argument("--force", action="store_true", help="prepare: overwrite an existing rows.draft.jsonl")
