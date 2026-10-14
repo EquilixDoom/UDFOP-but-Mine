@@ -45,7 +45,7 @@ tools/      notes.py (the patch notes workflow), update_data.py (rebuilds web/da
 
 The developers' original release text is not stored in this repository. `python tools/notes.py fetch`
 downloads it into `data/release_notes.md` (git-ignored), and the verbatim bullet text kept for the tools lives in
-`data/normalized/sources.jsonl` (also git-ignored). Most commands work without them; `selftest` and `backtest` need them. `sources.jsonl` is not complete: 540 of the 5,610 rows (48 releases between 0.1.6693 and 0.1.8127) have no source line, because it is a local file and those rows were added without it. `status` reports the current count; `backtest` skips such rows, and nothing else depends on them.
+`data/normalized/sources.jsonl` (also git-ignored). Most commands work without them; `selftest` and `backtest` need them. `sources.jsonl` is not complete: 540 of the 5,610 rows (48 releases between 0.1.6693 and 0.1.8127) have no source line, because it is a local file and those rows were ingested by another maintainer (SylviaBun), whose copy of it is not shared. `status` reports the current count; `backtest` skips such rows, and nothing else depends on them.
 
 ## Adding new release notes
 

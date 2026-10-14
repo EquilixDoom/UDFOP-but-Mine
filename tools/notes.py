@@ -901,7 +901,7 @@ def cmd_status(a):
     else:
         nosrc = [r for r in rows if r["id"] not in src]
         print(f"rows without local source text: {len(nosrc)} in {len({r['version'] for r in nosrc})} release(s); "
-              "sources.jsonl is local-only, so rows ingested elsewhere or before it was kept have none (backtest skips them)")
+              "sources.jsonl is local-only, so rows another maintainer ingested on their own machine have none here (backtest skips them)")
     print(f"inbox rows.jsonl present: {os.path.exists(f'{INBOX}/rows.jsonl')}")
     stale, _, _ = stale_topics()
     print(f"stale descriptions: {len(stale)}")
