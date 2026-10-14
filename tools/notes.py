@@ -494,7 +494,7 @@ def cmd_backtest(a):
     if not src or not os.path.exists(NOTES):
         sys.exit("backtest needs the original release text, which is not stored in the repo. Run `python tools/notes.py fetch` "
                  "to download data/release_notes.md, and restore data/normalized/sources.jsonl (kept locally, git-ignored).")
-    rows = [dict(r, source=src.get(r["id"], "")) for r in rows]
+    rows = [dict(r, source=src[r["id"]]) for r in rows if r["id"] in src]   # rows with no local source text cannot be scored
     rels = [r for r in parse_notes() if r["has_body_notes"]]
     rels = sorted(rels, key=lambda r: vkey(r["version"]))[-a.last:]
     tot, ok = Counter(), Counter()
@@ -895,6 +895,13 @@ def cmd_status(a):
     print(f"release_notes.md: {len(notes)} releases, newest {notes[0]['version'] if notes else '-'}" + ("" if notes else "  (missing: run fetch)"))
     print(f"ingested rows: {len(rows)}, newest version with rows {last}")
     print(f"pending (in notes, not ingested): {', '.join(r['version'] for r in pend) or 'none'}")
+    src = {r["id"] for r in read_jsonl(SOURCES)}
+    if not src:
+        print("sources.jsonl: missing or empty (git-ignored; selftest and backtest need it)")
+    else:
+        nosrc = [r for r in rows if r["id"] not in src]
+        print(f"rows without local source text: {len(nosrc)} in {len({r['version'] for r in nosrc})} release(s); "
+              "sources.jsonl is local-only, so rows ingested elsewhere or before it was kept have none (backtest skips them)")
     print(f"inbox rows.jsonl present: {os.path.exists(f'{INBOX}/rows.jsonl')}")
     stale, _, _ = stale_topics()
     print(f"stale descriptions: {len(stale)}")
