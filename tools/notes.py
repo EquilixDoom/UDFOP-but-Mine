@@ -14,6 +14,7 @@
   python tools/notes.py selftest           run the whole pipeline in a temp copy and check your real files are untouched
   python tools/notes.py validate           check all stored rows and releases against the taxonomy (writes nothing; CI runs it)
   python tools/notes.py backup             snapshot data/ and web/ into _backups/
+  python tools/notes.py backup --external DIR  mirror the git-ignored files that exist nowhere else into DIR (or set UDFOP_BACKUP_DIR)
 """
 import argparse, csv, glob, json, os, re, shutil, subprocess, sys, urllib.request
 from collections import Counter, defaultdict
@@ -529,14 +530,43 @@ def _hash(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
 
 
+# Git-ignored files that exist nowhere else. release_notes.md is left out on purpose: `fetch` downloads it again.
+LOCAL_ONLY = ["_notes", "_sandbox", "_archive", f"{D}/bible", SOURCES, ".claude/settings.local.json"]
+
+
+def backup_external(dest):
+    """Mirror LOCAL_ONLY into dest, copying only new or changed files. Nothing in dest is ever deleted."""
+    n = skipped = 0
+    for item in LOCAL_ONLY:
+        if os.path.isdir(item):
+            files = [os.path.join(r, f) for r, _, fs in os.walk(item) for f in fs if "__pycache__" not in r]
+        elif os.path.isfile(item):
+            files = [item]
+        else:
+            continue
+        for f in files:
+            t = os.path.join(dest, f)
+            if os.path.exists(t) and os.path.getsize(t) == os.path.getsize(f) and os.path.getmtime(t) >= os.path.getmtime(f):
+                skipped += 1
+                continue
+            os.makedirs(os.path.dirname(t), exist_ok=True)
+            shutil.copy2(f, t)
+            n += 1
+    print(f"copied {n} new or changed file(s) to {dest} ({skipped} already up to date). Restore by copying the folders back into the project.")
+
+
 def cmd_backup(a):
     import time
+    if a.external:      # --external DIR: mirror the local-only files there and stop
+        return backup_external(a.external)
     dest = f"_backups/{time.strftime('%Y%m%d-%H%M%S')}"
     os.makedirs(dest)
     for d in (D, "web"):
         shutil.copytree(d, f"{dest}/{d}", ignore=shutil.ignore_patterns("done"))
     size = sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(dest) for f in fs) / 1e6
     print(f"snapshot of data/ and web/ saved to {dest} ({size:.1f} MB). Restore by copying the folders back.")
+    if os.environ.get("UDFOP_BACKUP_DIR"):      # set this to a synced folder and every backup also mirrors the local-only files there
+        backup_external(os.environ["UDFOP_BACKUP_DIR"])
 
 
 def cmd_selftest(a):
@@ -919,6 +949,7 @@ def main():
         p = sp.add_parser(name)
         p.add_argument("--dry-run", action="store_true")
         p.add_argument("--force", action="store_true", help="prepare: overwrite an existing rows.draft.jsonl")
+        p.add_argument("--external", metavar="DIR", help="backup: mirror the git-ignored files that exist nowhere else into DIR (for example a cloud-synced folder)")
         p.add_argument("--check", action="store_true", help="build: write nothing, exit 1 if web/data.js or web/shards/ are out of date")
         p.add_argument("--last", type=int, default=25, help="backtest: how many recent releases to score")
         p.set_defaults(fn=fn)
