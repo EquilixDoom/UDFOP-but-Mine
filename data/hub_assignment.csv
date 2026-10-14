@@ -973,3 +973,6 @@ Boons,Mods,,9,Mods; UI,
 Language,Interface,,4,Graphics; UI,
 Temperature Display,Interface,,4,UI,
 Translation Packs,Interface,,1,UI,yes
+Arcane Specialisations,Character and Progression,,8,Character; Combat; UI,
+Mace of Molag Bal,Items and Equipment,,1,Items,yes
+Sea Chart,Naval,,21,UI,
