@@ -92,7 +92,7 @@ A topic merged into another in `data/merges.csv` keeps its old name: the old add
 - `python tools/notes.py selftest` copies the project to a temp folder, simulates the three newest releases as new, runs every step (including a deliberately bad batch that must be rejected and a dry run that must write nothing) and checks your real files are unchanged. Run it after changing `tools/notes.py`. It needs `data/release_notes.md` (run `fetch` first on a fresh clone). GitHub runs `fetch` and `selftest` on pull requests that touch `tools/notes.py`.
 - `python tools/notes.py backup` snapshots `data/` and `web/` into `_backups/` (git-ignored).
 - Write-nothing commands on real data: `status`, `backtest`, `fetch --dry-run`, `ingest --dry-run`, `validate`, `build --check`.
-- `python tools/notes.py validate` checks every stored row and release against the taxonomy (ids, dates, systems, change types, platforms, topics in the hub list) and exits 1 on an error. It needs no local-only files, so GitHub runs it before every deploy and on pull requests that touch `data/`.
+- `python tools/notes.py validate` checks every stored row and release against the taxonomy (ids, dates, systems, change types, platforms, topics in the hub list) and every line of `data/descriptions/` (it must be `Topic ||| text`, not empty, and free of `[cite` and `TODO` leftovers) and exits 1 on an error. It needs no local-only files, so GitHub runs it before every deploy and on pull requests that touch `data/`.
 - `python tools/notes.py build --check` writes nothing and fails if `web/data.js` or `web/shards/` differ from what a build would produce. GitHub runs it before every deploy and on pull requests, so run `build` and commit the result before you push.
 
 ### How reliable is the draft?

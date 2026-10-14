@@ -12,7 +12,7 @@
   python tools/notes.py build              rebuild web/data.js and web/shards/ and report problems
   python tools/notes.py backtest [--last N] score the prefill guesses against already-ingested releases
   python tools/notes.py selftest           run the whole pipeline in a temp copy and check your real files are untouched
-  python tools/notes.py validate           check all stored rows and releases against the taxonomy (writes nothing; CI runs it)
+  python tools/notes.py validate           check all stored rows, releases and description files against the taxonomy (writes nothing; CI runs it)
   python tools/notes.py backup             snapshot data/ and web/ into _backups/
 """
 import argparse, csv, glob, json, os, re, shutil, subprocess, sys, urllib.request
@@ -800,6 +800,23 @@ def cmd_validate(a):
     src = {r["id"] for r in read_jsonl(SOURCES)}
     if src and not src <= seen:
         errs.append(f"sources.jsonl has {len(src - seen)} id(s) that are not in all.jsonl")
+    artifact = re.compile(r"\[cite\b|\b(TODO|FIXME|TBD)\b")      # leftovers from drafting; 210 "[cite: N]" markers once got in
+    for f in sorted(glob.glob(f"{DESC}/*.txt")):
+        for n, line in enumerate(open(f, encoding="utf-8"), 1):
+            line = line.rstrip("\n")
+            if not line.strip():
+                continue
+            w = f"{f}:{n}"
+            if " ||| " not in line:
+                errs.append(f"{w}: not 'Topic ||| text', so the site would ignore it: {line[:60]!r}")
+                continue
+            topic, text = line.split(" ||| ", 1)
+            if not text.strip():
+                errs.append(f"{w}: {topic!r} has an empty description")
+            elif " ||| " in text:
+                errs.append(f"{w}: {topic!r} has a second ' ||| ' in its text")
+            elif artifact.search(text):
+                errs.append(f"{w}: {topic!r} contains {artifact.search(text).group(0)!r}")
     for w in warns:
         print("warn:", w)
     if errs:
