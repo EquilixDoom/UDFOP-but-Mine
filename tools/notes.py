@@ -338,15 +338,15 @@ class Guesser:
 
     def type(self, text, section):
         t, s = text.lower(), (section or "").lower()
-        if "fix" in s or re.match(r"fixed", t) or re.search(r"crash|no longer|won't|wouldn't|could not|can't be", t):
+        if "fix" in s or re.match(r"fixed\b", t) or re.search(r"\bcrash|\bno longer\b|\bwon't\b|\bwouldn't\b|\bcould not\b|\bcan't be\b", t):
             return "Fix", True
-        if "perform" in s or re.search(r"faster|smoother|cost(s)? (much )?less|lag|frame rate|memory", t):
+        if "perform" in s or re.search(r"\bfaster\b|\bsmoother\b|cost(s)? (much )?less|\blag\b|frame rate|\bmemory\b", t):
             return "Performance", True
-        if re.search(r"removed|is gone|are gone|retired|dropped", t):
+        if re.search(r"\bremoved\b|\bis gone\b|\bare gone\b|\bretired\b|\bdropped\b", t):
             return "Removal", True
-        if re.search(r"instead|rather than|reworked|replaced|→|was \d|now (works|uses|takes|reads)", t):
+        if re.search(r"\binstead\b|\brather than\b|\breworked\b|\breplaced\b|→|\bwas \d|\bnow (works|uses|takes|reads)\b", t):
             return "Rework", False
-        if re.match(r"(a |an |the )?(new|brand-new)", t) or re.search(r"can now|added|adds|introduc", t):
+        if re.match(r"(a |an |the )?(new|brand-new)\b", t) or re.search(r"\bcan now\b|\badded\b|\badds\b|\bintroduc", t):
             return "New", True
         return "New", False
 
@@ -433,7 +433,7 @@ def topic_name_warnings(rows, known):
             soft.append(f"{len(words)} words long")
         if "," in name:
             why.append("contains a comma")
-        if re.search(r"'S", name):
+        if re.search(r"'S\b", name):
             why.append("has a capital S after an apostrophe")
         mid = [w for w in words[1:] if w.lower() in SMALL_WORDS and w[:1].isupper()]
         if mid and len(words) >= 3:
