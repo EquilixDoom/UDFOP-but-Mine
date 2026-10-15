@@ -7,7 +7,7 @@ The information provided on this page is derived from an official [Discord](http
 
 ## What do I need to play online mode?
 
-You need the Daggerfall game data and a Daggerfall Online [[topic:Accounts|account]]. For more detailed installation instructions, please visit [[topic:Installation Guide]].
+You need the Daggerfall game data and a Daggerfall Online [[topic:Accounts|account]]. For more detailed installation instructions, please visit [[Installation Guide]].
 
 ## Are my offline and online characters separate?
 
