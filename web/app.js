@@ -646,9 +646,10 @@
     h += sec("How the Patch Notes pages are written", "How the Patch Notes pages are written", 2) +
       "<p>The change tables are compiled from the release notes with a small script. The opening paragraph of each topic was written with the help of an AI assistant (Claude) from that topic's change history, and describes how the topic works as of its latest change. These paragraphs can be wrong or out of date, so the <b>History</b> table on each page is the thing to trust. Corrections are welcome.</p>";
     h += sec("Credits and licence", "Credits and licence", 2) +
+      '<div class="mbox">Meet the people behind UDFOP, and see the game&rsquo;s developers and the typefaces it uses, on the <a href="#/credits">Credits page</a>.</div>' +
       "<p>Started and maintained by <b>tau</b>, with Game Guide pages written by their contributors. The site code is released under the MIT licence and the topic descriptions and other original text are licensed CC BY 4.0. The change data is derived from the developer's release notes, which are published under the developer's own MIT licence (<a href=\"https://github.com/tau-samsara/udfop/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">notice</a>), and the game and its names belong to their owners.</p>";
     h += sec("Feedback", "Feedback", 2) + '<p>Found a mistake or a bug? See <a href="#/feedback">Feedback &amp; Bugs</a>. Pages are written by their contributors, may be wrong or out of date, and carry no warranty.</p>';
-    h += sec("Coverage", "Coverage", 2) + "<p>" + D.totals.rows.toLocaleString() + " changes in " + topics.length + " topics across " + allVersions.length + " patches, from " + esc(versions[allVersions.length - 1]) + " (" + esc(dateOf(versions[allVersions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
+    h += sec("Coverage", "Coverage", 2) + "<p>" + D.totals.rows.toLocaleString() + " changes in " + topics.length + " topics across " + allVersions.length + " patches, from " + esc(allVersions[allVersions.length - 1]) + " (" + esc(dateOf(allVersions[allVersions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
     return { title: "About UDFOP", html: page("About UDFOP", h) };
   };
 
@@ -1109,6 +1110,7 @@
     h += '<div class="portal"><h3>Patch Notes</h3><div><p>Every recorded change, patch by patch: <b>' + D.totals.rows.toLocaleString() + "</b> changes to <b>" + topics.length + "</b> topics. Latest: <b>" + vlink(versions[0]) + "</b> (" + esc(dateOf(versions[0])) + ').</p><p><a href="#/patchnotes">Browse the Patch Notes →</a><br><a href="#/recent">Recent changes</a></p></div></div>';
     var sg = siteBySlug["index"];   /* the Site Guide's front page supplies the card's text */
     h += '<div class="portal"><h3>Site Guide</h3><div><p>' + esc(sg ? sg.summary : "Help for writing, fixing and reviewing Game Guide pages, and for getting around the site.") + '</p><p><a href="#/site">Open the Site Guide →</a><br><a href="#/site/using-the-site">Using the site</a></p></div></div>';
+    h += '<div class="portal wide"><h3>Made by the community</h3><div><p>UDFOP is written and kept up by volunteers. <a href="#/credits">Meet the people behind it →</a> or see <a href="' + HOWTO + '">how to join in</a>.</p></div></div>';
     h += "</div>";
     h += "<p>Patch notes are compiled from the developers' public release notes by a script, so they are updated for each release. Guide pages are written and corrected by the community, and the Site Guide explains how. <a href=\"#/about\">About UDFOP</a></p>";
     return { title: "Main Page", html: page("Main Page", h), toc: false };
