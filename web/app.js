@@ -610,6 +610,32 @@
     return { title: "Search: " + q, html: page("Search", h), after: function () { revealMore(); wireRange(base); } };
   };
 
+  /* the Credits page: the names come from CONTRIBUTORS.md (through web/credits.json); the rest is written here */
+  views.credits = function () {
+    var h = "<p>UDFOP is made by the people below, and it exists because of the game&rsquo;s developers and the open tools and typefaces it uses. Thank you to everyone who has written, fixed or reviewed something.</p>";
+    if (credits === null) h += "<p>Loading…</p>";
+    else {
+      var groups = (credits.groups || []).filter(function (g) { return g.people && g.people.length; });
+      if (groups.length) {
+        h += '<div class="portals">' + groups.map(function (g) {
+          return '<div class="portal wide"><h3>' + esc(g.title) + '</h3><div class="ppl">' + g.people.map(function (p) {
+            var ch = (p.name.match(/[A-Za-z0-9]/) || ["?"])[0].toUpperCase();
+            return '<div class="who"><span class="av" aria-hidden="true">' + esc(ch) + '</span><div><a href="' + esc(/^https?:\/\//.test(p.url) ? p.url : "#") + '" rel="noopener">' + esc(p.name) + "</a>" +
+              (p.role ? '<small class="muted">' + esc(p.role) + "</small>" : "") + "</div></div>";
+          }).join("") + "</div></div>";
+        }).join("") + "</div>";
+      }
+      h += '<p class="muted">Guide pages are credited together to &ldquo;UDFOP contributors&rdquo; under CC BY 4.0. A name is listed only with the person&rsquo;s agreement, as a username.</p>';
+    }
+    h += sec("The game", "The game", 2) + "<p><b>Daggerfall Online</b> and its release notes belong to its developers. Every change in the Patch Notes is compiled from their <a href=\"" + RELEASES_URL + "\" rel=\"noopener\">public release notes</a>, which are published under the developers&rsquo; MIT licence (<a href=\"" + REPO + "/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">their notice</a>). UDFOP is not affiliated with or endorsed by them.</p>";
+    h += sec("Typefaces and code", "Typefaces and code", 2) + '<ul class="bul"><li><b>Kingthings Petrock</b> by Kevin King sets the headings of the Oblivion theme.</li>' +
+      "<li><b>Share Tech Mono</b> by Carrois Type Design sets the text of the Phosphor theme (SIL Open Font License).</li>" +
+      '<li>The site&rsquo;s code is <a href="' + REPO + '/blob/main/LICENSE" rel="noopener">MIT licensed</a>, and its original text is <a href="' + REPO + '/blob/main/LICENSE-CONTENT.md" rel="noopener">CC BY 4.0</a>. The notices for the fonts and the release notes are in <a href="' + REPO + '/blob/main/THIRD-PARTY-NOTICES.md" rel="noopener">THIRD-PARTY-NOTICES.md</a>.</li></ul>';
+    h += sec("AI assistance", "AI assistance", 2) + '<p>The opening description of each Patch Notes topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history, and is labeled that way on the page. More in <a href="#/about">About UDFOP</a>.</p>';
+    h += sec("Add your name", "Add your name", 2) + '<p>Wrote or fixed a guide page? Ask in your pull request or in an issue to be listed, and say in a few words what you worked on. See <a href="' + HOWTO + '">how to write a guide page</a>.</p>';
+    return { title: "Credits", html: page("Credits", h) };
+  };
+
   views.about = function () {
     var latest = versions[0];
     var h = "<p><b>UDFOP</b>, the <b>Unofficial Daggerfall Online Pages</b>, is a fan-made patch notes wiki that records what has changed in <b>Daggerfall Online</b>, patch by patch and topic by topic. It is not affiliated with or endorsed by the game's developers, by Bethesda Softworks or by ZeniMax. <i>The Elder Scrolls</i>, <i>Daggerfall</i> and related names are trademarks of their respective owners.</p>";
@@ -637,6 +663,7 @@
     "how-to/reviewing-a-pull-request": "#/site/reviewing-a-pull-request", "how-to/site-guide": "#/site"
   };
   var guide = null, guideFailed = false, guideBySlug = {}, guideByTitle = {};
+  var credits = null;   /* web/credits.json, built from CONTRIBUTORS.md: the names on the Credits page */
   var siteGuide = [], siteBySlug = {}, siteByTitle = {};   /* the Site Guide: pages in web/site/, listed by site/index.json */
   var topicByLower = {};
   topics.forEach(function (t) { topicByLower[t.toLowerCase()] = t; });
@@ -1553,7 +1580,10 @@
     .then(function () {
       return fetch("site/index.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(siteLoaded).catch(function () { siteLoaded([]); });
     })
-    .then(function () { if (/^#\/(guide|site|search)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
+    .then(function () {
+      return fetch("credits.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (j) { credits = j; }).catch(function () { credits = { groups: [] }; });
+    })
+    .then(function () { if (/^#\/(guide|site|search|credits)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
   document.getElementById("foot-stats").textContent = D.totals.rows.toLocaleString() + " changes · " + topics.length + " topics · " + allVersions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
 
   /* search box with suggestions */
@@ -1842,7 +1872,7 @@
     if (name !== "feedback") feedbackPage = location.href;
     var fr = document.getElementById("foot-report");
     if (fr) { fr.href = "#/feedback"; }
-    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about" }[name];
+    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about", credits: "credits" }[name];
     var keys = [nav];
     if (name === "guide") {
       if (arg.indexOf("category/") === 0) keys = ["guide"];

@@ -7,6 +7,7 @@ on:
       - 'web/guide/**'
       - 'web/site/**'
       - 'tools/guide.py'
+      - 'CONTRIBUTORS.md'
       - 'tools/update_data.py'
       - 'tools/notes.py'
       - 'data/**'

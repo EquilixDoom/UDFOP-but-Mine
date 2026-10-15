@@ -13,4 +13,4 @@ A name is added only with the person's agreement, and only as a GitHub username 
 
 - [samael21walter](https://discord.com/users/281213681281531904)
 
-*Add one line per person: GitHub username, then a few words on what they worked on.*
+*Add one line per person: `- [username](https://link) - a few words on what they worked on`. The Credits page on the site is built from this file, so the words after the dash appear under the name.*

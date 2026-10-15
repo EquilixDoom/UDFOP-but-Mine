@@ -5,7 +5,7 @@
 
 Game Guide pages are Markdown files under web/guide/ (see CONTRIBUTING.md); Site Guide pages (help for contributors
 and reviewers) are Markdown files under web/site/. Files and folders whose name starts with "_" or "." are ignored.
-index.json is generated, git-ignored, and rebuilt by the deploy workflow, so contributors never have to run this."""
+index.json and credits.json (the names on the Credits page, from CONTRIBUTORS.md) are generated, git-ignored, and rebuilt by the deploy workflow, so contributors never have to run this."""
 import json, os, re, sys
 
 ROOT = os.path.join('web', 'guide')
@@ -268,6 +268,35 @@ def patch_versions():
         return set()
 
 
+PERSON = re.compile(r'^[-*]\s+\[([^\]]+)\]\((\S+?)\)\s*(?:[\u2013\u2014:-]\s*(.*?))?\s*$')
+
+
+def build_credits(problems):
+    """web/credits.json from CONTRIBUTORS.md: one group per "## Heading", one person per "- [name](link) - a few words" line."""
+    path, where = 'CONTRIBUTORS.md', 'CONTRIBUTORS.md'
+    groups = []
+    if not os.path.isfile(path):
+        return dict(groups=groups)
+    cur = None
+    for ln in open(path, encoding='utf-8').read().splitlines():
+        m = re.match(r'^##\s+(.+?)\s*$', ln)
+        if m:
+            cur = dict(title=m.group(1), people=[])
+            groups.append(cur)
+            continue
+        if cur is None or not re.match(r'^[-*]\s', ln):
+            continue
+        if re.search(r'[\w.+-]+@[\w-]+\.[\w.]+|mailto:', ln, flags=re.I):
+            problems.append(('error', where, 'an email address is not allowed in the contributors list: "%s"' % ln.strip()[:60]))
+            continue
+        m = PERSON.match(ln)
+        if not m or not re.match(r'^https?://', m.group(2)):
+            problems.append(('warn', where, 'this line was not read as a person (write "- [username](https://link) - a few words"): "%s"' % ln.strip()[:60]))
+            continue
+        cur['people'].append(dict(name=m.group(1).strip(), url=m.group(2), role=(m.group(3) or '').strip()))
+    return dict(groups=[g for g in groups if g['people']])
+
+
 def main():
     check = '--check' in sys.argv
     if not os.path.isdir(ROOT):
@@ -322,6 +351,10 @@ def main():
         with open(os.path.join(root, 'index.json'), 'w', encoding='utf-8') as f:
             json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
         print('%s: %d page(s) indexed' % (area, len(out)))
+    credits = build_credits(problems)
+    with open(os.path.join('web', 'credits.json'), 'w', encoding='utf-8') as f:
+        json.dump(credits, f, ensure_ascii=False, separators=(',', ':'))
+    print('credits: %d name(s)' % sum(len(g['people']) for g in credits['groups']))
     errors = [x for x in problems if x[0] == 'error']
     if check or errors:
         for level, where, msg in problems:

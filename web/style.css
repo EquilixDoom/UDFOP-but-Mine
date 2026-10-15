@@ -813,3 +813,10 @@ html[data-skin="crier"] .portal, html[data-skin="crier"] .cats, html[data-skin="
 html[data-skin="crier"] .portal > h3 { background: transparent; font-variant: small-caps; letter-spacing: .05em; border-bottom: 3px double var(--fg); }
 html[data-skin="crier"] #foot { border-top: 3px double var(--fg); }
 .dot.news { width: 20px; height: 22px; border-radius: 1px; border: 1px solid #141414; background: linear-gradient(#141414, #141414) 3px 3px / calc(100% - 6px) 4px no-repeat, repeating-linear-gradient(#141414 0 1px, transparent 1px 3px) 3px 10px / calc(100% - 6px) 9px no-repeat, #efe9da; }   /* a broadsheet: masthead bar over columns of text lines */
+
+/* the Credits page: people in a portal box */
+.ppl { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 4px 16px; }
+.who { display: flex; align-items: center; gap: 10px; padding: 4px 0; min-width: 0; }
+.who .av { flex: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--soft); color: var(--accent); font-weight: 700; }
+.who a { font-weight: 700; overflow-wrap: anywhere; }
+.who small { display: block; }
