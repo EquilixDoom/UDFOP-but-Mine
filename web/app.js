@@ -10,7 +10,7 @@
 
   /* ---------- display settings (saved in this browser only) ---------- */
   var SETTINGS_KEY = "udfop.settings";
-  var SETTING_OPTIONS = { skin: ["default", "oblivion", "iliac", "crier", "phosphor", "cassette"], phosphor: ["green", "amber", "blue", "white"], palette: ["gold", "slate", "moss", "dusk", "terracotta", "graphite"], size: ["small", "medium", "large"], width: ["standard", "wide"], navbar: ["stay", "scroll"], theme: ["auto", "light", "dark"], previews: ["on", "off"], menu: ["sidebar", "popover"], panel: ["popover", "sidebar"], contents: ["popover", "sidebar"] };
+  var SETTING_OPTIONS = { skin: ["default", "oblivion", "iliac", "crier", "phosphor", "cassette"], phosphor: ["green", "amber", "blue", "white"], palette: ["gold", "parchment", "slate", "moss", "dusk", "terracotta", "graphite"], size: ["small", "medium", "large"], width: ["standard", "wide"], navbar: ["stay", "scroll"], theme: ["auto", "light", "dark"], previews: ["on", "off"], menu: ["sidebar", "popover"], panel: ["popover", "sidebar"], contents: ["popover", "sidebar"] };
   var SETTING_DEFAULTS = { skin: "default", phosphor: "green", palette: "gold", size: "medium", width: "standard", navbar: "stay", theme: "auto", previews: "on", menu: "popover", panel: "sidebar", contents: "sidebar" };
   function loadSettings() {
     var saved = {};
@@ -1598,7 +1598,7 @@
       { key: "phosphor", legend: "Color", grid: true,
         labels: ["Capital Wastes", "Mojave", "Anchorage", "White"], swatches: [["#1a2a1e", "#0a0f0b", "#3cff6a"], ["#2a1d0a", "#0c0802", "#ffb000"], ["#0f2036", "#04080f", "#4da6ff"], ["#2a2a2a", "#0a0a0a", "#ffffff"]] },
       { key: "palette", legend: "Color", grid: true,
-        labels: ["Gold", "Slate", "Moss", "Dusk", "Terracotta", "Graphite"], swatches: [["#ffffff", "#1b1f24", "#8a5a1a"], ["#f7f9fb", "#151d27", "#2f5d8a"], ["#f6f8f2", "#161e17", "#3a6b3f"], ["#f8f6fb", "#1b1724", "#6a3f8f"], ["#fbf7f3", "#201713", "#a8472a"], ["#ffffff", "#161616", "#3a3a3a"]] },
+        labels: ["Gold", "Parchment", "Slate", "Moss", "Dusk", "Terracotta", "Graphite"], swatches: [["#ffffff", "#1b1f24", "#8a5a1a"], ["#f8f1de", "#211a12", "#8a2f0c"], ["#f7f9fb", "#151d27", "#2f5d8a"], ["#f6f8f2", "#161e17", "#3a6b3f"], ["#f8f6fb", "#1b1724", "#6a3f8f"], ["#fbf7f3", "#201713", "#a8472a"], ["#ffffff", "#161616", "#3a3a3a"]] },
       { key: "theme", legend: "Mode", labels: ["Auto", "Light", "Dark"] },
       { key: "size", legend: "Text size", help: "Scales all text and spacing.", labels: ["Small", "Medium", "Large"] },
       { key: "width", legend: "Page width", help: "Standard keeps lines comfortable to read; Wide uses the whole window.", labels: ["Standard", "Wide"] },

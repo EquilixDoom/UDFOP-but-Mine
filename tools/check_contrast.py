@@ -89,7 +89,7 @@ def main():
                         if b[key].get(k) != b[(skin, "dark", True)].get(k)}
                 print(f"DRIFT {skin}: dark blocks differ in {', '.join(sorted(diff))}")
 
-    for v in ("slate", "moss", "dusk", "terracotta", "graphite"):   # Default colors: whole palettes on the base
+    for v in ("parchment", "slate", "moss", "dusk", "terracotta", "graphite"):   # Default colors: whole palettes on the base
         key = "palette-" + v
         for mode, pal in (("light", {**base, **b[(key, "light", False)]}), ("dark", {**base, **dark, **b[(key, "dark", False)]})):
             for t_ in TEXT:
