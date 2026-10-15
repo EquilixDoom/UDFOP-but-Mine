@@ -636,20 +636,24 @@
     return { title: "Credits", html: page("Credits", h) };
   };
 
+  /* About UDFOP: what the site is and isn't, where its information comes from, the licences and privacy. The people and tools are on the Credits page. */
   views.about = function () {
-    var latest = versions[0];
-    var h = "<p><b>UDFOP</b>, the <b>Unofficial Daggerfall Online Pages</b>, is a fan-made patch notes wiki that records what has changed in <b>Daggerfall Online</b>, patch by patch and topic by topic. It is not affiliated with or endorsed by the game's developers, by Bethesda Softworks or by ZeniMax. <i>The Elder Scrolls</i>, <i>Daggerfall</i> and related names are trademarks of their respective owners.</p>";
+    var h = "<p><b>UDFOP</b>, the <b>Unofficial Daggerfall Online Pages</b>, is a fan-made reference for <b>Daggerfall Online</b>: a community-written Game Guide, and a record of what has changed in every patch. It is not made, approved or endorsed by the game&rsquo;s developers, by Bethesda Softworks or by ZeniMax. <i>The Elder Scrolls</i>, <i>Daggerfall</i> and related names are trademarks of their respective owners.</p>";
     h += sec("Where the information comes from", "Where the information comes from", 2) +
-      "<p>Every change in the Patch Notes comes from the <a href=\"https://github.com/Lattymoy/daggerfall-js-source/releases\" rel=\"noopener\">public release notes</a> of the project's GitHub repository. Each change has been condensed into a short plain sentence (many keep the developers&rsquo; own wording) and filed under a topic, a game system and a type. Patch pages link to the pull requests the changes came from, and the release notes themselves remain the authoritative record.</p>";
-    h += sec("The Game Guide", "The Game Guide", 2) +
-      '<p>The <a href="#/guide">Game Guide</a> is written by the community in plain Markdown files, and anyone can add or correct a page through GitHub. See <a href="' + REPO + '/blob/main/CONTRIBUTING.md" rel="noopener">how to contribute</a>. Guide pages are the work of their contributors and have not been checked by the game developers.</p>';
-    h += sec("How the Patch Notes pages are written", "How the Patch Notes pages are written", 2) +
-      "<p>The change tables are compiled from the release notes with a small script. The opening paragraph of each topic was written with the help of an AI assistant (Claude) from that topic's change history, and describes how the topic works as of its latest change. These paragraphs can be wrong or out of date, so the <b>History</b> table on each page is the thing to trust. Corrections are welcome.</p>";
-    h += sec("Credits and licence", "Credits and licence", 2) +
-      '<div class="mbox">Meet the people behind UDFOP, and see the game&rsquo;s developers and the typefaces it uses, on the <a href="#/credits">Credits page</a>.</div>' +
-      "<p>Started and maintained by <b>tau</b>, with Game Guide pages written by their contributors. The site code is released under the MIT licence and the topic descriptions and other original text are licensed CC BY 4.0. The change data is derived from the developer's release notes, which are published under the developer's own MIT licence (<a href=\"https://github.com/tau-samsara/udfop/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">notice</a>), and the game and its names belong to their owners.</p>";
-    h += sec("Feedback", "Feedback", 2) + '<p>Found a mistake or a bug? See <a href="#/feedback">Feedback &amp; Bugs</a>. Pages are written by their contributors, may be wrong or out of date, and carry no warranty.</p>';
-    h += sec("Coverage", "Coverage", 2) + "<p>" + D.totals.rows.toLocaleString() + " changes in " + topics.length + " topics across " + allVersions.length + " patches, from " + esc(allVersions[allVersions.length - 1]) + " (" + esc(dateOf(allVersions[allVersions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
+      '<p>Every change in the Patch Notes comes from the <a href="' + RELEASES_URL + '" rel="noopener">public release notes</a> of the developers&rsquo; GitHub repository, which remain the authoritative record. A script compiles them for each release. Each change is condensed into a short plain sentence (many keep the developers&rsquo; own wording), filed under a topic, a game system and a type, and linked back to the pull requests it came from.</p>' +
+      "<p>The opening paragraph of each topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history. These paragraphs can be wrong or out of date, so the <b>History</b> table on each page is the thing to trust. Corrections are welcome.</p>" +
+      '<p>The <a href="#/guide">Game Guide</a> is written by the community, and anyone can add or correct a page (<a href="' + HOWTO + '">how to write a guide page</a>). Guide pages are the work of their contributors and have not been checked by the game&rsquo;s developers. They may be wrong or out of date, and carry no warranty.</p>';
+    h += sec("Licences", "Licences", 2) + '<ul class="bul">' +
+      '<li><b>Code</b> (the site, the tools, the workflow): <a href="' + REPO + '/blob/main/LICENSE" rel="noopener">MIT</a>.</li>' +
+      '<li><b>Original text</b> (Game Guide pages, topic descriptions, this page, the README): <a href="' + REPO + '/blob/main/LICENSE-CONTENT.md" rel="noopener">CC BY 4.0</a>. Credit &ldquo;UDFOP (Unofficial Daggerfall Online Pages), by tau&rdquo;, or &ldquo;UDFOP contributors&rdquo; for guide pages.</li>' +
+      '<li><b>The change data</b> is derived from the developers&rsquo; release notes, which are published under the developers&rsquo; own MIT licence (<a href="' + REPO + '/blob/main/THIRD-PARTY-NOTICES.md" rel="noopener">their notice</a>). It is not covered by CC BY 4.0: if you reuse it, keep that notice and credit the developers.</li>' +
+      "<li>The game and its names belong to their owners.</li></ul>" +
+      '<p>The people and tools behind UDFOP are on the <a href="#/credits">Credits page</a>.</p>';
+    h += sec("Privacy", "Privacy", 2) + "<p>UDFOP has no analytics, no cookies and no accounts, and nothing you do on it is sent anywhere. Your display choices (theme, text size and so on) are saved in your own browser only. The site is hosted on GitHub Pages, which keeps its own server logs. A report made on GitHub is public.</p>";
+    h += sec("More", "More", 2) + '<ul class="bul">' +
+      '<li><a href="#/credits">Credits</a>: the people, the game&rsquo;s developers, typefaces and tools.</li>' +
+      '<li><a href="#/feedback">Feedback &amp; Bugs</a>: problems with this site. Bugs in the game itself go in the bug-reports channel of the <a href="' + GAME_BUGS + '" rel="noopener">DFO Online Discord</a>.</li>' +
+      '<li><a href="#/site/using-the-site">Using the site</a> and the <a href="#/site">Site Guide</a>: how to find things, change the look, and write or review a page.</li></ul>';
     return { title: "About UDFOP", html: page("About UDFOP", h) };
   };
 
