@@ -1345,6 +1345,16 @@
     else { panel.style.top = panel.style.left = panel.style.maxHeight = ""; }
     document.body.classList.toggle("toc-open", on);
     if (btn) btn.setAttribute("aria-expanded", on ? "true" : "false");
+    if (on) scrollTocToCurrent();
+  }
+  /* The pop-up Contents opens already scrolled to the entry the reader is on (a third of the way down its box), then leaves the list alone. A list that fits needs no scrolling. */
+  function scrollTocToCurrent() {
+    var box = document.getElementById("side-toc"), cur = box.querySelector("a.on");
+    if (!cur || box.scrollHeight <= box.clientHeight) return;
+    spyToc();
+    cur = box.querySelector("a.on") || cur;
+    var y = cur.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+    box.scrollTop = Math.max(0, Math.round(y - box.clientHeight / 3));
   }
   document.addEventListener("click", function (e) {
     var t = e.target.closest ? e.target : e.target.parentNode;
