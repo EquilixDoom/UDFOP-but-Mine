@@ -821,3 +821,8 @@ html[data-skin="crier"] #foot { border-top: 3px double var(--fg); }
 .who .av { flex: none; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--soft); color: var(--accent); font-weight: 700; }
 .who a { font-weight: 700; overflow-wrap: anywhere; }
 .who small { display: block; }
+
+/* the Contents heading and its hide / move button stay in view while the list scrolls; the ::before masks the entries that pass behind it, out to the edges of the box */
+#side-toc .side-head { position: sticky; top: 0; z-index: 1; background: var(--j-rail, var(--page)); }
+#side-toc .side-head::before { content: ""; position: absolute; z-index: -1; inset: -16px -8px 0 -20px; background: inherit; }
+html:not([data-contents="sidebar"]) #side-toc .side-head { background: var(--paper); }
