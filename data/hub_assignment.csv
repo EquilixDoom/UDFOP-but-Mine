@@ -976,3 +976,6 @@ Translation Packs,Interface,,1,UI,yes
 Arcane Specialisations,Character and Progression,,8,Character; Combat; UI,
 Mace of Molag Bal,Items and Equipment,,1,Items,yes
 Sea Chart,Naval,,21,UI,
+Billboard Look,Rendering,,1,UI,yes
+Lamp Keeper,Social and Chat,,1,World,yes
+Sitting,Social and Chat,,1,Controls,yes
