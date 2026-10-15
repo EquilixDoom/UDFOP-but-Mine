@@ -527,7 +527,7 @@ html:not([data-menu="popover"])[data-contents="sidebar"] #side-toc:not([hidden])
 html:not([data-contents="sidebar"]) #side-toc { position: fixed; z-index: 15; top: var(--head-h, 3.6rem); left: 8px; width: 17em; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
   background: var(--paper); border: 1px solid var(--line); box-shadow: 0 6px 16px rgba(0,0,0,.25); }
 html:not([data-contents="sidebar"]) body.toc-open #side-toc:not([hidden]) { display: block; }
-html:not([data-contents="sidebar"]) #side-toc li a { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* in the pop-up an entry is one line; hovering shows all of it */
+#side-toc li a { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* an entry is one line, docked or in the pop-up; hovering shows all of it */
 #side-toc ol { margin: 0; padding: 0; list-style: none; }
 #side-toc ol ol { display: none; margin-left: 28px; }
 #side-toc li.open > ol { display: block; }
