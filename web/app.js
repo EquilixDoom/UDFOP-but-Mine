@@ -31,6 +31,7 @@
     syncDocks(st);
     syncAnchors();
     syncTocBtn();   /* docking or undocking a panel moves where the Contents button belongs */
+    fitTocRoom();
   }
   /* the dock buttons: "hide" while a panel is docked in a sidebar, "move to sidebar" while it is a pop-up */
   function syncDocks(st) {
@@ -1093,7 +1094,7 @@
         rendered += buildReferences(refs, (fm.meta.related || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean)); refs = null;
         box.innerHTML = rendered +
           '<p class="editline footer-note"><a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
-        buildToc(); addHeadingLinks(); fitEndPad(); jumpPending();
+        buildToc(); fitTocRoom(); addHeadingLinks(); fitEndPad(); jumpPending();
       }).catch(function () {
         if (guideFailed) { box.innerHTML = guideUnavailable(); return; }
         /* the same page as any other missing address (a Game Guide page also gets a way to write it) */
@@ -1305,8 +1306,21 @@
     if (tocTop) tocTop.classList.toggle("on", cur < 0);
     tocSpy.forEach(function (t, k) { t.a.classList.toggle("on", k === cur || (t === parent && tocSpy[cur] !== t && !t.li.classList.contains("open"))); });
   }
+  /* A Contents list docked under the main menu is a box that sticks under the header once the menu has scrolled away. At the top of the page it starts below the menu, so it is
+     only as tall as the room left in the window: otherwise its lower end is off the screen and its last entries could not be reached until the page was scrolled. */
+  function fitTocRoom() {
+    var box = document.getElementById("side-toc");
+    if (!box) return;
+    if (getComputedStyle(box).position !== "sticky" || box.hidden) {
+      if (box.__roomSet) { box.style.maxHeight = ""; box.__roomSet = false; }
+      return;
+    }
+    var room = window.innerHeight - Math.max(box.getBoundingClientRect().top, headOcc());
+    box.style.maxHeight = Math.max(120, Math.floor(room)) + "px"; box.__roomSet = true;
+  }
+  window.addEventListener("resize", fitTocRoom);
   var spyBusy = false;
-  window.addEventListener("scroll", function () { if (!spyBusy) { spyBusy = true; requestAnimationFrame(function () { spyBusy = false; spyToc(); }); } }, { passive: true });
+  window.addEventListener("scroll", function () { if (!spyBusy) { spyBusy = true; requestAnimationFrame(function () { spyBusy = false; spyToc(); fitTocRoom(); }); } }, { passive: true });
   /* the button sits beside the title; once the page scrolls past that spot it floats at the top left. The pop-up stays anchored under it */
   function syncTocBtn() {
     var a = document.querySelector(".toc-anchor"), b = document.querySelector(".toc-btn");
@@ -1893,6 +1907,7 @@
     Array.prototype.forEach.call(app.querySelectorAll("a[data-issue]"), function (a) { a.href = issueUrl(a.getAttribute("data-issue"), a.getAttribute("data-prefix")); });
     document.getElementById("side-toc").hidden = true; tocSpy = []; document.documentElement.classList.remove("has-toc"); setToc(false);
     if (res.toc !== false) buildToc();
+    fitTocRoom();
     if (res.after) res.after();
     setMenu(false); sug.hidden = true;
     fitEndPad();
