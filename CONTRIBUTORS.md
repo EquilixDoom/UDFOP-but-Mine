@@ -11,4 +11,6 @@ A name is added only with the person's agreement, and only as a GitHub username 
 
 ## Contributors
 
+- [samael21walter](https://discord.com/users/281213681281531904)
+
 *Add one line per person: GitHub username, then a few words on what they worked on.*
