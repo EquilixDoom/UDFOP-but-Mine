@@ -1223,7 +1223,7 @@
     /* sections, each with its subsections folded behind an expander that the reader opens (it is never opened for them) */
     var items = [], meta = [];
     Array.prototype.forEach.call(hs, function (el) {
-      var text = el.getAttribute("data-toc"), link = '<a href="' + pagePath() + '" data-scroll="' + el.id + '">' + esc(text) + "</a>";
+      var text = el.getAttribute("data-toc"), link = '<a href="' + pagePath() + '" data-scroll="' + el.id + '" title="' + esc(text) + '">' + esc(text) + "</a>";
       if (el.tagName === "H3" && items.length) { items[items.length - 1].subs.push(link); meta.push(false); }
       else { items.push({ text: text, link: link, subs: [] }); meta.push(true); }
     });
@@ -1333,7 +1333,7 @@
   function placeToc() {
     var panel = document.getElementById("side-toc"), btn = document.querySelector(".toc-btn");
     var r = btn ? btn.getBoundingClientRect() : { left: 8, bottom: 0 }, top = Math.max(r.bottom + 6, headOcc() + 6);
-    panel.style.top = top + "px"; panel.style.left = Math.max(8, r.left) + "px"; panel.style.maxHeight = "calc(100vh - " + (top + 12) + "px)";
+    panel.style.top = top + "px"; panel.style.left = Math.max(8, r.left) + "px"; panel.style.maxHeight = "min(50vh, calc(100vh - " + (top + 12) + "px))";   /* at most half the window, so most of the article stays in view; a longer list scrolls inside */
   }
   function followToc() { syncTocBtn(); if (document.body.classList.contains("toc-open")) placeToc(); }
   window.addEventListener("scroll", followToc, { passive: true });
