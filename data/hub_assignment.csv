@@ -979,3 +979,9 @@ Sea Chart,Naval,,21,UI,
 Billboard Look,Rendering,,1,UI,yes
 Lamp Keeper,Social and Chat,,1,World,yes
 Sitting,Social and Chat,,1,Controls,yes
+Calm HUD,Interface,,1,UI,yes
+Face Portraits,Rendering,,5,Graphics,
+Firmament,Character and Progression,,11,Character; Online; UI,
+Gilded Weapons,Items and Equipment,,5,Combat; Items; UI,
+King's Gambit,Social and Chat,,36,Controls; Graphics; Online; UI; World,
+Points of Interest,World and Overworld,,2,UI; World,yes
