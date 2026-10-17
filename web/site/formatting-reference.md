@@ -326,7 +326,7 @@ These go beyond plain Markdown. They are what lets Game Guide pages connect to e
 
 ### Links to other pages
 
-Double square brackets link to another page on this site. They are the way to link a guide page, a Patch Notes topic or a patch, because the site then knows what you linked and can show it in the References section. A link to a guide page uses the page's title, and matching is case-insensitive. Put `topic:` before the name of a Patch Notes topic and `patch:` before a version number. A bar followed by your own words changes the text that is shown.
+Double square brackets link to another page on this site. They are the way to link a guide page, a Patch Notes topic or a patch, because the site then knows what you linked and can show it in the References section. A link to a guide page uses the page's title, and matching is case-insensitive. A plain name always means a guide page: the site never guesses that you meant a Patch Notes topic, even when a topic has that name. Put `topic:` before the name of a Patch Notes topic and `patch:` before a version number. A bar followed by your own words changes the text that is shown.
 
 | You type | What it does | Result |
 |---|---|---|
@@ -398,7 +398,7 @@ related: guide:Party rest, topic:Resting, patch:0.1.6656
 `guide:` names a Game Guide page by its title, `topic:` a Patch Notes topic and `patch:` a patch version, matching the double-bracket links in the text. Guide pages go under Game Guide in the References section and topics and patches under Patch Notes. The check warns about names that match nothing.
 
 > [!TIP]
-> Use the prefix whenever a guide page and a topic share a name. Without it, the name is matched to a guide page first and to a topic second.
+> A name with no prefix is a guide page, the same as in the text. A Patch Notes topic or patch always needs its `topic:` or `patch:` prefix; it is never guessed.
 
 ### Picture captions and placement
 

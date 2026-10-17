@@ -791,8 +791,7 @@
     var g = findPage(low);
     if (g) { if (pageKey(g) !== refs_self()) noteRef("guide", pageKey(g), g); }
     if (g) return '<a href="' + purl(g) + '">' + esc(label || g.title) + "</a>" + (g.area === "site" ? MARK_SG : MARK_GP);
-    t = topicByLower[low];
-    if (t) { noteRef("topic", t, t); return tlink(t).replace(">" + esc(t) + "<", ">" + esc(label || t) + "<") + MARK_PN; }
+    /* a plain [[Title]] means a guide page and nothing else: Patch Notes topics and patches are linked on purpose, as [[topic:Name]] and [[patch:0.1.2]] */
     return '<a class="missing" href="' + newPageUrl(raw) + '"' + newAttr(raw) + ' rel="noopener" title="No page called this yet. Click to create it.">' + esc(label || raw) + "</a>";
   }
   /* Pictures: ![alt](path "Caption"){right 240}. A picture alone on its line with a caption or braces becomes a figure that
@@ -920,10 +919,10 @@
 
   function buildReferences(r, related) {
     (related || []).forEach(function (name) {
-      /* "guide:Name", "topic:Name" and "patch:0.1.2" say which kind; with no prefix a guide page wins over a topic of the same name */
+      /* "guide:Name", "topic:Name" and "patch:0.1.2" say which kind; with no prefix it is a guide page, as in the text */
       var pm = /^(guide|topic|patch)\s*:\s*(.*)$/i.exec(name), mode = pm ? pm[1].toLowerCase() : "", rest = (pm ? pm[2] : name).trim();
       if (mode === "patch") { if (D.releases[rest]) noteRef("patch", rest, rest); return; }
-      var low = rest.toLowerCase(), g = mode === "topic" ? null : findPage(low), t = mode === "guide" ? null : topicByLower[low];
+      var low = rest.toLowerCase(), g = mode === "topic" ? null : findPage(low), t = mode === "topic" ? topicByLower[low] : null;
       if (g && pageKey(g) !== r.self) noteRef("guide", pageKey(g), g); else if (!g && t) noteRef("topic", t, t);
     });
     var h = "";

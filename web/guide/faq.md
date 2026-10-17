@@ -516,7 +516,7 @@ Players then enter the shared boss encounter. Eligible players receive their own
 
 ##Is there open-world PvP?
 
-As of [[topic:Patch 0.1.7051]], the new [[topic:Wrothgarian Zone]] acts as an open world PvP area, players are warned before entering and are able to kill one another openly here. Any held or equipped items can be looted from you, as well as anything in your cart.
+As of [[patch:0.1.7051|Patch 0.1.7051]], the new [[topic:Wrothgarian Zone]] acts as an open world PvP area, players are warned before entering and are able to kill one another openly here. Any held or equipped items can be looted from you, as well as anything in your cart.
 
 ##How do duels work?
 

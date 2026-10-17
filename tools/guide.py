@@ -135,7 +135,7 @@ def topic_names():
     try:
         raw = open(os.path.join('web', 'data.js'), encoding='utf-8').read()
         d = json.loads(raw[raw.index('{'):raw.rindex('}') + 1])
-        return {t.lower() for t in d['tstat']}
+        return {t.lower() for t in d['tstat']} | {t.lower() for t in d.get('alias', {})}
     except Exception:
         return set()
 
@@ -323,11 +323,27 @@ def main():
     check_alerts(pages, problems)
     check_infoboxes(pages, problems)
     topics = topic_names()
+    versions = patch_versions()
     for p in pages:
         for target in LINK.findall(strip_code(p['_body'])):
-            t = target.strip().rstrip('\\').strip().lower()   # a table cell writes the alias bar as \|
-            if t not in seen and t not in topics and t not in p['_expected'] and not t.startswith(('patch:', 'topic:')):
-                problems.append(('warn', p['_where'], 'link [[%s]] matches no guide page or topic yet' % target.strip()))
+            shown = target.strip().rstrip('\\').strip()   # a table cell writes the alias bar as \|
+            m = re.match(r'^(topic|patch|guide)\s*:\s*(.*)$', shown, flags=re.I)
+            if m:
+                kind, rest = m.group(1).lower(), m.group(2).strip()
+                if kind == 'topic' and rest.lower() not in topics:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: no Patch Notes topic is called "%s", so it shows as plain text' % (shown, rest)))
+                elif kind == 'patch' and rest not in versions:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: there is no patch %s, so it shows as plain text' % (shown, rest)))
+                elif kind == 'guide':
+                    problems.append(('warn', p['_where'], 'link [[%s]]: the guide: prefix works only in related:. In the text write [[%s]]' % (shown, rest)))
+                continue
+            t = shown.lower()
+            if t in seen or t in p['_expected']:
+                continue
+            if t in topics:
+                problems.append(('warn', p['_where'], 'link [[%s]] is a Patch Notes topic, not a guide page. A topic is linked on purpose: [[topic:%s]]' % (shown, shown)))
+            else:
+                problems.append(('warn', p['_where'], 'link [[%s]] matches no guide page yet' % shown))
     for area, root, prefix in sections:
         cats = {}
         for p in by_area[area]:
@@ -335,15 +351,14 @@ def main():
         for key, spellings in cats.items():
             if len(spellings) > 1:
                 problems.append(('warn', prefix + 'categories', 'the category is spelled more than one way: %s (use one spelling)' % ', '.join('"%s"' % x for x in sorted(spellings))))
-    versions = patch_versions()
     for p in pages:
         for name in p['_related']:
             m = re.match(r'^(guide|topic|patch)\s*:\s*(.*)$', name, flags=re.I)
             kind, rest = (m.group(1).lower(), m.group(2).strip()) if m else ('', name.strip())
             key = rest.lower()
-            ok = (rest in versions) if kind == 'patch' else (key in seen) if kind == 'guide' else (key in topics) if kind == 'topic' else (key in seen or key in topics)
+            ok = (rest in versions) if kind == 'patch' else (key in topics) if kind == 'topic' else (key in seen)   # no prefix, or guide:, is a guide page
             if not ok:
-                problems.append(('warn', p['_where'], 'related: "%s" matches no %s' % (name, {'patch': 'patch', 'guide': 'guide page', 'topic': 'topic'}.get(kind, 'guide page or topic'))))
+                problems.append(('warn', p['_where'], 'related: "%s" matches no %s' % (name, {'patch': 'patch', 'topic': 'topic'}.get(kind, 'guide page'))))
     for area, root, prefix in sections:
         ps = by_area[area]
         ps.sort(key=lambda p: (p['category'].lower(), p['title'].lower()))

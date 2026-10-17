@@ -51,7 +51,7 @@ Links to other pages use **double** square brackets, `[[Page title]]`. Links to 
 
 ### A link is red
 
-A red link means no guide page has that title. Check the spelling, or whether the page was renamed. Matching ignores capital letters but not typing mistakes. For a Patch Notes topic or a patch, the name must start with `topic:` or `patch:`. If you meant to link to a page that is not written yet, the red link is correct: clicking it starts that page.
+A red link means no guide page has that title. Check the spelling, or whether the page was renamed. Matching ignores capital letters but not typing mistakes. A plain name is only ever a guide page, even if a Patch Notes topic has that name, so for a topic or a patch the name must start with `topic:` or `patch:`. If you meant to link to a page that is not written yet, the red link is correct: clicking it starts that page.
 
 ### My picture does not appear
 
@@ -107,9 +107,13 @@ When you open a pull request, a check runs on your pages. A red mark means it fo
 | pictures are easier to find in an images folder | A picture is not in an `images` folder. | Move it into one. |
 | the code box language is not one the site colors | The language name is not on the list. | Use a listed name, or none. |
 | the notice box type is not one the site knows | The tag is not one of the five. | Use NOTE, TIP, IMPORTANT, WARNING or CAUTION. |
-| link `[[x]]` matches no guide page or topic yet | Nothing has that title. | Fix the spelling, or write the page. |
+| link `[[x]]` matches no guide page yet | No guide page has that title. | Fix the spelling, or write the page. |
+| link `[[x]]` is a Patch Notes topic, not a guide page | A plain name is never matched to a topic. | Write `[[topic:x]]`. |
+| link `[[topic:x]]`: no Patch Notes topic is called "x" | The topic name is misspelled, so the link shows as plain text. | Fix the name. |
+| link `[[patch:x]]`: there is no patch x | The version number is wrong, so the link shows as plain text. | Fix the number. |
+| the guide: prefix works only in related: | `[[guide:x]]` was written in the text. | Write `[[x]]`. |
 | the category is spelled more than one way | Two pages spell the same category differently. | Use one spelling. |
-| related: "x" matches no… | A name in `related:` matches nothing. | Fix the name, or add `guide:`, `topic:` or `patch:`. |
+| related: "x" matches no… | A name in `related:` matches nothing. A name with no prefix is a guide page. | Fix the name, or add `topic:` or `patch:`. |
 
 ## Previewing on your computer
 
