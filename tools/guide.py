@@ -268,6 +268,25 @@ def patch_versions():
         return set()
 
 
+def heading_id(text):
+    """The id a heading gets on the page: the words with markup removed, lower case, every run of other characters turned into a hyphen (the site's slugId)."""
+    t = re.sub(r'\[\[([^\]|]+)(?:\|([^\]]*))?\]\]', lambda m: m.group(2) or m.group(1), text)
+    t = re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', t)
+    t = re.sub(r'>!(.+?)!<', r'\1', t)
+    t = re.sub(r'[*_`]', '', t)
+    return 's-' + re.sub(r'[^a-z0-9]+', '-', t.strip().lower())
+
+
+def heading_ids(body):
+    """The ids of a page's headings down to ### (deeper headings and headings in code boxes get none)."""
+    ids = set()
+    for line in strip_code(body, spans=False).split('\n'):
+        m = re.match(r'^#{1,3}\s+(.*?)(?:\s+#+)?\s*$', line)
+        if m:
+            ids.add(heading_id(m.group(1)))
+    return ids
+
+
 PERSON = re.compile(r'^[-*]\s+\[([^\]]+)\]\((\S+?)\)\s*(?:[\u2013\u2014:-]\s*(.*?))?\s*$')
 
 
@@ -309,7 +328,7 @@ def main():
         ps, pr = scan(root, area)
         by_area[area] = ps
         pages += ps; problems += pr
-    # a title or name may be used once across both guides, because [[Title]] finds a page in either
+    # a title or name may be used once across both guides, so a page is never ambiguous
     seen = {}
     for p in pages:
         for key in (p['title'].lower(), p['slug'].lower()):
@@ -317,6 +336,8 @@ def main():
                 problems.append(('error', p['_where'], 'the title or name clashes with "%s"' % seen[key][1]))
         seen[p['title'].lower()] = ((p['area'], p['slug']), p['_where'])
         seen.setdefault(p['slug'].lower(), ((p['area'], p['slug']), p['_where']))
+    # the names a link can use: a plain [[Name]] finds a Game Guide page, [[site:Name]] a Site Guide page; each name keeps the ids of that page's headings
+    names = {a: {k: heading_ids(p['_body']) for p in by_area.get(a, []) for k in (p['title'].lower(), p['slug'].lower())} for a in ('guide', 'site')}
     for area, root, prefix in sections:
         check_images(by_area[area], problems, root, prefix)
     check_code_languages(pages, problems)
@@ -325,23 +346,41 @@ def main():
     topics = topic_names()
     versions = patch_versions()
     for p in pages:
+        own = heading_ids(p['_body'])
         for target in LINK.findall(strip_code(p['_body'])):
             shown = target.strip().rstrip('\\').strip()   # a table cell writes the alias bar as \|
-            m = re.match(r'^(topic|patch|guide)\s*:\s*(.*)$', shown, flags=re.I)
-            if m:
-                kind, rest = m.group(1).lower(), m.group(2).strip()
-                if kind == 'topic' and rest.lower() not in topics:
-                    problems.append(('warn', p['_where'], 'link [[%s]]: no Patch Notes topic is called "%s", so it shows as plain text' % (shown, rest)))
-                elif kind == 'patch' and rest not in versions:
-                    problems.append(('warn', p['_where'], 'link [[%s]]: there is no patch %s, so it shows as plain text' % (shown, rest)))
-                elif kind == 'guide':
-                    problems.append(('warn', p['_where'], 'link [[%s]]: the guide: prefix works only in related:. In the text write [[%s]]' % (shown, rest)))
+            m = re.match(r'^(topic|patch|guide|site)\s*:\s*(.*)$', shown, flags=re.I)
+            kind, rest = (m.group(1).lower(), m.group(2).strip()) if m else ('guide', shown)
+            name, _, section = rest.partition('#')
+            name, section = name.strip(), section.strip()
+            if kind in ('topic', 'patch'):
+                if section:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: a link to a topic or a patch cannot name a section, so it shows as plain text' % shown))
+                elif kind == 'topic' and name.lower() not in topics:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: no Patch Notes topic is called "%s", so it shows as plain text' % (shown, name)))
+                elif kind == 'patch' and name not in versions:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: there is no patch %s, so it shows as plain text' % (shown, name)))
                 continue
-            t = shown.lower()
-            if t in seen or t in p['_expected']:
+            t = name.lower()
+            if not name:   # [[#Section]]: a section of this page
+                if not section or heading_id(section) not in own:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: this page has no section called "%s"' % (shown, section)))
                 continue
-            if t in topics:
-                problems.append(('warn', p['_where'], 'link [[%s]] is a Patch Notes topic, not a guide page. A topic is linked on purpose: [[topic:%s]]' % (shown, shown)))
+            if kind == 'site':
+                if t not in names['site']:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: no Site Guide page is called "%s", so it shows as plain text' % (shown, name)))
+                elif section and heading_id(section) not in names['site'][t]:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: that Site Guide page has no section called "%s"' % (shown, section)))
+                continue
+            if t in names['guide']:
+                if section and heading_id(section) not in names['guide'][t]:
+                    problems.append(('warn', p['_where'], 'link [[%s]]: that page has no section called "%s"' % (shown, section)))
+            elif t in p['_expected']:
+                continue
+            elif t in names['site']:
+                problems.append(('warn', p['_where'], 'link [[%s]] is a Site Guide page, not a Game Guide page. A Site Guide page is linked on purpose: [[site:%s]]' % (shown, rest)))
+            elif t in topics:
+                problems.append(('warn', p['_where'], 'link [[%s]] is a Patch Notes topic, not a guide page. A topic is linked on purpose: [[topic:%s]]' % (shown, rest)))
             else:
                 problems.append(('warn', p['_where'], 'link [[%s]] matches no guide page yet' % shown))
     for area, root, prefix in sections:
@@ -353,12 +392,12 @@ def main():
                 problems.append(('warn', prefix + 'categories', 'the category is spelled more than one way: %s (use one spelling)' % ', '.join('"%s"' % x for x in sorted(spellings))))
     for p in pages:
         for name in p['_related']:
-            m = re.match(r'^(guide|topic|patch)\s*:\s*(.*)$', name, flags=re.I)
+            m = re.match(r'^(guide|site|topic|patch)\s*:\s*(.*)$', name, flags=re.I)
             kind, rest = (m.group(1).lower(), m.group(2).strip()) if m else ('', name.strip())
             key = rest.lower()
-            ok = (rest in versions) if kind == 'patch' else (key in topics) if kind == 'topic' else (key in seen)   # no prefix, or guide:, is a guide page
+            ok = (rest in versions) if kind == 'patch' else (key in topics) if kind == 'topic' else (key in names['site']) if kind == 'site' else (key in names['guide'])   # no prefix, or guide:, is a Game Guide page
             if not ok:
-                problems.append(('warn', p['_where'], 'related: "%s" matches no %s' % (name, {'patch': 'patch', 'topic': 'topic'}.get(kind, 'guide page'))))
+                problems.append(('warn', p['_where'], 'related: "%s" matches no %s' % (name, {'patch': 'patch', 'topic': 'topic', 'site': 'Site Guide page'}.get(kind, 'Game Guide page'))))
     for area, root, prefix in sections:
         ps = by_area[area]
         ps.sort(key=lambda p: (p['category'].lower(), p['title'].lower()))

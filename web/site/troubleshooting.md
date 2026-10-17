@@ -6,7 +6,7 @@ summary: Fixes for the most common problems when writing a page, and what each p
 
 This page lists the problems people meet most when writing a guide page, with a fix for each, and explains every message the page check can show. If yours is not here, report it from [Feedback & Bugs](#/feedback) and say what you tried.
 
-For the steps of adding a page, see [[How to write a guide page]]. For the syntax, see [[Formatting reference]].
+For the steps of adding a page, see [[site:How to write a guide page]]. For the syntax, see [[site:Formatting reference]].
 
 ## Getting started on GitHub
 
@@ -51,7 +51,7 @@ Links to other pages use **double** square brackets, `[[Page title]]`. Links to 
 
 ### A link is red
 
-A red link means no guide page has that title. Check the spelling, or whether the page was renamed. Matching ignores capital letters but not typing mistakes. A plain name is only ever a guide page, even if a Patch Notes topic has that name, so for a topic or a patch the name must start with `topic:` or `patch:`. If you meant to link to a page that is not written yet, the red link is correct: clicking it starts that page.
+A red link means no guide page has that title. Check the spelling, or whether the page was renamed. Matching ignores capital letters but not typing mistakes. A plain name is only ever a Game Guide page, even if a Site Guide page or a Patch Notes topic has that name, so for those the name must start with `site:`, `topic:` or `patch:`. If you meant to link to a page that is not written yet, the red link is correct: clicking it starts that page.
 
 ### My picture does not appear
 
@@ -71,7 +71,7 @@ The tag must be alone on the first line of the box, written exactly `[!NOTE]`, `
 
 ### My code box has no colors
 
-Put the language name straight after the three backticks, with no space, and use one of the names in the [[Formatting reference]]. A name the site does not know leaves the box plain. Boxes over about 20,000 characters are never colored.
+Put the language name straight after the three backticks, with no space, and use one of the names in the [[site:Formatting reference]]. A name the site does not know leaves the box plain. Boxes over about 20,000 characters are never colored.
 
 ### My `{{key}}` shows the braces
 
@@ -107,13 +107,16 @@ When you open a pull request, a check runs on your pages. A red mark means it fo
 | pictures are easier to find in an images folder | A picture is not in an `images` folder. | Move it into one. |
 | the code box language is not one the site colors | The language name is not on the list. | Use a listed name, or none. |
 | the notice box type is not one the site knows | The tag is not one of the five. | Use NOTE, TIP, IMPORTANT, WARNING or CAUTION. |
-| link `[[x]]` matches no guide page yet | No guide page has that title. | Fix the spelling, or write the page. |
+| link `[[x]]` matches no guide page yet | No Game Guide page has that title. | Fix the spelling, or write the page. |
+| link `[[x#y]]`: that page has no section called "y" | The words after the `#` do not match a heading of that page (`[[#y]]`: of this page). | Copy the heading's words, or fix the spelling. |
+| link `[[topic:x#y]]`: a link to a topic or a patch cannot name a section | Sections work for guide pages only. | Drop the `#y`, or use a plain link such as `[History](#/topic/x#s-history)`. |
+| link `[[x]]` is a Site Guide page, not a Game Guide page | A plain name is never matched to a Site Guide page. | Write `[[site:x]]`. |
+| link `[[site:x]]`: no Site Guide page is called "x" | The title is misspelled, so the link shows as plain text. | Fix the title. |
 | link `[[x]]` is a Patch Notes topic, not a guide page | A plain name is never matched to a topic. | Write `[[topic:x]]`. |
 | link `[[topic:x]]`: no Patch Notes topic is called "x" | The topic name is misspelled, so the link shows as plain text. | Fix the name. |
 | link `[[patch:x]]`: there is no patch x | The version number is wrong, so the link shows as plain text. | Fix the number. |
-| the guide: prefix works only in related: | `[[guide:x]]` was written in the text. | Write `[[x]]`. |
 | the category is spelled more than one way | Two pages spell the same category differently. | Use one spelling. |
-| related: "x" matches no… | A name in `related:` matches nothing. A name with no prefix is a guide page. | Fix the name, or add `topic:` or `patch:`. |
+| related: "x" matches no… | A name in `related:` matches nothing. A name with no prefix is a Game Guide page. | Fix the name, or add `site:`, `topic:` or `patch:`. |
 
 ## Previewing on your computer
 

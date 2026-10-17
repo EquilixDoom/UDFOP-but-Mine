@@ -4,7 +4,7 @@ category: Site Guide
 summary: What each part of a guide page is, which part of your file makes it, and what the site adds on its own.
 ---
 
-This page names each part of a Game Guide page, says which part of your file makes it, and shows what the site adds by itself, so you know what you control and what you leave to the site. A page looks like more than the file you wrote: the site builds a title block, a Contents list, a References section and more around your text. For the steps of writing a page, see [[How to write a guide page]].
+This page names each part of a Game Guide page, says which part of your file makes it, and shows what the site adds by itself, so you know what you control and what you leave to the site. A page looks like more than the file you wrote: the site builds a title block, a Contents list, a References section and more around your text. For the steps of writing a page, see [[site:How to write a guide page]].
 
 ## The whole screen
 
@@ -18,7 +18,7 @@ This page names each part of a Game Guide page, says which part of your file mak
 6. **The right sidebar**, which holds Settings.
 7. **The footer.** It is the same under every page: the change, topic and patch counts, the Feedback & Bugs link and the disclaimer. It belongs to the site, not to your page.
 
-Readers choose which of these are shown, and how wide the page is. See [[Using the site]].
+Readers choose which of these are shown, and how wide the page is. See [[site:Using the site]].
 
 ## The page itself
 
@@ -48,7 +48,7 @@ On a phone, or any window under about 860 pixels wide, the page is one column an
 
 ## Where to go next
 
-- How to write each part of your text: the [[Formatting reference]].
-- What readers can change, and how the menus work: [[Using the site]].
+- How to write each part of your text: the [[site:Formatting reference]].
+- What readers can change, and how the menus work: [[site:Using the site]].
 
 Back to the [Site Guide](#/site).

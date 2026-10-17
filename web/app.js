@@ -784,15 +784,30 @@
     refs[kind].push(item);
   }
   function refs_self() { return refs ? refs.self : ""; }
+  /* A link can name a section: [[Page#Section]], [[site:Page#Section]], or [[#Section]] for this page. The part after the # is the words of a heading (the same
+     words and the same id the page's own heading has, down to ###), so capitals and punctuation do not matter. */
+  function splitSection(s) { var i = s.indexOf("#"); return i < 0 ? [s.trim(), ""] : [s.slice(0, i).trim(), s.slice(i + 1).trim()]; }
+  function withSection(url, section) { return section ? url + "#" + encodeURIComponent(slugId(section)) : url; }
+  function sectionLabel(title, section) { return section ? title + " \u203A " + section : title; }
   function wikiLink(target, label) {
-    var raw = target.trim(), low = raw.toLowerCase(), t;
+    var raw = target.trim(), low = raw.toLowerCase(), t, parts, k;
     if (low.indexOf("topic:") === 0) { t = topicByLower[low.slice(6).trim()]; if (t) noteRef("topic", t, t); return t ? tlink(t).replace(">" + esc(t) + "<", ">" + esc(label || t) + "<") + MARK_PN : esc(label || raw.slice(6)); }
     if (low.indexOf("patch:") === 0) { var v = raw.slice(6).trim(); if (D.releases[v]) noteRef("patch", v, v); return D.releases[v] ? '<a href="#/patch/' + enc(v) + '">' + esc(label || v) + "</a>" + MARK_PN : esc(label || v); }
-    var g = findPage(low);
-    if (g) { if (pageKey(g) !== refs_self()) noteRef("guide", pageKey(g), g); }
-    if (g) return '<a href="' + purl(g) + '">' + esc(label || g.title) + "</a>" + (g.area === "site" ? MARK_SG : MARK_GP);
-    /* a plain [[Title]] means a guide page and nothing else: Patch Notes topics and patches are linked on purpose, as [[topic:Name]] and [[patch:0.1.2]] */
-    return '<a class="missing" href="' + newPageUrl(raw) + '"' + newAttr(raw) + ' rel="noopener" title="No page called this yet. Click to create it.">' + esc(label || raw) + "</a>";
+    if (low.indexOf("site:") === 0) {
+      parts = splitSection(raw.slice(5)); k = parts[0].toLowerCase();
+      var sp = siteByTitle[k] || siteBySlug[k];
+      if (sp && pageKey(sp) !== refs_self()) noteRef("guide", pageKey(sp), sp);
+      return sp ? '<a href="' + withSection(purl(sp), parts[1]) + '">' + esc(label || sectionLabel(sp.title, parts[1])) + "</a>" + MARK_SG : esc(label || sectionLabel(parts[0], parts[1]));
+    }
+    /* a plain [[Title]] means a Game Guide page and nothing else: the Site Guide, the Patch Notes topics and the patches are linked on purpose, as
+       [[site:Title]], [[topic:Name]] and [[patch:0.1.2]]. [[guide:Title]] spells a Game Guide page out and is the same as the plain name */
+    if (low.indexOf("guide:") === 0) raw = raw.slice(6).trim();
+    parts = splitSection(raw); k = parts[0].toLowerCase();
+    if (!parts[0]) return parts[1] ? '<a href="' + withSection(pagePath(), parts[1]) + '">' + esc(label || parts[1]) + "</a>" : esc(label || raw);   /* [[#Section]]: this page */
+    var g = guideByTitle[k] || guideBySlug[k];
+    if (g && pageKey(g) !== refs_self()) noteRef("guide", pageKey(g), g);
+    if (g) return '<a href="' + withSection(purl(g), parts[1]) + '">' + esc(label || sectionLabel(g.title, parts[1])) + "</a>" + MARK_GP;
+    return '<a class="missing" href="' + newPageUrl(parts[0]) + '"' + newAttr(parts[0]) + ' rel="noopener" title="No page called this yet. Click to create it.">' + esc(label || sectionLabel(parts[0], parts[1])) + "</a>";
   }
   /* Pictures: ![alt](path "Caption"){right 240}. A picture alone on its line with a caption or braces becomes a figure that
      floats (default: a right-hand thumbnail); inline pictures and bare ones behave as before. */
@@ -919,10 +934,10 @@
 
   function buildReferences(r, related) {
     (related || []).forEach(function (name) {
-      /* "guide:Name", "topic:Name" and "patch:0.1.2" say which kind; with no prefix it is a guide page, as in the text */
-      var pm = /^(guide|topic|patch)\s*:\s*(.*)$/i.exec(name), mode = pm ? pm[1].toLowerCase() : "", rest = (pm ? pm[2] : name).trim();
+      /* "guide:Name", "site:Name", "topic:Name" and "patch:0.1.2" say which kind; with no prefix it is a Game Guide page, as in the text */
+      var pm = /^(guide|site|topic|patch)\s*:\s*(.*)$/i.exec(name), mode = pm ? pm[1].toLowerCase() : "", rest = (pm ? pm[2] : name).trim();
       if (mode === "patch") { if (D.releases[rest]) noteRef("patch", rest, rest); return; }
-      var low = rest.toLowerCase(), g = mode === "topic" ? null : findPage(low), t = mode === "topic" ? topicByLower[low] : null;
+      var low = rest.toLowerCase(), g = mode === "topic" ? null : mode === "site" ? (siteByTitle[low] || siteBySlug[low]) : (guideByTitle[low] || guideBySlug[low]), t = mode === "topic" ? topicByLower[low] : null;
       if (g && pageKey(g) !== r.self) noteRef("guide", pageKey(g), g); else if (!g && t) noteRef("topic", t, t);
     });
     var h = "";

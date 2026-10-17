@@ -59,11 +59,12 @@ Here is where each part shows up on the site:
 | `category` (Optional) | Puts the page in a group. The group appears on the **Game Guide** page, as its own page listing, and in the breadcrumb at the top of the page. |
 | `unlisted` (Optional) | Written `unlisted: yes`. Keeps the page out of the **Game Guide** page and the category pages, and out of the page counts. The page can still be opened by its address, by a link and by search. Pages about the project itself go in the Site Guide instead (`web/site/`). |
 | `summary` (Optional) | The one-line description shown next to the page's name in lists and in search results. |
-| `related` (Optional) | Pages and topics to list in the References section even though the text does not link them. In the example it adds the Patch Notes topic Resting and the guide page Camping. See the "References section" in the [[Formatting reference]]. |
-| `expected-missing` (Optional) | Names of links that are meant to point at pages that do not exist, separated by commas. The page check skips them instead of noting them. It is for pages that show a red link as an example, such as the [[Formatting reference]]. |
+| `related` (Optional) | Pages and topics to list in the References section even though the text does not link them. In the example it adds the Patch Notes topic Resting and the guide page Camping. See the "References section" in the [[site:Formatting reference]]. |
+| `expected-missing` (Optional) | Names of links that are meant to point at pages that do not exist, separated by commas. The page check skips them instead of noting them. It is for pages that show a red link as an example, such as the [[site:Formatting reference]]. |
 | `## Heading` lines (Optional) | Section headings. Every heading is listed in the page's **Contents** list, which is added automatically, like the one beside this page (in the left sidebar, or behind the ☰ button next to the title). The page title is added for you, so do not repeat it. |
 | The file name | The page's web address. The example file `party-rest.md` becomes `#/guide/party-rest`. Use lower case and hyphens. |
 | `[[Another page]]` | A link to another guide page, by its title. |
+| `[[site:Title]]` | A link to a Site Guide page. |
 | `[[topic:Name]]` | A link to a Patch Notes topic page (see below). |
 
 Only `title` is required. Everything else is optional. A page with no `category` goes under **General**.
@@ -105,7 +106,7 @@ Resting restores **health** while the party camps. See [[Camping]] and [[topic:R
 - another bullet
 ```
 
-Start at `##`, because the page title is added for you. Everything else, including pictures with captions, tables, code boxes, notice boxes, spoilers and keycaps for keys and buttons, is in the [[Formatting reference]].
+Start at `##`, because the page title is added for you. Everything else, including pictures with captions, tables, code boxes, notice boxes, spoilers and keycaps for keys and buttons, is in the [[site:Formatting reference]].
 
 ### The shape of a page
 
@@ -120,15 +121,15 @@ The starter template follows the shape that suits most pages about how something
 
 Pages that are not about a game system, such as a fix for a technical problem, can drop sections or change them.
 
-Items, places and creatures have templates of their own. Each starts with a fact panel (an infobox, see the [[Formatting reference]]) holding the numbers readers look up, followed by sections that suit that kind of page: how to get an item, how to reach a place, or how to beat a creature. When you start a missing page from its red link, the "Create this page" screen offers all of them.
+Items, places and creatures have templates of their own. Each starts with a fact panel (an infobox, see the [[site:Formatting reference]]) holding the numbers readers look up, followed by sections that suit that kind of page: how to get an item, how to reach a place, or how to beat a creature. When you start a missing page from its red link, the "Create this page" screen offers all of them.
 
-Raw HTML is shown as plain text, so leave it out. The [[Formatting reference]] lists what is not supported.
+Raw HTML is shown as plain text, so leave it out. The [[site:Formatting reference]] lists what is not supported.
 
 ## Adding pictures
 
 - Upload pictures to an **`images`** folder. Most pages use the shared one, **`web/guide/images/`**. A page that lives in its own folder may instead keep an `images` folder beside it. In your fork, switch to the branch GitHub made for your page (the branch menu at the top left of the file list), open the folder, and choose **Add file → Upload files**. The picture joins your open pull request automatically.
 - Reference a picture by its path from the page's own folder. For a page directly in `web/guide/`, that starts with `images/`. For a page inside a folder such as `web/guide/combat/`, use `../images/` to reach the shared folder, or `images/` to reach one beside the page.
-- Write the picture into your page with `![description](images/your-picture.png)`. Captions and placement are in the [[Formatting reference]]. Yours will have its own name.
+- Write the picture into your page with `![description](images/your-picture.png)`. Captions and placement are in the [[site:Formatting reference]]. Yours will have its own name.
 - Name it after your page, such as `party-rest-camp.png`, so names do not clash and people can tell what it belongs to.
 - Use PNG, JPG, WebP or GIF, and keep each file under about 500 KB. Crop or shrink large screenshots.
 - Always write alt text (the words in the square brackets) describing what the picture shows. It is read aloud by screen readers and shown if the picture cannot load.
@@ -141,7 +142,7 @@ Raw HTML is shown as plain text, so leave it out. The [[Formatting reference]] l
 - **Say how you know.** Write what you know to be true, and say where it comes from, such as testing in the game, a patch number or a developer post. Facts that can change, such as a default key or a number, are easier to trust when they say which game version you checked, so add the patch number when you know it.
 - **One subject per page.** Link to other pages instead of repeating them.
 - **Say what it applies to.** Many features differ between online and offline play, between classic and enhanced, or depend on a setting. Say which near the top, with the patch you checked, as the template's "Applies to" box does, so readers know whether the page is about their game.
-- **Let every heading say what is inside.** On a phone, sections start folded closed, so the headings are all a reader sees at first. See [[Anatomy of a page]].
+- **Let every heading say what is inside.** On a phone, sections start folded closed, so the headings are all a reader sees at first. See [[site:Anatomy of a page]].
 - **Say how it works now.** The Patch Notes already record *what changed*. A guide page should explain *how it works now*, and can link to the topic for the history, for example [[topic:Revenants]].
 
 > [!IMPORTANT]
@@ -166,7 +167,7 @@ Once your page is live, look for these:
 
 ### Review
 
-A maintainer reads every new or edited page before it goes live, and may ask for changes. You make those on the same pull request (step 7 of the short version). Once it is merged, the page appears on the site within a few minutes. Reviewers have their own guide: [[Reviewing a pull request]].
+A maintainer reads every new or edited page before it goes live, and may ask for changes. You make those on the same pull request (step 7 of the short version). Once it is merged, the page appears on the site within a few minutes. Reviewers have their own guide: [[site:Reviewing a pull request]].
 
 If a mistake is found after a page is live, it is fixed the same way: someone edits the page and sends another pull request. Nothing has to be undone first.
 
@@ -225,8 +226,8 @@ python -m http.server 8000 --directory web
 
 ## Where to go next
 
-- [[Formatting reference]]: every kind of formatting, with examples.
-- [[Anatomy of a page]]: what the site builds around your text.
-- [[Troubleshooting and FAQ]]: when a page does not show up or looks wrong, and what each page-check message means.
-- [[Reviewing a pull request]]: for maintainers and anyone who reviews pages.
+- [[site:Formatting reference]]: every kind of formatting, with examples.
+- [[site:Anatomy of a page]]: what the site builds around your text.
+- [[site:Troubleshooting and FAQ]]: when a page does not show up or looks wrong, and what each page-check message means.
+- [[site:Reviewing a pull request]]: for maintainers and anyone who reviews pages.
 - The [Site Guide](#/site): all of these in one place.

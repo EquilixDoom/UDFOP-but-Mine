@@ -11,10 +11,10 @@ expected-missing: Example of a missing page
 > Used on: Game Guide and Site Guide pages
 > Written in: Markdown, with a few extras
 > ## Related
-> Steps: [[How to write a guide page]]
-> Problems: [[Troubleshooting and FAQ]]
+> Steps: [[site:How to write a guide page]]
+> Problems: [[site:Troubleshooting and FAQ]]
 
-Everything you can write in a guide page, with examples in plain text syntax and rendered. For the steps of adding or editing a page, see [[How to write a guide page]]. If something does not look right, see [[Troubleshooting and FAQ]].
+Everything you can write in a guide page, with examples in plain text syntax and rendered. For the steps of adding or editing a page, see [[site:How to write a guide page]]. If something does not look right, see [[site:Troubleshooting and FAQ]].
 
 ## Quick reference
 
@@ -306,7 +306,7 @@ Rendered:
 
 ### Pictures
 
-An exclamation mark, the description in square brackets, and the picture's path in round brackets. How to add the picture file itself is explained in [[How to write a guide page|the how-to]], under **Adding pictures**.
+An exclamation mark, the description in square brackets, and the picture's path in round brackets. How to add the picture file itself is explained in [[site:How to write a guide page|the how-to]], under **Adding pictures**.
 
 ```md
 ![Sarsaparilla looking majestic](images/sarsaparilla-01s.jpg)
@@ -326,18 +326,26 @@ These go beyond plain Markdown. They are what lets Game Guide pages connect to e
 
 ### Links to other pages
 
-Double square brackets link to another page on this site. They are the way to link a guide page, a Patch Notes topic or a patch, because the site then knows what you linked and can show it in the References section. A link to a guide page uses the page's title, and matching is case-insensitive. A plain name always means a guide page: the site never guesses that you meant a Patch Notes topic, even when a topic has that name. Put `topic:` before the name of a Patch Notes topic and `patch:` before a version number. A bar followed by your own words changes the text that is shown.
+Double square brackets link to another page on this site. They are the way to link a page, a Patch Notes topic or a patch, because the site then knows what you linked and can show it in the References section. A link to a Game Guide page uses the page's title, and matching is case-insensitive. A plain name always means a Game Guide page (`guide:` before the title says so out loud, and means the same): the site never guesses that you meant a Site Guide page or a Patch Notes topic, even when one has that name. Put `site:` before the title of a Site Guide page, `topic:` before the name of a Patch Notes topic and `patch:` before a version number. A bar followed by your own words changes the text that is shown.
 
 | You type | What it does | Result |
 |---|---|---|
 | `[[Controls]]` | links to a guide page by its title, marked **GP** | [[Controls]] |
 | `[[Controls\|the key bindings]]` | the same page, with your own words, still marked **GP** | [[Controls\|the key bindings]] |
+| `[[guide:Controls]]` | the same page with the kind spelled out; `guide:` is optional | [[guide:Controls]] |
+| `[[site:Troubleshooting and FAQ]]` | links to a Site Guide page, marked **SG** | [[site:Troubleshooting and FAQ]] |
 | `[[topic:Revenants]]` | links to a Patch Notes topic, marked **PN** | [[topic:Revenants]] |
 | `[[patch:0.1.6656]]` | links to a patch's page, marked **PN** | [[patch:0.1.6656]] |
+| `[[Controls#Mouse]]` | links to a section of a guide page; the text shown is the page and the section | [[Controls#Mouse]] |
+| `[[Controls#Mouse\|the mouse keys]]` | the same section, with your own words | [[Controls#Mouse\|the mouse keys]] |
+| `[[site:Troubleshooting and FAQ#A link is red]]` | a section of a Site Guide page | [[site:Troubleshooting and FAQ#A link is red]] |
+| `[[#Link markers]]` | a section of the page you are writing | [[#Link markers]] |
 | `[text](https://example.com)` | links to another website, marked **↗** | [an outside link](https://example.com) |
 | `[[Example of a missing page]]` | links to a page that does not exist yet: the link is **red**, and clicking it starts that page | [[Example of a missing page]] |
 
 If the page you name does not exist yet, the link shows in red, and clicking it starts that page. That lets you plan a set of pages by linking first.
+
+**Linking to a section.** Put a `#` and the words of a heading after the page name. Capitals and punctuation do not matter, and the heading must be one of the first three levels (`#`, `##` or `###`). Leave the page name out (`[[#Section]]`) to link to a section of the page you are writing. The page check tells you when the page has no such section. Sections work for guide pages and Site Guide pages only, not for topics or patches. For a section of a topic, use a plain link such as `[History](#/topic/Resting#s-history)`.
 
 ### Link markers
 
@@ -389,16 +397,16 @@ Every guide page that links anywhere gets a **References** section at the bottom
 
 Each link appears once, in the order it first appears in the text. A page is "not linked" when your text has no `[[...]]` link to it and you did not name it in `related:`. The section lists only what you linked or named, so a guide page that exists but that your text never mentions does not appear.
 
-**`related:` (Optional).** To list a page, topic or patch that does not belong in a sentence, add a `related:` line to the front matter at the top of the page, with names separated by commas. Start each name with `guide:`, `topic:` or `patch:` to say which kind it is:
+**`related:` (Optional).** To list a page, topic or patch that does not belong in a sentence, add a `related:` line to the front matter at the top of the page, with names separated by commas. A name with no prefix is a Game Guide page, as in the text. Start a name with `site:`, `topic:` or `patch:` for the other kinds (`guide:` is also allowed, to spell out a Game Guide page, just as in the text):
 
 ```md
-related: guide:Party rest, topic:Resting, patch:0.1.6656
+related: guide:Party rest, site:Formatting reference, topic:Resting, patch:0.1.6656
 ```
 
-`guide:` names a Game Guide page by its title, `topic:` a Patch Notes topic and `patch:` a patch version, matching the double-bracket links in the text. Guide pages go under Game Guide in the References section and topics and patches under Patch Notes. The check warns about names that match nothing.
+`guide:` names a Game Guide page by its title, `site:` a Site Guide page, `topic:` a Patch Notes topic and `patch:` a patch version, matching the double-bracket links in the text. Game Guide pages go under Game Guide in the References section, Site Guide pages under Site Guide, and topics and patches under Patch Notes. The check warns about names that match nothing.
 
 > [!TIP]
-> A name with no prefix is a guide page, the same as in the text. A Patch Notes topic or patch always needs its `topic:` or `patch:` prefix; it is never guessed.
+> A name with no prefix is a Game Guide page, the same as in the text. A Site Guide page, a Patch Notes topic or a patch always needs its `site:`, `topic:` or `patch:` prefix; it is never guessed.
 
 ### Picture captions and placement
 

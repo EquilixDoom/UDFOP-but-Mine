@@ -4,7 +4,7 @@ category: Site Guide
 summary: What to check when someone sends a guide page, how to give kind feedback, and how to merge it.
 ---
 
-This page is for the people who review guide pages: what to check, how to give feedback, and how to merge. A maintainer reads every new or edited guide page before it goes live. You need only a browser and your own reading. For what contributors are told, see [[How to write a guide page]].
+This page is for the people who review guide pages: what to check, how to give feedback, and how to merge. A maintainer reads every new or edited guide page before it goes live. You need only a browser and your own reading. For what contributors are told, see [[site:How to write a guide page]].
 
 ## Before you start
 
@@ -22,10 +22,10 @@ On the project page, open the **Pull requests** tab, then the pull request. Read
 
 ## 2. Look at the automatic check
 
-Near the bottom of the pull request is the **Check Game Guide** result. It runs the same page check described in [[Troubleshooting and FAQ]].
+Near the bottom of the pull request is the **Check Game Guide** result. It runs the same page check described in [[site:Troubleshooting and FAQ]].
 
 - **A green tick** means no errors. There may still be notes. Open **Details** to read them.
-- **A red cross** means an error, such as a duplicate title or a missing picture. The contributor has to fix it before it can be merged. Point them to the matching row in the page-check table in [[Troubleshooting and FAQ]].
+- **A red cross** means an error, such as a duplicate title or a missing picture. The contributor has to fix it before it can be merged. Point them to the matching row in the page-check table in [[site:Troubleshooting and FAQ]].
 
 ## 3. Read the page
 
