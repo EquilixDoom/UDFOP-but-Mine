@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   var D = window.DATA, rows = [], app = document.getElementById("app");
-  var SITE = "Unofficial Daggerfall Online Pages", SHORT = "UDFOP";
+  var SITE = "Unofficial DFO Online Pages", SHORT = "UDOP";
   var TYPES = ["Buff", "Nerf", "Removal", "New", "Rework", "Fix", "Performance", "Economy", "QoL", "UI", "Other"];
   var TYPE_LABEL = { Buff: "Buffs", Nerf: "Nerfs", Removal: "Removals", New: "Additions", Rework: "Reworks", Fix: "Fixes",
     Performance: "Performance", Economy: "Economy", QoL: "Quality of life", UI: "Interface", Other: "Other changes" };
@@ -444,7 +444,7 @@
     if (!ts) return notFound(t);
     var rg = getRange(), every = byTopic[t] || [], l = rg.active ? every.filter(inRange) : every, base = "#/topic/" + enc(t), hub = D.hubs[t];
     var hat = PN_HAT + (hub ? '<a href="#/hubs">Categories</a> › ' + hlink(hub) : '<a href="#/topics">All topics</a>') + " › " + esc(t);
-    var aiNote = D.desc && D.desc[t] ? '<p class="srcnote"><small class="muted">AI-assisted summary; it may be wrong or out of date. The History table below is the record to trust. <a href="#/about">About UDFOP</a></small></p>' : "";
+    var aiNote = D.desc && D.desc[t] ? '<p class="srcnote"><small class="muted">AI-assisted summary; it may be wrong or out of date. The History table below is the record to trust. <a href="#/about">About UDOP</a></small></p>' : "";
     if (!l.length) {
       var h0 = legacyBox(t) + (D.desc && D.desc[t] ? "<p>" + esc(D.desc[t]).replace(esc(t), "<b>" + esc(t) + "</b>") + "</p>" : "") + aiNote + rangeBox(base, rg) +
         noneInRange(esc(t), rg, ts[0], ", the latest in patch " + vlink(ts[1]) + " (" + esc(dateOf(ts[1])) + ")");
@@ -613,7 +613,7 @@
 
   /* the Credits page: the names come from CONTRIBUTORS.md (through web/credits.json); the rest is written here */
   views.credits = function () {
-    var h = "<p>UDFOP is made by the people below, and it exists because of the game&rsquo;s developers and the open tools and typefaces it uses. Thank you to everyone who has written, fixed or reviewed something.</p>";
+    var h = "<p>UDOP is made by the people below, and it exists because of the game&rsquo;s developers and the open tools and typefaces it uses. Thank you to everyone who has written, fixed or reviewed something.</p>";
     if (credits === null) h += "<p>Loading…</p>";
     else {
       var groups = (credits.groups || []).filter(function (g) { return g.people && g.people.length; });
@@ -626,36 +626,36 @@
           }).join("") + "</div></div>";
         }).join("") + "</div>";
       }
-      h += '<p class="muted">Guide pages are credited together to &ldquo;UDFOP contributors&rdquo; under CC BY 4.0. A name is listed only with the person&rsquo;s agreement, as a username.</p>';
+      h += '<p class="muted">Guide pages are credited together to &ldquo;UDOP contributors&rdquo; under CC BY 4.0. A name is listed only with the person&rsquo;s agreement, as a username.</p>';
     }
-    h += sec("The game", "The game", 2) + "<p><b>Daggerfall Online</b> and its release notes belong to its developers. Every change in the Patch Notes is compiled from their <a href=\"" + RELEASES_URL + "\" rel=\"noopener\">public release notes</a>, which are published under the developers&rsquo; MIT licence (<a href=\"" + REPO + "/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">their notice</a>). UDFOP is not affiliated with or endorsed by them.</p>";
+    h += sec("The game", "The game", 2) + "<p><b>Daggerfall Online</b> and its release notes belong to its developers. Every change in the Patch Notes is compiled from their <a href=\"" + RELEASES_URL + "\" rel=\"noopener\">public release notes</a>, which are published under the developers&rsquo; MIT licence (<a href=\"" + REPO + "/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">their notice</a>). UDOP is not affiliated with or endorsed by them.</p>";
     h += sec("Typefaces and code", "Typefaces and code", 2) + '<ul class="bul"><li><b>Kingthings Petrock</b> by Kevin King sets the headings of the Oblivion theme.</li>' +
       "<li><b>Share Tech Mono</b> by Carrois Type Design sets the text of the Phosphor theme (SIL Open Font License).</li>" +
       '<li>The site&rsquo;s code is <a href="' + REPO + '/blob/main/LICENSE" rel="noopener">MIT licensed</a>, and its original text is <a href="' + REPO + '/blob/main/LICENSE-CONTENT.md" rel="noopener">CC BY 4.0</a>. The notices for the fonts and the release notes are in <a href="' + REPO + '/blob/main/THIRD-PARTY-NOTICES.md" rel="noopener">THIRD-PARTY-NOTICES.md</a>.</li></ul>';
-    h += sec("AI assistance", "AI assistance", 2) + '<p>The opening description of each Patch Notes topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history, and is labeled that way on the page. More in <a href="#/about">About UDFOP</a>.</p>';
+    h += sec("AI assistance", "AI assistance", 2) + '<p>The opening description of each Patch Notes topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history, and is labeled that way on the page. More in <a href="#/about">About UDOP</a>.</p>';
     h += sec("Add your name", "Add your name", 2) + '<p>Wrote or fixed a guide page? Ask in your pull request or in an issue to be listed, and say in a few words what you worked on. See <a href="' + HOWTO + '">how to write a guide page</a>.</p>';
     return { title: "Credits", html: page("Credits", h) };
   };
 
-  /* About UDFOP: what the site is and isn't, where its information comes from, the licences and privacy. The people and tools are on the Credits page. */
+  /* About UDOP: what the site is and isn't, where its information comes from, the licences and privacy. The people and tools are on the Credits page. */
   views.about = function () {
-    var h = "<p><b>UDFOP</b>, the <b>Unofficial Daggerfall Online Pages</b>, is a fan-made reference for <b>Daggerfall Online</b>: a community-written Game Guide, and a record of what has changed in every patch. It is not made, approved or endorsed by the game&rsquo;s developers, by Bethesda Softworks or by ZeniMax. <i>The Elder Scrolls</i>, <i>Daggerfall</i> and related names are trademarks of their respective owners.</p>";
+    var h = "<p><b>UDOP</b>, the <b>Unofficial DFO Online Pages</b>, is a fan-made reference for <b>Daggerfall Online</b>: a community-written Game Guide, and a record of what has changed in every patch. It is not made, approved or endorsed by the game&rsquo;s developers, by Bethesda Softworks or by ZeniMax. <i>The Elder Scrolls</i>, <i>Daggerfall</i> and related names are trademarks of their respective owners.</p>";
     h += sec("Where the information comes from", "Where the information comes from", 2) +
       '<p>Every change in the Patch Notes comes from the <a href="' + RELEASES_URL + '" rel="noopener">public release notes</a> of the developers&rsquo; GitHub repository, which remain the authoritative record. A script compiles them for each release. Each change is condensed into a short plain sentence (many keep the developers&rsquo; own wording), filed under a topic, a game system and a type, and linked back to the pull requests it came from.</p>' +
       "<p>The opening paragraph of each topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history. These paragraphs can be wrong or out of date, so the <b>History</b> table on each page is the thing to trust. Corrections are welcome.</p>" +
       '<p>The <a href="#/guide">Game Guide</a> is written by the community, and anyone can add or correct a page (<a href="' + HOWTO + '">how to write a guide page</a>). Guide pages are the work of their contributors and have not been checked by the game&rsquo;s developers. They may be wrong or out of date, and carry no warranty.</p>';
     h += sec("Licences", "Licences", 2) + '<ul class="bul">' +
       '<li><b>Code</b> (the site, the tools, the workflow): <a href="' + REPO + '/blob/main/LICENSE" rel="noopener">MIT</a>.</li>' +
-      '<li><b>Original text</b> (Game Guide pages, topic descriptions, this page, the README): <a href="' + REPO + '/blob/main/LICENSE-CONTENT.md" rel="noopener">CC BY 4.0</a>. Credit &ldquo;UDFOP (Unofficial Daggerfall Online Pages), by tau&rdquo;, or &ldquo;UDFOP contributors&rdquo; for guide pages.</li>' +
+      '<li><b>Original text</b> (Game Guide pages, topic descriptions, this page, the README): <a href="' + REPO + '/blob/main/LICENSE-CONTENT.md" rel="noopener">CC BY 4.0</a>. Credit &ldquo;UDOP (Unofficial DFO Online Pages), by tau&rdquo;, or &ldquo;UDOP contributors&rdquo; for guide pages.</li>' +
       '<li><b>The change data</b> is derived from the developers&rsquo; release notes, which are published under the developers&rsquo; own MIT licence (<a href="' + REPO + '/blob/main/THIRD-PARTY-NOTICES.md" rel="noopener">their notice</a>). It is not covered by CC BY 4.0: if you reuse it, keep that notice and credit the developers.</li>' +
       "<li>The game and its names belong to their owners.</li></ul>" +
-      '<p>The people and tools behind UDFOP are on the <a href="#/credits">Credits page</a>.</p>';
-    h += sec("Privacy", "Privacy", 2) + "<p>UDFOP has no analytics, no cookies and no accounts, and nothing you do on it is sent anywhere. Your display choices (theme, text size and so on) are saved in your own browser only. The site is hosted on GitHub Pages, which keeps its own server logs. A report made on GitHub is public.</p>";
+      '<p>The people and tools behind UDOP are on the <a href="#/credits">Credits page</a>.</p>';
+    h += sec("Privacy", "Privacy", 2) + "<p>UDOP has no analytics, no cookies and no accounts, and nothing you do on it is sent anywhere. Your display choices (theme, text size and so on) are saved in your own browser only. The site is hosted on GitHub Pages, which keeps its own server logs. A report made on GitHub is public.</p>";
     h += sec("More", "More", 2) + '<ul class="bul">' +
       '<li><a href="#/credits">Credits</a>: the people, the game&rsquo;s developers, typefaces and tools.</li>' +
       '<li><a href="#/feedback">Feedback &amp; Bugs</a>: problems with this site. Bugs in the game itself go in the bug-reports channel of the <a href="' + GAME_BUGS + '" rel="noopener">DFO Online Discord</a>.</li>' +
       '<li><a href="#/site/using-the-site">Using the site</a> and the <a href="#/site">Site Guide</a>: how to find things, change the look, and write or review a page.</li></ul>';
-    return { title: "About UDFOP", html: page("About UDFOP", h) };
+    return { title: "About UDOP", html: page("About UDOP", h) };
   };
 
   /* ---------- Game Guide: Markdown pages in web/guide/, listed by guide/index.json ---------- */
@@ -1060,7 +1060,7 @@
   views.guide = function (arg) {
     if (arg && arg.indexOf("category/") === 0) return views.guidecat(arg.slice(9));
     if (arg) return views.guidepage(arg);
-    var h = "<p>The Game Guide is the community-written part of UDFOP: how things in Daggerfall Online work, written by players. Unlike the patch notes it is edited by hand, so anyone can improve it.</p>" + contribBox();
+    var h = "<p>The Game Guide is the community-written part of UDOP: how things in Daggerfall Online work, written by players. Unlike the patch notes it is edited by hand, so anyone can improve it.</p>" + contribBox();
     if (guide === null) h += "<p>Loading…</p>";
     else if (guideFailed) h += guideUnavailable();
     else if (!listedGuide().length) h += "<p>There are no guide pages yet. Be the first to write one.</p>";
@@ -1123,15 +1123,15 @@
 
   views.home = function () {
     var n = listedGuide().length;
-    var h = '<p>Welcome to <b>UDFOP</b>, the <b>Unofficial Daggerfall Online Pages</b>: a fan-made, community-edited reference for Daggerfall Online. It has two parts, plus a Site Guide that explains how to contribute. The <b>☰</b> button at the top left opens the main menu.</p>';
+    var h = '<p>Welcome to <b>UDOP</b>, the <b>Unofficial DFO Online Pages</b>: a fan-made, community-edited reference for Daggerfall Online. It has two parts, plus a Site Guide that explains how to contribute. The <b>☰</b> button at the top left opens the main menu.</p>';
     h += '<div class="portals three">';
     h += '<div class="portal"><h3>Game Guide</h3><div><p>How things work, written by players. ' + (n ? "<b>" + plural(n, "page") + "</b> so far." : "Be the first to add a page.") + '</p><p><a href="#/guide">Browse the Game Guide →</a><br><a href="' + HOWTO + '">How to write a page</a></p></div></div>';
     h += '<div class="portal"><h3>Patch Notes</h3><div><p>Every recorded change, patch by patch: <b>' + D.totals.rows.toLocaleString() + "</b> changes to <b>" + topics.length + "</b> topics. Latest: <b>" + vlink(versions[0]) + "</b> (" + esc(dateOf(versions[0])) + ').</p><p><a href="#/patchnotes">Browse the Patch Notes →</a><br><a href="#/recent">Recent changes</a></p></div></div>';
     var sg = siteBySlug["index"];   /* the Site Guide's front page supplies the card's text */
     h += '<div class="portal"><h3>Site Guide</h3><div><p>' + esc(sg ? sg.summary : "Help for writing, fixing and reviewing Game Guide pages, and for getting around the site.") + '</p><p><a href="#/site">Open the Site Guide →</a><br><a href="#/site/using-the-site">Using the site</a></p></div></div>';
-    h += '<div class="portal wide"><h3>Made by the community</h3><div><p>UDFOP is written and kept up by volunteers. <a href="#/credits">Meet the people behind it →</a> or see <a href="' + HOWTO + '">how to join in</a>.</p></div></div>';
+    h += '<div class="portal wide"><h3>Made by the community</h3><div><p>UDOP is written and kept up by volunteers. <a href="#/credits">Meet the people behind it →</a> or see <a href="' + HOWTO + '">how to join in</a>.</p></div></div>';
     h += "</div>";
-    h += "<p>Patch notes are compiled from the developers' public release notes by a script, so they are updated for each release. Guide pages are written and corrected by the community, and the Site Guide explains how. <a href=\"#/about\">About UDFOP</a></p>";
+    h += "<p>Patch notes are compiled from the developers' public release notes by a script, so they are updated for each release. Guide pages are written and corrected by the community, and the Site Guide explains how. <a href=\"#/about\">About UDOP</a></p>";
     return { title: "Main Page", html: page("Main Page", h), toc: false };
   };
 

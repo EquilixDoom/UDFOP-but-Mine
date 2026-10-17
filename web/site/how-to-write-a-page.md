@@ -173,7 +173,7 @@ If a mistake is found after a page is live, it is fixed the same way: someone ed
 
 ### Credit
 
-Your writing is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and credited to "UDFOP contributors". GitHub also keeps your name beside every change you make, in the project's history.
+Your writing is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and credited to "UDOP contributors". GitHub also keeps your name beside every change you make, in the project's history.
 
 ### Files the site ignores
 

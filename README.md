@@ -1,4 +1,4 @@
-# UDFOP: Unofficial Daggerfall Online Pages (Patch Notes Wiki)
+# UDOP: Unofficial DFO Online Pages (Patch Notes Wiki)
 
 An unofficial, fan-made wiki of what has changed in **Daggerfall Online**, patch by patch and topic by topic.
 It is a static site in plain HTML, CSS and JavaScript: open `web/index.html`, or visit the published site
@@ -24,10 +24,10 @@ Then run `python tools/notes.py build` and open `web/index.html` to check the re
 ## Licence
 
 - **Code** (the site, the tools, the workflow): [MIT](LICENSE).
-- **Original text** (Game Guide pages, topic descriptions, About page, this README): [CC BY 4.0](LICENSE-CONTENT.md). Credit "UDFOP (Unofficial Daggerfall Online Pages), by tau".
+- **Original text** (Game Guide pages, topic descriptions, About page, this README): [CC BY 4.0](LICENSE-CONTENT.md). Credit "UDOP (Unofficial DFO Online Pages), by tau".
 - **The change data** is derived from the developers' release notes, which are published under the developers' own MIT licence. This project does not relicense it; their notice is in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), and see [LICENSE-CONTENT.md](LICENSE-CONTENT.md).
 
-UDFOP is not affiliated with or endorsed by the developers of Daggerfall Online, Bethesda Softworks or ZeniMax. *The Elder Scrolls* and *Daggerfall* belong to their respective owners.
+UDOP is not affiliated with or endorsed by the developers of Daggerfall Online, Bethesda Softworks or ZeniMax. *The Elder Scrolls* and *Daggerfall* belong to their respective owners.
 
 ---
 

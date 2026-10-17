@@ -29,7 +29,7 @@ From the top of the page down. The numbers match the picture.
 | # | Part | Where it comes from |
 |---|---|---|
 | 1 | **Title** | Your `title` line. If your text starts with a heading that repeats the title, the site drops it. |
-| 2 | **"From Unofficial Daggerfall Online Pages"** | Added by the site on every page. |
+| 2 | **"From Unofficial DFO Online Pages"** | Added by the site on every page. |
 | 3 | **Breadcrumb** | Built from your `category`: Game Guide › your category, with both parts linked. A page with `unlisted: yes` has none. |
 | 4 | **Contents button (☰)** | Added by the site, and shown only when the reader has not docked Contents in the sidebar. It sits beside the title, and once the reader scrolls past the title it floats at the top left of the window. It opens the Contents as a pop-up. |
 | 5 to 7 | **Your text** | Everything you wrote below the front matter. Here it is a section heading (5), a notice box (6) and a table (7). Each `##` and `###` heading also becomes an entry in the Contents list. |

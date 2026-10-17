@@ -1,6 +1,6 @@
-# Contributing to UDFOP
+# Contributing to UDOP
 
-UDFOP has three parts:
+UDOP has three parts:
 
 | Part | What it is | How it is updated |
 |---|---|---|
@@ -20,7 +20,7 @@ The starter template is [`web/guide/_template.md`](web/guide/_template.md), for 
 
 ## Licence of what you contribute
 
-By submitting a Game Guide page you agree that your writing is released under [CC BY 4.0](LICENSE-CONTENT.md), credited to "UDFOP contributors". Use your own words and your own pictures: do not paste the developers' release text, or text or images from other sites. Code contributions are under the [MIT licence](LICENSE).
+By submitting a Game Guide page you agree that your writing is released under [CC BY 4.0](LICENSE-CONTENT.md), credited to "UDOP contributors". Use your own words and your own pictures: do not paste the developers' release text, or text or images from other sites. Code contributions are under the [MIT licence](LICENSE).
 
 ## Review
 

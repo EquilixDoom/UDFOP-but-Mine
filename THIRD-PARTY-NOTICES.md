@@ -2,7 +2,7 @@
 
 ## Daggerfall Online release notes
 
-The Patch Notes part of UDFOP (`data/normalized/`, `web/data.js`, and the pages built from them) is compiled from the public release notes of the Daggerfall Online project, <https://github.com/Lattymoy/daggerfall-js-source/releases>. The project's repository is published under the MIT licence. Its notice is reproduced here, as that licence asks, because the change data contains facts, pull-request titles and short passages taken from those notes.
+The Patch Notes part of UDOP (`data/normalized/`, `web/data.js`, and the pages built from them) is compiled from the public release notes of the Daggerfall Online project, <https://github.com/Lattymoy/daggerfall-js-source/releases>. The project's repository is published under the MIT licence. Its notice is reproduced here, as that licence asks, because the change data contains facts, pull-request titles and short passages taken from those notes.
 
 ```
 MIT License
@@ -28,7 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-UDFOP is not affiliated with or endorsed by the developers. The release notes remain the authoritative record. Where UDFOP's change data and the original notes differ, the original notes are right.
+UDOP is not affiliated with or endorsed by the developers. The release notes remain the authoritative record. Where UDOP's change data and the original notes differ, the original notes are right.
 
 *The Elder Scrolls*, *Daggerfall* and related names and marks belong to their respective owners (see [LICENSE-CONTENT.md](LICENSE-CONTENT.md)).
 

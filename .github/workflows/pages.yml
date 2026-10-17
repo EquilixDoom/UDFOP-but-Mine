@@ -1,5 +1,5 @@
 # Publishes the static site in web/ to GitHub Pages on every push to main.
-name: Deploy UDFOP site
+name: Deploy UDOP site
 
 on:
   push:

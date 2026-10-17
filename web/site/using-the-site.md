@@ -4,7 +4,7 @@ category: Site Guide
 summary: How to search, use the menus and Contents, change the look in Settings, and read the site on a phone.
 ---
 
-This page is for readers. It explains how to find things on UDFOP with search and browsing, how the menus work, and how to change the look in Settings. Nothing here needs an account, and your choices stay in your browser.
+This page is for readers. It explains how to find things on UDOP with search and browsing, how the menus work, and how to change the look in Settings. Nothing here needs an account, and your choices stay in your browser.
 
 ## The two parts
 
@@ -41,7 +41,7 @@ The [Game Guide](#/guide) lists pages under their categories, with the first doz
 
 ### The main menu
 
-The main menu lists the main pages: Main Page, Game Guide, Patch Notes, Site Guide, Using the Site (this page), About UDFOP and Feedback & Bugs. Under **Contribute** are a link to the instructions for writing a page and the **Credits** page, which names the people behind UDFOP.
+The main menu lists the main pages: Main Page, Game Guide, Patch Notes, Site Guide, Using the Site (this page), About UDOP and Feedback & Bugs. Under **Contribute** are a link to the instructions for writing a page and the **Credits** page, which names the people behind UDOP.
 
 It starts hidden. Open it with the **☰** button at the top left of the header. Inside it, the **move to sidebar** button docks it as a permanent sidebar on the left, and the **hide** button puts it away again.
 

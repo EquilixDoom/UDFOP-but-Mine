@@ -7,7 +7,7 @@ body:
       value: |
         Thanks for helping. This issue will be **public**: please do not include passwords, personal details or anything private.
 
-        This form is for problems with the UDFOP website. For a bug in the game itself, use the **bug-reports** channel of the [DFO Online Discord](https://discord.com/channels/1345035007164678226/1552054193441869907).
+        This form is for problems with the UDOP website. For a bug in the game itself, use the **bug-reports** channel of the [DFO Online Discord](https://discord.com/channels/1345035007164678226/1552054193441869907).
   - type: textarea
     id: what
     attributes:

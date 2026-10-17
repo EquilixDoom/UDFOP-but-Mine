@@ -4,7 +4,7 @@ category: Site Guide
 summary: Help for writing, fixing and reviewing Game Guide pages, and for getting around the site.
 ---
 
-The Site Guide is the help section of UDFOP. It explains how to write, fix and review Game Guide pages, and how to use the site. These pages are about the project itself. The pages about the game are in the [Game Guide](#/guide). New here? Start with [[site:How to write a guide page]].
+The Site Guide is the help section of UDOP. It explains how to write, fix and review Game Guide pages, and how to use the site. These pages are about the project itself. The pages about the game are in the [Game Guide](#/guide). New here? Start with [[site:How to write a guide page]].
 
 ## Writing a page
 

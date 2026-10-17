@@ -5,10 +5,10 @@
 The original writing in this project is licensed under the
 [Creative Commons Attribution 4.0 International licence (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
 You may share and adapt it for any purpose, including commercially, as long as you credit
-"UDFOP (Unofficial Daggerfall Online Pages), by tau" and link to the licence.
+"UDOP (Unofficial DFO Online Pages), by tau" and link to the licence.
 
 This covers:
-- the Game Guide pages in `web/guide/`, written by the project's contributors (see [CONTRIBUTING.md](CONTRIBUTING.md); credit "UDFOP contributors")
+- the Game Guide pages in `web/guide/`, written by the project's contributors (see [CONTRIBUTING.md](CONTRIBUTING.md); credit "UDOP contributors")
 - the topic descriptions in `data/descriptions/`
 - the site's own text (the About page and the README)
 - the topic groupings and merges in `data/hub_assignment.csv` and `data/merges.csv`
