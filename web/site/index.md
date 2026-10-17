@@ -23,6 +23,7 @@ The Site Guide is the help section of UDOP. It explains how to write, fix and re
 
 ## Other places
 
-- [Contributors](https://github.com/tau-samsara/udfop/blob/main/CONTRIBUTORS.md) lists the people behind the pages.
+- [Credits](#/credits) names the people behind the pages.
+- [About UDOP](#/about) explains what the site is, where its information comes from, and its licences.
 - [Feedback & Bugs](#/feedback) is the place to report a problem with the site.
 - The [Game Guide](#/guide) lists the pages themselves.

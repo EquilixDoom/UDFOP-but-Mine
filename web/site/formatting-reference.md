@@ -141,7 +141,7 @@ Rendered:
 
 ### Inline code
 
-Put a short stretch between single backticks to show it exactly as typed. This is also how to show markup literally, so it is not turned into a link or bold. Inline code is shown in an accent color on a faint background, so it stands out from plain text and is never mistaken for a link: amber on the default and Iliac Bay themes, green on Parchment and blue on Oblivion.
+Put a short stretch between single backticks to show it exactly as typed. This is also how to show markup literally, so it is not turned into a link or bold. Inline code is shown in an accent color on a faint background, so it stands out from plain text and is never mistaken for a link. The exact color depends on the theme and color the reader has chosen.
 
 ```md
 Press `Jump` to climb, and write `[[a page]]` to link.
@@ -566,6 +566,6 @@ You do not write these. They come from what you wrote: a **Contents** list built
 
 ## Not supported
 
-Raw HTML (it is shown as plain text, which keeps pages safe and consistent), strikethrough, underline, colored text, footnotes, task-list checkboxes, merged table cells, embedded video or other media, forced line breaks inside a paragraph, and links to a section inside a page. Leave these out and the page will look right everywhere.
+Raw HTML (it is shown as plain text, which keeps pages safe and consistent), strikethrough, underline, colored text, footnotes, task-list checkboxes, merged table cells, embedded video or other media, forced line breaks inside a paragraph, and links to a section of a Patch Notes topic or patch (sections of guide pages and Site Guide pages can be linked, as shown under Links to other pages). Leave these out and the page will look right everywhere.
 
 Back to the [Site Guide](#/site).

@@ -87,7 +87,7 @@ Only `##` and `###` headings are listed. The page title is added for you, so do 
 
 ## The page check
 
-When you open a pull request, a check runs on your pages. A red mark means it found an **error**, which must be fixed before the page can be merged. A **note** does not stop anything, but a reviewer may ask about it. Open **Details** next to the check to see the messages.
+When you open a pull request, a check runs on your pages. A red mark means it found an **error**, which must be fixed before the page can be merged. Errors are: a front matter block that never closes, an empty page, a title that clashes with another page, a picture that does not exist, and a top-level folder named `category`. Every other message in the table is a **note**. A note does not stop anything, but a reviewer may ask about it. Open **Details** next to the check to see the messages.
 
 | The message says | What it means | What to do |
 |---|---|---|
@@ -96,7 +96,7 @@ When you open a pull request, a check runs on your pages. A red mark means it fo
 | the title or name clashes with "x.md" | Two pages have the same title (or the same name apart from capitals). | Change one title. |
 | the picture "x" does not exist | No file is at that path. | Fix the path, or upload the picture. |
 | a top-level folder named "category" cannot be used | The site keeps that word for its own addresses. | Rename the folder. |
-| no title in the front matter | The page has no `title:` line. | Add one. |
+| no title in the front matter; using "x" | The page has no `title:` line, so the file name is used. This is a note. | Add a title. |
 | contains HTML tags, script-like text or control characters | The page has something like `<b>`. The site shows it as plain text. | Remove it, or put it in backticks if you meant to show it. |
 | file names are easier to link with only letters, numbers, spaces and hyphens | The file name has other characters. | Rename it, using lower case and hyphens. |
 | picture width is outside 40 to 1200 pixels | A width in braces is too small or large. | Use a number from 40 to 1200. |
@@ -106,10 +106,14 @@ When you open a pull request, a check runs on your pages. A red mark means it fo
 | is not used by any page | A picture is uploaded but no page uses it. | Use it, or remove it. |
 | pictures are easier to find in an images folder | A picture is not in an `images` folder. | Move it into one. |
 | the code box language is not one the site colors | The language name is not on the list. | Use a listed name, or none. |
-| the notice box type is not one the site knows | The tag is not one of the five. | Use NOTE, TIP, IMPORTANT, WARNING or CAUTION. |
+| the notice box type is not one the site knows | The tag is not one of the five (`[!INFO]` is a different thing, a fact panel). | Use NOTE, TIP, IMPORTANT, WARNING or CAUTION, or INFO for a fact panel. |
+| the infobox is not the first thing on the page | A fact panel sits below other text. | Move it to the top, right after the front matter. |
+| the page has N infoboxes | More than one fact panel. | Keep one, and put the rest in a table. |
+| the infobox row "x" has no value | A `Key:` line has nothing after the colon. | Add the value, or remove the row. |
+| the infobox has an "image:" line with no picture path | The `image:` line is empty. | Add the path, or remove the line. |
 | link `[[x]]` matches no guide page yet | No Game Guide page has that title. | Fix the spelling, or write the page. |
-| link `[[x#y]]`: that page has no section called "y" | The words after the `#` do not match a heading of that page (`[[#y]]`: of this page). | Copy the heading's words, or fix the spelling. |
-| link `[[topic:x#y]]`: a link to a topic or a patch cannot name a section | Sections work for guide pages only. | Drop the `#y`, or use a plain link such as `[History](#/topic/x#s-history)`. |
+| link `[[x#y]]`: that page has no section called "y" | The words after the `#` do not match a heading of that page (`[[#y]]`: of this page; `[[site:x#y]]`: of that Site Guide page). | Copy the heading's words, or fix the spelling. |
+| link `[[topic:x#y]]`: a link to a topic or a patch cannot name a section | Sections work for guide pages and Site Guide pages only. | Drop the `#y`, or use a plain link such as `[History](#/topic/x#s-history)`. |
 | link `[[x]]` is a Site Guide page, not a Game Guide page | A plain name is never matched to a Site Guide page. | Write `[[site:x]]`. |
 | link `[[site:x]]`: no Site Guide page is called "x" | The title is misspelled, so the link shows as plain text. | Fix the title. |
 | link `[[x]]` is a Patch Notes topic, not a guide page | A plain name is never matched to a topic. | Write `[[topic:x]]`. |
