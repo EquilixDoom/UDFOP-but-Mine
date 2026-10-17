@@ -1015,7 +1015,7 @@
       }
       if ((m = FIG_LINE.exec(l.trim())) && (m[3] || m[4] !== undefined)) { out.push(figure(m)); figSince = true; i++; continue; }
       var buf = [];
-      while (i < lines.length && lines[i].trim() && !/^(```|~~~|#{1,6}\s|>)/.test(lines[i]) && !/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) &&
+      while (i < lines.length && lines[i].trim() && !/^(```|~~~|#{1,6}\s|>(?!!.*!<))/.test(lines[i]) && !/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) &&
              !((m = FIG_LINE.exec(lines[i].trim())) && (m[3] || m[4] !== undefined))) buf.push(lines[i++].trim());
       para(buf);
     }
