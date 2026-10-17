@@ -21,5 +21,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 This licence covers the code: web/index.html, web/app.js, web/style.css,
-tools/, .github/ and the helper files. The written content and data are
+web/highlight.js, tools/, .github/ and the helper files. The written content and data are
 covered separately; see LICENSE-CONTENT.md.
