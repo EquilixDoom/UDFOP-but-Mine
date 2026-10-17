@@ -985,3 +985,9 @@ Firmament,Character and Progression,,11,Character; Online; UI,
 Gilded Weapons,Items and Equipment,,5,Combat; Items; UI,
 King's Gambit,Social and Chat,,36,Controls; Graphics; Online; UI; World,
 Points of Interest,World and Overworld,,2,UI; World,yes
+Copied Items,Online,,7,Online,
+Dual Wielding,Combat and AI,,11,Combat; Controls; Graphics,
+Fists,Rendering,,2,Graphics,yes
+Instances,World and Overworld,,7,UI; World,
+Running Hands,Rendering,,5,Graphics,
+Weapon Glow,Rendering,,8,Graphics; Online; UI,
