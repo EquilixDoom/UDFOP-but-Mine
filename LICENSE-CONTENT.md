@@ -12,6 +12,7 @@ This covers:
 - the topic descriptions in `data/descriptions/`
 - the Site Guide pages in `web/site/`
 - the project's own images: the screenshots and photograph in `web/site/images/` and `web/placeholder.svg`
+- the pictures contributors upload to `web/guide/`, but only the contributor's own part of them: their photographs, diagrams and drawings, and, in a screenshot of the game, the selection, framing, cropping, annotation and captions. The game artwork inside a screenshot is not covered (see below)
 - the site's own text (the About page and the README)
 - the topic groupings and merges in `data/hub_assignment.csv`, `data/merges.csv` and `data/legacy.csv`
 
@@ -26,6 +27,12 @@ The summaries are condensed from the release notes and many keep the developers'
 Those summaries, the facts, the pull-request titles (quoted as written) and the developer notes in the data
 belong to the developers, so this CC BY 4.0 licence does not cover them: if you reuse the data, keep that
 notice and credit the developers.
+
+Game artwork in screenshots has two separate owners, and this licence covers neither:
+- the artwork and other assets of *Daggerfall* and *The Elder Scrolls* belong to Bethesda Softworks and ZeniMax Media;
+- the artwork and other assets that Daggerfall Online adds belong to its developers.
+
+A screenshot is therefore two things: that artwork, which stays with its owners, and the uploader's composition of it, which is CC BY 4.0. Reusing the composition does not give any right to the artwork in it.
 
 *The Elder Scrolls*, *Daggerfall* and related names and marks belong to their respective owners.
 This project is unofficial and is not affiliated with or endorsed by the developers of Daggerfall Online,

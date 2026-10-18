@@ -136,6 +136,8 @@ Raw HTML is shown as plain text, so leave it out. The [[site:Formatting referenc
 
 > [!important]
 > Only upload pictures you made yourself, such as your own screenshots or diagrams. Do not upload other people's artwork or images taken from other sites.
+>
+> A screenshot of the game is yours only in how you composed it: what you chose to show, the framing, cropping, annotations and caption. The artwork inside it belongs to Bethesda/ZeniMax (*Daggerfall*) or to the Daggerfall Online developers, and your pictures are released under CC BY 4.0 without it. Do not extract, redraw or upload game assets on their own, such as textures, sprites, icons or music.
 
 ## Good practice
 
@@ -149,9 +151,9 @@ Raw HTML is shown as plain text, so leave it out. The [[site:Formatting referenc
 > **Only submit what is yours, and credit what is not.**
 >
 > - **Use sources, not their words.** Release notes, developer posts and other sites are good sources, but put what they say in your own words and say where it came from. Quote only short passages, set off as quotations, with who said it and where.
-> - **Only upload pictures you made yourself.** The rule is repeated under **Adding pictures** above.
+> - **Only upload pictures you made yourself.** The rule, and what it means for game screenshots, is under **Adding pictures** above.
 >
-> Your writing is released under a free license, as explained under **Credit** below.
+> Your writing and pictures are released under a free license, as explained under **Credit** below.
 
 ## Checking your page
 
