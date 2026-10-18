@@ -1901,12 +1901,32 @@
   /* ---------- features loaded on first use ---------- */
   /* The guide editor (the files in web/playground/) is large and few readers open it, so it is fetched the first time #/playground is visited.
      It reaches this file only through window.udfopHost: what it may use, and nothing else. */
+  /* things the editor's checks need that are not loaded with the page lists: another page's source (for its headings) and whether a picture file exists.
+     Each is null the first time it is asked for, while it is fetched; lintCb then tells the editor to check again. */
+  var lintCache = {}, lintCb = null;
+  function lintFetch(url, head) {
+    if (url in lintCache) return lintCache[url];
+    lintCache[url] = null;
+    fetch(url, head ? { method: "HEAD" } : undefined).then(function (r) { if (!r.ok) throw new Error(r.status); return head ? true : r.text(); })
+      .then(function (v) { lintCache[url] = v; }, function () { lintCache[url] = head ? false : ""; })
+      .then(function () { if (lintCb) lintCb(); });
+    return null;
+  }
   window.udfopHost = {
     views: views, app: app, REPO: REPO, HOWTO: HOWTO, GUIDE_HAT: GUIDE_HAT, LINK_ICON: LINK_ICON, TEMPLATES: TEMPLATES, FALLBACK_TPL: FALLBACK_TPL, guideTemplates: guideTemplates,
     esc: esc, enc: enc, slugId: slugId, splitSection: splitSection, plainText: plainText, frontMatter: frontMatter, page: page,
     query: function () { return routeQuery; },
     guideReady: function () { return guide !== null; },
     /* does a Game Guide (or, with site true, Site Guide) page with this title or address exist? key is lower case */
+    pageList: function (site) { return (site ? siteGuide : guide) || []; },
+    topicExists: function (low) { return !!topicByLower[low]; },
+    patchExists: function (v) { return !!D.releases[v]; },
+    pageSource: function (key, site) {
+      var p = site ? (siteByTitle[key] || siteBySlug[key]) : (guideByTitle[key] || guideBySlug[key]);
+      return p ? lintFetch(encodeURI((site ? "site/" : "guide/") + p.slug + ".md")) : "";
+    },
+    fileExists: function (path) { return lintFetch(encodeURI("guide/" + path), true); },
+    onLintData: function (fn) { lintCb = fn; },
     pageExists: function (key, site) { return !!(site ? (siteByTitle[key] || siteBySlug[key]) : (guideByTitle[key] || guideBySlug[key])); },
     /* draws Markdown as a page of the given area ("guide" or "site"); the renderer's per-page state is set for the call and put back after it. o: { area, base, key, related } */
     renderDoc: function (body, title, o) {
@@ -1938,7 +1958,7 @@
       return { title: "Loading", html: '<h1 class="title">Loading</h1><p role="status">Loading the editor…</p>', toc: false };
     };
   }
-  lazyView("playground", ["playground/playground.css", "playground/view.js"]);   /* view.js replaces this stub with the real view */
+  lazyView("playground", ["playground/playground.css", "playground/lint.js", "playground/view.js"]);   /* view.js replaces this stub with the real view */
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";
