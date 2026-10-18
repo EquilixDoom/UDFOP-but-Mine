@@ -45,6 +45,14 @@
     return ids;
   }
   function sectionIn(source, section) { return source == null ? true : !!headingIds(frontMatter(source).body)[headingId(section)]; }   /* not fetched yet: nothing to report */
+  /* a picture's path from the guide folder: beside the page being edited, or in the guide folder itself for a new page. null when it climbs out with ../ (not checked). */
+  function pictureAt(ref, opts) {
+    var folder = opts && opts.slug && opts.slug.indexOf("/") >= 0 ? opts.slug.replace(/[^/]*$/, "") : "", out = [], parts = (folder + ref).split("/");
+    for (var i = 0; i < parts.length; i++) {
+      if (parts[i] === "..") { if (!out.length) return null; out.pop(); } else if (parts[i] !== "." && parts[i] !== "") out.push(parts[i]);
+    }
+    return out.join("/");
+  }
   function listOf(s) { return (s || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean); }
   /* does a [[target]] lead somewhere? (used by the guide-page checks that only need a yes or no) */
   function edLinkOk(inner) {
@@ -54,7 +62,8 @@
     return H.pageExists(k, site);
   }
   /* problems, each with the line it is on */
-  function edLint(text) {
+  /* opts.slug: the guide page being edited (its own title and file name are not a clash, and its pictures are found beside it) */
+  function edLint(text, opts) {
     var out = [], lines = text.replace(/^﻿/, "").replace(/\r\n/g, "\n").split("\n"), meta = frontMatter(text).meta;
     function add(level, i, col, len, msg) { out.push({ level: level, line: i + 1, col: col, len: len, msg: msg }); }
     var top = function (level, msg) { add(level, 0, 0, lines[0].length, msg); };
@@ -68,8 +77,13 @@
     if (!meta.summary) top("warn", "No summary: it is the text shown in hover previews and lists.");
     if (!body.trim()) top("error", "The page is empty.");
     if (meta.title && H.pageExists) {
-      var low = meta.title.trim().toLowerCase(), slug = low.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-      if (H.pageExists(low, false) || H.pageExists(low, true) || (slug && (H.pageExists(slug, false) || H.pageExists(slug, true)))) top("error", "A page called \"" + meta.title + "\" already exists (titles and file names must be unique across both guides). Choose another title.");
+      var low = meta.title.trim().toLowerCase(), slug = low.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""), self = opts && opts.slug ? opts.slug.toLowerCase() : null, clash;
+      if (H.pageList) clash = H.pageList(false).filter(function (p) { return (p.slug || "").toLowerCase() !== self; }).concat(H.pageList(true)).some(function (p) {
+        var t = p.title.toLowerCase(), n = (p.slug || "").toLowerCase();
+        return t === low || n === low || (slug && (t === slug || n === slug));
+      });
+      else clash = !self && (H.pageExists(low, false) || H.pageExists(low, true) || (slug && (H.pageExists(slug, false) || H.pageExists(slug, true))));
+      if (clash) top("error", "A page called \"" + meta.title + "\" already exists (titles and file names must be unique across both guides). Choose another title.");
     }
     if (meta.category && H.pageList) {
       var cat = meta.category.replace(/\s+/g, " ").trim(), seen = {};
@@ -115,7 +129,8 @@
       while ((im = IMAGE.exec(scan))) {
         var ref = im[1];
         if (/^([a-z][a-z0-9+.-]*:|\/\/|\/)/i.test(ref) || !H.fileExists) continue;
-        if (H.fileExists(ref.replace(/^\.\//, "")) === false) add("error", i, im.index, im[0].length, "The picture \"" + ref + "\" does not exist. A picture cannot be added from this editor: add it in the pull request, in an images folder.");
+        var pic = pictureAt(ref, opts);
+        if (pic && H.fileExists(pic) === false) add("error", i, im.index, im[0].length, "The picture \"" + ref + "\" does not exist. A picture cannot be added from this editor: add it in the pull request, in an images folder.");
       }
       var fg = FIGURE.exec(scan);
       if (fg) fg[1].trim().toLowerCase().split(/[\s,]+/).filter(Boolean).forEach(function (tok) {

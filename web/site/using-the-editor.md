@@ -43,6 +43,27 @@ The **Problems** button in the Editor's title bar checks your page every time yo
 
 The check reads another page's headings, and looks for picture files, the first time you link to them, so a warning about a section or a picture can take a second to appear or go away.
 
+## The File menu
+
+- **New from template** replaces the text with one of the starter templates (How it works, Item, Place, Creature or boss) and selects the first placeholder so you can type over it.
+- **Open a guide page** lists the pages already in the Game Guide. Type to narrow the list, then choose a page to edit it (see below).
+- **Open from this computer** (Ctrl+O) loads a Markdown or text file (`.md`, `.markdown`, `.mdown` or `.txt`, up to 2 MB) into the editor.
+- **Save draft** (Ctrl+S) saves the draft now instead of waiting.
+- **Download .md** saves the text as a file named after your title, for example `my-page.md`.
+- **Discard draft** deletes the saved draft and starts a new page from the template.
+
+Whenever one of these would replace the text you have written, the editor asks first. You can cancel, replace the text (Ctrl+Z brings the old text back), or choose **Download, then replace** to save a copy to your device before it goes.
+
+The other menus are not working yet.
+
+## Editing an existing page
+
+There are two ways in: **File > Open a guide page**, or the **Edit in the browser editor** link at the bottom of any Game Guide page. The page's text is loaded into the editor, and the title bar says "editing guide/the-page.md". Change it as you would a new page; the preview, the Problems check and the draft work the same.
+
+Submitting is different. GitHub's page for changing an existing file cannot be filled in from a link, so **Copy and open on GitHub** copies your whole page and opens that file on GitHub. There, select all of the old text (Ctrl+A) and paste yours over it (Ctrl+V), then commit as usual. As always, fork the project first.
+
+The editor keeps one draft. Opening a page replaces the draft, after asking, and the draft remembers which page it is a copy of. Choosing **New from template**, **Open from this computer** or **Discard draft** ends the editing of that page. A page you are editing keeps its file name and its pictures stay where they are; its own title is not counted as a clash, but another page's title still is.
+
 ## Your draft
 
 The editor saves your draft in this browser a moment after you stop typing, and the status bar says so. Close the tab and come back, and it is still there. It is not saved anywhere else, so clearing your browser data removes it. Copy the text somewhere safe if the work matters.

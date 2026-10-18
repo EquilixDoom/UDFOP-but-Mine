@@ -2,13 +2,13 @@
 (function () {
   "use strict";
   var H = window.udfopHost, P = window.udfopEditor, REPO = H.REPO, enc = H.enc, esc = H.esc, slugId = H.slugId, frontMatter = H.frontMatter;
-  var KEY = "udfop.editor", URL_MAX = 6000;   /* longest new-file link (whole address, after encoding) offered as "Submit on GitHub"; GitHub's sign-in redirect fails above about 6,500 */
+  var KEY = "udfop.editor", PAGE_KEY = "udfop.editor.page", URL_MAX = 6000;   /* longest new-file link (whole address, after encoding) offered as "Submit on GitHub"; GitHub's sign-in redirect fails above about 6,500 */
   function fileName(title) { return slugId(title).replace(/^s-|-$/g, "").replace(/^-+|-+$/g, "") + ".md"; }   /* slugId gives "s-the-title"; guide files are named the-title.md */
   function starter() { return H.guideTemplates[""] || H.FALLBACK_TPL; }
   H.views.editor = function () {
-    var h = '<div class="edw"><div class="edw-bar"><strong>Write a guide page</strong><span class="edw-grow"></span>' +
+    var h = '<div class="edw"><div class="edw-bar"><div id="ed-menus" class="edw-menus"></div><span class="edw-grow"></span>' +
       '<a id="ed-gh" class="edw-primary" href="' + REPO + '/new/main/web/guide" target="_blank" rel="noopener">Submit on GitHub</a></div>' +
-      '<div class="edw-main"><section class="edw-pane" aria-label="Editor"><div class="edw-pbar"><strong>Editor</strong><span class="edw-grow"></span><button type="button" id="ed-chip" class="edw-chip" aria-expanded="false" aria-controls="ed-prob"></button></div>' +
+      '<div class="edw-main"><section class="edw-pane" aria-label="Editor"><div class="edw-pbar"><strong>Editor</strong><small id="ed-mode"></small><span class="edw-grow"></span><button type="button" id="ed-chip" class="edw-chip" aria-expanded="false" aria-controls="ed-prob"></button></div>' +
       '<div class="edw-stack"><div class="edw-hl edw-code" aria-hidden="true"><div id="ed-hl"></div></div><textarea id="ed-text" class="edw-code" spellcheck="true" aria-label="Page source (Markdown)"></textarea></div><div id="ed-prob" class="edw-prob" hidden><div id="ed-ph" class="edw-ph" role="separator" aria-orientation="horizontal" aria-label="Resize the Problems panel" tabindex="0"></div>' +
       '<div class="edw-pbar"><strong>Problems</strong><small id="ed-pn"></small><span class="edw-grow"></span><button type="button" id="ed-pclose" aria-label="Close the Problems panel">Close</button></div><div id="ed-plist" class="edw-plist"></div></div>' +
       '<div class="edw-sbar"><span id="ed-pos"></span><span id="ed-words"></span><span class="edw-grow"></span><small id="ed-note"></small></div></section>' +
@@ -16,8 +16,15 @@
       '<div class="edw-pv"><article id="ed-prev"></article></div><div class="edw-sbar"><span id="ed-size"></span></div></section></div></div>';
     return { title: "Write a guide page", html: h, toc: false, after: function () {
       var ta = document.getElementById("ed-text"), prev = document.getElementById("ed-prev"), gh = document.getElementById("ed-gh"), note = document.getElementById("ed-note"), chip = document.getElementById("ed-chip"), fileEl = document.getElementById("ed-file"), sizeEl = document.getElementById("ed-size"), prob = document.getElementById("ed-prob"), problems = [], errors = [], plist = document.getElementById("ed-plist"), timer = null, long = false;
-      var saved = ""; try { saved = localStorage.getItem(KEY) || ""; } catch (e) {}
+      var saved = "", editing = null, modeEl = document.getElementById("ed-mode");   /* editing: the slug of the existing guide page the text is a copy of, or null for a new page */
+      try { saved = localStorage.getItem(KEY) || ""; if (saved) editing = localStorage.getItem(PAGE_KEY) || null; } catch (e) {}
       ta.value = saved || starter();
+      function setEditing(slug) {
+        editing = slug || null;
+        try { if (editing) localStorage.setItem(PAGE_KEY, editing); else localStorage.removeItem(PAGE_KEY); } catch (e) {}
+        modeEl.textContent = editing ? "editing guide/" + editing + ".md" : "";
+      }
+      setEditing(editing);
       var hl = document.getElementById("ed-hl"), hlBox = hl.parentNode, paintQueued = false;
       var shown = [];   /* the rows now in the colored copy */
       function paint() {   /* the colored copy of the text behind the (transparent) text box; only the rows that changed are replaced, so a long page stays quick to type in */
@@ -41,7 +48,7 @@
       if (window.ResizeObserver) { var ro = new ResizeObserver(paintSoon); ro.observe(ta); }
       function lineStart(n) { var p = 0; while (--n > 0) p = ta.value.indexOf("\n", p) + 1; return p; }
       function showProblems() {
-        problems = P.lint(ta.value);
+        problems = P.lint(ta.value, editing ? { slug: editing } : null);
         problems = problems.filter(function (p) { return p.level === "error"; }).concat(problems.filter(function (p) { return p.level !== "error"; }));   /* errors first */
         errors = problems.filter(function (p) { return p.level === "error"; });
         var w = problems.length - errors.length, sum = (errors.length ? errors.length + (errors.length === 1 ? " error" : " errors") : "") + (errors.length && w ? ", " : "") + (w ? w + (w === 1 ? " warning" : " warnings") : "");
@@ -94,8 +101,17 @@
         paint();
         showProblems();
         var fm = frontMatter(ta.value), t = fm.meta.title || "Untitled page", html;
-        try { html = H.renderDoc(fm.body, t, { area: "guide", key: "guide|\u0000editor" }); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
+        try { html = H.renderDoc(fm.body, t, editing ? { area: "guide", key: "guide|" + editing, base: editing.indexOf("/") >= 0 ? editing.replace(/[^/]*$/, "") : "" } : { area: "guide", key: "guide|\u0000editor" }); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
         prev.innerHTML = '<h1 class="title">' + esc(t) + '</h1><div id="gp">' + html + "</div>";
+        if (editing) {   /* an existing page: GitHub's edit page cannot be given new text in the address, so the page is copied and pasted over the old text there */
+          long = true;
+          fileEl.textContent = "guide/" + editing + ".md";
+          sizeEl.textContent = "Submit copies the page, then opens it on GitHub to paste over the old text";
+          gh.href = REPO + "/edit/main/web/guide/" + editing.split("/").map(enc).join("/") + ".md";
+          gh.textContent = "Copy and open on GitHub";
+          status();
+          return;
+        }
         var name = fm.meta.title ? "filename=" + enc(fileName(fm.meta.title)) : "", url = REPO + "/new/main/web/guide?" + (name ? name + "&" : "") + "value=" + enc(ta.value);
         fileEl.textContent = fm.meta.title ? fileName(fm.meta.title) : "no title yet";
         long = url.length > URL_MAX;
@@ -104,30 +120,58 @@
         gh.href = long ? REPO + "/new/main/web/guide" + (name ? "?" + name : "") : url;
         gh.textContent = long ? "Copy and paste on GitHub" : "Submit on GitHub";
       }
+      var quiet = false;   /* after Discard draft the starter text is not saved again until the writer types */
+      function persist() {
+        try { localStorage.setItem(KEY, ta.value); note.textContent = "Draft saved " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+        catch (e) { note.textContent = "Draft not saved: this browser blocks storage"; }
+      }
       ta.addEventListener("input", function () {
         clearTimeout(timer);
-        timer = setTimeout(function () { try { localStorage.setItem(KEY, ta.value); note.textContent = "Draft saved"; } catch (e) { note.textContent = "Draft not saved: this browser blocks storage"; } render(); }, 200);
+        timer = setTimeout(function () { if (quiet) quiet = false; else persist(); render(); }, 200);
       });
-      function copyForGitHub() {
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(function () { note.textContent = "Copied: paste it into the GitHub page (Ctrl+V)"; });
+      function setText(t) {   /* replaces the whole text the way typing would, so Ctrl+Z brings the old text back */
+        ta.focus(); ta.select();
+        var ok = false; try { ok = document.execCommand("insertText", false, t); } catch (e) {}
+        if (!ok || ta.value !== t) { ta.value = t; ta.dispatchEvent(new Event("input")); }
+        ta.setSelectionRange(0, 0); ta.scrollTop = 0;
       }
-      var dlg = document.createElement("dialog");
-      dlg.className = "edw-dlg"; dlg.setAttribute("aria-labelledby", "ed-dt");
-      ta.closest(".edw").appendChild(dlg);
+      function copyForGitHub() {
+        var done = function () { note.textContent = editing ? "Copied: on GitHub select all the old text (Ctrl+A) and paste (Ctrl+V)" : "Copied: paste it into the GitHub page (Ctrl+V)"; };
+        var fail = function () { note.textContent = "Could not copy: select the text in the editor, copy it, and paste it on GitHub"; };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, fail); else fail();
+      }
+      var dlg = P.dialog(ta.closest(".edw"));
       function askSubmit() {
         var n = errors.length, shown = errors.slice(0, 5).map(function (p) { return "<li><b>Line " + p.line + "</b> " + esc(p.msg) + "</li>"; }).join("");
-        dlg.innerHTML = '<h2 id="ed-dt">This page has ' + n + (n === 1 ? " error" : " errors") + "</h2><ul>" + shown + "</ul>" + (n > 5 ? "<p>and " + (n - 5) + " more.</p>" : "") +
-          '<div class="edw-dlg-btns"><button type="button" id="ed-dcancel" autofocus>Cancel</button><button type="button" id="ed-dgo">' + (long ? "Copy and paste anyway" : "Submit anyway") + "</button></div>";
-        document.getElementById("ed-dcancel").addEventListener("click", function () { dlg.close(); toggleProblems(true); });
-        document.getElementById("ed-dgo").addEventListener("click", function () { dlg.close(); if (long) copyForGitHub(); window.open(gh.href, "_blank", "noopener"); });
-        dlg.showModal();
+        dlg.ask({ title: "This page has " + n + (n === 1 ? " error" : " errors"), html: "<ul>" + shown + "</ul>" + (n > 5 ? "<p>and " + (n - 5) + " more.</p>" : ""),
+          ok: long ? (editing ? "Copy and open anyway" : "Copy and paste anyway") : "Submit anyway", cancel: "Cancel", danger: true }).then(function (go) {
+          if (!go) { toggleProblems(true); return; }
+          if (long) copyForGitHub();
+          window.open(gh.href, "_blank", "noopener");
+        });
       }
+      var fileCmd = P.fileCommands({
+        ta: ta, dlg: dlg, setText: setText, starter: starter, setEditing: setEditing, save: function () { clearTimeout(timer); persist(); render(); },
+        say: function (m) { note.textContent = m; },
+        clearDraft: function () { quiet = true; setEditing(null); try { localStorage.removeItem(KEY); } catch (e) {} },
+        fileName: function () { if (editing) return editing.split("/").pop() + ".md"; var t = frontMatter(ta.value).meta.title; return t ? fileName(t) : "new-page.md"; }
+      });
+      P.menubar(document.getElementById("ed-menus"), fileCmd);
+      function keys(e) {   /* Ctrl+S saves the draft now and Ctrl+O opens a file, anywhere in the editor */
+        if (!ta.isConnected) { document.removeEventListener("keydown", keys); return; }
+        if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+        var k = e.key.toLowerCase();
+        if (k === "s") { e.preventDefault(); fileCmd("file.save"); } else if (k === "o") { e.preventDefault(); fileCmd("file.open"); }
+      }
+      document.addEventListener("keydown", keys);
       gh.addEventListener("click", function (e) {
         if (errors.length) { e.preventDefault(); askSubmit(); return; }
         if (long) copyForGitHub();
       });
       H.onLintData(function () { if (ta.isConnected) showProblems(); });
       render();
+      var want = H.query().page;   /* #/editor?page=slug: open that guide page (the address is cleaned so a reload does not ask again) */
+      if (want) { try { history.replaceState(null, "", "#/editor"); } catch (e) {} fileCmd.loadPage(want); }
       if (!saved && !H.guideTemplates[""]) {   /* the template is still arriving: swap it in unless the reader has started typing */
         var tries = 0, wait = setInterval(function () {
           if (++tries > 20 || !ta.isConnected || ta.value !== H.FALLBACK_TPL) { clearInterval(wait); return; }

@@ -11,7 +11,7 @@ const host = new Function(
   "\nreturn { esc: esc, splitSection: splitSection, frontMatter: frontMatter };")();
 const pages = new Set(["how things work", "site:formatting reference"]);
 host.pageExists = (key, site) => pages.has((site ? "site:" : "") + key);
-host.pageList = (site) => (site ? [] : [{ title: "How things work", category: "Player Guide" }]);
+host.pageList = (site) => (site ? [] : [{ title: "How things work", slug: "how-things-work", category: "Player Guide" }]);
 host.topicExists = (low) => low === "combat";
 host.patchExists = (v) => v === "0.1.2";
 const sources = { "how things work": "---\ntitle: How things work\n---\n# Top\n## Real section\n```\n## In code\n```\n" };
@@ -56,6 +56,17 @@ test("an unclosed spoiler", () => { assert(has(GOOD + "\n>! secret\n", /spoiler 
 test("html is a warning", () => assert.strictEqual(level(GOOD + "\n<script>x</script>\n", /HTML/), "warn"));
 test("an empty page is an error", () => assert.strictEqual(level("---\ntitle: T\nsummary: S\n---\n\n", /empty/), "error"));
 test("a title that matches an existing page is an error", () => { const t = GOOD.replace("title: T", "title: How things work"); assert.strictEqual(level(t, /already exists/), "error"); });
+test("editing a page: its own title and file name are not a clash, another page's are", () => {
+  const own = GOOD.replace("title: T", "title: How things work"), sl = (slug) => P.lint(own, { slug }).some((p) => /already exists/.test(p.msg));
+  assert(!sl("how-things-work")); assert(sl("something-else"));
+});
+test("editing a page in a folder: pictures are found beside it", () => {
+  const seen = []; host.fileExists = (p) => { seen.push(p); return true; };
+  P.lint(GOOD + "\n![x](images/a.png) ![y](./b.png) ![z](../c.png) ![w](../../d.png)\n", { slug: "sim/deep/page" });
+  P.lint(GOOD + "\n![x](images/a.png)\n");
+  host.fileExists = (p) => (p in files ? files[p] : null);
+  assert.deepStrictEqual(seen, ["sim/deep/images/a.png", "sim/deep/b.png", "sim/c.png", "d.png", "images/a.png"]);
+});
 test("a differently spelled category", () => assert(has(GOOD.replace("category: C", "category: player guide"), /spelled/)));
 test("related that matches nothing", () => { const g = (r) => GOOD.replace("category: C", "category: C\nrelated: " + r); assert(has(g("guide:Nope"), /related/)); assert(!has(g("guide:How things work, topic:Combat, patch:0.1.2"), /related/)); assert(has(g("topic:Zzz"), /no topic/)); });
 test("a missing picture is an error; a known or pending one is not", () => {

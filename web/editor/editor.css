@@ -53,7 +53,34 @@ body:has(.edw) #foot, body:has(.edw) #endpad { display: none; }
 .edw-dlg-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
 .edw-dlg-btns button { padding: 3px 12px; font-size: 13px; line-height: 1.3; background: var(--paper); color: var(--fg); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; }
 .edw-dlg-btns button:hover { background: var(--soft); }
-.edw-dlg-btns #ed-dgo { border-color: var(--red); color: var(--red); }
+.edw-dlg-btns .danger { border-color: var(--red); color: var(--red); }
 html[data-editor] .dock[data-dock] { display: none; }   /* the editor always shows the main menu and Settings as pop-ups */
 .edw-lv { margin-right: 8px; font-size: 12px; color: var(--al-warning); }
 .edw-lv[data-level="error"] { color: var(--red); }
+/* the menu bar */
+.edw-bar { flex-wrap: wrap; row-gap: 4px; }
+.edw-menus { min-width: 0; }
+.edw-menubar { display: flex; flex-wrap: wrap; gap: 2px; }
+.edw-mn { position: relative; }
+.edw .edw-mb { padding: 3px 10px; font-size: 14px; line-height: 1.3; background: transparent; color: var(--fg); border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
+.edw .edw-mb:hover, .edw .edw-mb[aria-expanded="true"] { background: var(--paper); border-color: var(--line); }
+.edw-dd { position: absolute; z-index: 20; top: 100%; left: 0; min-width: 14rem; margin: 2px 0 0; padding: 4px; list-style: none; background: var(--paper); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 6px 18px rgba(0, 0, 0, .3); }
+.edw-dd[hidden] { display: none; }
+.edw-dd.flip { left: auto; right: 0; }
+.edw-sub { top: -5px; left: 100%; margin: 0 0 0 2px; }
+.edw-sub.flip { left: auto; right: 100%; margin: 0 2px 0 0; }
+.edw-dd li { margin: 0; padding: 0; }
+.edw-dd li[role="separator"] { height: 1px; margin: 4px 0; background: var(--line); }
+.edw-dd li.has-sub { position: relative; }
+.edw .edw-mi { display: flex; align-items: center; justify-content: space-between; gap: 2em; width: 100%; padding: 4px 10px; font: inherit; font-size: 13.5px; text-align: left; white-space: nowrap; background: transparent; color: var(--fg); border: 0; border-radius: 3px; cursor: pointer; }
+.edw .edw-mi:hover, .edw .edw-mi:focus-visible, .edw .edw-mi[aria-expanded="true"] { background: var(--soft); }
+.edw .edw-mi .mi-k { color: var(--muted); font-size: .92em; }
+.edw-pbar #ed-mode { color: var(--muted); font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+.edw-dlg-btns { flex-wrap: wrap; }
+.edw-dlg:has(.edw-pick) { width: min(34rem, calc(100vw - 32px)); }
+.edw-pick-q { display: block; width: 100%; box-sizing: border-box; margin: 0 0 6px; padding: 5px 8px; font: inherit; color: var(--fg); background: var(--paper); border: 1px solid var(--line); border-radius: 3px; }
+.edw-pick { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; border: 1px solid var(--line); border-radius: 3px; }
+.edw-pick li { display: flex; justify-content: space-between; gap: 1em; margin: 0; padding: 5px 10px; cursor: pointer; }
+.edw-pick li small { color: var(--muted); text-align: right; }
+.edw-pick li[aria-selected="true"], .edw-pick li:hover { background: var(--soft); }
+.edw-pick li.none { color: var(--muted); cursor: default; }

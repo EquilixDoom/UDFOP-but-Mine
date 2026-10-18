@@ -1109,7 +1109,7 @@
         var rendered = markdown(fm.body, t); mdBase = ""; mdRoot = "guide/";
         rendered += buildReferences(refs, (fm.meta.related || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean)); refs = null;
         box.innerHTML = rendered +
-          '<p class="editline footer-note"><a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · <a href="' + HOWTO + '">How to contribute</a></p>';
+          '<p class="editline footer-note"><a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page</a> (fork the project first) · ' + (site ? "" : '<a href="#/editor?page=' + enc(real) + '">Edit in the browser editor</a> · ') + '<a href="' + HOWTO + '">How to contribute</a></p>';
         buildToc(); fitTocRoom(); addHeadingLinks(); fitEndPad(); jumpPending();
       }).catch(function () {
         if (guideFailed) { box.innerHTML = guideUnavailable(); return; }
@@ -1958,7 +1958,7 @@
       return { title: "Loading", html: '<h1 class="title">Loading</h1><p role="status">Loading the editor…</p>', toc: false };
     };
   }
-  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/highlight.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
+  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/highlight.js", "editor/menus.js", "editor/dialog.js", "editor/files.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";
