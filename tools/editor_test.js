@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-/* Tests for the guide editor's pure parts (web/playground/lint.js): the Problems checks and the first-placeholder finder.
-   No packages: loads the real files with a stand-in for window.udfopHost (esc, splitSection and frontMatter are copied from web/app.js).   Usage: node tools/playground_test.js */
+/* Tests for the guide editor's pure parts (web/editor/lint.js): the Problems checks and the first-placeholder finder.
+   No packages: loads the real files with a stand-in for window.udfopHost (esc, splitSection and frontMatter are copied from web/app.js).   Usage: node tools/editor_test.js */
 "use strict";
 const fs = require("fs"), path = require("path"), vm = require("vm"), assert = require("assert");
 const web = path.join(__dirname, "..", "web");
@@ -21,8 +21,8 @@ host.fileExists = (p) => (p in files ? files[p] : null);
 const sandbox = { window: null, console };
 sandbox.window = sandbox; sandbox.udfopHost = host;
 vm.createContext(sandbox);
-for (const f of ["highlight.js", "playground/lint.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
-const P = sandbox.udfopPlayground;
+for (const f of ["highlight.js", "editor/lint.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
+const P = sandbox.udfopEditor;
 
 let passed = 0, failed = 0;
 function test(name, fn) { try { fn(); passed++; } catch (e) { failed++; console.log("FAIL " + name + "\n  " + (e.message || e).split("\n")[0]); } }
@@ -87,5 +87,5 @@ test("no placeholder gives null", () => assert.strictEqual(P.firstPlaceholder("p
 
 
 
-console.log(failed ? `${failed} failed, ${passed} passed` : `playground tests OK (${passed})`);
+console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);
 process.exit(failed ? 1 : 0);

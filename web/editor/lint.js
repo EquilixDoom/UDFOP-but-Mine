@@ -3,7 +3,7 @@
    The checks follow tools/guide.py and the site's renderer. Data that has to be fetched (another page's headings, whether a picture exists) comes from the host as null until it arrives; the host then calls back and the view checks again. */
 (function () {
   "use strict";
-  var H = window.udfopHost, P = window.udfopPlayground = window.udfopPlayground || {};
+  var H = window.udfopHost, P = window.udfopEditor = window.udfopEditor || {};
   var splitSection = H.splitSection, frontMatter = H.frontMatter;
   var FENCE = /^(`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$/, FENCE_END = /^(`{3,}|~{3,})\s*$/;
   var NOTICES = /^(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO)$/i, INFO_START = /^>\s*\[!INFO\]/i;
@@ -46,14 +46,14 @@
   function sectionIn(source, section) { return source == null ? true : !!headingIds(frontMatter(source).body)[headingId(section)]; }   /* not fetched yet: nothing to report */
   function listOf(s) { return (s || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean); }
   /* does a [[target]] lead somewhere? (used by the guide-page checks that only need a yes or no) */
-  function pgLinkOk(inner) {
+  function edLinkOk(inner) {
     var raw = inner.split("|")[0].trim(), low = raw.toLowerCase();
     if (!raw || /^(topic|patch):/.test(low) || raw.charAt(0) === "#") return true;
     var site = low.indexOf("site:") === 0, k = splitSection(low.replace(/^(site|guide):\s*/, ""))[0];
     return H.pageExists(k, site);
   }
   /* problems, each with the line it is on */
-  function pgLint(text) {
+  function edLint(text) {
     var out = [], lines = text.replace(/^﻿/, "").replace(/\r\n/g, "\n").split("\n"), meta = frontMatter(text).meta;
     function add(level, i, col, len, msg) { out.push({ level: level, line: i + 1, col: col, len: len, msg: msg }); }
     var top = function (level, msg) { add(level, 0, 0, lines[0].length, msg); };
@@ -149,7 +149,7 @@
     return out;
   }
   /* the first *[bracketed line]* of a template that is not inside its opening Tip box: where a new writer starts typing */
-  function pgFirstPlaceholder(text) {
+  function edFirstPlaceholder(text) {
     var pos = 0, tip = false, found = null;
     text.split("\n").some(function (l) {
       if (/^>\s*\[!TIP\]/i.test(l)) tip = true; else if (!/^>/.test(l)) tip = false;
@@ -159,5 +159,5 @@
     });
     return found;
   }
-  P.linkOk = pgLinkOk; P.lint = pgLint; P.firstPlaceholder = pgFirstPlaceholder; P.headingIds = headingIds; P.headingId = headingId;
+  P.linkOk = edLinkOk; P.lint = edLint; P.firstPlaceholder = edFirstPlaceholder; P.headingIds = headingIds; P.headingId = headingId;
 })();

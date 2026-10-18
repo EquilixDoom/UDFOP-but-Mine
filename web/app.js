@@ -1899,7 +1899,7 @@
     });
   }
   /* ---------- features loaded on first use ---------- */
-  /* The guide editor (the files in web/playground/) is large and few readers open it, so it is fetched the first time #/playground is visited.
+  /* The guide editor (the files in web/editor/) is large and few readers open it, so it is fetched the first time #/editor is visited.
      It reaches this file only through window.udfopHost: what it may use, and nothing else. */
   /* things the editor's checks need that are not loaded with the page lists: another page's source (for its headings) and whether a picture file exists.
      Each is null the first time it is asked for, while it is fetched; lintCb then tells the editor to check again. */
@@ -1958,7 +1958,7 @@
       return { title: "Loading", html: '<h1 class="title">Loading</h1><p role="status">Loading the editor…</p>', toc: false };
     };
   }
-  lazyView("playground", ["playground/playground.css", "playground/lint.js", "playground/view.js"]);   /* view.js replaces this stub with the real view */
+  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";
@@ -1971,8 +1971,8 @@
     if (name === "topic" && !D.tstat[arg] && D.alias[arg]) { location.replace("#/topic/" + enc(D.alias[arg]) + qs); return; }   /* a merged topic's old name leads to the topic it became */
     var need = shardsNeeded(name, arg).filter(function (k) { return !loadedShards[k]; });
     if (need.length) { loadThenRoute(need); return; }
-    if (editorOn !== (name === "playground")) {
-      editorOn = name === "playground";
+    if (editorOn !== (name === "editor")) {
+      editorOn = name === "editor";
       if (editorOn) document.documentElement.setAttribute("data-editor", ""); else document.documentElement.removeAttribute("data-editor");
       setMenu(false); settingsPanel.close(false); applySettings(loadSettings());
     }
@@ -1984,7 +1984,7 @@
     if (name !== "feedback") feedbackPage = location.href;
     var fr = document.getElementById("foot-report");
     if (fr) { fr.href = "#/feedback"; }
-    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about", credits: "credits", playground: "playground" }[name];
+    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about", credits: "credits", editor: "editor" }[name];
     var keys = [nav];
     if (name === "guide") {
       if (arg.indexOf("category/") === 0) keys = ["guide"];

@@ -5,10 +5,10 @@ on:
   pull_request:
     paths:
       - 'web/guide/**'
-      - 'web/playground/**'
+      - 'web/editor/**'
       - 'web/style.css'
       - 'web/app.js'
-      - 'tools/playground_test.js'
+      - 'tools/editor_test.js'
       - 'tools/check_contrast.py'
       - 'web/site/**'
       - 'tools/guide.py'
@@ -34,7 +34,7 @@ jobs:
       - run: python tools/notes.py validate
       - run: python tools/notes.py build --check
       - run: python tools/check_contrast.py
-      - run: node tools/playground_test.js
+      - run: node tools/editor_test.js
       - name: Download the release notes (kept out of the repo) for the self-test
         run: python tools/notes.py fetch
         env:
