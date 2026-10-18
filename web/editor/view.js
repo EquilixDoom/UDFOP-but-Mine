@@ -85,10 +85,14 @@
         var d = e.key === "ArrowUp" ? 24 : e.key === "ArrowDown" ? -24 : 0;
         if (d) { e.preventDefault(); setBox(pbox + d, true); }
       });
+      function selectProblem(p) {   /* selects the text a problem is about and scrolls to it */
+        var a = lineStart(p.line) + p.col, row = hl.children[p.line - 1];
+        ta.focus(); ta.setSelectionRange(a, a + (p.len || 0));
+        if (row) ta.scrollTop = Math.max(0, row.offsetTop - ta.clientHeight / 3);
+      }
       plist.addEventListener("click", function (e) {
         var b = e.target.closest("button"), p = b && problems[+b.getAttribute("data-i")];
-        if (!p) return;
-        var a = lineStart(p.line) + p.col; ta.focus(); ta.setSelectionRange(a, a + (p.len || 0));
+        if (p) selectProblem(p);
       });
       function status() {
         var v = ta.value, at = ta.selectionStart, line = v.slice(0, at).split("\n").length, col = Math.max(1, at - v.lastIndexOf("\n", at - 1));
@@ -142,9 +146,10 @@
       }
       var dlg = P.dialog(ta.closest(".edw"));
       function askSubmit() {
-        var n = errors.length, shown = errors.slice(0, 5).map(function (p) { return "<li><b>Line " + p.line + "</b> " + esc(p.msg) + "</li>"; }).join("");
+        var n = errors.length, shown = errors.slice(0, 5).map(function (p, i) { return '<li><button type="button" class="edw-golink" data-v="goto:' + i + '"><b>Line ' + p.line + "</b> " + esc(p.msg) + "</button></li>"; }).join("");
         dlg.ask({ title: "This page has " + n + (n === 1 ? " error" : " errors"), html: "<ul>" + shown + "</ul>" + (n > 5 ? "<p>and " + (n - 5) + " more.</p>" : ""),
           ok: long ? (editing ? "Copy and open anyway" : "Copy and paste anyway") : "Submit anyway", cancel: "Cancel", danger: true }).then(function (go) {
+          if (typeof go === "string") { toggleProblems(true); selectProblem(errors[+go.slice(5)]); return; }   /* a line in the list: go to it */
           if (!go) { toggleProblems(true); return; }
           if (long) copyForGitHub();
           window.open(gh.href, "_blank", "noopener");

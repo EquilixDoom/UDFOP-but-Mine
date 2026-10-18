@@ -32,7 +32,7 @@
     function newPage(then) { return { pre: function () { ctx.setEditing(null); }, post: then }; }
     function template(key) {
       var t = H.guideTemplates[key];
-      if (key && !t) { dlg.notice("The template has not loaded", "Check your connection and try again."); return; }
+      if (key && !t) { ctx.say("The template has not loaded: check your connection and try again"); return; }
       replaceWith(t || H.FALLBACK_TPL, "this template", newPage(function () { selectPlaceholder(); ctx.say("New page from the template"); }));
     }
     var input = document.createElement("input");
@@ -60,9 +60,10 @@
       }, function () { dlg.notice("Cannot open the page", "The page \"" + slug + "\" could not be loaded. Check your connection and try again."); });
     }
     function openPage() {
-      if (!H.guideReady()) { dlg.notice("The page list is still loading", "Try again in a moment."); return; }
-      var pages = H.pageList(false).slice().sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
-      dlg.pick({ title: "Open a guide page", placeholder: "Type to filter by title or category", items: pages.map(function (p) { return { label: p.title, detail: p.category + (p.slug.indexOf("/") >= 0 ? " · " + p.slug : ""), value: p.slug }; }) })
+      if (!H.guideReady()) { ctx.say("The page list is still loading: try again in a moment"); return; }
+      var cat = function (p) { return p.category || "General"; };
+      var pages = H.pageList(false).slice().sort(function (a, b) { return cat(a).toLowerCase() < cat(b).toLowerCase() ? -1 : cat(a).toLowerCase() > cat(b).toLowerCase() ? 1 : a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
+      dlg.pick({ title: "Open a guide page", placeholder: "Filter by title or category", items: pages.map(function (p) { return { label: p.title, note: p.summary, group: cat(p), tag: p.unlisted ? "unlisted" : "", value: p.slug }; }) })
         .then(function (slug) { if (slug) loadPage(slug); });
     }
     function discard() {

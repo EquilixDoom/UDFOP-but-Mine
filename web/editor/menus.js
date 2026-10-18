@@ -1,29 +1,13 @@
-/* Write a guide page: the menu bar. The menus open, close and can be used from the keyboard; their items do not do anything yet. */
+/* Write a guide page: the menu bar. Menus open, close and work from the keyboard; an item with a command name (data-cmd) runs it through onCommand. */
 (function () {
   "use strict";
   var H = window.udfopHost, P = window.udfopEditor = window.udfopEditor || {};
   var esc = H.esc, SEP = "-";
-  var LANGS = ["JSON", "JavaScript", "TypeScript", "Bash", "PowerShell", "Batch", "INI", "YAML", "Lua", "C#", "XML / HTML", "Python", "Markdown"];
   /* [label, shortcut or submenu]; "-" is a divider */
   var MENUS = [
     ["File", [
       ["New from template", H.TEMPLATES.map(function (t) { return [t[1], null, "file.tpl:" + t[0]]; })], ["Open a guide page…", null, "file.page"], ["Open from this computer…", "Ctrl+O", "file.open"], SEP,
       ["Save draft", "Ctrl+S", "file.save"], ["Download .md", null, "file.download"], SEP, ["Discard draft", null, "file.discard"]]],
-    ["Edit", [
-      ["Undo", "Ctrl+Z"], ["Redo", "Ctrl+Y"], SEP, ["Cut", "Ctrl+X"], ["Copy", "Ctrl+C"], ["Paste", "Ctrl+V"], ["Select all", "Ctrl+A"], SEP,
-      ["Find…", "Ctrl+F"], ["Replace…", "Ctrl+H"], ["Go to line…", "Ctrl+G"]]],
-    ["Insert", [
-      ["Notice box", [["Note"], ["Tip"], ["Important"], ["Warning"], ["Caution"]]], ["Fact panel"], ["Code box"],
-      ["Code box in a language", LANGS.map(function (l) { return [l]; })], ["Spoiler"], ["Quotation"], ["Keyboard key"], ["Divider"], SEP,
-      ["Link to a page…", "Ctrl+K"],
-      ["Other links", [["Link with your own text…"], ["Link to a section…"], ["Site Guide page…"], ["Patch Notes topic…"], ["Patch…"], ["Web address…"]]], SEP,
-      ["Picture…"]]],
-    ["View", [
-      ["Layout", [["Editor only"], ["Editor and preview"], ["Preview only"]]], SEP,
-      ["Word wrap", "Alt+Z"], ["Zoom in", "Ctrl++"], ["Zoom out", "Ctrl+−"], ["Reset zoom", "Ctrl+0"], SEP,
-      ["Outline"], ["Problems"]]],
-    ["Help", [
-      ["Formatting reference", "F1"], ["How to use the editor"], ["How to write a guide page"], SEP, ["Keyboard shortcuts"]]]
   ];
   var uid = 0;
   function list(items, depth) {

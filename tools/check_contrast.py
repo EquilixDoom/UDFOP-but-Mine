@@ -40,11 +40,12 @@ def mix(a, b, pct):
 
 
 def editor(v, label):
-    """The guide editor (web/editor/editor.css): token colors on its background (the paper) and on its selection tint."""
+    """The guide editor (web/editor/editor.css): token colors on its background (the paper) and on its selection tint, and the filled button."""
     bad = 0
     bg = v["paper"]
     sel = mix(v["link"], bg, 16)
     checks = [(f"{t} on editor", v[t], bg, MIN) for t in EDITOR_TOKENS + ["fg"]]
+    checks.append(("primary button: paper on accent", v["paper"], v["accent"], MIN))   # Submit, and the main button of a dialog
     checks += [("fg on selection", v["fg"], sel, MIN)] + [(f"{t} on selection", v[t], sel, MIN_TINT) for t in EDITOR_TOKENS]
     for what, fg, back, need in checks:
         r = ratio(fg, back)

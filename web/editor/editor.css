@@ -79,8 +79,18 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .edw-dlg-btns { flex-wrap: wrap; }
 .edw-dlg:has(.edw-pick) { width: min(34rem, calc(100vw - 32px)); }
 .edw-pick-q { display: block; width: 100%; box-sizing: border-box; margin: 0 0 6px; padding: 5px 8px; font: inherit; color: var(--fg); background: var(--paper); border: 1px solid var(--line); border-radius: 3px; }
-.edw-pick { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; border: 1px solid var(--line); border-radius: 3px; }
-.edw-pick li { display: flex; justify-content: space-between; gap: 1em; margin: 0; padding: 5px 10px; cursor: pointer; }
-.edw-pick li small { color: var(--muted); text-align: right; }
-.edw-pick li[aria-selected="true"], .edw-pick li:hover { background: var(--soft); }
+.edw-dlg ul.edw-pick { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; scroll-padding-top: 1.9rem; border: 1px solid var(--line); border-radius: 3px; }
+.edw-pick li { display: block; margin: 0; padding: 5px 10px 5px 24px; cursor: pointer; }
+.edw-pick li.edw-pick-g { position: sticky; top: 0; z-index: 1; padding: 4px 10px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--soft); border-bottom: 1px solid var(--line); cursor: default; }
+.edw-pick li b small { margin-left: .6em; font-size: .75em; font-weight: 400; color: var(--muted); }
+.edw-pick-l { min-width: 0; display: flex; flex-direction: column; }
+.edw-pick-l em { font-style: normal; font-size: .85em; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.edw-pick-n { color: var(--muted); font-size: 12px; align-self: center; }
+.edw-pick li[role="option"][aria-selected="true"] { background: var(--soft); }
+.edw-pick li[role="option"][aria-selected="true"] { box-shadow: inset 3px 0 0 var(--accent); }
 .edw-pick li.none { color: var(--muted); cursor: default; }
+.edw-dlg-btns .primary { background: var(--accent); color: var(--paper); border-color: var(--accent); font-weight: 600; }
+.edw-dlg-btns .primary:hover { background: var(--accent); filter: brightness(1.1); }
+.edw-dlg li button.edw-golink { display: block; width: 100%; padding: 2px 0; font: inherit; text-align: left; color: var(--fg); background: transparent; border: 0; cursor: pointer; }
+.edw-dlg li button.edw-golink:hover, .edw-dlg li button.edw-golink:focus-visible { text-decoration: underline; }
+

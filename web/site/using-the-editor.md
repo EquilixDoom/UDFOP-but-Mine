@@ -46,15 +46,13 @@ The check reads another page's headings, and looks for picture files, the first 
 ## The File menu
 
 - **New from template** replaces the text with one of the starter templates (How it works, Item, Place, Creature or boss) and selects the first placeholder so you can type over it.
-- **Open a guide page** lists the pages already in the Game Guide. Type to narrow the list, then choose a page to edit it (see below).
+- **Open a guide page** lists the pages already in the Game Guide, grouped by category with each page's summary. Type to narrow the list (it matches titles, categories and summaries), use the arrow keys and Enter or click to choose a page to edit it (see below).
 - **Open from this computer** (Ctrl+O) loads a Markdown or text file (`.md`, `.markdown`, `.mdown` or `.txt`, up to 2 MB) into the editor.
 - **Save draft** (Ctrl+S) saves the draft now instead of waiting.
 - **Download .md** saves the text as a file named after your title, for example `my-page.md`.
 - **Discard draft** deletes the saved draft and starts a new page from the template.
 
 Whenever one of these would replace the text you have written, the editor asks first. You can cancel, replace the text (Ctrl+Z brings the old text back), or choose **Download, then replace** to save a copy to your device before it goes.
-
-The other menus are not working yet.
 
 ## Editing an existing page
 
@@ -72,7 +70,9 @@ The editor saves your draft in this browser a moment after you stop typing, and 
 
 Press **Submit on GitHub**. GitHub opens on its "new file" screen with your page already filled in, ready for you to commit and open a pull request. The steps from there are on the page [[site:How to write a guide page]], from step 5.
 
-While the page has an error, the button is outlined in red and pressing it opens a window listing the errors, with **Cancel** and **Submit anyway**. Cancel takes you back and opens the Problems panel. Warnings never open this window.
+While the page has an error, the button is outlined in red and pressing it opens a window listing the errors, with **Cancel** and **Submit anyway**. Press a line in the list to go straight to that error in the text. Cancel, Esc, or a click outside the window takes you back and opens the Problems panel. Warnings never open this window.
+
+All the editor's windows work this way: Esc or a click outside closes them without changing anything, and when one asks you to confirm a change, **Cancel** has the focus so pressing Enter never confirms by accident.
 
 If the page is too long to carry in the link, the button reads **Copy and paste on GitHub**: it copies the text, then opens GitHub's new-file page, where you paste it.
 
