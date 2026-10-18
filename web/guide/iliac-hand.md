@@ -32,7 +32,7 @@ Effect Text may refer to categories of Unit cards such as knight units and orc u
 
 **Power**: A measure of the Unit card's strength. The player with more cumulative Power in a Holding across all their Unit cards at the end of the game wins that Holding. A Unit's Power can never go below 0.
 
-## Spell Cards
+### Spell Cards
 
 Spell Cards are played to Holdings but are discarded immediately after they take effect. Each Spell card contains the following plus a line of flavor text that has no effect on play:
 
@@ -47,7 +47,7 @@ Spell Cards are played to Holdings but are discarded immediately after they take
 Artifacts, such as Chrysamere and Wabbajack, are especially powerful Spells with a
 unique card border.
 
-## Prince Cards
+### Prince Cards
 
 Prince cards, while occupying a separate tab in your Collection, function identically to
 Unit cards. Unlike Unit cards which can only affect the Holding they are in, each
@@ -112,7 +112,9 @@ Knightly Order or Temple. This card will be of the faction that you did a quest 
 
 3. Enemies rarely drop their own card when killed.
 
-## Game Setup
+## Gameplay
+
+### Game Setup
 
 - Three Holdings are selected at random.
 - Each player shuffles their deck and draws four cards to form their starting hand.
@@ -175,4 +177,4 @@ accounts and using decks the account service has vouched for (every card in the 
 owned by the account’s character) and count towards the ranking ladder. Friendly games do
 not have these restrictions.
 
-### Card List
+## Card List
