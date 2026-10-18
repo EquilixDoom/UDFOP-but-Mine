@@ -10,7 +10,7 @@ This page walks you through adding a page to the Game Guide, or fixing an existi
 > The project must be forked before you can contribute to the wiki. Fork from the [project’s own page](https://github.com/tau-samsara/udfop/fork) first. Don’t rely on “Edit this page on github”, because forking from there often fails.
 
 > [!TIP]
-> Prefer not to write in GitHub's editor? The [[site:How to use the editor|browser editor]] gives a live preview and checks your page as you type, and sends it to GitHub when it is ready. To change a page that already exists, use **Open this page in the Editor** at the bottom of the page, or **File > Open a guide page** in the editor.
+> Prefer not to write in GitHub's editor? The [[site:How to use the editor|browser editor]] gives a live preview and checks your page as you type, and sends it to GitHub when it is ready. To change a page that already exists, use **Open this page in the Editor** at the bottom of the page, or **File > Open a guide page** in the editor. To see how an existing page is written, open its **Source** tab.
 
 ## The short version
 

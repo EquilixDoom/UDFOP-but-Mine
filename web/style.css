@@ -415,6 +415,9 @@ body.settings-open #settings-panel { display: block; }
 /* Game Guide pages */
 .portals.two, .portals.three { grid-template-columns: repeat(auto-fit, minmax(16em, 1fr)); }
 a.missing, a.missing:visited { color: var(--nerf); }
+/* the Article, Read and Source tabs under a page's title (the look is .gtabs; Read and Source sit at the right) */
+.gtabs.ptabs { margin: 0 0 .5em; }
+.gtabs .ptab-r { margin-left: auto; }
 .editline { margin-top: 2em; padding-top: .6em; border-top: 1px solid var(--line); font-size: .85rem; color: var(--muted); }
 #app blockquote { margin: 0 0 1em; padding: .1em 1em; border-left: 3px solid var(--line); background: var(--softer); }
 /* notice boxes: > [!NOTE] and friends. One colour per type, checked against every theme's page colour in light and dark */

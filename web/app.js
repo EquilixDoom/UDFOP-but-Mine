@@ -1096,13 +1096,42 @@
     var real = entry ? entry.slug : slug, slugPath = real.split("/").map(enc).join("/");
     return { title: title, html: page(esc(title), '<div id="gp"><p>Loading…</p></div>', { hat: front ? "" : site ? SITE_HAT : GUIDE_HAT }), after: function () {
       var box = document.getElementById("gp");
+      /* the Source tab: the page's Markdown file in a read-only copy of the editor's panes, with a notice on how to change it. The editor's colors are fetched the first time. */
+      function showSource(raw) {
+        var text = raw.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n"), file = dir + real + ".md", gh = REPO + "/edit/main/web/" + dir + slugPath + ".md";
+        loadFiles(["editor/editor.css", "editor/lint.js", "editor/highlight.js"]).then(function () {
+          var words = (text.match(/\S+/g) || []).length;
+          box.innerHTML = '<div class="mbox srcnote"><b>This is the source of this page</b>: the Markdown file it is written in. You can select and copy it here, but not change it. To change the page, ' +
+            (site ? "" : '<a href="#/editor?page=' + enc(real) + '">open it in the Editor</a> or ') + '<a href="' + gh + '" rel="noopener">edit it on GitHub</a>. Either way, <a href="' + REPO + '/fork" rel="noopener">fork the project</a> first. New to this? <a href="' + HOWTO + '">Learn how</a>.</div>' +
+            '<div class="srcv"><div class="edw-pbar"><strong>' + esc(file) + '</strong><span class="edw-grow"></span><small>read-only</small></div>' +
+            '<div class="srcv-code edw-code" tabindex="0" aria-label="Source of this page, read only">' + window.udfopEditor.highlight(text) + "</div>" +
+            '<div class="edw-sbar"><span>' + text.split("\n").length.toLocaleString() + " lines</span><span>" + words.toLocaleString() + " words</span></div></div>";
+          var panel = box.querySelector(".srcv"), code = box.querySelector(".srcv-code");
+          function fit() {   /* the panel ends at the bottom of the window; the source scrolls inside it */
+            if (!panel.isConnected) { window.removeEventListener("resize", fit); return; }
+            panel.style.height = "";
+            var top = Math.max(panel.getBoundingClientRect().top, document.getElementById("head") ? document.getElementById("head").offsetHeight : 0);
+            panel.style.height = Math.max(224, window.innerHeight - top - 12) + "px";
+          }
+          fit(); window.addEventListener("resize", fit);
+          code.addEventListener("keydown", function (e) {   /* Ctrl+A selects the source, not the whole page */
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); var r = document.createRange(); r.selectNodeContents(code); var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+          });
+        }, function () { box.innerHTML = '<div class="mbox">The source view could not load. Check your connection, then <a href="' + location.hash + '">try again</a>.</div>'; });
+      }
       fetch(dir + slugPath + ".md").then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }).then(function (raw) {
         var fm = frontMatter(raw), t = fm.meta.title || title, cat = fm.meta.category || (entry && entry.category) || "General";
         document.title = t + " – " + SHORT;
         setNav(["page:" + (site ? "site/" : "") + real.toLowerCase(), area]);   /* the page's real slug, not the title or odd capitals someone typed */
         document.querySelector("h1.title").textContent = t;
+        var base = entry ? purl(entry) : (site ? "#/site/" : "#/guide/") + slugPath, source = routeQuery.view === "source";
+        /* the same tabs as the By type / By topic switch: the chosen one is not a link */
+        function vtab(on, label, href, right) { return on ? '<span class="on' + (right ? " ptab-r" : "") + '" aria-current="page">' + label + "</span>" : '<a' + (right ? ' class="ptab-r"' : "") + ' href="' + href + '">' + label + "</a>"; }
+        document.querySelector("h1.title").insertAdjacentHTML("afterend", '<nav class="gtabs ptabs banner" aria-label="Views of this page"><span class="on">Article</span>' +
+          vtab(!source, "Read", base, true) + vtab(source, "Source", base + "?view=source", false) + "</nav>");
         var hat = document.querySelector(".hat");
         if (hat && !site) { if (entry && entry.unlisted) hat.remove(); else hat.innerHTML = GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a>"; }
+        if (source) { showSource(raw); return; }
         mdRoot = dir;
         mdBase = real.indexOf("/") >= 0 ? real.replace(/[^/]*$/, "") : "";
         refs = newRefs(area + "|" + real);
@@ -1938,6 +1967,19 @@
       finally { mdRoot = sRoot; mdBase = sBase; refs = sRefs; }
     }
   };
+  /* Files fetched on first use: a style sheet is added as a link, a script is added so that scripts run in the order they were asked for. Each file is fetched once. */
+  var fileLoads = {};
+  function loadFile(f) {
+    if (fileLoads[f]) return fileLoads[f];
+    return fileLoads[f] = new Promise(function (resolve, reject) {
+      var el;
+      if (/\.css$/.test(f)) { el = document.createElement("link"); el.rel = "stylesheet"; el.href = f; }
+      else { el = document.createElement("script"); el.src = f; el.async = false; }
+      el.onload = resolve; el.onerror = function () { delete fileLoads[f]; el.remove(); reject(new Error(f)); };
+      document.head.appendChild(el);
+    });
+  }
+  function loadFiles(files) { return Promise.all(files.map(loadFile)); }
   var lazyState = {};
   function lazyView(name, files) {
     views[name] = function () {
@@ -1946,16 +1988,8 @@
         document.getElementById("retry").addEventListener("click", function (e) { e.preventDefault(); lazyState[name] = ""; route(); }); } };
       if (!lazyState[name]) {
         lazyState[name] = "loading";
-        files.forEach(function (f) {
-          if (/\.css$/.test(f)) { var l = document.createElement("link"); l.rel = "stylesheet"; l.href = f; document.head.appendChild(l); }
-        });
-        var js = files.filter(function (f) { return /\.js$/.test(f); }), left = js.length;
-        js.forEach(function (f) {
-          var sc = document.createElement("script"); sc.src = f; sc.async = false;   /* run in the listed order */
-          sc.onload = function () { if (--left === 0) { lazyState[name] = "ready"; if (location.hash === target) route(); } };
-          sc.onerror = function () { lazyState[name] = "failed"; if (location.hash === target) route(); };
-          document.head.appendChild(sc);
-        });
+        loadFiles(files).then(function () { lazyState[name] = "ready"; if (location.hash === target) route(); },
+          function () { lazyState[name] = "failed"; if (location.hash === target) route(); });
       }
       return { title: "Loading", html: '<h1 class="title">Loading</h1><p role="status">Loading the editor…</p>', toc: false };
     };

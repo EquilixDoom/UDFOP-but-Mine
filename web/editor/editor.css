@@ -94,3 +94,11 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .edw-dlg li button.edw-golink { display: block; width: 100%; padding: 2px 0; font: inherit; text-align: left; color: var(--fg); background: transparent; border: 0; cursor: pointer; }
 .edw-dlg li button.edw-golink:hover, .edw-dlg li button.edw-golink:focus-visible { text-decoration: underline; }
 
+/* the Source tab of a page (a read-only copy of the editor's panes) */
+.srcv { display: flex; flex-direction: column; min-height: 14rem; margin: .8em 0; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; background: var(--paper); }
+.srcv-code { flex: 1 1 auto; min-height: 0; overflow: auto; color: var(--fg); outline: 0; }
+.srcv-code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.srcv .t-k { color: var(--rework); } .srcv .t-s { color: var(--buff); } .srcv .t-m { color: var(--muted); } .srcv .t-h { color: var(--accent); }
+.srcv .t-a { color: var(--new); } .srcv .t-c { color: var(--fix); } .srcv .t-w { color: var(--link); } .srcv .t-q { color: var(--perf); }
+.srcv .t-u { color: var(--link); } .srcv .t-b { color: var(--econ); }
+.srcv .t-x { color: var(--red); text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
