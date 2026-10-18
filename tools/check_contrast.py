@@ -11,6 +11,8 @@ TEXT = ["fg", "muted", "link", "visited", "red", "accent",
 BACKGROUNDS = ["paper", "page", "soft"]
 SKINS = ["crier", "iliac", "oblivion", "phosphor", "cassette"]
 MIN = 4.5
+MIN_TINT = 3.0   # editor token colors on the text selection: brief, and the plain text stays at MIN
+EDITOR_TOKENS = ["rework", "buff", "muted", "accent", "new", "fix", "link", "perf", "econ", "red"]   # .t-* in web/editor/editor.css
 DARK_ONLY = {"phosphor"}   # themes with one palette, always dark
 
 
@@ -35,6 +37,21 @@ def mix(a, b, pct):
         h = "".join(c * 2 for c in h) if len(h) == 3 else h
         return [int(h[i:i + 2], 16) for i in (0, 2, 4)]
     return "#" + "".join(f"{round(x * pct / 100 + y * (100 - pct) / 100):02x}" for x, y in zip(rgb(a), rgb(b)))
+
+
+def editor(v, label):
+    """The guide editor (web/editor/editor.css): token colors on its background (the paper) and on its selection tint."""
+    bad = 0
+    bg = v["paper"]
+    sel = mix(v["link"], bg, 16)
+    checks = [(f"{t} on editor", v[t], bg, MIN) for t in EDITOR_TOKENS + ["fg"]]
+    checks += [("fg on selection", v["fg"], sel, MIN)] + [(f"{t} on selection", v[t], sel, MIN_TINT) for t in EDITOR_TOKENS]
+    for what, fg, back, need in checks:
+        r = ratio(fg, back)
+        if r < need:
+            bad += 1
+            print(f"FAIL {label}: editor {what} {fg} on {back} = {r:.2f} (need {need})")
+    return bad
 
 
 def colors(body):
@@ -84,6 +101,7 @@ def main():
             light = {**base, **b[(skin, "light", False)]}
             night = {**base, **dark, **b[(skin, "light", False)], **b[(skin, "dark", False)]}
         for mode, v in (("light", light), ("dark", night)):
+            failures += editor(v, f"{skin}/{mode}")
             for t in TEXT:
                 for bg in BACKGROUNDS:
                     r = ratio(v[t], v[bg])
@@ -101,6 +119,7 @@ def main():
     for v in ("parchment", "slate", "moss", "dusk", "terracotta", "graphite"):   # Default colors: whole palettes on the base
         key = "palette-" + v
         for mode, pal in (("light", {**base, **b[(key, "light", False)]}), ("dark", {**base, **dark, **b[(key, "dark", False)]})):
+            failures += editor(pal, f"default-{v}/{mode}")
             for t_ in TEXT:
                 for bg in BACKGROUNDS:
                     r = ratio(pal[t_], pal[bg])
@@ -113,6 +132,7 @@ def main():
 
     for v in ("amber", "blue", "white"):   # Phosphor colors: the green base with a palette swapped in
         pal = {**base, **dark, **b[("phosphor", "light", False)], **b[("phosphor-" + v, "light", False)]}
+        failures += editor(pal, f"phosphor-{v}")
         for t_ in TEXT:
             for bg in BACKGROUNDS:
                 r = ratio(pal[t_], pal[bg])

@@ -5,6 +5,7 @@
   "use strict";
   var H = window.udfopHost, P = window.udfopEditor = window.udfopEditor || {};
   var splitSection = H.splitSection, frontMatter = H.frontMatter;
+  var MAX_LINE = 2000;   /* a longer line is not read for links, pictures and spoilers (the patterns would rescan it from every opening bracket) */
   var FENCE = /^(`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$/, FENCE_END = /^(`{3,}|~{3,})\s*$/;
   var NOTICES = /^(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO)$/i, INFO_START = /^>\s*\[!INFO\]/i;
   var IMAGE = /!\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)(?:\{[^}]*\})?/g, FIGURE = /^!\[[^\]]*\]\([^)\s]+(?:\s+"[^"]*")?\)\{([^}]*)\}\s*$/;
@@ -98,6 +99,7 @@
         continue;
       }
       if (/^(`{3,}|~{3,})[^`]*\S/.test(l) && !/^(`{3,})[^`]*`/.test(l)) add("warn", i, 0, l.length, "This line looks like the start of a code box, but only a language name may follow the backticks. The site shows it as plain text.");
+      if (l.length > MAX_LINE) { add("warn", i, 0, 0, "This line is " + l.length.toLocaleString() + " characters long: it is not checked for links, pictures or spoilers. Break it into shorter lines."); continue; }
       var scan = blankSpans(l);   /* what is written inside `code` is only text */
       if ((a = /^>\s*\[!([A-Za-z]+)\]/.exec(l)) && !NOTICES.test(a[1])) add("warn", i, a[0].indexOf("[!"), a[0].length - a[0].indexOf("[!"), "Unknown box type: [!" + a[1] + "].");
       if (INFO_START.test(l)) {
@@ -159,5 +161,5 @@
     });
     return found;
   }
-  P.linkOk = edLinkOk; P.lint = edLint; P.firstPlaceholder = edFirstPlaceholder; P.headingIds = headingIds; P.headingId = headingId;
+  P.FENCE = FENCE; P.MAX_LINE = MAX_LINE; P.linkOk = edLinkOk; P.lint = edLint; P.firstPlaceholder = edFirstPlaceholder; P.headingIds = headingIds; P.headingId = headingId;
 })();

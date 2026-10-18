@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Tests for the guide editor's pure parts (web/editor/lint.js): the Problems checks and the first-placeholder finder.
+/* Tests for the guide editor's pure parts (web/editor/lint.js, highlight.js): the colored source, the Problems checks and the first-placeholder finder.
    No packages: loads the real files with a stand-in for window.udfopHost (esc, splitSection and frontMatter are copied from web/app.js).   Usage: node tools/editor_test.js */
 "use strict";
 const fs = require("fs"), path = require("path"), vm = require("vm"), assert = require("assert");
@@ -21,7 +21,7 @@ host.fileExists = (p) => (p in files ? files[p] : null);
 const sandbox = { window: null, console };
 sandbox.window = sandbox; sandbox.udfopHost = host;
 vm.createContext(sandbox);
-for (const f of ["highlight.js", "editor/lint.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
+for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
 const P = sandbox.udfopEditor;
 
 let passed = 0, failed = 0;
@@ -86,6 +86,24 @@ test("first placeholder skips the opening Tip box", () => {
 test("no placeholder gives null", () => assert.strictEqual(P.firstPlaceholder("plain\n"), null));
 
 
+
+test("highlight: one row per line", () => { for (const t of ["", "a", "a\n", "a\n\nb", GOOD, "```\ncode\n```\n> [!NOTE]\n> x"]) assert.strictEqual((P.highlight(t).match(/<div class="l">/g) || []).length, t.split("\n").length, JSON.stringify(t)); });
+test("highlight: text is escaped", () => { const h = P.highlight("<img src=x onerror=alert(1)> & \"q\" [[<b>]] `<i>`"); assert(!/<img|<b>|<i>/.test(h), h); });
+test("highlight: a missing link is flagged, an existing one is not", () => { assert(/t-x/.test(P.highlight("[[Nope]]"))); assert(/t-w/.test(P.highlight("[[How things work]]"))); });
+test("highlight: front matter, headings, fences and notices", () => {
+  const h = P.highlight("---\ntitle: T\n---\n# H\n```lua\nx\n```\n> [!NOTE]\n");
+  assert(/t-k">title/.test(h)); assert(/t-h">#/.test(h)); assert(/t-s">x/.test(h)); assert(/t-a">\[!NOTE\]/.test(h));
+});
+test("highlight: fuzz: random documents never throw and keep their line count", () => {
+  const pool = ["---", "title: x", "```", "```lua", "~~~", "> [!NOTE]", "> [!TIP]", "[[", "]]", "[[A|b]]", "`", "**", "*", "{{", "}}", ">!", "!<", "|", "# H", "## H", "- i", "<script>", "&", "\"", "\\", "\r", "\t", "\u0000", "é", "😀", "", " "];
+  let seed = 12345; const rnd = (n) => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) % n;
+  for (let i = 0; i < 3000; i++) {
+    let t = ""; for (let k = rnd(40); k >= 0; k--) t += pool[rnd(pool.length)] + (rnd(3) ? "\n" : " ");
+    const h = P.highlight(t); P.lint(t); P.firstPlaceholder(t);
+    assert.strictEqual((h.match(/<div class="l">/g) || []).length, t.split("\n").length, JSON.stringify(t));
+    assert(!/<script/.test(h), JSON.stringify(t));
+  }
+});
 
 console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);
 process.exit(failed ? 1 : 0);

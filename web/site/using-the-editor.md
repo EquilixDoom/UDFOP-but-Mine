@@ -15,6 +15,8 @@ The editor always uses the whole width of the window, and the main menu and Sett
 
 A new draft starts from the guide template. Replace the placeholders, delete the Tip box at the top once you have read it, and fill in the `title`, `category` and `summary` lines at the very top. The formatting is described on the page [[site:Formatting reference]].
 
+The text is colored as you type: the front matter, headings, code boxes, notice boxes, bold, italic, code, links and spoilers each have a color. A link to a page that exists is colored as a link, and a link to a page that does not exist is red with a wavy underline.
+
 Each pane has a title bar and a status bar. The Editor's status bar shows the line and column, the word count and when the draft was saved. The Preview's title bar shows the file name the page will get, made from your title, and its status bar shows how much of the Submit link's length limit the page uses.
 
 ## Problems

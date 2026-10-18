@@ -9,7 +9,7 @@
     var h = '<div class="edw"><div class="edw-bar"><strong>Write a guide page</strong><span class="edw-grow"></span>' +
       '<a id="ed-gh" class="edw-primary" href="' + REPO + '/new/main/web/guide" target="_blank" rel="noopener">Submit on GitHub</a></div>' +
       '<div class="edw-main"><section class="edw-pane" aria-label="Editor"><div class="edw-pbar"><strong>Editor</strong><span class="edw-grow"></span><button type="button" id="ed-chip" class="edw-chip" aria-expanded="false" aria-controls="ed-prob"></button></div>' +
-      '<textarea id="ed-text" spellcheck="true" aria-label="Page source (Markdown)"></textarea><div id="ed-prob" class="edw-prob" hidden><div id="ed-ph" class="edw-ph" role="separator" aria-orientation="horizontal" aria-label="Resize the Problems panel" tabindex="0"></div>' +
+      '<div class="edw-stack"><div class="edw-hl edw-code" aria-hidden="true"><div id="ed-hl"></div></div><textarea id="ed-text" class="edw-code" spellcheck="true" aria-label="Page source (Markdown)"></textarea></div><div id="ed-prob" class="edw-prob" hidden><div id="ed-ph" class="edw-ph" role="separator" aria-orientation="horizontal" aria-label="Resize the Problems panel" tabindex="0"></div>' +
       '<div class="edw-pbar"><strong>Problems</strong><small id="ed-pn"></small><span class="edw-grow"></span><button type="button" id="ed-pclose" aria-label="Close the Problems panel">Close</button></div><div id="ed-plist" class="edw-plist"></div></div>' +
       '<div class="edw-sbar"><span id="ed-pos"></span><span id="ed-words"></span><span class="edw-grow"></span><small id="ed-note"></small></div></section>' +
       '<section class="edw-pane" aria-label="Preview"><div class="edw-pbar"><strong>Preview</strong><span class="edw-grow"></span><small id="ed-file"></small></div>' +
@@ -18,6 +18,27 @@
       var ta = document.getElementById("ed-text"), prev = document.getElementById("ed-prev"), gh = document.getElementById("ed-gh"), note = document.getElementById("ed-note"), chip = document.getElementById("ed-chip"), fileEl = document.getElementById("ed-file"), sizeEl = document.getElementById("ed-size"), prob = document.getElementById("ed-prob"), problems = [], errors = [], plist = document.getElementById("ed-plist"), timer = null, long = false;
       var saved = ""; try { saved = localStorage.getItem(KEY) || ""; } catch (e) {}
       ta.value = saved || starter();
+      var hl = document.getElementById("ed-hl"), hlBox = hl.parentNode, paintQueued = false;
+      var shown = [];   /* the rows now in the colored copy */
+      function paint() {   /* the colored copy of the text behind the (transparent) text box; only the rows that changed are replaced, so a long page stays quick to type in */
+        paintQueued = false;
+        var rows = P.highlightRows(ta.value), n = rows.length, m = shown.length, a = 0, b = 0;
+        while (a < n && a < m && rows[a] === shown[a]) a++;
+        while (b < n - a && b < m - a && rows[n - 1 - b] === shown[m - 1 - b]) b++;
+        if (!m) hl.innerHTML = rows.join("");
+        else {
+          for (var k = m - a - b; k > 0; k--) hl.removeChild(hl.children[a]);
+          var html = rows.slice(a, n - b).join("");
+          if (html) { if (hl.children[a]) hl.children[a].insertAdjacentHTML("beforebegin", html); else hl.insertAdjacentHTML("beforeend", html); }
+        }
+        shown = rows;
+        hlBox.style.setProperty("--sb", (ta.offsetWidth - ta.clientWidth) + "px");   /* the text box's scroll bar takes room the copy does not have */
+        hl.style.transform = "translate(" + -ta.scrollLeft + "px," + -ta.scrollTop + "px)";
+      }
+      function paintSoon() { if (!paintQueued) { paintQueued = true; requestAnimationFrame(paint); } }
+      ta.addEventListener("scroll", function () { hl.style.transform = "translate(" + -ta.scrollLeft + "px," + -ta.scrollTop + "px)"; });
+      ta.addEventListener("input", paintSoon);
+      if (window.ResizeObserver) { var ro = new ResizeObserver(paintSoon); ro.observe(ta); }
       function lineStart(n) { var p = 0; while (--n > 0) p = ta.value.indexOf("\n", p) + 1; return p; }
       function showProblems() {
         problems = P.lint(ta.value);
@@ -69,7 +90,8 @@
       }
       ["keyup", "click", "input", "focus"].forEach(function (ev) { ta.addEventListener(ev, status); });
       function render() {
-        if (!ta.isConnected) return;
+        if (!ta.isConnected) { if (ro) ro.disconnect(); return; }
+        paint();
         showProblems();
         var fm = frontMatter(ta.value), t = fm.meta.title || "Untitled page", html;
         try { html = H.renderDoc(fm.body, t, { area: "guide", key: "guide|\u0000editor" }); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
