@@ -5,6 +5,10 @@ on:
   pull_request:
     paths:
       - 'web/guide/**'
+      - 'web/playground/**'
+      - 'web/style.css'
+      - 'web/app.js'
+      - 'tools/check_contrast.py'
       - 'web/site/**'
       - 'tools/guide.py'
       - 'CONTRIBUTORS.md'

@@ -28,6 +28,15 @@ def ratio(a, b):
     return (hi + 0.05) / (lo + 0.05)
 
 
+def mix(a, b, pct):
+    """color-mix(in srgb, a pct%, b) as a hex string"""
+    def rgb(h):
+        h = h.lstrip("#")
+        h = "".join(c * 2 for c in h) if len(h) == 3 else h
+        return [int(h[i:i + 2], 16) for i in (0, 2, 4)]
+    return "#" + "".join(f"{round(x * pct / 100 + y * (100 - pct) / 100):02x}" for x, y in zip(rgb(a), rgb(b)))
+
+
 def colors(body):
     return dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{3,6})\b", body))
 

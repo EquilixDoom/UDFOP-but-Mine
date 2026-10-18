@@ -22,8 +22,10 @@
   function saveSettings(st) {
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(st)); return true; } catch (e) { return false; }
   }
+  var editorOn = false;   /* the guide editor is open: it always runs in Wide mode with the main menu and Settings as pop-ups, whatever is saved */
   function applySettings(st) {
     var d = document.documentElement;
+    if (editorOn) { var o = {}; Object.keys(st).forEach(function (k) { o[k] = st[k]; }); o.width = "wide"; o.menu = "popover"; o.panel = "popover"; o.contents = "popover"; st = o; }
     [["skin", "default"], ["phosphor", "green"], ["palette", "gold"], ["size", "medium"], ["width", "standard"], ["navbar", "stay"], ["theme", "auto"], ["previews", "on"], ["menu", "sidebar"], ["panel", "popover"], ["contents", "popover"]].forEach(function (p) {
       if (st[p[0]] === p[1]) d.removeAttribute("data-" + p[0]); else d.setAttribute("data-" + p[0], st[p[0]]);
     });
@@ -1377,7 +1379,7 @@
     if (t.closest(".toc-btn")) setToc(!document.body.classList.contains("toc-open"));
     else if (document.body.classList.contains("toc-open") && !t.closest("#side-toc")) setToc(false);
     var d = t.closest("[data-dock]");
-    if (d) {
+    if (d && !editorOn) {
       var k = d.getAttribute("data-dock");
       updateSetting(k, loadSettings()[k] === "sidebar" ? "popover" : "sidebar"); setMenu(false); setToc(false); settingsPanel.close(false);
     }
@@ -1896,6 +1898,47 @@
       document.getElementById("retry").addEventListener("click", function (e) { e.preventDefault(); loadThenRoute(need); });
     });
   }
+  /* ---------- features loaded on first use ---------- */
+  /* The guide editor (the files in web/playground/) is large and few readers open it, so it is fetched the first time #/playground is visited.
+     It reaches this file only through window.udfopHost: what it may use, and nothing else. */
+  window.udfopHost = {
+    views: views, app: app, REPO: REPO, HOWTO: HOWTO, GUIDE_HAT: GUIDE_HAT, LINK_ICON: LINK_ICON, TEMPLATES: TEMPLATES, FALLBACK_TPL: FALLBACK_TPL, guideTemplates: guideTemplates,
+    esc: esc, enc: enc, slugId: slugId, splitSection: splitSection, plainText: plainText, frontMatter: frontMatter, page: page,
+    query: function () { return routeQuery; },
+    guideReady: function () { return guide !== null; },
+    /* does a Game Guide (or, with site true, Site Guide) page with this title or address exist? key is lower case */
+    pageExists: function (key, site) { return !!(site ? (siteByTitle[key] || siteBySlug[key]) : (guideByTitle[key] || guideBySlug[key])); },
+    /* draws Markdown as a page of the given area ("guide" or "site"); the renderer's per-page state is set for the call and put back after it. o: { area, base, key, related } */
+    renderDoc: function (body, title, o) {
+      var sRoot = mdRoot, sBase = mdBase, sRefs = refs;
+      mdRoot = o.area === "site" ? "site/" : "guide/"; mdBase = o.base || ""; refs = newRefs(o.key || "");
+      try { var html = markdown(body, title); return o.related ? html + buildReferences(refs, o.related) : html; }
+      finally { mdRoot = sRoot; mdBase = sBase; refs = sRefs; }
+    }
+  };
+  var lazyState = {};
+  function lazyView(name, files) {
+    views[name] = function () {
+      var target = location.hash;
+      if (lazyState[name] === "failed") return { title: "Could not load", html: '<h1 class="title">Could not load this page</h1><div class="mbox">A file did not load. Check your connection, then <a href="' + esc(target) + '" id="retry">try again</a>.</div>', toc: false, after: function () {
+        document.getElementById("retry").addEventListener("click", function (e) { e.preventDefault(); lazyState[name] = ""; route(); }); } };
+      if (!lazyState[name]) {
+        lazyState[name] = "loading";
+        files.forEach(function (f) {
+          if (/\.css$/.test(f)) { var l = document.createElement("link"); l.rel = "stylesheet"; l.href = f; document.head.appendChild(l); }
+        });
+        var js = files.filter(function (f) { return /\.js$/.test(f); }), left = js.length;
+        js.forEach(function (f) {
+          var sc = document.createElement("script"); sc.src = f; sc.async = false;   /* run in the listed order */
+          sc.onload = function () { if (--left === 0) { lazyState[name] = "ready"; if (location.hash === target) route(); } };
+          sc.onerror = function () { lazyState[name] = "failed"; if (location.hash === target) route(); };
+          document.head.appendChild(sc);
+        });
+      }
+      return { title: "Loading", html: '<h1 class="title">Loading</h1><p role="status">Loading the editor…</p>', toc: false };
+    };
+  }
+  lazyView("playground", ["playground/playground.css", "playground/view.js"]);   /* view.js replaces this stub with the real view */
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";
@@ -1908,6 +1951,11 @@
     if (name === "topic" && !D.tstat[arg] && D.alias[arg]) { location.replace("#/topic/" + enc(D.alias[arg]) + qs); return; }   /* a merged topic's old name leads to the topic it became */
     var need = shardsNeeded(name, arg).filter(function (k) { return !loadedShards[k]; });
     if (need.length) { loadThenRoute(need); return; }
+    if (editorOn !== (name === "playground")) {
+      editorOn = name === "playground";
+      if (editorOn) document.documentElement.setAttribute("data-editor", ""); else document.documentElement.removeAttribute("data-editor");
+      setMenu(false); settingsPanel.close(false); applySettings(loadSettings());
+    }
     var view = views[name], res = view ? view(arg) : notFound(path);
     if (!res) return;
     app.innerHTML = res.html;
@@ -1916,7 +1964,7 @@
     if (name !== "feedback") feedbackPage = location.href;
     var fr = document.getElementById("foot-report");
     if (fr) { fr.href = "#/feedback"; }
-    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about", credits: "credits" }[name];
+    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about", credits: "credits", playground: "playground" }[name];
     var keys = [nav];
     if (name === "guide") {
       if (arg.indexOf("category/") === 0) keys = ["guide"];
