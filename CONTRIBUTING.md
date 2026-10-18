@@ -20,7 +20,7 @@ The starter template is [`web/guide/_template.md`](web/guide/_template.md), for 
 
 ## Licence of what you contribute
 
-By submitting a Game Guide page you agree that your writing is released under [CC BY 4.0](LICENSE-CONTENT.md), credited to "UDOP contributors". Use your own words and your own pictures: do not paste the developers' release text, or text or images from other sites. Code contributions are under the [MIT licence](LICENSE).
+By submitting a Game Guide page you agree that your writing and your pictures are released under [CC BY 4.0](LICENSE-CONTENT.md), credited to "UDOP contributors". Use your own words and your own pictures: do not paste the developers' release text, or text or images from other sites. A screenshot of the game contains artwork that belongs to Bethesda/ZeniMax (*Daggerfall*) or to the Daggerfall Online developers, and that artwork stays theirs: your licence covers only your own part, the selection, framing, cropping, annotation and captions. Code contributions are under the [MIT licence](LICENSE).
 
 ## Review
 
