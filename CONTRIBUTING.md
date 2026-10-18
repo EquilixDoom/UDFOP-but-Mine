@@ -16,7 +16,7 @@ Prefer a live preview? The site also has a [browser editor](https://tau-samsara.
 
 The short version: **fork the project first, on its GitHub page** ([github.com/tau-samsara/udfop](https://github.com/tau-samsara/udfop) → **Fork** → **Create fork**), then in your copy open `web/guide`, choose **Add file → Create new file**, paste the template, write your page, and **Commit changes** on a new branch to start a pull request. Click **Create pull request** (twice) to send it to the maintainers. You need a free GitHub account with a verified email, and nothing installed.
 
-Do not rely on the site's **Edit this page** link or the red links to missing pages to create your fork: forking from GitHub's editor can fail. They are shortcuts for people who already have one. The site's guide spells out each screen.
+Do not rely on the site's **Edit this page on github** link or the red links to missing pages to create your fork: forking from GitHub's editor can fail. They are shortcuts for people who already have one. The site's guide spells out each screen.
 
 The starter template is [`web/guide/_template.md`](web/guide/_template.md), for pages about how something works. Items, places and creatures have their own: [`_template-item.md`](web/guide/_template-item.md), [`_template-place.md`](web/guide/_template-place.md) and [`_template-creature.md`](web/guide/_template-creature.md). Each exists once: the site's editor links (red links to missing pages) load them, so edit those files to change what new pages start with.
 

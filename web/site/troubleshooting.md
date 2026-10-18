@@ -15,9 +15,9 @@ For the steps of adding a page, see [[site:How to write a guide page]]. For the 
 > [!WARNING]
 > Check that your email address is verified in your GitHub settings. Very new accounts are sometimes blocked from forking for a while.
 
-Do the steps by hand from the project page, [github.com/tau-samsara/udfop](https://github.com/tau-samsara/udfop): click **Fork**, then **Create fork**. Do not use the site's **Edit this page** link or a red link to make your first fork, because forking from GitHub's editor fails more often. Once you have your fork, those links work well.
+Do the steps by hand from the project page, [github.com/tau-samsara/udfop](https://github.com/tau-samsara/udfop): click **Fork**, then **Create fork**. Do not use the site's **Edit this page on github** link or a red link to make your first fork, because forking from GitHub's editor fails more often. Once you have your fork, those links work well.
 
-### "Edit this page" asks me to fork, or opens the wrong copy
+### "Edit this page on github" asks me to fork, or opens the wrong copy
 
 Fork first, as above. Then open the page's file in your own copy, under `web/guide`, and click the pencil icon.
 

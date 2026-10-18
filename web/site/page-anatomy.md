@@ -34,7 +34,7 @@ From the top of the page down. The numbers match the picture.
 | 4 | **Contents button (☰)** | Added by the site, and shown only when the reader has not docked Contents in the sidebar. It sits beside the title, and once the reader scrolls past the title it floats at the top left of the window. It opens the Contents as a pop-up. |
 | 5 to 7 | **Your text** | Everything you wrote below the front matter. Here it is a section heading (5), a notice box (6) and a table (7). Each `##` and `###` heading also becomes an entry in the Contents list. |
 | 8 | **References** | Built from the links in your text and your `related` line. |
-| 9 | **Edit line** | "Edit this page (fork the project first) · How to contribute." Added by the site. |
+| 9 | **Contribute lines** | Three lines at the bottom: "Want to contribute? Learn how", "Fork project | Edit this page on github", and "Open this page in the Editor". A Site Guide page has the first two. Added by the site. |
 
 ## On a narrow screen
 

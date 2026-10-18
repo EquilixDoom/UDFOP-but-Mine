@@ -7,10 +7,10 @@ summary: A step-by-step walkthrough for adding a page to the Game Guide or fixin
 This page walks you through adding a page to the Game Guide, or fixing an existing one, from your first fork to seeing the page on the site. Anyone can do it: a page is one plain text file that you write in your browser, and you need only a free GitHub account, with nothing installed.
 
 > [!IMPORTANT]
-> The project must be forked before you can contribute to the wiki. Fork from the [project’s own page](https://github.com/tau-samsara/udfop/fork) first. Don’t rely on “Edit this page”, because forking from there often fails.
+> The project must be forked before you can contribute to the wiki. Fork from the [project’s own page](https://github.com/tau-samsara/udfop/fork) first. Don’t rely on “Edit this page on github”, because forking from there often fails.
 
 > [!TIP]
-> Prefer not to write in GitHub's editor? The [[site:How to use the editor|browser editor]] gives a live preview and checks your page as you type, and sends it to GitHub when it is ready.
+> Prefer not to write in GitHub's editor? The [[site:How to use the editor|browser editor]] gives a live preview and checks your page as you type, and sends it to GitHub when it is ready. To change a page that already exists, use **Open this page in the Editor** at the bottom of the page, or **File > Open a guide page** in the editor.
 
 ## The short version
 
@@ -30,7 +30,7 @@ To fix an existing page, fork the project as above, open the page's file in your
 > [!TIP]
 > If you forked a while ago, press **Sync fork** on your copy's main page first, so you are editing the latest version.
 
-The **Edit this page** link and the red links to missing pages open the same editor. They are shortcuts, and they work best once you already have your fork.
+The **Edit this page on github** link and the red links to missing pages open the same editor. They are shortcuts, and they work best once you already have your fork.
 
 > [!WARNING]
 > If one fails, or GitHub shows "An unexpected error occurred" while forking, do the steps above by hand and check that your email address is verified. Very new accounts are sometimes blocked from forking for a while. If you are stuck, report it from [Feedback & Bugs](#/feedback).
