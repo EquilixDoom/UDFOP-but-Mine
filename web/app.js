@@ -1096,7 +1096,7 @@
     var real = entry ? entry.slug : slug, slugPath = real.split("/").map(enc).join("/");
     return { title: title, html: page(esc(title), '<div id="gp"><p>Loading…</p></div>', { hat: front ? "" : site ? SITE_HAT : GUIDE_HAT }), after: function () {
       var box = document.getElementById("gp");
-      /* the Source tab: the page's Markdown file in a read-only copy of the editor's panes, with a notice on how to change it. The editor's colors are fetched the first time. */
+      /* the View Source tab: the page's Markdown file in a read-only copy of the editor's panes, with a notice on how to change it. The editor's colors are fetched the first time. */
       function showSource(raw) {
         var text = raw.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n"), file = dir + real + ".md", gh = REPO + "/edit/main/web/" + dir + slugPath + ".md";
         loadFiles(["editor/editor.css", "editor/lint.js", "editor/highlight.js"]).then(function () {
@@ -1107,11 +1107,17 @@
             '<div class="srcv-code edw-code" tabindex="0" aria-label="Source of this page, read only">' + window.udfopEditor.highlight(text) + "</div>" +
             '<div class="edw-sbar"><span>' + text.split("\n").length.toLocaleString() + " lines</span><span>" + words.toLocaleString() + " words</span></div></div>";
           var panel = box.querySelector(".srcv"), code = box.querySelector(".srcv-code");
-          function fit() {   /* the panel ends at the bottom of the window; the source scrolls inside it */
+          function fit() {   /* the panel and the site footer under it fill the window together; the source scrolls inside the panel */
             if (!panel.isConnected) { window.removeEventListener("resize", fit); return; }
-            panel.style.height = "";
+            var foot = document.getElementById("foot"), num = function (el, prop) { return el ? parseFloat(getComputedStyle(el)[prop]) || 0 : 0; };
+            /* what the page has under the panel: the panel's own margin, the space the footer leaves above it, and the footer */
+            var below = num(panel, "marginBottom") + num(panel.parentNode, "paddingBottom") + (foot ? foot.offsetHeight + num(foot, "marginTop") : 0);
             var top = Math.max(panel.getBoundingClientRect().top, document.getElementById("head") ? document.getElementById("head").offsetHeight : 0);
-            panel.style.height = Math.max(224, window.innerHeight - top - 12) + "px";
+            panel.style.height = Math.max(224, window.innerHeight - top - below) + "px";
+            if (foot) {   /* the footer sits at the bottom of a short page: take up whatever space is left between it and the panel */
+              var extra = Math.floor(foot.getBoundingClientRect().top - (panel.getBoundingClientRect().bottom + num(panel, "marginBottom") + num(foot, "marginTop")));
+              if (extra > 0) panel.style.height = (panel.offsetHeight + extra) + "px";
+            }
           }
           fit(); window.addEventListener("resize", fit);
           code.addEventListener("keydown", function (e) {   /* Ctrl+A selects the source, not the whole page */
@@ -1128,7 +1134,7 @@
         /* the same tabs as the By type / By topic switch: the chosen one is not a link */
         function vtab(on, label, href, right) { return on ? '<span class="on' + (right ? " ptab-r" : "") + '" aria-current="page">' + label + "</span>" : '<a' + (right ? ' class="ptab-r"' : "") + ' href="' + href + '">' + label + "</a>"; }
         document.querySelector("h1.title").insertAdjacentHTML("afterend", '<nav class="gtabs ptabs banner" aria-label="Views of this page"><span class="on">Article</span>' +
-          vtab(!source, "Read", base, true) + vtab(source, "Source", base + "?view=source", false) + "</nav>");
+          vtab(!source, "Read", base, true) + vtab(source, "View Source", base + "?view=source", false) + "</nav>");
         var hat = document.querySelector(".hat");
         if (hat && !site) { if (entry && entry.unlisted) hat.remove(); else hat.innerHTML = GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a>"; }
         if (source) { showSource(raw); return; }

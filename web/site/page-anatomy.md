@@ -36,7 +36,7 @@ From the top of the page down. The numbers match the picture.
 | 8 | **References** | Built from the links in your text and your `related` line. |
 | 9 | **Contribute lines** | Three lines at the bottom: "Want to contribute? Learn how", "Fork project | Edit this page on github", and "Open this page in the Editor". A Site Guide page has the first two. Added by the site. |
 
-Under the title there is also a row of tabs, added by the site to every Game Guide and Site Guide page (they are not in the picture). **Article** on the left is always selected. On the right, **Read** is the page itself and **Source** shows the page's Markdown file, read-only, drawn like the editor, with a notice that says how to change it. The panel is sized to fit the window and the source scrolls inside it. The Source tab has its own address (the page's address with `?view=source` after it), so it can be linked to. It has no Contents list or section folds, and none of the footer lines.
+Under the title there is also a row of tabs, added by the site to every Game Guide and Site Guide page (they are not in the picture). **Article** on the left is always selected. On the right, **Read** is the page itself and **View Source** shows the page's Markdown file, read-only, drawn like the editor, with a notice that says how to change it. The panel is sized so that it and the site footer under it fit the window together, and the source scrolls inside it. The View Source tab has its own address (the page's address with `?view=source` after it), so it can be linked to. It has no Contents list or section folds, and none of the contribute lines that follow a page on the Read tab.
 
 ## On a narrow screen
 
