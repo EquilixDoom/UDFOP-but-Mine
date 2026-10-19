@@ -1,4 +1,4 @@
-/* Write a guide page: the Format menu's text operations, as plain functions (so they can be tested without a page). P.fmt.command(name, text, start, end) says what a Format command does:
+/* The guide editor: the Format menu's text operations, as plain functions (so they can be tested without a page). P.fmt.command(name, text, start, end) says what a Format command does:
    { plan } replaces text[plan.start, plan.end) with plan.text and selects plan.a..plan.b of the result, or { lines, span } changes the whole lines the selection touches (or span, if given) with lines(list of lines) -> list of lines. */
 (function () {
   "use strict";

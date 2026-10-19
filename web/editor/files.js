@@ -1,4 +1,4 @@
-/* Write a guide page: the File menu's commands (templates, open, open a guide page, save, download, discard). Run by view.js with the editor's pieces in ctx;
+/* The guide editor: the File menu's commands (templates, open, open a guide page, save, download, discard). Run by view.js with the editor's pieces in ctx;
    returns a function that takes a command name, with loadPage(slug) on it for the ?page= address. */
 (function () {
   "use strict";
@@ -34,6 +34,11 @@
       var t = H.guideTemplates[key];
       if (key && !t) { ctx.say("The template has not loaded: check your connection and try again"); return; }
       replaceWith(t || H.FALLBACK_TPL, "this template", newPage(function () { selectPlaceholder(); ctx.say("New page from the template"); }));
+    }
+    var KINDS = { "": "A page about how something works: a feature, a system or a mechanic.", item: "A weapon, armor, potion or other item, with a fact panel for the numbers.", place: "A city, dungeon or region, with a fact panel and how to reach it.", creature: "A monster or boss, with a fact panel and how to beat it." };
+    function pickTemplate() {   /* one window for all the kinds of starter text */
+      dlg.pick({ title: "New from template", placeholder: "Filter the templates", noun: "templates", items: H.TEMPLATES.map(function (t) { return { label: t[1], note: KINDS[t[0]] || "", value: t[0] }; }) })
+        .then(function (key) { if (key !== null) template(key); });
     }
     var input = document.createElement("input");
     input.type = "file"; input.accept = ".md,.markdown,.mdown,.txt,text/markdown,text/plain"; input.hidden = true;
@@ -74,7 +79,7 @@
       });
     }
     function run(cmd) {
-      if (cmd.indexOf("file.tpl:") === 0) template(cmd.slice(9));
+      if (cmd === "file.tpl") pickTemplate();
       else if (cmd === "file.open") input.click();
       else if (cmd === "file.page") openPage();
       else if (cmd === "file.save") ctx.save();

@@ -4,7 +4,7 @@ UDOP has three parts:
 
 | Part | What it is | How it is updated |
 |---|---|---|
-| **Game Guide** (`web/guide/`) | How things in Daggerfall Online work, written by the community | By hand: anyone can add or edit a page |
+| **Game Guide** (`web/guide/`) | How things in DFO Online work, written by the community | By hand: anyone can add or edit a page |
 | **Site Guide** (`web/site/`) | Help for contributors and reviewers: how to write a page, formatting, troubleshooting, reviewing | By hand, by maintainers |
 | **Patch Notes** (`data/`, `web/data.js`) | Every change from the developers' release notes | By script, once per release (see the README) |
 
@@ -22,7 +22,7 @@ The starter template is [`web/guide/_template.md`](web/guide/_template.md), for 
 
 ## Licence of what you contribute
 
-By submitting a Game Guide page you agree that your writing and your pictures are released under [CC BY 4.0](LICENSE-CONTENT.md), credited to "UDOP contributors". Use your own words and your own pictures: do not paste the developers' release text, or text or images from other sites. A screenshot of the game contains artwork that belongs to Bethesda/ZeniMax (*Daggerfall*) or to the Daggerfall Online developers, and that artwork stays theirs: your licence covers only your own part, the selection, framing, cropping, annotation and captions. Code contributions are under the [MIT licence](LICENSE).
+By submitting a Game Guide page you agree that your writing and your pictures are released under [CC BY 4.0](LICENSE-CONTENT.md), credited to "UDOP contributors". Use your own words and your own pictures: do not paste the developers' release text, or text or images from other sites. A screenshot of the game contains artwork that belongs to Bethesda/ZeniMax (*Daggerfall*) or to the DFO Online developers, and that artwork stays theirs: your licence covers only your own part, the selection, framing, cropping, annotation and captions. Code contributions are under the [MIT licence](LICENSE).
 
 ## Review
 

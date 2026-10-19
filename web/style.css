@@ -209,6 +209,8 @@ html[data-width="wide"] .head-in { max-width: none; }   /* only Wide mode runs t
 #side h3 { margin: 14px 0 4px 8px; font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 #side ul { list-style: none; margin: 0; padding: 0; }
 #side li a { display: block; padding: 2px 8px; border-left: 3px solid transparent; }
+#side ul.sub { margin-left: 12px; }
+#side ul.sub[hidden] { display: none; }
 #side li a.on { border-color: var(--accent); background: var(--soft); color: var(--fg); font-weight: 600; }
 #side li a:visited { color: var(--link); }
 

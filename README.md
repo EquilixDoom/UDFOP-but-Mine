@@ -1,6 +1,6 @@
 # UDOP: Unofficial DFO Online Pages (Patch Notes Wiki)
 
-An unofficial, fan-made wiki of what has changed in **Daggerfall Online**, patch by patch and topic by topic.
+An unofficial, fan-made wiki of what has changed in **DFO Online**, patch by patch and topic by topic.
 It is a static site in plain HTML, CSS and JavaScript: open `web/index.html`, or visit the published site
 at `https://tau-samsara.github.io/udfop/`.
 
@@ -10,7 +10,7 @@ at `https://tau-samsara.github.io/udfop/`.
 
 All Patch Notes changes come from the project's public
 [release notes](https://github.com/Lattymoy/daggerfall-js-source/releases), condensed into short plain sentences. Many summaries keep the developers' own wording, in whole or in part, and the pull-request titles are quoted as written.
-The release notes remain the authoritative record. The opening description on each topic was written with the help of an AI assistant (Claude) from that topic's change history, so it can be wrong or out of date; the History table is the thing to trust.
+The release notes remain the authoritative record. The opening description on each topic was written with the help of an AI assistant (Claude) from that topic's change history, so it can be wrong or out of date; the History table is the thing to trust. The site's framework (page code, build scripts, editor and Site Guide text) was also written with the help of Claude, through Claude Code, directed and reviewed by the maintainer.
 
 ## Corrections and contributions
 
@@ -24,10 +24,10 @@ Then run `python tools/notes.py build` and open `web/index.html` to check the re
 ## Licence
 
 - **Code** (the site, the tools, the workflow): [MIT](LICENSE).
-- **Original text** (Game Guide pages, topic descriptions, About page, this README): [CC BY 4.0](LICENSE-CONTENT.md). Credit "UDOP (Unofficial DFO Online Pages), by tau".
+- **Original text** (Game Guide pages, topic descriptions, the About & Credits page, this README): [CC BY 4.0](LICENSE-CONTENT.md). Credit "UDOP (Unofficial DFO Online Pages), by tau".
 - **The change data** is derived from the developers' release notes, which are published under the developers' own MIT licence. This project does not relicense it; their notice is in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), and see [LICENSE-CONTENT.md](LICENSE-CONTENT.md).
 
-UDOP is not affiliated with or endorsed by the developers of Daggerfall Online, Bethesda Softworks or ZeniMax. *The Elder Scrolls* and *Daggerfall* belong to their respective owners.
+UDOP is not affiliated with or endorsed by the developers of DFO Online, Bethesda Softworks or ZeniMax. *The Elder Scrolls* and *Daggerfall* belong to their respective owners.
 
 ---
 

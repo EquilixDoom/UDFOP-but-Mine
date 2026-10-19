@@ -1,8 +1,8 @@
 # Third-party notices
 
-## Daggerfall Online release notes
+## DFO Online release notes
 
-The Patch Notes part of UDOP (`data/normalized/`, `web/data.js`, and the pages built from them) is compiled from the public release notes of the Daggerfall Online project, <https://github.com/Lattymoy/daggerfall-js-source/releases>. The project's repository is published under the MIT licence. Its notice is reproduced here, as that licence asks, because the change data contains facts, pull-request titles and short passages taken from those notes.
+The Patch Notes part of UDOP (`data/normalized/`, `web/data.js`, and the pages built from them) is compiled from the public release notes of the DFO Online project, <https://github.com/Lattymoy/daggerfall-js-source/releases>. The project's repository is published under the MIT licence. Its notice is reproduced here, as that licence asks, because the change data contains facts, pull-request titles and short passages taken from those notes.
 
 ```
 MIT License

@@ -1,6 +1,6 @@
 ---
 name: add-release-notes
-description: Add new Daggerfall Online release notes to the wiki. Use when the user wants to pull in, process or publish new patches or releases, or says "add the new release notes".
+description: Add new DFO Online release notes to the wiki. Use when the user wants to pull in, process or publish new patches or releases, or says "add the new release notes".
 ---
 
 Run everything from the project root. The helper is `python tools/notes.py` (see README.md). Two steps need judgement and are done by you: turning raw notes into rows, and rewriting topic descriptions. The rest is scripted.
@@ -27,7 +27,7 @@ Row rules, for every row: one JSON object per line, one change per row, oldest v
 - `system`, `change_type`, `tags`, `platforms`: only values listed in pending.md. 1 to 3 tags. `platforms` is `["all"]` unless the note says otherwise.
 - `direction`: `+` for a buff or increase to the player's benefit, `−` (U+2212) for a nerf or decrease, `~` for a change that is neither, `n/a` for everything else (most rows). A "was X, now Y" change is `+` or `−` only when it is clearly better or worse for the player.
 - `dev_note`: developer reasoning given in the notes (why, not what), verbatim; otherwise `null`.
-- Currency: write the name the release uses (Marks to 0.1.4942, Drakes 0.1.4943 to 0.1.5579, silver from 0.1.5580). The product name is Daggerfall Online.
+- Currency: write the name the release uses (Marks to 0.1.4942, Drakes 0.1.4943 to 0.1.5579, silver from 0.1.5580). The product name is DFO Online.
 - Spelling: write new rows and descriptions the way the existing ones are written, which follows the developers' own wording (the data still has British spellings such as "colour", "armour" and "grey"). The site's interface and README use American spelling, and a sweep of the data is deferred until the user asks for it, so do not convert existing text. If a new description needs a spelling choice, ask.
 
 Choosing `change_type`. The site groups every patch page by it, under the headings Additions, Reworks, Fixes, Performance, Economy, Interface and quality of life, Balance, Removals and Other changes, so a wrong type puts a change under the wrong heading. Decide each row with this guide:

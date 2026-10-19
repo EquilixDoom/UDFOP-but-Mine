@@ -1,4 +1,4 @@
-/* Write a guide page: searching the text. P.search is pure (it works on strings); P.findBar(ctx) is the Find / Replace / Incremental Search bar above the text box. */
+/* The guide editor: searching the text. P.search is pure (it works on strings); P.findBar(ctx) is the Find / Replace / Incremental Search bar above the text box. */
 (function () {
   "use strict";
   var P = window.udfopEditor = window.udfopEditor || {};

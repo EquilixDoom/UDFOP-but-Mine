@@ -1,4 +1,4 @@
-/* Write a guide page: a text box beside a live preview */
+/* The guide editor: a text box beside a live preview */
 html #page #content:has(.edw) { padding: 0; border: 0; border-radius: 0; background: var(--page); background-image: none; box-shadow: none; }
 body:has(.edw) #foot, body:has(.edw) #endpad { display: none; }
 .edw { display: flex; flex-direction: column; height: calc(100dvh - var(--head-h, 3.6rem)); min-height: 24rem; color: var(--fg); }

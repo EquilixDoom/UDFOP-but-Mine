@@ -19,7 +19,7 @@ This covers:
 ## What is not covered
 
 The change data (`data/normalized/` and the `web/data.js` generated from it) is derived from
-the public release notes of the Daggerfall Online project, written by its developers at
+the public release notes of the DFO Online project, written by its developers at
 <https://github.com/Lattymoy/daggerfall-js-source/releases>. That project is published under the
 MIT licence, which allows copying, modifying and republishing as long as its copyright and
 permission notice are kept. The notice is in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
@@ -30,10 +30,10 @@ notice and credit the developers.
 
 Game artwork in screenshots has two separate owners, and this licence covers neither:
 - the artwork and other assets of *Daggerfall* and *The Elder Scrolls* belong to Bethesda Softworks and ZeniMax Media;
-- the artwork and other assets that Daggerfall Online adds belong to its developers.
+- the artwork and other assets that DFO Online adds belong to its developers.
 
 A screenshot is therefore two things: that artwork, which stays with its owners, and the uploader's composition of it, which is CC BY 4.0. Reusing the composition does not give any right to the artwork in it.
 
 *The Elder Scrolls*, *Daggerfall* and related names and marks belong to their respective owners.
-This project is unofficial and is not affiliated with or endorsed by the developers of Daggerfall Online,
+This project is unofficial and is not affiliated with or endorsed by the developers of DFO Online,
 Bethesda Softworks or ZeniMax Media.

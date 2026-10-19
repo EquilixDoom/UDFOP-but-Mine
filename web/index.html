@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unofficial DFO Online Pages</title>
-<meta name="description" content="UDOP, the Unofficial DFO Online Pages: a fan-made, community-edited Game Guide and patch notes wiki for Daggerfall Online.">
+<meta name="description" content="UDOP, the Unofficial DFO Online Pages: a fan-made, community-edited Game Guide and patch notes wiki for DFO Online.">
 <meta name="theme-color" content="#8a5a1a">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%238a5a1a'/%3E%3Ctext x='32' y='40' font-family='sans-serif' font-size='17' font-weight='700' text-anchor='middle' fill='white'%3EUDOP%3C/text%3E%3C/svg%3E">
 <script>
@@ -45,22 +45,33 @@
   <aside id="side">
     <div class="side-head"><span>Main menu</span><button type="button" class="dock" data-dock="menu"></button></div>
     <nav aria-label="Main menu">
+      <h3>Read</h3>
       <ul>
         <li><a href="#/" data-nav="home">Main Page</a></li>
         <li><a href="#/guide" data-nav="guide">Game Guide</a></li>
-        <li><a href="#/patchnotes" data-nav="patchnotes">Patch Notes</a></li>
+        <li><a href="#/patchnotes" data-nav="patchnotes">Patch Notes</a>
+          <ul class="sub" id="pn-sub" hidden>
+            <li><a href="#/recent">Recent changes</a></li>
+            <li><a href="#/hubs">Areas</a></li>
+            <li><a href="#/systems">Game systems</a></li>
+            <li><a href="#/patches">Patch index</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <nav aria-label="Help">
+      <h3>Help</h3>
+      <ul>
         <li><a href="#/site" data-nav="site">Site Guide</a></li>
-        <li><a href="#/site/using-the-site" data-nav="page:site/using-the-site">Using the Site</a></li>
-        <li><a href="#/about" data-nav="about">About UDOP</a></li>
         <li><a href="#/feedback" data-nav="feedback">Feedback &amp; Bugs</a></li>
       </ul>
     </nav>
-    <nav aria-label="Contribute">
-      <h3>Contribute</h3>
+    <nav aria-label="Contribute and about">
+      <h3>Contribute and about</h3>
       <ul>
-        <li><a href="#/site/how-to-write-a-page" data-nav="page:site/how-to-write-a-page">Learn to edit</a></li>
-        <li><a href="#/editor" data-nav="editor">Write a guide page</a></li>
-        <li><a href="#/credits" data-nav="credits">Credits</a></li>
+        <li><a href="#/site/how-to-write-a-page" data-nav="page:site/how-to-write-a-page">How to write a page</a></li>
+        <li><a href="#/editor" data-nav="editor">Open the editor</a></li>
+        <li><a href="#/about" data-nav="about">About &amp; Credits</a></li>
       </ul>
     </nav>
   </aside>
@@ -74,7 +85,7 @@
     <footer id="foot" class="site-footer">
       <p id="foot-stats"></p>
       <p><a id="foot-report" href="#/feedback">Feedback &amp; Bugs</a></p>
-      <p><b>UDOP</b> is an unofficial fan-made reference for Daggerfall Online: a community-written Game Guide and patch notes compiled from the public release notes. Not affiliated with or endorsed by its developers or by Bethesda Softworks. <a href="#/about">About UDOP</a></p>
+      <p><b>UDOP</b> is an unofficial fan-made reference for DFO Online: a community-written Game Guide and patch notes compiled from the public release notes. Not affiliated with or endorsed by its developers or by Bethesda Softworks. <a href="#/about">About &amp; Credits</a></p>
     </footer>
     <div id="endpad" aria-hidden="true"></div>
   </main>

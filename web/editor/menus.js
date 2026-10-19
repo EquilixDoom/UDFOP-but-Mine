@@ -1,4 +1,4 @@
-/* Write a guide page: the menu bar. Menus open, close and work from the keyboard; an item with a command name (data-cmd) runs it through onCommand. An item with a fourth entry of 1 is a switch: it shows a check mark while state(command) is true. */
+/* The guide editor: the menu bar. Menus open, close and work from the keyboard; an item with a command name (data-cmd) runs it through onCommand. An item with a fourth entry of 1 is a switch: it shows a check mark while state(command) is true. */
 (function () {
   "use strict";
   var H = window.udfopHost, P = window.udfopEditor = window.udfopEditor || {};
@@ -9,7 +9,7 @@
   /* [label, shortcut or submenu, command, 1 for a switch]; "-" is a divider */
   var MENUS = [
     ["File", [
-      ["New from template", H.TEMPLATES.map(function (t) { return [t[1], null, "file.tpl:" + t[0]]; })], ["Open a guide page…", null, "file.page"], ["Open from this computer…", "Ctrl+O", "file.open"], SEP,
+      ["New from template…", null, "file.tpl"], ["Open a guide page…", null, "file.page"], ["Open from this computer…", "Ctrl+O", "file.open"], SEP,
       ["Save draft", "Ctrl+S", "file.save"], ["Download .md", null, "file.download"], SEP, ["Discard draft", null, "file.discard"]]],
     ["Edit", [
       ["Undo", "Ctrl+Z", "edit.undo"], ["Redo", "Ctrl+Y", "edit.redo"], SEP,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Release-notes workflow for the Daggerfall Online wiki. Run from the project root.
+"""Release-notes workflow for the DFO Online wiki. Run from the project root.
 
   python tools/notes.py status             what is pending / stale
   python tools/notes.py fetch [--dry-run]  pull new GitHub releases into data/release_notes.md

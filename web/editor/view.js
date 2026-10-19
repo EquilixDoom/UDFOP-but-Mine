@@ -1,4 +1,4 @@
-/* Write a guide page (#/editor): a text box and a live preview. Loaded on first visit by lazyView() in app.js; talks to the site only through window.udfopHost. */
+/* The guide editor (#/editor): a text box and a live preview. Loaded on first visit by lazyView() in app.js; talks to the site only through window.udfopHost. */
 (function () {
   "use strict";
   var H = window.udfopHost, P = window.udfopEditor, REPO = H.REPO, enc = H.enc, esc = H.esc, slugId = H.slugId, frontMatter = H.frontMatter;
@@ -20,7 +20,7 @@
       '<div class="edw-sbar"><span id="ed-pos"></span><span id="ed-words"></span><span class="edw-grow"></span><small id="ed-note"></small></div></section>' +
       '<section class="edw-pane" aria-label="Preview"><div class="edw-pbar"><strong>Preview</strong><span class="edw-grow"></span><small id="ed-file"></small></div>' +
       '<div class="edw-pv" tabindex="0"><article id="ed-prev"></article></div><div class="edw-sbar"><span id="ed-size"></span></div></section></div></div>';
-    return { title: "Write a guide page", html: h, toc: false, after: function () {
+    return { title: "Guide editor", html: h, toc: false, after: function () {
       var ta = document.getElementById("ed-text"), prev = document.getElementById("ed-prev"), gh = document.getElementById("ed-gh"), note = document.getElementById("ed-note"), chip = document.getElementById("ed-chip"), fileEl = document.getElementById("ed-file"), sizeEl = document.getElementById("ed-size"), prob = document.getElementById("ed-prob"), problems = [], errors = [], plist = document.getElementById("ed-plist"), timer = null, long = false;
       var saved = "", editing = null, modeEl = document.getElementById("ed-mode");   /* editing: the slug of the existing guide page the text is a copy of, or null for a new page */
       try { saved = localStorage.getItem(KEY) || ""; if (saved) editing = localStorage.getItem(PAGE_KEY) || null; } catch (e) {}

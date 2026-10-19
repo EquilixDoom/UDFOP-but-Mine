@@ -184,7 +184,9 @@
   /* ---------- fragments ---------- */
   function tlink(t) { return '<a href="#/topic/' + enc(t) + '">' + esc(t) + "</a>"; }
   function vlink(v) { return '<a href="#/patch/' + enc(v) + '">' + esc(v) + "</a>"; }
-  function slink(s) { return '<a href="#/system/' + enc(s) + '">' + esc(s) + "</a>"; }
+  /* the system the data calls "UI" is shown as "Interface", the same word as its category; the address keeps the data's name */
+  function sysName(s) { return s === "UI" ? "Interface" : s; }
+  function slink(s) { return '<a href="#/system/' + enc(s) + '">' + esc(sysName(s)) + "</a>"; }
   function hlink(h) { return '<a href="#/hub/' + enc(h) + '">' + esc(h) + "</a>"; }
   /* "Other" means the change has not been sorted into a more specific type, so say so where a reader meets it */
   function typeTag(r) { return '<span class="tp" data-type="' + esc(r.t) + '"' + (r.t === "Other" ? ' title="Not sorted into a more specific type"' : "") + ">" + esc(r.t) + "</span>"; }
@@ -192,7 +194,8 @@
   function dir(r) { return r.r === "+" ? " (increase)" : r.r === "−" ? " (decrease)" : ""; }
   function text(r) { return esc(cap(r.x)) + (r.n ? '<span class="dev">Developer note: ' + esc(r.n) + "</span>" : ""); }
 
-  var PN_HAT = '<a href="#/patchnotes">Patch Notes</a> › ';   /* every patch-notes page starts its breadcrumb here */
+  var HOME_HAT = '<a href="#/">Main Page</a>';   /* every breadcrumb starts at the Main Page */
+  var PN_HAT = HOME_HAT + ' › <a href="#/patchnotes">Patch Notes</a> › ';   /* every patch-notes page starts its breadcrumb here */
   function page(title, body, opts) {
     opts = opts || {};
     /* the extra class names (banner, breadcrumbs, footer, sidebar, popup) tell reader view this is page furniture, not article text */
@@ -364,10 +367,10 @@
     var latest = versions[0], lrows = byVersion[latest];
     var recent = uniq(rows.slice().sort(newest).slice(0, 80).map(function (r) { return r.e; })).filter(function (t) { return !D.legacy[t]; }).slice(0, 12);
     var big = liveTopics.slice().sort(function (a, b) { return byTopic[b].length - byTopic[a].length; }).slice(0, 12);
-    var h = '<p>The patch notes record what has changed in Daggerfall Online, patch by patch and topic by topic. They cover <b>' +
+    var h = '<p>The patch notes record what has changed in DFO Online, patch by patch and topic by topic. They cover <b>' +
       rows.length.toLocaleString() + "</b> recorded changes to <b>" + topics.length + '</b> topics across <b>' + allVersions.length + "</b> patches, from version " +
       esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
-    h += '<p class="browse"><b>Browse:</b> <a href="#/recent">Recent changes</a> · <a href="#/topics">All topics</a> · <a href="#/hubs">Categories</a> · <a href="#/systems">Game systems</a> · <a href="#/patches">Patch index</a> · <a href="#/random">Random topic</a></p>';
+    h += '<p class="browse"><b>Browse:</b> <a href="#/recent">Recent changes</a> · <a href="#/topics">All topics</a> · <a href="#/hubs">Areas</a> · <a href="#/systems">Game systems</a> · <a href="#/patches">Patch index</a> · <a href="#/random">Random topic</a></p>';
     h += '<div class="portals">' + recentByType();
     h += '<div class="portal"><h3>Latest patch</h3><div><p><b>' + vlink(latest) + "</b> – " + esc(dateOf(latest)) + "<br>" + plural(lrows.length, "change") + " to " +
       plural(uniq(lrows.map(function (r) { return r.e; })).length, "topic") + ".</p><ul>" +
@@ -376,11 +379,7 @@
     h += '<div class="portal"><h3>Recently changed topics</h3><div><ul>' + recent.map(function (t) { return "<li>" + tlink(t) + "</li>"; }).join("") + "</ul></div></div>";
     h += '<div class="portal"><h3>Most documented topics</h3><div><ul>' + big.map(function (t) { return "<li>" + tlink(t) + " <small class='muted'>(" + byTopic[t].length + ")</small></li>"; }).join("") + "</ul></div></div>";
     h += "</div>";
-    h += sec("Browse by category", "Browse by category", 2) + '<ul class="cols">' + hubNames.map(function (n) {
-      return "<li>" + hlink(n) + " <small>(" + hubs[n].length + ")</small></li>"; }).join("") + "</ul>";
-    h += sec("Browse by game system", "Browse by game system", 2) + '<ul class="cols">' + systems.map(function (s) {
-      return "<li>" + slink(s) + " <small>(" + bySystem[s].length + ")</small></li>"; }).join("") + "</ul>";
-    return { title: "Patch Notes", html: page("Patch Notes", h), after: wireRecentTabs };
+    return { title: "Patch Notes", html: page("Patch Notes", h, { hat: HOME_HAT + " › Patch Notes" }), after: wireRecentTabs };
   };
 
   views.recent = function () {
@@ -416,9 +415,9 @@
   };
 
   views.hubs = function () {
-    var h = "<p>Topics are grouped into categories by subject.</p>" + '<ul class="cols">' + hubNames.map(function (n) {
+    var h = "<p>An area is where a topic is filed: each topic is in exactly one. For what a change touched, which can be several things, see <a href=\"#/systems\">Game systems</a>.</p>" + '<ul class="cols">' + hubNames.map(function (n) {
       return "<li>" + hlink(n) + " <small>(" + plural(hubs[n].length, "topic") + ")</small></li>"; }).join("") + "</ul>";
-    return { title: "Categories", html: page("Categories", h, { hat: PN_HAT + "Categories" }) };
+    return { title: "Areas", html: page("Areas", h, { hat: PN_HAT + "Areas" }) };
   };
 
   views.hub = function (n) {
@@ -427,25 +426,25 @@
     hubs[n].forEach(function (t) { total += D.tstat[t][0]; all = all.concat(byTopic[t] || []); });
     var legacyHere = hubsLegacy[n] || [];
     if (rg.active) all = all.filter(inRange);
-    var hatH = '<a href="#/hubs">Categories</a> › ' + esc(n);
-    if (!all.length) return { title: "Category: " + n, html: page("Category: " + esc(n), rangeBox(base, rg) + noneInRange("the " + esc(n) + " category", rg, total), { hat: PN_HAT + hatH }), toc: false, after: function () { wireRange(base); } };
+    var hatH = '<a href="#/hubs">Areas</a> › ' + esc(n);
+    if (!all.length) return { title: "Area: " + n, html: page("Area: " + esc(n), rangeBox(base, rg) + noneInRange("the " + esc(n) + " area", rg, total), { hat: PN_HAT + hatH }), toc: false, after: function () { wireRange(base); } };
     var h = "<p><b>" + esc(n) + "</b> contains " + plural(hubs[n].length, "topic") + " with " + plural(all.length, "recorded change") + (rg.active ? " " + esc(rangeText(rg)) + " (" + total + " in all)" : "") + ".</p>" + rangeBox(base, rg) +
-      sec("Topics", "Topics", 2) + topicList(hubs[n]) + (legacyHere.length ? '<details class="legacy"><summary>Legacy topics in this category (' + legacyHere.length + ")</summary>" + topicList(legacyHere) + "</details>" : "") +
+      sec("Topics", "Topics", 2) + topicList(hubs[n]) + (legacyHere.length ? '<details class="legacy"><summary>Legacy topics in this area (' + legacyHere.length + ")</summary>" + topicList(legacyHere) + "</details>" : "") +
       sec("Latest changes", "Latest changes", 2) + table(all, ["Patch", "Date", "Topic", "Type", "Change"], 25) +
-      cats([ '<a href="#/hubs">All categories</a>' ]);
-    return { title: "Category: " + n, html: page("Category: " + esc(n), h, { hat: PN_HAT + hatH }), after: function () { wireRange(base); } };
+      cats([ '<a href="#/hubs">All areas</a>' ]);
+    return { title: "Area: " + n, html: page("Area: " + esc(n), h, { hat: PN_HAT + hatH }), after: function () { wireRange(base); } };
   };
 
   function legacyBox(t) {
     var lg = D.legacy[t];
     return lg ? '<div class="mbox"><b>Legacy.</b> This was removed' + (lg.v ? " in patch " + vlink(lg.v) + " (" + esc(dateOf(lg.v)) + ")" : "") + "." + (lg.n ? " " + esc(lg.n) : "") +
-      " The page is kept as a record, and legacy topics are left out of the topic lists and categories.</div>" : "";
+      " The page is kept as a record, and legacy topics are left out of the topic lists and areas.</div>" : "";
   }
   views.topic = function (t) {
     var ts = D.tstat[t];
     if (!ts) return notFound(t);
     var rg = getRange(), every = byTopic[t] || [], l = rg.active ? every.filter(inRange) : every, base = "#/topic/" + enc(t), hub = D.hubs[t];
-    var hat = PN_HAT + (hub ? '<a href="#/hubs">Categories</a> › ' + hlink(hub) : '<a href="#/topics">All topics</a>') + " › " + esc(t);
+    var hat = PN_HAT + (hub ? '<a href="#/hubs">Areas</a> › ' + hlink(hub) : '<a href="#/topics">All topics</a>') + " › " + esc(t);
     var aiNote = D.desc && D.desc[t] ? '<p class="srcnote"><small class="muted">AI-assisted summary; it may be wrong or out of date. The History table below is the record to trust. <a href="#/about">About UDOP</a></small></p>' : "";
     if (!l.length) {
       var h0 = legacyBox(t) + (D.desc && D.desc[t] ? "<p>" + esc(D.desc[t]).replace(esc(t), "<b>" + esc(t) + "</b>") + "</p>" : "") + aiNote + rangeBox(base, rg) +
@@ -457,7 +456,7 @@
     var top = order.slice().sort(function (a, b) { return g[b].length - g[a].length; })[0];
 
     var ib = '<table class="infobox"><caption class="ibt">' + esc(t) + "</caption><tbody>" +
-      "<tr><th>Category</th><td>" + (hub ? hlink(hub) : "Uncategorised") + "</td></tr>" +
+      "<tr><th>Area</th><td>" + (hub ? hlink(hub) : "Uncategorised") + "</td></tr>" +
       (D.legacy[t] ? "<tr><th>Status</th><td>Legacy</td></tr>" : "") +
       (D.aka[t] ? "<tr><th>Formerly recorded as</th><td>" + D.aka[t].map(esc).join(", ") + "</td></tr>" : "") +
       "<tr><th>Systems</th><td>" + sys.map(slink).join(", ") + "</td></tr>" +
@@ -471,7 +470,7 @@
       "</tbody></table>";
 
     var lead = D.desc && D.desc[t] ? "<p>" + esc(D.desc[t]).replace(esc(t), "<b>" + esc(t) + "</b>") + "</p>" :
-      "<p><b>" + esc(t) + "</b> is a topic" + (hub ? " in the " + hlink(hub) + " category" : "") + ". It has " + plural(ts[0], "recorded change") +
+      "<p><b>" + esc(t) + "</b> is a topic" + (hub ? " in the " + hlink(hub) + " area" : "") + ". It has " + plural(ts[0], "recorded change") +
       (rg.active ? "" : " across " + (sys.length > 1 ? "the " + sys.map(slink).join(", ") + " systems" : "the " + slink(sys[0]) + " system")) + ", from patch " + vlink(ts[2]) +
       (ts[2] !== ts[1] ? " to " + vlink(ts[1]) : "") + ". " +
       (!rg.active && order.length > 1 ? "Most of them are " + esc(TYPE_LABEL[top] ? TYPE_LABEL[top].toLowerCase() : top.toLowerCase()) + " (" + g[top].length + ")." : "") + "</p>";
@@ -495,7 +494,7 @@
   };
 
   views.systems = function () {
-    var h = "<p>Each recorded change belongs to one of " + systems.length + " game systems.</p>" + '<ul class="cols">' + systems.map(function (s) {
+    var h = "<p>A game system is what a change touched: a topic can touch several. Each recorded change belongs to one of " + systems.length + " game systems. To see where a topic is filed, see <a href=\"#/hubs\">Areas</a>.</p>" + '<ul class="cols">' + systems.map(function (s) {
       return "<li>" + slink(s) + " <small>(" + plural(uniq(bySystem[s].map(function (r) { return r.e; })).length, "topic") + ", " + plural(bySystem[s].length, "change") + ")</small></li>"; }).join("") + "</ul>";
     return { title: "Game systems", html: page("Game systems", h, { hat: PN_HAT + "Game systems" }) };
   };
@@ -503,12 +502,12 @@
   views.system = function (s) {
     if (!D.systems[s]) return notFound(s);
     var rg = getRange(), base = "#/system/" + enc(s), l = rg.active ? (bySystem[s] || []).filter(inRange) : bySystem[s];
-    var hatS = PN_HAT + '<a href="#/systems">Game systems</a> › ' + esc(s);
-    if (!l.length) return { title: s + " system", html: page(esc(s) + " system", rangeBox(base, rg) + noneInRange("the " + esc(s) + " system", rg, D.systems[s]), { hat: hatS }), toc: false, after: function () { wireRange(base); } };
+    var hatS = PN_HAT + '<a href="#/systems">Game systems</a> › ' + esc(sysName(s));
+    if (!l.length) return { title: sysName(s) + " system", html: page(esc(sysName(s)) + " system", rangeBox(base, rg) + noneInRange("the " + esc(sysName(s)) + " system", rg, D.systems[s]), { hat: hatS }), toc: false, after: function () { wireRange(base); } };
     var tp = uniq(l.map(function (r) { return r.e; })).sort();
-    var h = "<p><b>" + esc(s) + "</b> has " + plural(l.length, "recorded change") + (rg.active ? " " + esc(rangeText(rg)) + " (" + D.systems[s] + " in all)" : "") + " across " + plural(tp.length, "topic") + ".</p>" + rangeBox(base, rg) +
+    var h = "<p><b>" + esc(sysName(s)) + "</b> has " + plural(l.length, "recorded change") + (rg.active ? " " + esc(rangeText(rg)) + " (" + D.systems[s] + " in all)" : "") + " across " + plural(tp.length, "topic") + ".</p>" + rangeBox(base, rg) +
       sec("Topics", "Topics", 2) + topicList(tp) + sec("Latest changes", "Latest changes", 2) + table(l, ["Patch", "Date", "Topic", "Type", "Direction", "Change"], 30);
-    return { title: s + " system", html: page(esc(s) + " system", h, { hat: hatS }), after: function () { wireRange(base); } };
+    return { title: sysName(s) + " system", html: page(esc(sysName(s)) + " system", h, { hat: hatS }), after: function () { wireRange(base); } };
   };
 
   /* a release's tags: its Update name, then a hint when its title says "fix" and a mark on the one bulk import */
@@ -613,51 +612,49 @@
     return { title: "Search: " + q, html: page("Search", h), after: function () { revealMore(); wireRange(base); } };
   };
 
-  /* the Credits page: the names come from CONTRIBUTORS.md (through web/credits.json); the rest is written here */
-  views.credits = function () {
-    var h = "<p>UDOP is made by the people below, and it exists because of the game&rsquo;s developers and the open tools and typefaces it uses. Thank you to everyone who has written, fixed or reviewed something.</p>";
-    if (credits === null) h += "<p>Loading…</p>";
-    else {
-      var groups = (credits.groups || []).filter(function (g) { return g.people && g.people.length; });
-      if (groups.length) {
-        h += '<div class="portals">' + groups.map(function (g) {
-          return '<div class="portal wide"><h3>' + esc(g.title) + '</h3><div class="ppl">' + g.people.map(function (p) {
-            var ch = (p.name.match(/[A-Za-z0-9]/) || ["?"])[0].toUpperCase();
-            return '<div class="who"><span class="av" aria-hidden="true">' + esc(ch) + '</span><div><a href="' + esc(/^https?:\/\//.test(p.url) ? p.url : "#") + '" rel="noopener">' + esc(p.name) + "</a>" +
-              (p.role ? '<small class="muted">' + esc(p.role) + "</small>" : "") + "</div></div>";
-          }).join("") + "</div></div>";
-        }).join("") + "</div>";
-      }
-      h += '<p class="muted">Guide pages are credited together to &ldquo;UDOP contributors&rdquo; under CC BY 4.0. A name is listed only with the person&rsquo;s agreement, as a username.</p>';
+  /* About & Credits: what the site is and isn't, where its information comes from, the people (names from CONTRIBUTORS.md through web/credits.json), the licences and privacy.
+     #/credits was a page of its own and now sends readers here. */
+  views.credits = function () { location.replace("#/about"); return null; };
+  function peopleBox() {
+    if (credits === null) return "<p>Loading…</p>";
+    var h = "", groups = (credits.groups || []).filter(function (g) { return g.people && g.people.length; });
+    if (groups.length) {
+      h += '<div class="portals">' + groups.map(function (g) {
+        return '<div class="portal wide"><h3>' + esc(g.title) + '</h3><div class="ppl">' + g.people.map(function (p) {
+          var ch = (p.name.match(/[A-Za-z0-9]/) || ["?"])[0].toUpperCase();
+          return '<div class="who"><span class="av" aria-hidden="true">' + esc(ch) + '</span><div><a href="' + esc(/^https?:\/\//.test(p.url) ? p.url : "#") + '" rel="noopener">' + esc(p.name) + "</a>" +
+            (p.role ? '<small class="muted">' + esc(p.role) + "</small>" : "") + "</div></div>";
+        }).join("") + "</div></div>";
+      }).join("") + "</div>";
     }
-    h += sec("The game", "The game", 2) + "<p><b>Daggerfall Online</b> and its release notes belong to its developers. Every change in the Patch Notes is compiled from their <a href=\"" + RELEASES_URL + "\" rel=\"noopener\">public release notes</a>, which are published under the developers&rsquo; MIT licence (<a href=\"" + REPO + "/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">their notice</a>). UDOP is not affiliated with or endorsed by them.</p>";
-    h += sec("Typefaces and code", "Typefaces and code", 2) + '<ul class="bul"><li><b>Kingthings Petrock</b> by Kevin King sets the headings of the Oblivion theme.</li>' +
-      "<li><b>Share Tech Mono</b> by Carrois Type Design sets the text of the Phosphor theme (SIL Open Font License).</li>" +
-      '<li>The site&rsquo;s code is <a href="' + REPO + '/blob/main/LICENSE" rel="noopener">MIT licensed</a>, and its original text is <a href="' + REPO + '/blob/main/LICENSE-CONTENT.md" rel="noopener">CC BY 4.0</a>. The notices for the fonts and the release notes are in <a href="' + REPO + '/blob/main/THIRD-PARTY-NOTICES.md" rel="noopener">THIRD-PARTY-NOTICES.md</a>.</li></ul>';
-    h += sec("AI assistance", "AI assistance", 2) + '<p>The opening description of each Patch Notes topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history, and is labeled that way on the page. More in <a href="#/about">About UDOP</a>.</p>';
-    h += sec("Add your name", "Add your name", 2) + '<p>Wrote or fixed a guide page? Ask in your pull request or in an issue to be listed, and say in a few words what you worked on. See <a href="' + HOWTO + '">how to write a guide page</a>.</p>';
-    return { title: "Credits", html: page("Credits", h) };
-  };
-
-  /* About UDOP: what the site is and isn't, where its information comes from, the licences and privacy. The people and tools are on the Credits page. */
+    return h + '<p class="muted">Guide pages are credited together to &ldquo;UDOP contributors&rdquo; under CC BY 4.0. A name is listed only with the person&rsquo;s agreement, as a username.</p>';
+  }
   views.about = function () {
-    var h = "<p><b>UDOP</b>, the <b>Unofficial DFO Online Pages</b>, is a fan-made reference for <b>Daggerfall Online</b>: a community-written Game Guide, and a record of what has changed in every patch. It is not made, approved or endorsed by the game&rsquo;s developers, by Bethesda Softworks or by ZeniMax. <i>The Elder Scrolls</i>, <i>Daggerfall</i> and related names are trademarks of their respective owners.</p>";
+    var h = "<p><b>UDOP</b>, the <b>Unofficial DFO Online Pages</b>, is a fan-made reference for <b>DFO Online</b>: a community-written Game Guide, and a record of what has changed in every patch. It is not made, approved or endorsed by the game&rsquo;s developers, by Bethesda Softworks or by ZeniMax. <i>The Elder Scrolls</i>, <i>Daggerfall</i> and related names are trademarks of their respective owners.</p>";
     h += sec("Where the information comes from", "Where the information comes from", 2) +
+      sec("Game Guide", "Game Guide", 3) +
+      '<p>The <a href="#/guide">Game Guide</a> is written by the community, and anyone can add or correct a page. Guide pages are the work of their contributors and have not been checked by the game&rsquo;s developers. They may be wrong or out of date, and carry no warranty.</p>' +
+      sec("Site framework", "Site framework", 3) +
+      '<p>The site&rsquo;s framework was built with an AI assistant (Claude, through Claude Code): the page code and the build scripts were written with its help, and directed and reviewed by the maintainer. Bugs in any of it can be reported on <a href="#/feedback">Feedback &amp; Bugs</a>.</p>' +
+      sec("Patch Notes", "Patch Notes", 3) +
       '<p>Every change in the Patch Notes comes from the <a href="' + RELEASES_URL + '" rel="noopener">public release notes</a> of the developers&rsquo; GitHub repository, which remain the authoritative record. A script compiles them for each release. Each change is condensed into a short plain sentence (many keep the developers&rsquo; own wording), filed under a topic, a game system and a type, and linked back to the pull requests it came from.</p>' +
       "<p>The opening paragraph of each topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history. These paragraphs can be wrong or out of date, so the <b>History</b> table on each page is the thing to trust. Corrections are welcome.</p>" +
-      '<p>The <a href="#/guide">Game Guide</a> is written by the community, and anyone can add or correct a page (<a href="' + HOWTO + '">how to write a guide page</a>). Guide pages are the work of their contributors and have not been checked by the game&rsquo;s developers. They may be wrong or out of date, and carry no warranty.</p>';
+      sec("Site Guide and editor", "Site Guide and editor", 3) +
+      '<p>The <a href="#/site">Site Guide</a> and the in-browser <a href="#/editor">guide editor</a> were also written with the help of the same AI assistant, and directed and reviewed by the maintainer.</p>';
+    h += sec("People", "People", 2) + "<p>UDOP is made by the people below, and it exists because of the game&rsquo;s developers and the open tools and typefaces it uses. Thank you to everyone who has written, fixed or reviewed something.</p>" + peopleBox() +
+      '<p>Wrote or fixed a guide page? Ask in your pull request or in an issue to be listed, and say in a few words what you worked on. See <a href="' + HOWTO + '">how to write a guide page</a>.</p>';
     h += sec("Licences", "Licences", 2) + '<ul class="bul">' +
       '<li><b>Code</b> (the site, the tools, the workflow): <a href="' + REPO + '/blob/main/LICENSE" rel="noopener">MIT</a>.</li>' +
       '<li><b>Original text</b> (Game Guide pages, topic descriptions, this page, the README): <a href="' + REPO + '/blob/main/LICENSE-CONTENT.md" rel="noopener">CC BY 4.0</a>. Credit &ldquo;UDOP (Unofficial DFO Online Pages), by tau&rdquo;, or &ldquo;UDOP contributors&rdquo; for guide pages.</li>' +
+      '<li><b>Pictures</b> that contributors upload are released under the same CC BY 4.0, but only the contributor&rsquo;s own part: their photographs, diagrams and drawings and, in a screenshot of the game, the selection, framing, cropping, annotation and captions. The game&rsquo;s artwork in a screenshot stays with its owners (Bethesda/ZeniMax for <i>Daggerfall</i>, the developers for DFO Online), and this licence does not cover it. Contributors may upload only pictures they made themselves.</li>' +
       '<li><b>The change data</b> is derived from the developers&rsquo; release notes, which are published under the developers&rsquo; own MIT licence (<a href="' + REPO + '/blob/main/THIRD-PARTY-NOTICES.md" rel="noopener">their notice</a>). It is not covered by CC BY 4.0: if you reuse it, keep that notice and credit the developers.</li>' +
-      "<li>The game and its names belong to their owners.</li></ul>" +
-      '<p>The people and tools behind UDOP are on the <a href="#/credits">Credits page</a>.</p>';
+      "<li><b>Typefaces</b>: Kingthings Petrock by Kevin King sets the headings of the Oblivion theme; Share Tech Mono by Carrois Type Design sets the text of the Phosphor theme (SIL Open Font License). Their notices are in <a href=\"" + REPO + "/blob/main/THIRD-PARTY-NOTICES.md\" rel=\"noopener\">THIRD-PARTY-NOTICES.md</a>.</li>" +
+      "<li>The game and its names belong to their owners.</li></ul>";
     h += sec("Privacy", "Privacy", 2) + "<p>UDOP has no analytics, no cookies and no accounts, and nothing you do on it is sent anywhere. Your display choices (theme, text size and so on) are saved in your own browser only. The site is hosted on GitHub Pages, which keeps its own server logs. A report made on GitHub is public.</p>";
     h += sec("More", "More", 2) + '<ul class="bul">' +
-      '<li><a href="#/credits">Credits</a>: the people, the game&rsquo;s developers, typefaces and tools.</li>' +
       '<li><a href="#/feedback">Feedback &amp; Bugs</a>: problems with this site. Bugs in the game itself go in the bug-reports channel of the <a href="' + GAME_BUGS + '" rel="noopener">DFO Online Discord</a>.</li>' +
       '<li><a href="#/site/using-the-site">Using the site</a> and the <a href="#/site">Site Guide</a>: how to find things, change the look, and write or review a page.</li></ul>';
-    return { title: "About UDOP", html: page("About UDOP", h) };
+    return { title: "About & Credits", html: page("About &amp; Credits", h, { hat: HOME_HAT + " › About &amp; Credits" }) };
   };
 
   /* ---------- Game Guide: Markdown pages in web/guide/, listed by guide/index.json ---------- */
@@ -667,7 +664,7 @@
   /* Game Guide addresses that moved (lower case) -> where the page lives now. The Site Guide used to be inside the Game Guide */
   var MOVED = {
     "how-to-write-a-page": "#/site/how-to-write-a-page", "how-to/how-to-write-a-page": "#/site/how-to-write-a-page",
-    "how-to/formatting-reference": "#/site/formatting-reference", "how-to/troubleshooting": "#/site/troubleshooting",
+    "how-to/formatting-reference": "#/site/formatting-reference", "how-to/troubleshooting": "#/site/fixing-a-page",
     "how-to/reviewing-a-pull-request": "#/site/reviewing-a-pull-request", "how-to/site-guide": "#/site"
   };
   var guide = null, guideFailed = false, guideBySlug = {}, guideByTitle = {};
@@ -1054,7 +1051,7 @@
     return { meta: meta, body: body };
   }
 
-  var GUIDE_HAT = '<a href="#/guide">Game Guide</a>';
+  var GUIDE_HAT = HOME_HAT + ' › <a href="#/guide">Game Guide</a>';
   function guideUnavailable() {
     return '<div class="mbox">The Game Guide could not be loaded. If you opened <code>index.html</code> straight from a folder, the browser blocks it: serve the <code>web</code> folder instead (for example <code>python -m http.server --directory web</code>) or use the published site. If you just added pages, run <code>python tools/guide.py</code> to refresh the list.</div>';
   }
@@ -1062,7 +1059,7 @@
   views.guide = function (arg) {
     if (arg && arg.indexOf("category/") === 0) return views.guidecat(arg.slice(9));
     if (arg) return views.guidepage(arg);
-    var h = "<p>The Game Guide is the community-written part of UDOP: how things in Daggerfall Online work, written by players. Unlike the patch notes it is edited by hand, so anyone can improve it.</p>" + contribBox();
+    var h = "<p>The Game Guide is the community-written part of UDOP: how things in DFO Online work, written by players. Unlike the patch notes it is edited by hand, so anyone can improve it.</p>" + contribBox();
     if (guide === null) h += "<p>Loading…</p>";
     else if (guideFailed) h += guideUnavailable();
     else if (!listedGuide().length) h += "<p>There are no guide pages yet. Be the first to write one.</p>";
@@ -1074,7 +1071,7 @@
         if (all.length > INDEX_SHOWN) h += '<p class="allpages"><a href="#/guide/category/' + enc(c) + '">All ' + all.length + " pages in " + esc(c) + " →</a></p>";
       });
     }
-    return { title: "Game Guide", html: page("Game Guide", h) };
+    return { title: "Game Guide", html: page("Game Guide", h, { hat: HOME_HAT + " › Game Guide" }) };
   };
   views.guidecat = function (c) {
     var list = listedGuide().filter(function (p) { return p.category === c; });
@@ -1085,16 +1082,21 @@
     if (MOVED[slug.toLowerCase()]) { location.replace(MOVED[slug.toLowerCase()]); return null; }
     return pageView("guide", slug);
   };
-  var SITE_HAT = '<a href="#/site">Site Guide</a>';
+  var SITE_HAT = HOME_HAT + ' › <a href="#/site">Site Guide</a>';
   /* the Site Guide: help for contributors and reviewers, in web/site/. #/site is its front page (web/site/index.md) */
-  views.site = function (arg) { return pageView("site", arg || "index"); };
+  /* Site Guide pages that were renamed (lower case old address or title -> new address) */
+  var SITE_MOVED = { "troubleshooting": "#/site/fixing-a-page", "troubleshooting and faq": "#/site/fixing-a-page" };
+  views.site = function (arg) {
+    if (arg && SITE_MOVED[arg.toLowerCase()]) { location.replace(SITE_MOVED[arg.toLowerCase()]); return null; }
+    return pageView("site", arg || "index");
+  };
   /* one Markdown page of the Game Guide (web/guide/) or the Site Guide (web/site/); both are rendered the same way */
   function pageView(area, slug) {
     var site = area === "site", bySlug = site ? siteBySlug : guideBySlug, byTitle = site ? siteByTitle : guideByTitle, dir = site ? "site/" : "guide/";
     var entry = bySlug[slug.toLowerCase()] || byTitle[slug.toLowerCase()], front = site && (entry ? entry.slug : slug) === "index";
     var title = entry ? entry.title : slug.split("/").pop();
     var real = entry ? entry.slug : slug, slugPath = real.split("/").map(enc).join("/");
-    return { title: title, html: page(esc(title), '<div id="gp"><p>Loading…</p></div>', { hat: front ? "" : site ? SITE_HAT : GUIDE_HAT }), after: function () {
+    return { title: title, html: page(esc(title), '<div id="gp"><p>Loading…</p></div>', { hat: front ? HOME_HAT + " › Site Guide" : site ? SITE_HAT : GUIDE_HAT }), after: function () {
       var box = document.getElementById("gp");
       /* the View Source tab: the page's Markdown file in a read-only copy of the editor's panes, with a notice on how to change it. The editor's colors are fetched the first time. */
       function showSource(raw) {
@@ -1162,15 +1164,15 @@
 
   views.home = function () {
     var n = listedGuide().length;
-    var h = '<p>Welcome to <b>UDOP</b>, the <b>Unofficial DFO Online Pages</b>: a fan-made, community-edited reference for Daggerfall Online. It has two parts, plus a Site Guide that explains how to contribute. The <b>☰</b> button at the top left opens the main menu.</p>';
+    var h = '<p>Welcome to <b>UDOP</b>, the <b>Unofficial DFO Online Pages</b>: a fan-made, community-edited reference for DFO Online. It has two parts, plus a Site Guide that explains how to contribute. The <b>☰</b> button at the top left opens the main menu.</p>';
     h += '<div class="portals three">';
     h += '<div class="portal"><h3>Game Guide</h3><div><p>How things work, written by players. ' + (n ? "<b>" + plural(n, "page") + "</b> so far." : "Be the first to add a page.") + '</p><p><a href="#/guide">Browse the Game Guide →</a><br><a href="' + HOWTO + '">How to write a page</a></p></div></div>';
     h += '<div class="portal"><h3>Patch Notes</h3><div><p>Every recorded change, patch by patch: <b>' + D.totals.rows.toLocaleString() + "</b> changes to <b>" + topics.length + "</b> topics. Latest: <b>" + vlink(versions[0]) + "</b> (" + esc(dateOf(versions[0])) + ').</p><p><a href="#/patchnotes">Browse the Patch Notes →</a><br><a href="#/recent">Recent changes</a></p></div></div>';
     var sg = siteBySlug["index"];   /* the Site Guide's front page supplies the card's text */
     h += '<div class="portal"><h3>Site Guide</h3><div><p>' + esc(sg ? sg.summary : "Help for writing, fixing and reviewing Game Guide pages, and for getting around the site.") + '</p><p><a href="#/site">Open the Site Guide →</a><br><a href="#/site/using-the-site">Using the site</a></p></div></div>';
-    h += '<div class="portal wide"><h3>Made by the community</h3><div><p>UDOP is written and kept up by volunteers. <a href="#/credits">Meet the people behind it →</a> or see <a href="' + HOWTO + '">how to join in</a>.</p></div></div>';
+    h += '<div class="portal wide"><h3>Made by the community</h3><div><p>UDOP is written and kept up by volunteers. <a href="#/about">Meet the people behind it →</a></p></div></div>';
     h += "</div>";
-    h += "<p>Patch notes are compiled from the developers' public release notes by a script, so they are updated for each release. Guide pages are written and corrected by the community, and the Site Guide explains how. <a href=\"#/about\">About UDOP</a></p>";
+    h += "<p>Patch notes are compiled from the developers' public release notes by a script, so they are updated for each release. Guide pages are written and corrected by the community, and the Site Guide explains how. <a href=\"#/about\">About &amp; Credits</a></p>";
     return { title: "Main Page", html: page("Main Page", h), toc: false };
   };
 
@@ -1181,7 +1183,7 @@
   var feedbackPage = location.href;
   var GAME_BUGS = "https://discord.com/channels/1345035007164678226/1552054193441869907";   /* where bugs in the game itself are reported (the bug-reports channel of the DFO Online Discord) */
   views.feedback = function () {
-    var h = '<div class="mbox"><b>Found a bug in the game itself?</b> This page is only for this website. Report bugs in Daggerfall Online in the <b>bug-reports</b> channel of the DFO Online Discord: <a href="' + GAME_BUGS + '" rel="noopener">open bug-reports</a>.</div>';
+    var h = '<div class="mbox"><b>Found a bug in the game itself?</b> This page is only for this website. Report bugs in DFO Online in the <b>bug-reports</b> channel of the DFO Online Discord: <a href="' + GAME_BUGS + '" rel="noopener">open bug-reports</a>.</div>';
     h += "<p>Found something broken, wrong or confusing on this site? Tell us. Reports are made on GitHub, so they are public and need a free GitHub account. The site itself collects nothing about you.</p>";
     h += '<div class="portals">' +
       '<div class="portal"><h3>Report a site bug</h3><div><p>The site is broken, looks wrong, or does not work on your device.</p><p><a class="btn" data-issue="bug.yml" data-prefix="[Bug] " href="' + issueUrl("bug.yml", "[Bug] ") + '" rel="noopener">Report a site bug</a></p></div></div>' +
@@ -1190,7 +1192,7 @@
       "</div>";
     h += sec("Rather fix it yourself?", "Rather fix it yourself?", 2) +
       '<p>Anyone can correct or add a Game Guide page: <a href="' + HOWTO + '">how to write a guide page</a>. Please do not put personal details in a report, since it is public.</p>';
-    return { title: "Feedback & Bugs", html: page("Feedback &amp; Bugs", h), toc: false };
+    return { title: "Feedback & Bugs", html: page("Feedback &amp; Bugs", h, { hat: HOME_HAT + " › Feedback &amp; Bugs" }), toc: false };
   };
 
   views.random = function () {
@@ -1666,7 +1668,7 @@
     .then(function () {
       return fetch("credits.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (j) { credits = j; }).catch(function () { credits = { groups: [] }; });
     })
-    .then(function () { if (/^#\/(guide|site|search|credits)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
+    .then(function () { if (/^#\/(guide|site|search|about)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
   document.getElementById("foot-stats").textContent = D.totals.rows.toLocaleString() + " changes · " + topics.length + " topics · " + allVersions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
 
   /* search box with suggestions */
@@ -1805,11 +1807,11 @@
       }
       if (m[1] === "hub") {
         var ht = hubs[arg]; if (!ht) return null;
-        return { kind: "Patch Notes category", title: arg, text: clip(ht.slice(0, 8).join(", ") + (ht.length > 8 ? ", …" : ""), 200), meta: plural(ht.length, "topic") };
+        return { kind: "Patch Notes area", title: arg, text: clip(ht.slice(0, 8).join(", ") + (ht.length > 8 ? ", …" : ""), 200), meta: plural(ht.length, "topic") };
       }
       if (m[1] === "system") {
         if (!D.systems[arg]) return null;
-        return { kind: "Game system", title: arg, text: "Changes to the " + arg + " system.", meta: plural(D.systems[arg], "change") };
+        return { kind: "Game system", title: sysName(arg), text: "Changes to the " + sysName(arg) + " system.", meta: plural(D.systems[arg], "change") };
       }
       if (m[1] === "site") {
         var sg = siteBySlug[arg.toLowerCase()] || siteByTitle[arg.toLowerCase()];
@@ -1865,6 +1867,16 @@
     var links = document.querySelectorAll("[data-nav]"), pick = null;
     keys.some(function (k) { return Array.prototype.some.call(links, function (a) { if (a.getAttribute("data-nav") === k) { pick = k; return true; } return false; }); });
     Array.prototype.forEach.call(links, function (a) { a.classList.toggle("on", a.getAttribute("data-nav") === pick); });
+    /* while a Patch Notes page is open, its lists are shown under the Patch Notes link; the one being read is marked */
+    var sub = document.getElementById("pn-sub");
+    if (sub) {
+      sub.hidden = pick !== "patchnotes";
+      var path = location.hash.split("?")[0], map = { "#/hub": "#/hubs", "#/system": "#/systems", "#/patch": "#/patches" };
+      Array.prototype.forEach.call(sub.querySelectorAll("a"), function (a) {
+        var h = a.getAttribute("href"), hit = path === h || Object.keys(map).some(function (k) { return map[k] === h && (path === k || path.indexOf(k + "/") === 0); });
+        a.classList.toggle("on", hit);
+      });
+    }
   }
 
   /* router */

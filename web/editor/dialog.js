@@ -1,4 +1,4 @@
-/* Write a guide page: the modal window used for questions, notices and the page picker. One <dialog> is reused; ask(), notice() and pick() return a promise.
+/* The guide editor: the modal window used for questions, notices and the page picker. One <dialog> is reused; ask(), notice() and pick() return a promise.
    Esc, a click on the dim area outside the window, and Cancel all give the same answer: nothing changes. */
 (function () {
   "use strict";
@@ -48,7 +48,7 @@
           if (it.group && it.group !== group) { group = it.group; head = '<li role="presentation" class="edw-pick-g">' + esc(group) + "</li>"; }
           return head + '<li role="option" id="ed-po' + i + '" aria-selected="' + (i === active) + '" data-i="' + i + '"><span class="edw-pick-l"><b>' + esc(it.label) + (it.tag ? "<small>" + esc(it.tag) + "</small>" : "") + "</b>" + (it.note ? "<em>" + esc(it.note) + "</em>" : "") + "</span></li>";
         }).join("") : '<li class="none">Nothing matches.</li>';
-        count.textContent = shown.length === o.items.length ? o.items.length + " pages" : shown.length + " of " + o.items.length;
+        count.textContent = shown.length === o.items.length ? o.items.length + " " + (o.noun || "pages") : shown.length + " of " + o.items.length;
         if (shown.length) input.setAttribute("aria-activedescendant", "ed-po" + active); else input.removeAttribute("aria-activedescendant");
         var cur = list.querySelector('[aria-selected="true"]'); if (cur) cur.scrollIntoView({ block: "nearest" });   /* scroll-padding keeps it clear of the sticky group heading */
       }

@@ -4,7 +4,7 @@ category: Site Guide
 summary: How to write a Game Guide page in the browser editor, see it drawn as you type, fix what the Problems check finds, and send it to GitHub.
 ---
 
-The guide editor is the "Write a guide page" link in the main menu. You type Markdown in the **Editor** pane on the left and see the page drawn in the **Preview** pane on the right as you type. Nothing is uploaded until you submit, and your draft stays in your browser.
+The guide editor is the "Open the editor" link in the main menu. You type Markdown in the **Editor** pane on the left and see the page drawn in the **Preview** pane on the right as you type. Nothing is uploaded until you submit, and your draft stays in your browser.
 
 The editor always uses the whole width of the window, and the main menu and Settings open as pop-ups while you are in it, whatever you chose in Settings. Your own choices come back when you leave.
 
@@ -13,7 +13,7 @@ The editor always uses the whole width of the window, and the main menu and Sett
 
 ## Writing
 
-A new draft starts from the guide template. Replace the placeholders, delete the Tip box at the top once you have read it, and fill in the `title`, `category` and `summary` lines at the very top. The formatting is described on the page [[site:Formatting reference]].
+A new draft starts from the guide template. Replace the placeholders, delete the Tip box at the top once you have read it, and fill in the `title`, `category` and `summary` lines at the very top. The formatting is described on the pages [[site:Formatting reference]] and [[site:Extended formatting]].
 
 The text is colored as you type: the front matter, headings, code boxes, notice boxes, bold, italic, code, links and spoilers each have a color. A link to a page that exists is colored as a link, and a link to a page that does not exist is red with a wavy underline.
 
@@ -47,7 +47,7 @@ The check reads another page's headings, and looks for picture files, the first 
 
 ## The File menu
 
-- **New from template** replaces the text with one of the starter templates (How it works, Item, Place, Creature or boss) and selects the first placeholder so you can type over it.
+- **New from template** opens a window listing the starter templates (How it works, Item, Place, Creature or boss), each with a line on what it is for. Choosing one replaces the text with it and selects the first placeholder so you can type over it.
 - **Open a guide page** lists the pages already in the Game Guide, grouped by category with each page's summary. Type to narrow the list (it matches titles, categories and summaries), use the arrow keys and Enter or click to choose a page to edit it (see below).
 - **Open from this computer** (Ctrl+O) loads a Markdown or text file (`.md`, `.markdown`, `.mdown` or `.txt`, up to 2 MB) into the editor.
 - **Save draft** (Ctrl+S) saves the draft now instead of waiting.
@@ -181,7 +181,7 @@ Some Linux desktops use Alt + drag to move windows, so the box selection may nev
 The **?** at the end of the menu bar, or **F1** from anywhere in the editor, opens this help in a window that floats over the editor. It takes no room from the two panes and the text behind it stays editable.
 
 - Drag the title bar to move the window and the bottom-right corner to resize it. It remembers where you left it.
-- **Contents** lists four pages: How to use the editor, How to write a guide page, Formatting reference and Troubleshooting and FAQ. The page you are reading opens out into its sections, and each section is a page of its own.
+- **Contents** lists five pages: How to use the editor, How to write a guide page, Formatting reference, Extended formatting and Fixing a page. The page you are reading opens out into its sections, and each section is a page of its own.
 - **<** and **>**, or the Left and Right arrow keys while the window has the focus, go to the previous and next page.
 - **Close** or Esc closes the window. **Open on the site** shows the page in a new tab. Links to other site pages also open in a new tab, so your draft is not disturbed.
 

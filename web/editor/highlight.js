@@ -1,4 +1,4 @@
-/* Write a guide page: the colored Markdown source behind the text box. */
+/* The guide editor: the colored Markdown source behind the text box. */
 (function () {
   "use strict";
   var H = window.udfopHost, P = window.udfopEditor = window.udfopEditor || {};

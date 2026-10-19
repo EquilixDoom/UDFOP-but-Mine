@@ -1,4 +1,4 @@
-/* Write a guide page: several carets and selections at once.
+/* The guide editor: several carets and selections at once.
    The text box keeps one selection, the primary, and is still what the browser types into. The others are held here, drawn in the colored copy behind the text box, and every edit,
    movement and command is applied to all of them. P.multi is the pure part (ranges, edits, boxes, runs of a command on copies); P.multiSelect(ctx) is the part that listens to the page.
    A range is { a: anchor, h: head, p: true on the primary }; "lo" and "hi" are its start and end. */

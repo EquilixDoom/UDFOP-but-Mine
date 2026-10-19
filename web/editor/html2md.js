@@ -1,4 +1,4 @@
-/* Write a guide page: turns HTML (as copied from a web page or a word processor) into Markdown, for Edit > Paste Special > Paste HTML Content.
+/* The guide editor: turns HTML (as copied from a web page or a word processor) into Markdown, for Edit > Paste Special > Paste HTML Content.
    It has its own small HTML reader, so it needs no page and can be tested on its own. P.htmlToMarkdown(html) returns the Markdown. */
 (function () {
   "use strict";

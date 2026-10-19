@@ -1,4 +1,4 @@
-/* Write a guide page: the text box finishes what the writer is typing (complete.js says how). It closes brackets and marks, carries lists, quotes, tables and code boxes on at Enter and Tab,
+/* The guide editor: the text box finishes what the writer is typing (complete.js says how). It closes brackets and marks, carries lists, quotes, tables and code boxes on at Enter and Tab,
    and shows a list of names under the caret after [[, {{, ](, > [! and in the front matter. */
 (function () {
   "use strict";

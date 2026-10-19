@@ -1,4 +1,4 @@
-/* Write a guide page: what the editor finishes for the writer, as plain functions (so they can be tested without a page): closing brackets and marks as they are typed, what Enter and Tab do inside lists,
+/* The guide editor: what the editor finishes for the writer, as plain functions (so they can be tested without a page): closing brackets and marks as they are typed, what Enter and Tab do inside lists,
    quotes, tables and code boxes, and the lists of names offered after [[, {{, ](, > [! and in the front matter. A change is a plan { start, end, text, a, b }: replace text[start, end) with text and select a..b
    (format.js has the same form). A function that has nothing to do returns null, and the key then does what it always did. */
 (function () {

@@ -1,5 +1,5 @@
 ---
-title: Troubleshooting and FAQ
+title: Fixing a page
 category: Site Guide
 summary: Fixes for the most common problems when writing a page, and what each page-check message means.
 ---
@@ -123,6 +123,18 @@ When you open a pull request, a check runs on your pages. A red mark means it fo
 | related: "x" matches no… | A name in `related:` matches nothing. A name with no prefix is a Game Guide page. | Fix the name, or add `site:`, `topic:` or `patch:`. |
 
 ## Previewing on your computer
+
+> [!NOTE]
+> You do not need this to contribute.
+
+To see a page before proposing it, run these from the project folder, then open <http://localhost:8000>
+
+```py
+python tools/guide.py --check
+python -m http.server 8000 --directory web
+```
+
+`guide.py` rebuilds the page list the site reads and reports problems such as duplicate titles. The deploy runs it for you.
 
 ### The Game Guide says it could not be loaded
 

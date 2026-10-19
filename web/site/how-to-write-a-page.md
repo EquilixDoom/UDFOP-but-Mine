@@ -62,8 +62,8 @@ Here is where each part shows up on the site:
 | `category` (Optional) | Puts the page in a group. The group appears on the **Game Guide** page, as its own page listing, and in the breadcrumb at the top of the page. |
 | `unlisted` (Optional) | Written `unlisted: yes`. Keeps the page out of the **Game Guide** page and the category pages, and out of the page counts. The page can still be opened by its address, by a link and by search. Pages about the project itself go in the Site Guide instead (`web/site/`). |
 | `summary` (Optional) | The one-line description shown next to the page's name in lists and in search results. |
-| `related` (Optional) | Pages and topics to list in the References section even though the text does not link them. In the example it adds the Patch Notes topic Resting and the guide page Camping. See the "References section" in the [[site:Formatting reference]]. |
-| `expected-missing` (Optional) | Names of links that are meant to point at pages that do not exist, separated by commas. The page check skips them instead of noting them. It is for pages that show a red link as an example, such as the [[site:Formatting reference]]. |
+| `related` (Optional) | Pages and topics to list in the References section even though the text does not link them. In the example it adds the Patch Notes topic Resting and the guide page Camping. See the "References section" in [[site:Extended formatting]]. |
+| `expected-missing` (Optional) | Names of links that are meant to point at pages that do not exist, separated by commas. The page check skips them instead of noting them. It is for pages that show a red link as an example, such as [[site:Extended formatting]]. |
 | `## Heading` lines (Optional) | Section headings. Every heading is listed in the page's **Contents** list, which is added automatically, like the one beside this page (in the left sidebar, or behind the ☰ button next to the title). The page title is added for you, so do not repeat it. |
 | The file name | The page's web address. The example file `party-rest.md` becomes `#/guide/party-rest`. Use lower case and hyphens. |
 | `[[Another page]]` | A link to another guide page, by its title. |
@@ -109,7 +109,7 @@ Resting restores **health** while the party camps. See [[Camping]] and [[topic:R
 - another bullet
 ```
 
-Start at `##`, because the page title is added for you. Everything else, including pictures with captions, tables, code boxes, notice boxes, spoilers and keycaps for keys and buttons, is in the [[site:Formatting reference]].
+Start at `##`, because the page title is added for you. Everything else, including pictures with captions, tables, code boxes, notice boxes, spoilers and keycaps for keys and buttons, is in the [[site:Formatting reference]] and [[site:Extended formatting]].
 
 ### The shape of a page
 
@@ -124,15 +124,15 @@ The starter template follows the shape that suits most pages about how something
 
 Pages that are not about a game system, such as a fix for a technical problem, can drop sections or change them.
 
-Items, places and creatures have templates of their own. Each starts with a fact panel (an infobox, see the [[site:Formatting reference]]) holding the numbers readers look up, followed by sections that suit that kind of page: how to get an item, how to reach a place, or how to beat a creature. When you start a missing page from its red link, the "Create this page" screen offers all of them.
+Items, places and creatures have templates of their own. Each starts with a fact panel (an infobox, see [[site:Extended formatting#Infoboxes]]) holding the numbers readers look up, followed by sections that suit that kind of page: how to get an item, how to reach a place, or how to beat a creature. When you start a missing page from its red link, the "Create this page" screen offers all of them.
 
-Raw HTML is shown as plain text, so leave it out. The [[site:Formatting reference]] lists what is not supported.
+Raw HTML is shown as plain text, so leave it out. [[site:Extended formatting#Not supported]] lists what is not supported.
 
 ## Adding pictures
 
 - Upload pictures to an **`images`** folder. Most pages use the shared one, **`web/guide/images/`**. A page that lives in its own folder may instead keep an `images` folder beside it. In your fork, switch to the branch GitHub made for your page (the branch menu at the top left of the file list), open the folder, and choose **Add file → Upload files**. The picture joins your open pull request automatically.
 - Reference a picture by its path from the page's own folder. For a page directly in `web/guide/`, that starts with `images/`. For a page inside a folder such as `web/guide/combat/`, use `../images/` to reach the shared folder, or `images/` to reach one beside the page.
-- Write the picture into your page with `![description](images/your-picture.png)`. Captions and placement are in the [[site:Formatting reference]]. Yours will have its own name.
+- Write the picture into your page with `![description](images/your-picture.png)`. Captions and placement are in [[site:Extended formatting#Picture captions and placement]]. Yours will have its own name.
 - Name it after your page, such as `party-rest-camp.png`, so names do not clash and people can tell what it belongs to.
 - Use PNG, JPG, WebP or GIF, and keep each file under about 500 KB. Crop or shrink large screenshots.
 - Always write alt text (the words in the square brackets) describing what the picture shows. It is read aloud by screen readers and shown if the picture cannot load.
@@ -140,7 +140,7 @@ Raw HTML is shown as plain text, so leave it out. The [[site:Formatting referenc
 > [!important]
 > Only upload pictures you made yourself, such as your own screenshots or diagrams. Do not upload other people's artwork or images taken from other sites.
 >
-> A screenshot of the game is yours only in how you composed it: what you chose to show, the framing, cropping, annotations and caption. The artwork inside it belongs to Bethesda/ZeniMax (*Daggerfall*) or to the Daggerfall Online developers, and your pictures are released under CC BY 4.0 without it. Do not extract, redraw or upload game assets on their own, such as textures, sprites, icons or music.
+> A screenshot of the game is yours only in how you composed it: what you chose to show, the framing, cropping, annotations and caption. The artwork inside it belongs to Bethesda/ZeniMax (*Daggerfall*) or to the DFO Online developers, and your pictures are released under CC BY 4.0 without it. Do not extract, redraw or upload game assets on their own, such as textures, sprites, icons or music.
 
 ## Good practice
 
@@ -178,7 +178,7 @@ If a mistake is found after a page is live, it is fixed the same way: someone ed
 
 ### Credit
 
-Your writing is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and credited to "UDOP contributors". GitHub also keeps your name beside every change you make, in the project's history.
+Your writing is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and credited to "UDOP contributors". GitHub also keeps your name beside every change you make, in the project's history. The other licences are listed on [About & Credits](#/about).
 
 ### Files the site ignores
 
@@ -217,22 +217,12 @@ A picture kept in an `images` folder beside the page, such as `web/guide/combat/
 
 ## Previewing on your computer
 
-> [!NOTE]
-> You do not need this to contribute.
-
-To see a page before proposing it, run these from the project folder, then open <http://localhost:8000>
-
-```py
-python tools/guide.py --check
-python -m http.server 8000 --directory web
-```
-
-`guide.py` rebuilds the page list the site reads and reports problems such as duplicate titles. The deploy runs it for you.
+You do not need this to contribute. The commands to preview a page on your own computer are in [[site:Fixing a page#Previewing on your computer]].
 
 ## Where to go next
 
-- [[site:Formatting reference]]: every kind of formatting, with examples.
+- [[site:Formatting reference]] and [[site:Extended formatting]]: every kind of formatting, with examples.
 - [[site:Anatomy of a page]]: what the site builds around your text.
-- [[site:Troubleshooting and FAQ]]: when a page does not show up or looks wrong, and what each page-check message means.
+- [[site:Fixing a page]]: when a page does not show up or looks wrong, and what each page-check message means.
 - [[site:Reviewing a pull request]]: for maintainers and anyone who reviews pages.
 - The [Site Guide](#/site): all of these in one place.

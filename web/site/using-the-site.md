@@ -6,12 +6,7 @@ summary: How to search, use the menus and Contents, change the look in Settings,
 
 This page is for readers. It explains how to find things on UDOP with search and browsing, how the menus work, and how to change the look in Settings. Nothing here needs an account, and your choices stay in your browser.
 
-## The two parts
-
-- The [Game Guide](#/guide) is written by players. It explains how things in Daggerfall Online work, and anyone can add or fix a page.
-- The [Patch Notes](#/patchnotes) record every change from the developers' release notes, patch by patch and topic by topic. A script builds them.
-
-The two are connected only by links. A guide page can link to a Patch Notes topic, but Patch Notes pages do not list guide pages.
+The site has two parts, the [Game Guide](#/guide) and the [Patch Notes](#/patchnotes), described on the [Main Page](#/). They are connected only by links: a guide page can link to a Patch Notes topic, but Patch Notes pages do not list guide pages.
 
 ## Finding things
 
@@ -29,7 +24,7 @@ The search box is at the top of every page. As you type, it suggests matching Ga
 
 ### Browsing the Patch Notes
 
-The [Patch Notes](#/patchnotes) front page has a **Browse** line: Recent changes, All topics, Categories, Game systems, Patch index and Random topic. Use **Random topic** to wander. The **Recent changes by type** box on that page has a tab for each kind of change (Additions, Reworks, Fixes and so on). Each tab is a small table of the five newest patches that made that kind of change: how many, which topics, and a link to that patch's section for them.
+The [Patch Notes](#/patchnotes) front page has a **Browse** line: Recent changes, All topics, Areas, Game systems, Patch index and Random topic. Use **Random topic** to wander. The **Recent changes by type** box on that page has a tab for each kind of change (Additions, Reworks, Fixes and so on). Each tab is a small table of the five newest patches that made that kind of change: how many, which topics, and a link to that patch's section for them.
 
 A patch page and the Recent changes page sort the changes by kind first: Additions, Reworks, Fixes, then performance, economy, interface, balance, removals and other changes, so you can read what is new without the fixes mixed in. Each heading shows how many changes it holds and appears in Contents. Above the list, the **By type** and **By topic** tabs switch between that and the older layout, one heading per topic. The patch page also links to the developers' original release notes on GitHub.
 
@@ -41,7 +36,7 @@ The [Game Guide](#/guide) lists pages under their categories, with the first doz
 
 ### The main menu
 
-The main menu lists the main pages: Main Page, Game Guide, Patch Notes, Site Guide, Using the Site (this page), About UDOP and Feedback & Bugs. Under **Contribute** are a link to the instructions for writing a page and the **Credits** page, which names the people behind UDOP.
+The main menu lists the main pages: Main Page, Game Guide and Patch Notes under **Read**; the Site Guide (which includes this page) and Feedback & Bugs under **Help**; and **How to write a page**, **Open the editor** and **About & Credits** under **Contribute and about**. About & Credits also names the people behind UDOP.
 
 It starts hidden. Open it with the **☰** button at the top left of the header. Inside it, the **move to sidebar** button docks it as a permanent sidebar on the left, and the **hide** button puts it away again.
 
@@ -93,7 +88,7 @@ A link with no marker goes to another part of this site, such as a category. A *
 
 ### Previews
 
-On a computer, pointing at a link to a page, topic, patch, category or game system shows a short preview card. Turn previews off in Settings if you find them distracting.
+On a computer, pointing at a link to a page, topic, patch, area, category or game system shows a short preview card. Turn previews off in Settings if you find them distracting.
 
 ![A link in a list, with a small card under it showing the page's kind, title and summary](images/use-preview.png "Pointing at a link shows a preview card."){center 620}
 

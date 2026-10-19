@@ -22,10 +22,10 @@ On the project page, open the **Pull requests** tab, then the pull request. Read
 
 ## 2. Look at the automatic check
 
-Near the bottom of the pull request is the **Check Game Guide** result. It runs the same page check described in [[site:Troubleshooting and FAQ]].
+Near the bottom of the pull request is the **Check Game Guide** result. It runs the same page check described in [[site:Fixing a page]].
 
 - **A green tick** means no errors. There may still be notes. Open **Details** to read them.
-- **A red cross** means an error, such as a duplicate title or a missing picture. The contributor has to fix it before it can be merged. Point them to the matching row in the page-check table in [[site:Troubleshooting and FAQ]].
+- **A red cross** means an error, such as a duplicate title or a missing picture. The contributor has to fix it before it can be merged. Point them to the matching row in the page-check table in [[site:Fixing a page]].
 
 ## 3. Read the page
 

@@ -1,4 +1,4 @@
-/* Write a guide page: the Problems checks and the first-placeholder finder.
+/* The guide editor: the Problems checks and the first-placeholder finder.
    A problem is { level: "error" | "warn", line, col, len, msg }. Errors would break the page or clash with another (they block Submit); warnings are worth a look.
    The checks follow tools/guide.py and the site's renderer. Data that has to be fetched (another page's headings, whether a picture exists) comes from the host as null until it arrives; the host then calls back and the view checks again. */
 (function () {

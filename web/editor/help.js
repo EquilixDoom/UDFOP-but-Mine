@@ -1,9 +1,9 @@
-/* Write a guide page: help as a window that floats over the editor. It takes no room from the two panes, can be dragged by its title bar and resized from its corner, and stays where it was put.
-   Four Site Guide pages are in it. Each is cut into reading pages at its ## and ### headings, and a Contents list lists the four pages, with the one being read opened out into its own pages. */
+/* The guide editor: help as a window that floats over the editor. It takes no room from the two panes, can be dragged by its title bar and resized from its corner, and stays where it was put.
+   Five Site Guide pages are in it. Each is cut into reading pages at its ## and ### headings, and a Contents list lists the five pages, with the one being read opened out into its own pages. */
 (function () {
   "use strict";
   var P = window.udfopEditor = window.udfopEditor || {};
-  var KEY = "udfop.editor.help", DOCS = [["using-the-editor", "How to use the editor"], ["how-to-write-a-page", "How to write a guide page"], ["formatting-reference", "Formatting reference"], ["troubleshooting", "Troubleshooting and FAQ"]];
+  var KEY = "udfop.editor.help", DOCS = [["using-the-editor", "How to use the editor"], ["how-to-write-a-page", "How to write a guide page"], ["formatting-reference", "Formatting reference"], ["extended-formatting", "Extended formatting"], ["fixing-a-page", "Fixing a page"]];
   function plain(s) { return s.replace(/\[\[(?:[^|\]]*\|)?([^\]]*)\]\]/g, "$1").replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/\{\{|\}\}/g, "").replace(/[*_`]/g, "").trim(); }
   /* cut a page at its ## and ### headings (not inside a code box); a page with nothing on it is left out and its heading points at the next one */
   function split(md) {

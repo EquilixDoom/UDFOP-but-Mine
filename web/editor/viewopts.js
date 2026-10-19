@@ -1,4 +1,4 @@
-/* Write a guide page: the View menu. The settings (kept between visits), the margin, zoom, the change marks, the wrap marks and the scrolling of the preview with the text. */
+/* The guide editor: the View menu. The settings (kept between visits), the margin, zoom, the change marks, the wrap marks and the scrolling of the preview with the text. */
 (function () {
   "use strict";
   var P = window.udfopEditor = window.udfopEditor || {};

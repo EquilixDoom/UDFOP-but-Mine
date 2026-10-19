@@ -31,7 +31,7 @@ From the top of the page down. The numbers match the picture.
 | 1 | **Title** | Your `title` line. If your text starts with a heading that repeats the title, the site drops it. |
 | 2 | **"From Unofficial DFO Online Pages"** | Added by the site on every page. |
 | 3 | **Breadcrumb** | Built from your `category`: Game Guide › your category, with both parts linked. A page with `unlisted: yes` has none. |
-| 4 | **Contents button (☰)** | Added by the site, and shown only when the reader has not docked Contents in the sidebar. It sits beside the title, and once the reader scrolls past the title it floats at the top left of the window. It opens the Contents as a pop-up. |
+| 4 | **Contents button (☰)** | Added by the site, and shown only when the reader has not docked Contents in the sidebar. See [[site:Using the site#Contents]]. |
 | 5 to 7 | **Your text** | Everything you wrote below the front matter. Here it is a section heading (5), a notice box (6) and a table (7). Each `##` and `###` heading also becomes an entry in the Contents list. |
 | 8 | **References** | Built from the links in your text and your `related` line. |
 | 9 | **Contribute lines** | Three lines at the bottom: "Want to contribute? Learn how", "Fork project | Edit this page on github", and "Open this page in the Editor". A Site Guide page has the first two. Added by the site. |
@@ -42,15 +42,11 @@ Under the title there is also a row of tabs, added by the site to every Game Gui
 
 ![A guide page on a phone, with its sections folded closed](images/anatomy-narrow.png "The same page on a phone: 1 the main menu button, 2 the search box, 3 the Settings gear, 4 the title, 5 the folded sections."){right 240}
 
-On a phone, or any window under about 860 pixels wide, the page is one column and the sidebars are gone:
-
-- **There is no Contents list.** Instead, each `##` and `###` section **folds**, closed to begin with. Tapping a heading opens it.
-- **The main menu and Settings** open as pop-ups from the header buttons.
-- **Floated pictures** move above the text and take the full width.
+On a phone, or any window under about 860 pixels wide, the page is one column, the sidebars are gone and each `##` and `###` section folds closed. Floated pictures move above the text. See [[site:Using the site#On a phone or a narrow window]].
 
 ## Where to go next
 
-- How to write each part of your text: the [[site:Formatting reference]].
+- How to write each part of your text: the [[site:Formatting reference]] and [[site:Extended formatting]].
 - What readers can change, and how the menus work: [[site:Using the site]].
 
 Back to the [Site Guide](#/site).

@@ -1,4 +1,4 @@
-/* Write a guide page: the Edit menu's commands. P.ops holds the text operations as plain functions (so they can be tested without a page); P.editCommands applies them to the text box.
+/* The guide editor: the Edit menu's commands. P.ops holds the text operations as plain functions (so they can be tested without a page); P.editCommands applies them to the text box.
    Every change goes through the browser's own text insertion, so one Ctrl+Z undoes a whole command. */
 (function () {
   "use strict";
