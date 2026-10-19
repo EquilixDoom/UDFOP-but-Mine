@@ -35,6 +35,29 @@ const cases = [
   ["CR and tabs", rep("a\r\tb\r\n", 5000)],
   ["emoji and combining marks", rep("\u{1F600}e\u0301 \u200B\u202E", 20000)],
 ];
+for (const f of ["html2md.js", "multi.js", "edits.js"]) vm.runInContext(fs.readFileSync(path.join(web, "editor", f), "utf8"), sb, { filename: "editor/" + f });
+const htmlCases = [
+  ["html: 20,000 table rows", "<table>" + rep("<tr><td>a</td><td>b</td></tr>", 20000) + "</table>"],
+  ["html: 50,000 list items", "<ul>" + rep("<li>item <b>x</b></li>", 50000) + "</ul>"],
+  ["html: 100,000 unclosed <b>", rep("<b>x", 100000)],
+  ["html: 50,000 nested divs", rep("<div>", 50000) + "x"],
+  ["html: 3,000 nested lists", rep("<ul><li>", 3000) + "x"],
+  ["html: 100,000 stray <", rep("a < b ", 100000)],
+  ["html: 5 MB of text", rep("word ", 1000000)]
+];
+const M = P.multi, R = (a, h) => ({ a, h: h === undefined ? a : h });
+const page = rep("A line of text with some words in it, and a few more.\n", 4000);   /* 220 kB, 4,000 lines */
+const everyLine = (n) => { const out = [], starts = M.lineIndex(page); for (let i = 0; i < n; i++) out.push(R(starts[i] + 5)); return out; };
+const multiCases = [
+  ["multi: type on 4,000 carets", () => M.typed(page, everyLine(4000), "x").text.length],
+  ["multi: delete on 4,000 carets", () => M.deleted(page, everyLine(4000), -1).text.length],
+  ["multi: move 4,000 carets down", () => M.moveAll(page, everyLine(4000), "down", false, null, P.homeTarget).ranges.length],
+  ["multi: a box over 4,000 lines", () => M.boxRanges(page, { line: 0, col: 3 }, { line: 3999, col: 20 }).length],
+  ["multi: normalize 20,000 ranges", () => M.normalize(Array.from({ length: 20000 }, (_, i) => R((i * 7919) % 200000, (i * 7919) % 200000 + 3))).length],
+  ["multi: upper case on 300 selections", () => M.runCommand(page, everyLine(300).map((r) => R(r.a, r.a + 4)), "edit.case.upper", false).text.length],
+  ["multi: indent 300 lines (blocks)", () => M.runCommand(page, everyLine(300).filter((r, i) => i % 2 === 0), "edit.indent.inc", true).text.length],
+  ["multi: draw 4,000 carets and 4,000 ranges", () => P.highlight(page, { ranges: everyLine(4000).map((r) => [r.a, r.a + 3]), carets: everyLine(4000).map((r) => r.a + 10) }).length]
+];
 let slow = 0;
 for (const [name, text] of cases) {
   const t0 = process.hrtime.bigint(); let h, err = "";
@@ -47,6 +70,20 @@ for (const [name, text] of cases) {
   const flag = bad ? "FAIL" : ms > LIMIT_MS || lintMs > LIMIT_MS ? "SLOW" : "ok  ";
   if (flag !== "ok  ") slow++;
   console.log(`${flag} ${ms.toFixed(0).padStart(6)} ms colors ${lintMs.toFixed(0).padStart(6)} ms lint  ${(text.length / 1000).toFixed(0).padStart(6)} kB  ${name}${err ? "  " + err : rows !== want ? `  rows ${rows} of ${want}` : ""}`);
+}
+for (const [name, html] of htmlCases) {
+  const t0 = process.hrtime.bigint(); let err = "", n = 0;
+  try { n = P.htmlToMarkdown(html).length; } catch (e) { err = String(e).slice(0, 60); }
+  const ms = Number(process.hrtime.bigint() - t0) / 1e6, flag = err ? "FAIL" : ms > LIMIT_MS ? "SLOW" : "ok  ";
+  if (flag !== "ok  ") slow++;
+  console.log(`${flag} ${ms.toFixed(0).padStart(6)} ms ${(html.length / 1000).toFixed(0).padStart(6)} kB  ${name}${err ? "  " + err : ""}`);
+}
+for (const [name, fn] of multiCases) {
+  const t0 = process.hrtime.bigint(); let err = "", n = 0;
+  try { n = fn(); } catch (e) { err = String(e).slice(0, 60); }
+  const ms = Number(process.hrtime.bigint() - t0) / 1e6, flag = err ? "FAIL" : ms > LIMIT_MS ? "SLOW" : "ok  ";
+  if (flag !== "ok  ") slow++;
+  console.log(`${flag} ${ms.toFixed(0).padStart(6)} ms  ${name}${err ? "  " + err : ""}`);
 }
 console.log(slow ? `${slow} case(s) need attention` : "all within the limit");
 process.exit(slow ? 1 : 0);

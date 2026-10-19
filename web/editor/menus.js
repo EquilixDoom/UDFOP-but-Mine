@@ -8,6 +8,25 @@
     ["File", [
       ["New from template", H.TEMPLATES.map(function (t) { return [t[1], null, "file.tpl:" + t[0]]; })], ["Open a guide page…", null, "file.page"], ["Open from this computer…", "Ctrl+O", "file.open"], SEP,
       ["Save draft", "Ctrl+S", "file.save"], ["Download .md", null, "file.download"], SEP, ["Discard draft", null, "file.discard"]]],
+    ["Edit", [
+      ["Undo", "Ctrl+Z", "edit.undo"], ["Redo", "Ctrl+Y", "edit.redo"], SEP,
+      ["Cut", "Ctrl+X", "edit.cut"], ["Copy", "Ctrl+C", "edit.copy"], ["Paste", "Ctrl+V", "edit.paste"], ["Delete", "Del", "edit.delete"], ["Select All", "Ctrl+A", "edit.selectall"], SEP,
+      ["Insert", [["Formatting snippets are coming"]]],
+      ["Indent", [["Increase", "Tab", "edit.indent.inc"], ["Decrease", "Shift+Tab", "edit.indent.dec"]]],
+      ["Change Case To", [["UPPER", "Ctrl+Shift+U", "edit.case.upper"], ["lower", "Ctrl+U", "edit.case.lower"], ["Proper", "Alt+U", "edit.case.proper"], ["Sentence", "Ctrl+Alt+U", "edit.case.sentence"]]],
+      ["Line Operations", [
+        ["Remove Duplicates", null, "edit.lines.dedupe"], ["Remove Consecutive Duplicates", null, "edit.lines.dedupeConsecutive"],
+        ["Move Up Current Line", "Ctrl+Shift+Up", "edit.lines.moveup"], ["Move Down Current Line", "Ctrl+Shift+Down", "edit.lines.movedown"],
+        ["Remove Empty Lines", null, "edit.lines.removeEmpty"], ["Remove Empty Line (Blank Characters)", null, "edit.lines.removeBlank"],
+        ["Insert Blank Line Above", null, "edit.lines.blankabove"], ["Insert Blank Line Below", null, "edit.lines.blankbelow"], ["Reverse Line Order", null, "edit.lines.reverse"], SEP,
+        ["Sort Lines Lex. Ascending", null, "edit.lines.sort.lex.asc"], ["Sort Lines Lex. Ascending (Ignore Case)", null, "edit.lines.sort.lexi.asc"],
+        ["Sort Lines Int. Ascending", null, "edit.lines.sort.int.asc"], ["Sort Lines Dec. Ascending", null, "edit.lines.sort.dec.asc"], ["Sort Lines Ascending (Length)", null, "edit.lines.sort.len.asc"], SEP,
+        ["Sort Line Lex. Descending", null, "edit.lines.sort.lex.desc"], ["Sort Line Lex. Descending (Ignore Case)", null, "edit.lines.sort.lexi.desc"],
+        ["Sort Lines Int. Descending", null, "edit.lines.sort.int.desc"], ["Sort Lines Dec. Descending", null, "edit.lines.sort.dec.desc"], ["Sort Line Descending (Length)", null, "edit.lines.sort.len.desc"]]],
+      ["Blank Operations", [["Trim Trailing Space", null, "edit.blank.trimTrailing"], ["Trim Leading Space", null, "edit.blank.trimLeading"], ["Trim Trailing and Leading Space", null, "edit.blank.trimBoth"]]],
+      ["Paste Special", [["Paste HTML Content", null, "edit.pastehtml"]]], SEP,
+      ["Multi-Select All", [["Ignore Case & Whole Word", null, "edit.multi.ignore"], ["Match Case Only", null, "edit.multi.case"], ["Match Whole Word Only", null, "edit.multi.word"], ["Match Case & Whole Word", null, "edit.multi.caseword"]]], SEP,
+      ["Column Mode", null, "edit.columnmode"]]],
   ];
   var uid = 0;
   function list(items, depth) {
@@ -37,6 +56,11 @@
         ul.style.left = ""; ul.style.right = ""; ul.classList.remove("flip");
         var r = ul.getBoundingClientRect();
         if (r.right > document.documentElement.clientWidth - 4) ul.classList.add("flip");
+        if (ul.classList.contains("edw-sub")) {   /* a long submenu moves up so that it ends inside the window (and scrolls if it is still too tall) */
+          ul.style.top = "";
+          var q = ul.getBoundingClientRect(), over = Math.min(q.bottom - (window.innerHeight - 8), q.top - 8);
+          if (over > 0) ul.style.top = (-5 - over) + "px";
+        }
       }
     }
     function closeAll() { tops.forEach(function (b) { setOpen(b, false); }); }

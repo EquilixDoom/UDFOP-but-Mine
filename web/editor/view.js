@@ -27,9 +27,18 @@
       setEditing(editing);
       var hl = document.getElementById("ed-hl"), hlBox = hl.parentNode, paintQueued = false;
       var shown = [];   /* the rows now in the colored copy */
+      var multi = null;   /* the extra selections (multi.js); the colored copy also draws the selection while the text box is not focused, because the browser stops drawing it then */
+      ta.addEventListener("blur", function () { paintSoon(); });
+      ta.addEventListener("focus", function () { paintSoon(); });
+      function reveal(pos) {   /* scrolls the text box so that the line holding pos is on screen */
+        var row = hl.children[P.multi.lineOfPos(P.multi.lineIndex(ta.value), pos)];
+        if (!row) return;
+        var r = row.getBoundingClientRect(), t = ta.getBoundingClientRect();
+        if (r.top < t.top + 8) ta.scrollTop -= t.top + 8 - r.top; else if (r.bottom > t.bottom - 8) ta.scrollTop += r.bottom - (t.bottom - 8);
+      }
       function paint() {   /* the colored copy of the text behind the (transparent) text box; only the rows that changed are replaced, so a long page stays quick to type in */
         paintQueued = false;
-        var rows = P.highlightRows(ta.value), n = rows.length, m = shown.length, a = 0, b = 0;
+        var rows = P.highlightRows(ta.value, multi ? multi.draw(document.activeElement !== ta) : null), n = rows.length, m = shown.length, a = 0, b = 0;
         while (a < n && a < m && rows[a] === shown[a]) a++;
         while (b < n - a && b < m - a && rows[n - 1 - b] === shown[m - 1 - b]) b++;
         if (!m) hl.innerHTML = rows.join("");
@@ -124,9 +133,11 @@
         gh.href = long ? REPO + "/new/main/web/guide" + (name ? "?" + name : "") : url;
         gh.textContent = long ? "Copy and paste on GitHub" : "Submit on GitHub";
       }
+      var holdUntil = 0;   /* a message from a command stays for a few seconds before "Draft saved" takes the place again */
+      function say(m) { note.textContent = m; holdUntil = Date.now() + 5000; }
       var quiet = false;   /* after Discard draft the starter text is not saved again until the writer types */
       function persist() {
-        try { localStorage.setItem(KEY, ta.value); note.textContent = "Draft saved " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+        try { localStorage.setItem(KEY, ta.value); if (Date.now() >= holdUntil) note.textContent = "Draft saved " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
         catch (e) { note.textContent = "Draft not saved: this browser blocks storage"; }
       }
       ta.addEventListener("input", function () {
@@ -140,8 +151,8 @@
         ta.setSelectionRange(0, 0); ta.scrollTop = 0;
       }
       function copyForGitHub() {
-        var done = function () { note.textContent = editing ? "Copied: on GitHub select all the old text (Ctrl+A) and paste (Ctrl+V)" : "Copied: paste it into the GitHub page (Ctrl+V)"; };
-        var fail = function () { note.textContent = "Could not copy: select the text in the editor, copy it, and paste it on GitHub"; };
+        var done = function () { say(editing ? "Copied: on GitHub select all the old text (Ctrl+A) and paste (Ctrl+V)" : "Copied: paste it into the GitHub page (Ctrl+V)"); };
+        var fail = function () { say("Could not copy: select the text in the editor, copy it, and paste it on GitHub"); };
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, fail); else fail();
       }
       var dlg = P.dialog(ta.closest(".edw"));
@@ -157,11 +168,22 @@
       }
       var fileCmd = P.fileCommands({
         ta: ta, dlg: dlg, setText: setText, starter: starter, setEditing: setEditing, save: function () { clearTimeout(timer); persist(); render(); },
-        say: function (m) { note.textContent = m; },
+        say: say,
         clearDraft: function () { quiet = true; setEditing(null); try { localStorage.removeItem(KEY); } catch (e) {} },
         fileName: function () { if (editing) return editing.split("/").pop() + ".md"; var t = frontMatter(ta.value).meta.title; return t ? fileName(t) : "new-page.md"; }
       });
-      P.menubar(document.getElementById("ed-menus"), fileCmd);
+      var editCmd = P.editCommands({ ta: ta, say: say });
+      multi = P.multiSelect({ ta: ta, hl: hl, repaint: paintSoon, say: say, reveal: reveal });
+      function runEdit(cmd) { if (!multi.run(cmd)) editCmd(cmd); }   /* with several selections the command is run for each of them */
+      function columnModeHelp() {
+        dlg.ask({ title: "Column mode", ok: "OK", html: "<p>Column mode puts a cursor on several lines at once, one under the other, so that you can type, delete or paste on all of them together.</p>" +
+          "<ul><li><b>Alt + Shift + Down</b> adds a cursor on the next line down, in the same column. <b>Alt + Shift + Up</b> adds one above. Pressing the opposite key takes the last one away.</li>" +
+          "<li><b>Alt + drag</b> with the mouse selects a rectangle: every line it crosses is selected over the same columns. A line that is shorter is selected only as far as it goes.</li>" +
+          "<li>Then type, press Backspace or Delete, paste (one line at each cursor if the clipboard has as many lines), or use the arrow keys, Home and End, which move every cursor.</li>" +
+          "<li><b>Escape</b> or a click puts you back to one cursor. One Ctrl+Z undoes the change at all of them.</li></ul>" +
+          "<p>Some Linux desktops keep Alt + drag for moving windows; use Alt + Shift + Up and Down there. Ctrl + click adds a cursor anywhere, and Edit > Multi-Select All selects every match of the text you have selected.</p>" });
+      }
+      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0) runEdit(cmd); else fileCmd(cmd); });
       function keys(e) {   /* Ctrl+S saves the draft now and Ctrl+O opens a file, anywhere in the editor */
         if (!ta.isConnected) { document.removeEventListener("keydown", keys); return; }
         if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
@@ -169,6 +191,26 @@
         if (k === "s") { e.preventDefault(); fileCmd("file.save"); } else if (k === "o") { e.preventDefault(); fileCmd("file.open"); }
       }
       document.addEventListener("keydown", keys);
+      /* the text box's own keys. Tab indents, so Esc then Tab is how the keyboard leaves the box. */
+      var leaveNext = false;
+      ta.addEventListener("keydown", function (e) {
+        var ctrl = e.ctrlKey || e.metaKey, alt = e.altKey, shift = e.shiftKey, k = e.key;
+        if (k === "Escape" && !ctrl && !alt && !shift) { leaveNext = true; return; }
+        if (k === "Tab" && !ctrl && !alt) {
+          if (leaveNext) { leaveNext = false; return; }
+          e.preventDefault(); runEdit(shift ? "edit.shifttab" : "edit.tab"); return;
+        }
+        leaveNext = false;
+        if (k === "Home" && !ctrl && !alt) { e.preventDefault(); runEdit(shift ? "edit.homeextend" : "edit.home"); return; }
+        if (e.getModifierState && e.getModifierState("AltGraph")) return;   /* AltGr is Ctrl+Alt on some keyboards and types a letter */
+        var cmd = "";
+        if (e.code === "KeyU") {
+          if (ctrl && shift && !alt) cmd = "edit.case.upper"; else if (ctrl && !shift && !alt) cmd = "edit.case.lower";
+          else if (alt && !ctrl && !shift) cmd = "edit.case.proper"; else if (ctrl && alt && !shift) cmd = "edit.case.sentence";
+        } else if (ctrl && shift && !alt && k === "ArrowUp") cmd = "edit.lines.moveup";
+        else if (ctrl && shift && !alt && k === "ArrowDown") cmd = "edit.lines.movedown";
+        if (cmd) { e.preventDefault(); runEdit(cmd); }
+      });
       gh.addEventListener("click", function (e) {
         if (errors.length) { e.preventDefault(); askSubmit(); return; }
         if (long) copyForGitHub();
