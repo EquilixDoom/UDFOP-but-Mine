@@ -144,6 +144,15 @@ The items put Markdown marks around the selection, or at the start of the lines 
 - **Horizontal Rule** adds a line of dashes with a blank line on each side. **Align Table** sets the table the cursor is in out in columns of equal width, keeping the alignment colons in the divider row. **Clear Formatting** removes bold, italic, code, spoiler, key and link marks from the selection, or from the line when nothing is selected, and keeps the text.
 - **Snippets** insert a starting point and select the words to type over: **Table 2x2** and **Table 3x3** (columns by rows of text, under a heading row), **Image**, **Spoiler Block**, **Infobox** and **Front Matter**. Front Matter adds the title, category and summary lines at the top of the page, and is greyed out when the page already has them.
 
+## Finishing what you type
+
+The editor closes brackets and marks, carries lists and tables on, and offers names as you type. All of it works with one cursor; with several cursors the keys do what they always do. Nothing is changed inside a code box, except that Enter keeps the indentation there. Each change is a single step for Undo.
+
+- **Pairs.** Typing `(`, `[`, `{`, `` ` ``, `*` or `>!` adds the closing half and puts the cursor between them, so `[[` makes `[[]]`. Typing the closing half steps over it. Backspace between an empty pair removes both. A `*` makes a pair only where emphasis can begin (after a space or an opening bracket, not at the start of a line, where it is a bullet, or inside a word). With text selected, `*`, `` ` ``, `[`, `(` and `{` put the marks around it and keep it selected, so `[` twice makes a wiki link and `*` twice makes bold.
+- **Enter** in a list starts the next item, with the next number in a numbered list; on an empty item it ends the list. In a quote or a callout it carries the `>` on, and on an empty quote line it ends the quote. After an opening code fence it adds the closing fence below. In a table it adds a row; in the heading row of a table that has no divider yet it adds the divider as well, and in an empty last row it ends the table.
+- **Tab and Shift+Tab** in a table row move to the next or previous cell and set the table out in columns. Tab in the last cell adds a row. Esc then Tab still leaves the text box.
+- **Suggestions** appear in a list under the cursor. Up and Down choose, Enter or Tab or a click accepts, and Esc closes the list until you type something different. After `[[` they are the Game Guide pages, then `topic:` and `site:` names; after `[[Page#` the headings of that page; after `{{` the key and button names; after `> [!` the box types; after `![text](` or an `image:` line the pictures already in the guide's folders. In the front matter they are the field names, the categories already in use, and, after `related:`, the pages and topics. Accepting adds the closing `]]`, `}}` or `)` unless an auto-closed one is already there.
+
 ## Several cursors and selections
 
 You can hold more than one cursor or selection at once and edit at all of them together. On a Mac, use Cmd where this says Ctrl.

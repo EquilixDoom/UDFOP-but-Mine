@@ -172,7 +172,7 @@ def check_images(pages, problems, root=ROOT, prefix=''):
     for base, dirs, files in os.walk(root):
         dirs[:] = sorted(d for d in dirs if not d.startswith(('_', '.')))
         for f in sorted(files):
-            if f.startswith(('_', '.')) or f.lower().endswith('.md') or f == 'index.json':
+            if f.startswith(('_', '.')) or f.lower().endswith('.md') or f in ('index.json', 'images.json'):
                 continue
             path = os.path.join(base, f)
             rel = os.path.relpath(path, root).replace(os.sep, '/')
@@ -405,6 +405,11 @@ def main():
         with open(os.path.join(root, 'index.json'), 'w', encoding='utf-8') as f:
             json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
         print('%s: %d page(s) indexed' % (area, len(out)))
+    # the pictures the editor offers after ![](  (paths from the Game Guide folder)
+    pics = sorted(os.path.relpath(os.path.join(d, f), ROOT).replace(os.sep, '/') for d, _, fs in os.walk(ROOT) for f in fs
+                  if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')) and not f.startswith(('_', '.')))
+    with open(os.path.join(ROOT, 'images.json'), 'w', encoding='utf-8') as f:
+        json.dump(pics, f, ensure_ascii=False, separators=(',', ':'))
     credits = build_credits(problems)
     with open(os.path.join('web', 'credits.json'), 'w', encoding='utf-8') as f:
         json.dump(credits, f, ensure_ascii=False, separators=(',', ':'))

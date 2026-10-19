@@ -14,5 +14,6 @@ data/release_notes.md
 data/normalized/sources.jsonl
 
 web/guide/index.json
+web/guide/images.json
 web/site/index.json
 web/credits.json

@@ -189,6 +189,7 @@
       multi = P.multiSelect({ ta: ta, hl: hl, repaint: paintSoon, say: say, reveal: reveal });
       find = P.findBar({ ta: ta, say: say, repaint: paintSoon, reveal: reveal, clear: function () { multi.clear(); }, selectAll: function (r, i) { multi.selectRanges(r, i); } });
       view = P.viewControls({ ta: ta, hl: hl, hlBox: hlBox, pv: prev.parentNode, prev: prev, repaint: paintSoon, say: say });
+      var complete = P.completion({ ta: ta, hl: hl, multi: multi, H: H, say: say });   /* before the keys below, so that its Enter, Tab and Backspace come first */
       function runFile(cmd) { fileCmd(cmd); if (cmd === "file.save") view.markSaved(); }
       function runEdit(cmd) { if (!multi.run(cmd)) editCmd(cmd); }   /* with several selections the command is run for each of them */
       function columnModeHelp() {
@@ -240,7 +241,7 @@
         if (errors.length) { e.preventDefault(); askSubmit(); return; }
         if (long) copyForGitHub();
       });
-      H.onLintData(function () { if (ta.isConnected) showProblems(); });
+      H.onLintData(function () { if (ta.isConnected) { showProblems(); complete.refresh(); } });
       render();
       var want = H.query().page;   /* #/editor?page=slug: open that guide page (the address is cleaned so a reload does not ask again) */
       if (want) { try { history.replaceState(null, "", "#/editor"); } catch (e) {} fileCmd.loadPage(want); }

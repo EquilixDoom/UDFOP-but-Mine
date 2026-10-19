@@ -21,7 +21,7 @@ host.fileExists = (p) => (p in files ? files[p] : null);
 const sandbox = { window: null, console };
 sandbox.window = sandbox; sandbox.udfopHost = host;
 vm.createContext(sandbox);
-for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
+for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
 const P = sandbox.udfopEditor;
 
 let passed = 0, failed = 0;
@@ -672,7 +672,122 @@ test("format: the multi-selection code runs a command on every selection", () =>
   assert.strictEqual(M.runCommand("**ab**", [{ a: 3, h: 3 }], "format.bold", false).text, "ab");
 });
 
-/* ---- code languages and tables ---- */
+/* ---- completion, code languages and tables ---- */
+const CP = P.complete;
+/* a plan applied to the text with the selection marked by \u0001 (and \u0002): the result marked the same way; null when the plan is null */
+function ap(marked, fn, ...args) {
+  const s = marked.indexOf(S1), e = marked.indexOf(S2) < 0 ? s : marked.indexOf(S2) - 1, v = marked.replace(S1, "").replace(S2, "");
+  const p = fn(v, s, e, ...args);
+  if (!p) return null;
+  const t = v.slice(0, p.start) + p.text + v.slice(p.end);
+  return p.a === p.b ? t.slice(0, p.a) + S1 + t.slice(p.a) : t.slice(0, p.a) + S1 + t.slice(p.a, p.b) + S2 + t.slice(p.b);
+}
+const ty = (m, ch) => ap(m, CP.typed, ch);
+test("complete: openers bring their closers, and typing a closer steps over it", () => {
+  assert.strictEqual(ty("a " + S1, "("), "a (" + S1 + ")");
+  assert.strictEqual(ty("a " + S1, "["), "a [" + S1 + "]");
+  assert.strictEqual(ty("[" + S1 + "]", "["), "[[" + S1 + "]]");
+  assert.strictEqual(ty("{" + S1 + "}", "{"), "{{" + S1 + "}}");
+  assert.strictEqual(ty("(" + S1 + ")", ")"), "()" + S1);
+  assert.strictEqual(ty("[[a" + S1 + "]]", "]"), "[[a]" + S1 + "]");
+  assert.strictEqual(ty("a " + S1, "`"), "a `" + S1 + "`");
+  assert.strictEqual(ty("`x" + S1 + "`", "`"), "`x`" + S1);
+  assert.strictEqual(ty("a" + S1, "`"), null);
+  assert.strictEqual(ty("``" + S1, "`"), null);
+  assert.strictEqual(ty("a" + S1 + "b", "("), null);
+  assert.strictEqual(ty("a " + S1, "x"), null);
+});
+test("complete: a star pairs only where an emphasis can begin", () => {
+  assert.strictEqual(ty("a " + S1, "*"), "a *" + S1 + "*");
+  assert.strictEqual(ty("(" + S1, "*"), "(*" + S1 + "*");
+  assert.strictEqual(ty(S1, "*"), null);
+  assert.strictEqual(ty("  " + S1, "*"), null);
+  assert.strictEqual(ty("word" + S1, "*"), null);
+  assert.strictEqual(ty("*word" + S1 + "*", "*"), "*word*" + S1);
+  assert.strictEqual(ty("**word*" + S1 + "*", "*"), "**word**" + S1);
+  assert.strictEqual(ty("a *" + S1, "*"), null);
+});
+test("complete: a spoiler opener brings !< and typing ! steps over it", () => {
+  assert.strictEqual(ty(">" + S1, "!"), ">!" + S1 + "!<");
+  assert.strictEqual(ty("a >" + S1, "!"), "a >!" + S1 + "!<");
+  assert.strictEqual(ty("a>" + S1, "!"), null);
+  assert.strictEqual(ty(">!" + S1 + "!<", "!"), ">!!<" + S1);
+});
+test("complete: with text selected an opener wraps it and keeps it selected", () => {
+  assert.strictEqual(ty(S1 + "abc" + S2, "["), "[" + S1 + "abc" + S2 + "]");
+  assert.strictEqual(ty("[" + S1 + "abc" + S2 + "]", "["), "[[" + S1 + "abc" + S2 + "]]");
+  assert.strictEqual(ty(S1 + "abc" + S2, "*"), "*" + S1 + "abc" + S2 + "*");
+  assert.strictEqual(ty("*" + S1 + "abc" + S2 + "*", "*"), "**" + S1 + "abc" + S2 + "**");
+  assert.strictEqual(ty(S1 + "abc" + S2, "`"), "`" + S1 + "abc" + S2 + "`");
+  assert.strictEqual(ty(S1 + "abc" + S2, "("), "(" + S1 + "abc" + S2 + ")");
+  assert.strictEqual(ty(S1 + "abc" + S2, "x"), null);
+});
+test("complete: nothing is paired inside a code box or on a fence line", () => {
+  assert.strictEqual(ty("```\na " + S1 + "\n```", "("), null);
+  assert.strictEqual(ty("```js" + S1, "("), null);
+  assert.strictEqual(ty("```\nx\n```\na " + S1, "("), "```\nx\n```\na (" + S1 + ")");
+});
+test("complete: Backspace between the halves of an empty pair removes both", () => {
+  const bs = (m) => ap(m, CP.backspace);
+  assert.strictEqual(bs("a(" + S1 + ")"), "a" + S1);
+  assert.strictEqual(bs("[[" + S1 + "]]"), "[" + S1 + "]");
+  assert.strictEqual(bs("`" + S1 + "`"), S1);
+  assert.strictEqual(bs("**" + S1 + "**"), "*" + S1 + "*");
+  assert.strictEqual(bs(">!" + S1 + "!<"), S1);
+  assert.strictEqual(bs("(a" + S1 + ")"), null);
+  assert.strictEqual(bs("(" + S1 + "a)"), null);
+  assert.strictEqual(bs("```\n(" + S1 + ")\n```"), null);
+  assert.strictEqual(ap(S1 + "(" + S2 + ")", CP.backspace), null);
+});
+test("complete: Enter continues lists, quotes and boxes, and ends them when the line is empty", () => {
+  const en = (m) => ap(m, CP.enter);
+  assert.strictEqual(en("- a" + S1), "- a\n- " + S1);
+  assert.strictEqual(en("* a" + S1), "* a\n* " + S1);
+  assert.strictEqual(en("  - a" + S1), "  - a\n  - " + S1);
+  assert.strictEqual(en("1. a" + S1), "1. a\n2. " + S1);
+  assert.strictEqual(en("9) a" + S1), "9) a\n10) " + S1);
+  assert.strictEqual(en("- x" + S1 + "yz"), "- x\n- " + S1 + "yz");
+  assert.strictEqual(en("- a\n- " + S1), "- a\n" + S1);
+  assert.strictEqual(en("> - a" + S1), "> - a\n> - " + S1);
+  assert.strictEqual(en("> - " + S1), "> " + S1);
+  assert.strictEqual(en("> a" + S1), "> a\n> " + S1);
+  assert.strictEqual(en(">a" + S1), ">a\n> " + S1);
+  assert.strictEqual(en("> " + S1), S1);
+  assert.strictEqual(en("> [!NOTE]" + S1), "> [!NOTE]\n> " + S1);
+  assert.strictEqual(en("plain" + S1), null);
+  assert.strictEqual(en(S1 + "- a"), null);
+  assert.strictEqual(en("- " + S1 + "a"), "- \n- " + S1 + "a");
+  assert.strictEqual(en(S1 + "a" + S2), null);
+});
+test("complete: Enter after an opening fence adds the closing one; inside a box it keeps the indentation", () => {
+  const en = (m) => ap(m, CP.enter);
+  assert.strictEqual(en("```js" + S1), "```js\n" + S1 + "\n```");
+  assert.strictEqual(en("```" + S1), "```\n" + S1 + "\n```");
+  assert.strictEqual(en("~~~" + S1), "~~~\n" + S1 + "\n~~~");
+  assert.strictEqual(en("  ```" + S1), "  ```\n  " + S1 + "\n  ```");
+  assert.strictEqual(en("```js" + S1 + "\ncode\n```"), null);
+  assert.strictEqual(en("```\n  code" + S1 + "\n```"), "```\n  code\n  " + S1 + "\n```");
+  assert.strictEqual(en("```\ncode" + S1 + "\n```"), null);
+  assert.strictEqual(en("```\ncode\n```" + S1), null);
+  assert.strictEqual(en("---\ntitle: T\n---\n- a" + S1), "---\ntitle: T\n---\n- a\n- " + S1);
+});
+test("complete: Enter and Tab in a table add rows and move between cells", () => {
+  const en = (m) => ap(m, CP.enter), tb = (m, back) => ap(m, CP.tab, back);
+  const T = "| a | b |\n| - | - |\n| c | d |";
+  assert.strictEqual(en("| a | b |\n| - | - |\n| c | d |" + S1), "| a   | b   |\n| --- | --- |\n| c   | d   |\n| " + S1 + "    |     |");
+  assert.strictEqual(en("| a | b |" + S1 + "\n| - | - |\n| c | d |"), "| a   | b   |\n| --- | --- |\n| " + S1 + "    |     |\n| c   | d   |");
+  assert.strictEqual(en("| a |\n| - |\n| |" + S1), "| a   |\n| --- |\n\n" + S1);
+  assert.strictEqual(en("| A | B |" + S1), "| A   | B   |\n| --- | --- |\n| " + S1 + "    |     |");
+  assert.strictEqual(en("| A |" + S1 + "\n| b |"), "| A   |\n| --- |\n| " + S1 + "    |\n| b   |");
+  assert.strictEqual(tb("| a" + S1 + " | b |\n| - | - |\n| c | d |"), "| a   | " + S1 + "b" + S2 + "   |\n| --- | --- |\n| c   | d   |");
+  assert.strictEqual(tb("| a | b" + S1 + " |\n| - | - |\n| c | d |"), "| a   | b   |\n| --- | --- |\n| " + S1 + "c" + S2 + "   | d   |");
+  assert.strictEqual(tb(T.slice(0, T.length - 1) + S1 + "|"), "| a   | b   |\n| --- | --- |\n| c   | d   |\n| " + S1 + "    |     |");
+  assert.strictEqual(tb("| a | b |\n| - | - |\n| c" + S1 + " | d |", true), "| a   | " + S1 + "b" + S2 + "   |\n| --- | --- |\n| c   | d   |");
+  assert.strictEqual(tb("| a" + S1 + " | b |", true), null);
+  assert.strictEqual(tb("text" + S1), null);
+  assert.strictEqual(tb("```\n| a" + S1 + " |\n```"), null);
+  assert.strictEqual(tb("| a |\n| - |\n| b |\n" + S1 + "x"), null);
+});
 test("format: a table is set out in equal columns and keeps its alignment marks", () => {
   assert.strictEqual(fx("table.align", "|a|bb|\n|-|:-:|\n|ccc|d|" + S1), "| a   | bb  |\n| --- | :-: |\n| ccc | d" + S1 + "   |");
   assert.strictEqual(fx("table.align", "| long heading | x |" + S1), "| long heading | x" + S1 + "   |");
@@ -681,6 +796,59 @@ test("format: a table is set out in equal columns and keeps its alignment marks"
   assert.strictEqual(fx("table.align", "|a|b|\n|--:|:--|" + S1).replace(S1, ""), "| a   | b   |\n| --: | :-- |");
 });
 const ctxOf = (m) => { const s = m.indexOf(S1); const c = CP.context(m.replace(S1, ""), s); return c && [c.kind, c.query, s - c.from, c.page].filter((x) => x !== undefined).join("|"); };
+test("complete: what is being typed decides which names are offered", () => {
+  assert.strictEqual(ctxOf("see [[Ili" + S1), "page|Ili|3");
+  assert.strictEqual(ctxOf("see [[" + S1 + "]]"), "page||0");
+  assert.strictEqual(ctxOf("[[topic:Ren" + S1), "page|topic:Ren|9");
+  assert.strictEqual(ctxOf("[[Controls#Se" + S1), "heading|Se|2|Controls");
+  assert.strictEqual(ctxOf("[[a|sh" + S1), null);
+  assert.strictEqual(ctxOf("{{Shift+Rig" + S1), "key|Rig|3");
+  assert.strictEqual(ctxOf("{{" + S1 + "}}"), "key||0");
+  assert.strictEqual(ctxOf("> [!NO" + S1), "callout|NO|2");
+  assert.strictEqual(ctxOf("x\n> [!" + S1), "callout||0");
+  assert.strictEqual(ctxOf("![alt](ima" + S1 + ")"), "image|ima|3");
+  assert.strictEqual(ctxOf("> image: ima" + S1), "image|ima|3");
+  assert.strictEqual(ctxOf("[a](ima" + S1), null);
+  assert.strictEqual(ctxOf("---\ncategory: It" + S1), "category|It|2");
+  assert.strictEqual(ctxOf("---\nrelated: topic:A, gui" + S1), "related|gui|3");
+  assert.strictEqual(ctxOf("---\nsu" + S1), "field|su|2");
+  assert.strictEqual(ctxOf("---\nsu" + S1 + "m: x"), null);
+  assert.strictEqual(ctxOf("---\ntitle: T\n---\nsu" + S1), null);
+  assert.strictEqual(ctxOf("su" + S1), null);
+  assert.strictEqual(ctxOf("```\n[[a" + S1 + "\n```"), null);
+});
+const DATA = { pages: [{ title: "Controls", category: "Basics" }, { title: "Iliac Hand", category: "Guides" }], site: [{ title: "Using the editor" }], topics: ["Iliac Bay", "Renown"], categories: ["Basics", "Guides"], images: ["images/a.png", "images/b.png"], headings: (p) => (p === "Controls" ? ["Intro", "Setup"] : null) };
+const labels = (kind, query, page) => JSON.parse(JSON.stringify(CP.items({ kind, query, page }, DATA).map((i) => i.label)));
+test("complete: names are offered best match first", () => {
+  assert.deepStrictEqual(labels("page", "ili"), ["Iliac Hand", "topic:Iliac Bay"]);
+  assert.deepStrictEqual(labels("page", ""), ["Controls", "Iliac Hand", "topic:Iliac Bay", "topic:Renown", "site:Using the editor"]);
+  assert.deepStrictEqual(labels("page", "edit"), ["site:Using the editor"]);
+  assert.deepStrictEqual(labels("page", "site:"), ["site:Using the editor"]);
+  assert.deepStrictEqual(labels("page", "Controls"), []);
+  assert.deepStrictEqual(labels("related", "gui"), ["guide:Controls", "guide:Iliac Hand"]);
+  assert.deepStrictEqual(labels("heading", "set", "Controls"), ["Setup"]);
+  assert.deepStrictEqual(labels("heading", "", "Missing"), []);
+  assert.deepStrictEqual(labels("key", "pad:r").slice(0, 2), ["Pad:RB", "Pad:RT"]);
+  assert.deepStrictEqual(labels("callout", "w"), ["WARNING"]);
+  assert.deepStrictEqual(labels("field", "su"), ["summary"]);
+  assert.deepStrictEqual(labels("category", "ba"), ["Basics"]);
+  assert.deepStrictEqual(labels("image", "b"), ["images/b.png"]);
+  assert.strictEqual(CP.items({ kind: "page", query: "" }, { pages: Array.from({ length: 30 }, (_, i) => ({ title: "P" + i })), site: [], topics: [] }).length, 10);
+});
+test("complete: choosing a name replaces what was typed and closes the mark", () => {
+  const acc = (m, kind, label, extra) => { const s = m.indexOf(S1), v = m.replace(S1, ""), c = Object.assign({ kind, query: "" }, extra); c.from = c.from === undefined ? s - (c.n || 0) : c.from; const p = CP.accept(v, s, c, { insert: label }); const t = v.slice(0, p.start) + p.text + v.slice(p.end); return t.slice(0, p.a) + S1 + t.slice(p.a); };
+  assert.strictEqual(acc("see [[Ili" + S1, "page", "Iliac Hand", { n: 3 }), "see [[Iliac Hand]]" + S1);
+  assert.strictEqual(acc("see [[Ili" + S1 + "]]", "page", "Iliac Hand", { n: 3 }), "see [[Iliac Hand]]" + S1);
+  assert.strictEqual(acc("{{Shift+Ri" + S1 + "}}", "key", "Right", { n: 2 }), "{{Shift+Right}}" + S1);
+  assert.strictEqual(acc("> [!W" + S1, "callout", "WARNING", { n: 1 }), "> [!WARNING]" + S1);
+  assert.strictEqual(acc("![a](im" + S1 + ")", "image", "images/a.png", { n: 2, paren: true }), "![a](images/a.png)" + S1);
+  assert.strictEqual(acc("> image: im" + S1, "image", "images/a.png", { n: 2 }), "> image: images/a.png" + S1);
+  assert.strictEqual(acc("---\nsu" + S1, "field", "summary: ", { n: 2 }), "---\nsummary: " + S1);
+  assert.strictEqual(acc("---\ncategory: Ba" + S1 + "ics", "category", "Basics", { n: 2 }), "---\ncategory: Basics" + S1);
+});
+test("complete: the headings of a page are read from its source, not from code or the front matter", () => {
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(CP.headingsOf("---\ntitle: T\n# not\n---\n# One\n```\n# nope\n```\n## Two ##\ntext"))), ["One", "Two"]);
+});
 test("format: the Code Block menu lists only languages the site colors", () => {
   const src = fs.readFileSync(path.join(web, "editor", "menus.js"), "utf8"), names = sandbox.udfopHighlight.names;
   const used = [...src.matchAll(/\["[^"]+", "([a-z#]+)"\]/g)].map((m) => m[1]);
