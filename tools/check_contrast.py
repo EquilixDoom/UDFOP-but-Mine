@@ -12,6 +12,9 @@ BACKGROUNDS = ["paper", "page", "soft"]
 SKINS = ["crier", "iliac", "oblivion", "phosphor", "cassette"]
 MIN = 4.5
 MIN_TINT = 3.0   # editor token colors on the text selection: brief, and the plain text stays at MIN
+MIN_UI = 3.0   # non-text marks that carry meaning (WCAG 1.4.11)
+MIN_EDGE = 1.5   # hairlines: the current line's edges and the indent guides
+MIN_BAND = 1.07  # the tint of the current line, which has edges as well
 EDITOR_TOKENS = ["rework", "buff", "muted", "accent", "new", "fix", "link", "perf", "econ", "red"]   # .t-* in web/editor/editor.css
 DARK_ONLY = {"phosphor"}   # themes with one palette, always dark
 
@@ -43,14 +46,16 @@ def editor(v, label):
     """The guide editor (web/editor/editor.css): token colors on its background (the paper) and on its selection tint, and the filled button."""
     bad = 0
     bg = v["paper"]
-    sel = mix(v["link"], bg, 16)
+    sel = mix(v["link"], bg, 22)
     checks = [(f"{t} on editor", v[t], bg, MIN) for t in EDITOR_TOKENS + ["fg"]]
     checks.append(("primary button: paper on accent", v["paper"], v["accent"], MIN))   # Submit, and the main button of a dialog
     hit = mix(v["al-warning"], bg, 24)   # the matches of a search
     checks += [("fg on search match", v["fg"], hit, MIN)] + [(f"{t} on search match", v[t], hit, MIN_TINT) for t in EDITOR_TOKENS]
-    line = mix(v["accent"], bg, 8)   # the current line
+    line = mix(v["fg"], bg, 5)   # the current line: a grey band with a line (22%) above and below
     checks += [("fg on current line", v["fg"], line, MIN)] + [(f"{t} on current line", v[t], line, MIN) for t in EDITOR_TOKENS]
     checks += [("muted on margin", v["muted"], v["soft"], MIN), ("fg on margin", v["fg"], v["soft"], MIN), ("paper on symbol label", v["paper"], v["accent"], MIN)]   # line numbers, and the names shown for hidden characters
+    checks += [("current line band on paper", line, bg, MIN_BAND), ("current line edge on paper", mix(v["fg"], bg, 22), bg, MIN_EDGE), ("indent guide on paper", mix(v["muted"], bg, 60), bg, MIN_EDGE)]
+    checks += [("unsaved change bar on margin", v["al-warning"], v["soft"], MIN_UI), ("saved change bar on margin", v["al-tip"], v["soft"], MIN_UI)]   # their luminances are close; the saved bar is dashed so that hue is not the only difference
     checks += [("fg on selection", v["fg"], sel, MIN)] + [(f"{t} on selection", v[t], sel, MIN_TINT) for t in EDITOR_TOKENS]
     for what, fg, back, need in checks:
         r = ratio(fg, back)

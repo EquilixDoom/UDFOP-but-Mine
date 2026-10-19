@@ -21,7 +21,7 @@ body:has(.edw) #foot, body:has(.edw) #endpad { display: none; }
 .edw-hl { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: var(--fg); padding: 0; }
 .edw-hl #ed-hl { padding: 12px calc(12px + var(--sb, 0px)) 12px calc(12px + var(--gut, 0px)); box-sizing: border-box; min-height: 100%; }
 #ed-text { position: absolute; inset: 0; width: 100%; height: 100%; resize: none; outline: 0; background: transparent; color: transparent; caret-color: var(--fg); }
-#ed-text::selection { background: color-mix(in srgb, var(--link) 16%, transparent); color: transparent; }
+#ed-text::selection { background: color-mix(in srgb, var(--link) 22%, transparent); color: transparent; }
 .edw-hl .t-k { color: var(--rework); } .edw-hl .t-s { color: var(--buff); } .edw-hl .t-m { color: var(--muted); } .edw-hl .t-h { color: var(--accent); }
 .edw-hl .t-a { color: var(--new); } .edw-hl .t-c { color: var(--fix); } .edw-hl .t-w { color: var(--link); } .edw-hl .t-q { color: var(--perf); }
 .edw-hl .t-u { color: var(--link); } .edw-hl .t-b { color: var(--econ); }
@@ -103,7 +103,7 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .srcv .t-a { color: var(--new); } .srcv .t-c { color: var(--fix); } .srcv .t-w { color: var(--link); } .srcv .t-q { color: var(--perf); }
 .srcv .t-u { color: var(--link); } .srcv .t-b { color: var(--econ); }
 .srcv .t-x { color: var(--red); text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
-.edw-hl mark.sel { color: inherit; background: color-mix(in srgb, var(--link) 16%, transparent); }   /* the selection while the text box is not focused: as strong as the browser's own */
+.edw-hl mark.sel { color: inherit; background: color-mix(in srgb, var(--link) 22%, transparent); }   /* the selection while the text box is not focused: as strong as the browser's own */
 /* the Find / Replace bar, and the matches it finds */
 .edw-find { flex: none; border-bottom: 1px solid var(--line); }
 .edw-find[hidden], .edw-find .edw-pbar[hidden] { display: none; }
@@ -114,8 +114,8 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .edw-find [data-state="bad"] { color: var(--red); }
 .edw .edw-find .edw-tg[aria-pressed="true"] { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 .edw-find [hidden] { display: none; }
-.edw-hl mark.find { color: inherit; background: color-mix(in srgb, var(--al-warning) 24%, transparent); }
-.edw-hl mark.sel.find { background: color-mix(in srgb, var(--link) 16%, color-mix(in srgb, var(--al-warning) 24%, transparent)); }
+.edw-hl mark.find { color: inherit; background: color-mix(in srgb, var(--al-warning) 24%, transparent); box-shadow: inset 0 -2px 0 var(--al-warning); }   /* the underline tells a match from a selection when their tints look alike */
+.edw-hl mark.sel.find { background: color-mix(in srgb, var(--link) 22%, color-mix(in srgb, var(--al-warning) 24%, transparent)); }
 /* the extra carets: zero width, so the colored copy keeps lining up with the text box */
 .edw-hl .mc { position: relative; }
 .edw-hl .mc::before { content: ""; position: absolute; left: -1px; top: .1em; height: 1.25em; border-left: 2px solid var(--fg); animation: edw-blink 1.1s steps(1) infinite; }
@@ -131,8 +131,8 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .edw-hl.ln .l::before { content: counter(ln); position: absolute; top: 0; bottom: 0; left: calc(-12px - var(--gut)); width: calc(var(--gn) + 12px + var(--gc)); box-sizing: border-box; padding-right: calc(var(--gc) + .75ch); text-align: right; color: var(--muted); background: var(--soft); transform: translateX(var(--sl, 0px)); user-select: none; }
 .edw-hl.ln .l.cur::before { color: var(--fg); }
 .edw-hl.chg .l.cm::after, .edw-hl.chg .l.cs::after { content: ""; position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--gc) + 1px); width: 3px; transform: translateX(var(--sl, 0px)); background: var(--al-warning); }
-.edw-hl.chg .l.cs::after { background: var(--al-tip); }
-.edw-hl .l.cur { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.edw-hl.chg .l.cs::after { background: repeating-linear-gradient(to bottom, var(--al-tip) 0 3px, transparent 3px 5px); }   /* saved: dashed, so that it differs from the solid bar of an unsaved change by more than its hue */
+.edw-hl .l.cur { --cl: color-mix(in srgb, var(--fg) 22%, transparent); background: linear-gradient(var(--cl), var(--cl)) top / 100% 1px no-repeat, linear-gradient(var(--cl), var(--cl)) bottom / 100% 1px no-repeat, color-mix(in srgb, var(--fg) 5%, transparent); }   /* a grey band (not a color that means something else) with a line above and below, unlike a selection */
 .edw-hl .sw, .edw-hl .st, .edw-hl .sn, .edw-hl .sg, .edw-hl .se { position: relative; }
 .edw-hl .sw::before, .edw-hl .sn::before { position: absolute; left: 0; width: 1ch; text-align: center; color: var(--muted); }
 .edw-hl .sw::before { content: "\00B7"; }
@@ -140,7 +140,7 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .edw-hl .st::before { content: "\2192"; position: absolute; left: 0; color: var(--muted); }
 .edw-hl .sg::before { content: attr(data-g); position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 1; padding: 0 2px; font-size: 9px; line-height: 1.3; white-space: nowrap; border-radius: 2px; color: var(--paper); background: var(--accent); }
 .edw-hl .se::before { content: "\00B6"; position: absolute; left: 2px; color: var(--muted); }
-.edw-hl .ig { box-shadow: inset 1px 0 0 color-mix(in srgb, var(--muted) 45%, transparent); }
+.edw-hl .ig { box-shadow: inset 1px 0 0 color-mix(in srgb, var(--muted) 60%, transparent); }
 #ed-wm { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; }
 #ed-wm i { position: absolute; right: var(--sb, 0px); width: 12px; height: 1.5em; text-align: center; color: var(--muted); font-style: normal; }
 #ed-wm i::before { content: "\21B5"; }
