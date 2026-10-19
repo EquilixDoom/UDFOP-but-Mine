@@ -1005,3 +1005,7 @@ Ship Hold,Naval,,3,UI; World,
 Ship Paint,Naval,,4,Graphics; UI,
 Shot Types,Naval,,2,Combat; Controls,yes
 Weir Keys,Items and Equipment,,5,Items,
+Growth Tab,Character and Progression,,11,Character; UI,
+Shared Containers,Items and Equipment,,10,Online,
+Specialisation Reset,Character and Progression,,6,Character; Online; UI,
+Town Economy,Economy and Trade,,5,Online; World,
