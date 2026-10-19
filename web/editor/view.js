@@ -9,6 +9,12 @@
     var h = '<div class="edw"><div class="edw-bar"><div id="ed-menus" class="edw-menus"></div><span class="edw-grow"></span>' +
       '<a id="ed-gh" class="edw-primary" href="' + REPO + '/new/main/web/guide" target="_blank" rel="noopener">Submit on GitHub</a></div>' +
       '<div class="edw-main"><section class="edw-pane" aria-label="Editor"><div class="edw-pbar"><strong>Editor</strong><small id="ed-mode"></small><span class="edw-grow"></span><button type="button" id="ed-chip" class="edw-chip" aria-expanded="false" aria-controls="ed-prob"></button></div>' +
+      '<div id="ed-find" class="edw-find" role="search" hidden><div class="edw-pbar"><input id="ed-fq" type="text" aria-label="Find" class="edw-fin" placeholder="Find" spellcheck="false" autocomplete="off">' +
+      '<button type="button" id="ed-fprev" aria-label="Previous match" title="Previous match (Shift+Enter)">&lt;</button><button type="button" id="ed-fnext" aria-label="Next match" title="Next match (Enter)">&gt;</button>' +
+      '<button type="button" id="ed-fcase" class="edw-tg" aria-pressed="false">Match case</button><button type="button" id="ed-fword" class="edw-tg" data-for="find" aria-pressed="false">Whole word</button><button type="button" id="ed-fre" class="edw-tg" data-for="find" aria-pressed="false">Regex</button>' +
+      '<button type="button" id="ed-fall" class="edw-tg" aria-pressed="true">Highlight all</button>' +
+      '<small id="ed-fcount" aria-live="polite"></small><span class="edw-grow"></span><button type="button" id="ed-fclose" aria-label="Close the search bar" title="Close (Esc)">Close</button></div>' +
+      '<div id="ed-frep" class="edw-pbar" hidden><input id="ed-fr" type="text" aria-label="Replace with" class="edw-fin" placeholder="Replace with" spellcheck="false" autocomplete="off"><button type="button" id="ed-frone">Replace</button><button type="button" id="ed-frall">Replace All</button></div></div>' +
       '<div class="edw-stack"><div class="edw-hl edw-code" aria-hidden="true"><div id="ed-hl"></div></div><textarea id="ed-text" class="edw-code" spellcheck="true" aria-label="Page source (Markdown)"></textarea></div><div id="ed-prob" class="edw-prob" hidden><div id="ed-ph" class="edw-ph" role="separator" aria-orientation="horizontal" aria-label="Resize the Problems panel" tabindex="0"></div>' +
       '<div class="edw-pbar"><strong>Problems</strong><small id="ed-pn"></small><span class="edw-grow"></span><button type="button" id="ed-pclose" aria-label="Close the Problems panel">Close</button></div><div id="ed-plist" class="edw-plist"></div></div>' +
       '<div class="edw-sbar"><span id="ed-pos"></span><span id="ed-words"></span><span class="edw-grow"></span><small id="ed-note"></small></div></section>' +
@@ -27,6 +33,7 @@
       setEditing(editing);
       var hl = document.getElementById("ed-hl"), hlBox = hl.parentNode, paintQueued = false;
       var shown = [];   /* the rows now in the colored copy */
+      var find = null;   /* the Find / Replace bar (search.js) */
       var multi = null;   /* the extra selections (multi.js); the colored copy also draws the selection while the text box is not focused, because the browser stops drawing it then */
       ta.addEventListener("blur", function () { paintSoon(); });
       ta.addEventListener("focus", function () { paintSoon(); });
@@ -38,7 +45,9 @@
       }
       function paint() {   /* the colored copy of the text behind the (transparent) text box; only the rows that changed are replaced, so a long page stays quick to type in */
         paintQueued = false;
-        var rows = P.highlightRows(ta.value, multi ? multi.draw(document.activeElement !== ta) : null), n = rows.length, m = shown.length, a = 0, b = 0;
+        var drawn = multi ? multi.draw(document.activeElement !== ta) : null, found = find ? find.draw() : null;
+        if (found) drawn = { ranges: drawn ? drawn.ranges : [], carets: drawn ? drawn.carets : [], finds: found };
+        var rows = P.highlightRows(ta.value, drawn), n = rows.length, m = shown.length, a = 0, b = 0;
         while (a < n && a < m && rows[a] === shown[a]) a++;
         while (b < n - a && b < m - a && rows[n - 1 - b] === shown[m - 1 - b]) b++;
         if (!m) hl.innerHTML = rows.join("");
@@ -174,6 +183,7 @@
       });
       var editCmd = P.editCommands({ ta: ta, say: say });
       multi = P.multiSelect({ ta: ta, hl: hl, repaint: paintSoon, say: say, reveal: reveal });
+      find = P.findBar({ ta: ta, say: say, repaint: paintSoon, reveal: reveal, clear: function () { multi.clear(); }, selectAll: function (r, i) { multi.selectRanges(r, i); } });
       function runEdit(cmd) { if (!multi.run(cmd)) editCmd(cmd); }   /* with several selections the command is run for each of them */
       function columnModeHelp() {
         dlg.ask({ title: "Column mode", ok: "OK", html: "<p>Column mode puts a cursor on several lines at once, one under the other, so that you can type, delete or paste on all of them together.</p>" +
@@ -183,12 +193,18 @@
           "<li><b>Escape</b> or a click puts you back to one cursor. One Ctrl+Z undoes the change at all of them.</li></ul>" +
           "<p>Some Linux desktops keep Alt + drag for moving windows; use Alt + Shift + Up and Down there. Ctrl + click adds a cursor anywhere, and Edit > Multi-Select All selects every match of the text you have selected.</p>" });
       }
-      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0) runEdit(cmd); else fileCmd(cmd); });
+      var SEARCH = { "search.find": "find", "search.replace": "replace", "search.inc": "inc", "search.findall": "findall" };
+      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (SEARCH[cmd]) find.open(SEARCH[cmd]); else if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0) runEdit(cmd); else fileCmd(cmd); });
       function keys(e) {   /* Ctrl+S saves the draft now and Ctrl+O opens a file, anywhere in the editor */
         if (!ta.isConnected) { document.removeEventListener("keydown", keys); return; }
-        if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+        if (!(e.ctrlKey || e.metaKey) || e.shiftKey) return;
+        if (e.altKey) {   /* Ctrl+Alt+I: incremental search (not on a keyboard where Ctrl+Alt is AltGr) */
+          if (e.code === "KeyI" && !(e.getModifierState && e.getModifierState("AltGraph"))) { e.preventDefault(); find.open("inc"); }
+          return;
+        }
         var k = e.key.toLowerCase();
         if (k === "s") { e.preventDefault(); fileCmd("file.save"); } else if (k === "o") { e.preventDefault(); fileCmd("file.open"); }
+        else if (k === "f") { e.preventDefault(); find.open("find"); } else if (k === "h") { e.preventDefault(); find.open("replace"); }
       }
       document.addEventListener("keydown", keys);
       /* the text box's own keys. Tab indents, so Esc then Tab is how the keyboard leaves the box. */

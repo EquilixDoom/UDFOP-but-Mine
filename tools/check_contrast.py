@@ -46,6 +46,8 @@ def editor(v, label):
     sel = mix(v["link"], bg, 16)
     checks = [(f"{t} on editor", v[t], bg, MIN) for t in EDITOR_TOKENS + ["fg"]]
     checks.append(("primary button: paper on accent", v["paper"], v["accent"], MIN))   # Submit, and the main button of a dialog
+    hit = mix(v["al-warning"], bg, 24)   # the matches of a search
+    checks += [("fg on search match", v["fg"], hit, MIN)] + [(f"{t} on search match", v[t], hit, MIN_TINT) for t in EDITOR_TOKENS]
     checks += [("fg on selection", v["fg"], sel, MIN)] + [(f"{t} on selection", v[t], sel, MIN_TINT) for t in EDITOR_TOKENS]
     for what, fg, back, need in checks:
         r = ratio(fg, back)

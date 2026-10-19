@@ -87,6 +87,23 @@ Because Tab indents, it no longer moves the cursor out of the text box. To leave
 
 Every one of these is a single step for Undo. **Insert** is listed but does not do anything yet.
 
+## The Search menu
+
+| Shortcut | Command |
+|---|---|
+| Ctrl+F | Find |
+| Ctrl+H | Replace |
+| Ctrl+Alt+I | Incremental Search |
+| (menu only) | Find and Select All |
+
+**Find** opens a bar above the text: a search box, `<` and `>` buttons, the **Match case**, **Whole word** and **Regex** checkboxes, **Highlight all**, and the position of the match ("2/5"). Enter or Shift+Enter moves to the next or previous match, going round at the ends. If text is selected when you open the bar, it is searched for. **Close** or Esc closes the bar.
+
+**Replace** adds a second line. Replace changes the selected match and moves to the next; Replace All changes every match as one step for Undo. In a regular expression, $1, $& and \n in the replacement stand for a group, the match and a new line.
+
+**Incremental Search** is the same bar without Whole word and Regex, and without Replace. The text is found as you type, starting from the cursor. Enter keeps the match selected and closes the bar; Esc or **Close** closes it and puts the cursor back. The Up and Down keys move between matches.
+
+**Find and Select All** opens the Find bar and, with something to find (selected text, or what is already in the box), turns every match into a selection at once. Otherwise type the text and press Enter. The result is the same as Edit > Multi-Select All: type, delete or paste over all of them, and Ctrl+Z undoes it in one step. The bar's options (Match case, Whole word, Regex) apply.
+
 ## Several cursors and selections
 
 You can hold more than one cursor or selection at once and edit at all of them together. On a Mac, use Cmd where this says Ctrl.

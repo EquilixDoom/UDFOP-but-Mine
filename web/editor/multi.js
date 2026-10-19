@@ -451,6 +451,11 @@
       var shown = needle.length > 24 ? needle.slice(0, 24) + "\u2026" : needle.replace(/\n/g, " ");
       ctx.say(found.length + (found.length === 1 ? " match of " : " matches of ") + "\u201C" + shown + "\u201D" + (found.length >= 20000 ? " (the most it will select)" : ""));
     }
+    /* Find and Select All: ranges are [start, end] pairs; the one at index pi stays the text box's own selection */
+    function selectRanges(ranges, pi) {
+      var rs = ranges.map(function (r, i) { return i === pi ? { a: r[0], h: r[1], p: true } : { a: r[0], h: r[1] }; });
+      ta.focus(); set(rs);
+    }
     var PER_RANGE = /^edit\.(tab|shifttab|case\.)/, PER_BLOCK = /^edit\.(indent\.|lines\.|blank\.)/;
     function run(cmd) {
       if (cmd.indexOf("edit.multi.") === 0) { selectMatches(cmd.slice(11)); return true; }
@@ -471,6 +476,6 @@
       if (!out) { ctx.say("Nothing to change"); ta.focus(); return true; }
       commit(out); return true;
     }
-    return { active: function () { return !!sels; }, draw: draw, clear: clear, run: run };
+    return { active: function () { return !!sels; }, draw: draw, clear: clear, run: run, selectRanges: selectRanges };
   };
 })();

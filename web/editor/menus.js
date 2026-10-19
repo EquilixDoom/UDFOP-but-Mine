@@ -27,6 +27,7 @@
       ["Paste Special", [["Paste HTML Content", null, "edit.pastehtml"]]], SEP,
       ["Multi-Select All", [["Ignore Case & Whole Word", null, "edit.multi.ignore"], ["Match Case Only", null, "edit.multi.case"], ["Match Whole Word Only", null, "edit.multi.word"], ["Match Case & Whole Word", null, "edit.multi.caseword"]]], SEP,
       ["Column Mode", null, "edit.columnmode"]]],
+    ["Search", [["Find…", "Ctrl+F", "search.find"], ["Replace…", "Ctrl+H", "search.replace"], ["Incremental Search", "Ctrl+Alt+I", "search.inc"], ["Find and Select All", null, "search.findall"]]],
   ];
   var uid = 0;
   function list(items, depth) {

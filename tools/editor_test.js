@@ -21,7 +21,7 @@ host.fileExists = (p) => (p in files ? files[p] : null);
 const sandbox = { window: null, console };
 sandbox.window = sandbox; sandbox.udfopHost = host;
 vm.createContext(sandbox);
-for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/edits.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
+for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/edits.js", "editor/search.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
 const P = sandbox.udfopEditor;
 
 let passed = 0, failed = 0;
@@ -401,6 +401,23 @@ test("highlight: fuzz: random documents never throw and keep their line count", 
     assert.strictEqual((h.match(/<div class="l">/g) || []).length, t.split("\n").length, JSON.stringify(t));
     assert(!/<script/.test(h), JSON.stringify(t));
   }
+});
+
+
+/* ---- Search menu ---- */
+const SR = P.search;
+const found = (t, q, o) => SR.all(t, SR.build(q, o).re);
+test("search: plain text ignores case by default and escapes symbols", () => { assert.strictEqual(found("Ab ab a.b", "ab").length, 2); assert.strictEqual(found("a.b axb", "a.b").length, 1); });
+test("search: match case and whole word", () => { assert.strictEqual(found("Ab ab", "ab", { matchCase: true }).length, 1); assert.strictEqual(found("cat concat cat_x cat", "cat", { word: true }).length, 2); });
+test("search: regular expression, and a bad one reports an error", () => { assert.strictEqual(found("a1 b22 c", String.raw`\d+`,{ regex: true }).length, 2); assert(SR.build("(", { regex: true }).error); });
+test("search: empty matches are skipped and the list is capped", () => { assert.strictEqual(found("abc", "x*", { regex: true }).length, 0); assert.strictEqual(found("a".repeat(SR.MAX + 50), "a").length, SR.MAX); });
+test("search: pick next and previous, wrapping", () => { const l = [[2, 3], [6, 7], [9, 10]]; assert.strictEqual(SR.pick(l, 3, 1), 1); assert.strictEqual(SR.pick(l, 10, 1), 0); assert.strictEqual(SR.pick(l, 6, -1), 0); assert.strictEqual(SR.pick(l, 0, -1), 2); assert(SR.wraps(l, 0, 10, 1)); });
+test("search: replace all, plain text keeps $ literally", () => { const r = SR.replaceAll("a a a", SR.build("a").re, "$&", {}); assert.strictEqual(r.text, "$& $& $&"); assert.strictEqual(r.count, 3); });
+test("search: regex replacement groups and escapes", () => { const o = { regex: true }; assert.strictEqual(SR.replaceAll("ab-cd", SR.build(String.raw`(\w+)-(\w+)`, o).re, String.raw`$2\n$1 $$ $&`, o).text, "cd\nab $ ab-cd"); });
+test("search: replaceAt only at the given start", () => { const re = SR.build("b").re; assert.strictEqual(SR.replaceAt("abab", re, 1, "X", {}).text, "X"); assert.strictEqual(SR.replaceAt("abab", re, 0, "X", {}), null); });
+test("search: matches are drawn as marks, over a selection too", () => {
+  assert.strictEqual(P.highlightRows("a bb a", { ranges: [], carets: [], finds: [[2, 4]] })[0], '<div class="l">a <mark class="find">bb</mark> a</div>');
+  assert(P.highlightRows("a bb a", { ranges: [[3, 5]], carets: [], finds: [[2, 4]] })[0].indexOf('<mark class="sel find">b</mark>') > 0);
 });
 
 console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);

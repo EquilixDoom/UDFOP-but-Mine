@@ -103,6 +103,18 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .srcv .t-u { color: var(--link); } .srcv .t-b { color: var(--econ); }
 .srcv .t-x { color: var(--red); text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
 .edw-hl mark.sel { color: inherit; background: color-mix(in srgb, var(--link) 16%, transparent); }   /* the selection while the text box is not focused: as strong as the browser's own */
+/* the Find / Replace bar, and the matches it finds */
+.edw-find { flex: none; border-bottom: 1px solid var(--line); }
+.edw-find[hidden], .edw-find .edw-pbar[hidden] { display: none; }
+.edw-find .edw-pbar { flex-wrap: wrap; border-bottom: 0; padding: 4px 12px; }
+.edw-find .edw-pbar + .edw-pbar { padding-top: 0; }
+.edw-fin { flex: 1 1 8rem; min-width: 6rem; max-width: 22rem; box-sizing: border-box; padding: 3px 7px; font: 13px/1.3 ui-monospace, Consolas, monospace; color: var(--fg); background: var(--paper); border: 1px solid var(--line); border-radius: 3px; }
+.edw-fin:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+.edw-find [data-state="bad"] { color: var(--red); }
+.edw .edw-find .edw-tg[aria-pressed="true"] { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+.edw-find [hidden] { display: none; }
+.edw-hl mark.find { color: inherit; background: color-mix(in srgb, var(--al-warning) 24%, transparent); }
+.edw-hl mark.sel.find { background: color-mix(in srgb, var(--link) 16%, color-mix(in srgb, var(--al-warning) 24%, transparent)); }
 /* the extra carets: zero width, so the colored copy keeps lining up with the text box */
 .edw-hl .mc { position: relative; }
 .edw-hl .mc::before { content: ""; position: absolute; left: -1px; top: .1em; height: 1.25em; border-left: 2px solid var(--fg); animation: edw-blink 1.1s steps(1) infinite; }
