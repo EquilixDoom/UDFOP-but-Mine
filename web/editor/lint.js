@@ -114,6 +114,7 @@
       }
       if (/^(`{3,}|~{3,})[^`]*\S/.test(l) && !/^(`{3,})[^`]*`/.test(l)) add("warn", i, 0, l.length, "This line looks like the start of a code box, but only a language name may follow the backticks. The site shows it as plain text.");
       if (l.length > MAX_LINE) { add("warn", i, 0, 0, "This line is " + l.length.toLocaleString() + " characters long: it is not checked for links, pictures or spoilers. Break it into shorter lines."); continue; }
+      if ((a = /^(#{1,6})[^#\s]/.exec(l))) add("warn", i, 0, a[1].length, "This looks like a heading, but there is no space after the " + a[1] + ". Add one, or the line is shown as plain text.");
       var scan = blankSpans(l);   /* what is written inside `code` is only text */
       if ((a = /^>\s*\[!([A-Za-z]+)\]/.exec(l)) && !NOTICES.test(a[1])) add("warn", i, a[0].indexOf("[!"), a[0].length - a[0].indexOf("[!"), "Unknown box type: [!" + a[1] + "].");
       if (INFO_START.test(l)) {

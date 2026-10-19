@@ -34,6 +34,14 @@ test("a good page has no problems", () => assert.strictEqual(P.lint(GOOD).length
 test("missing front matter reports title and summary", () => { assert(has("Just text", /No title/)); assert(has("Just text", /No summary/)); });
 test("unclosed front matter", () => assert(has("---\ntitle: T\n\nBody", /front matter/i)));
 test("unknown code language", () => assert(has(GOOD + "\n```zzzz\nx\n```\n", /zzzz/)));
+test("a heading with no space after the hashes is flagged", () => {
+  assert(has(GOOD + "\n#Title\n", /no space after the #/));
+  assert(has(GOOD + "\n###Title\n", /no space after the ###/));
+  assert(!has(GOOD + "\n## Title\n", /no space/));
+  assert(!has(GOOD + "\n#######x\n", /no space/));
+  assert(!has(GOOD + "\n```\n#x\n```\n", /no space/));
+  assert.strictEqual(P.lint(GOOD + "\n#Title\n")[0].col, 0);
+});
 test("known code language is accepted", () => assert(!has(GOOD + "\n```lua\nx\n```\n", /lua/)));
 test("unknown notice type", () => assert(has(GOOD + "\n> [!BOGUS]\n> text\n", /BOGUS/i)));
 test("link to a missing page", () => assert(has(GOOD + "\n[[Nope]]\n", /Nope/)));
