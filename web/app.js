@@ -2001,7 +2001,7 @@
       return { title: "Loading", html: '<h1 class="title">Loading</h1><p role="status">Loading the editor…</p>', toc: false };
     };
   }
-  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/highlight.js", "editor/menus.js", "editor/dialog.js", "editor/files.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js", "editor/suggest.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
+  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/highlight.js", "editor/menus.js", "editor/dialog.js", "editor/files.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/help.js", "editor/search.js", "editor/viewopts.js", "editor/suggest.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";

@@ -194,6 +194,7 @@
       var complete = P.completion({ ta: ta, hl: hl, multi: multi, H: H, say: say });   /* before the keys below, so that its Enter, Tab and Backspace come first */
       function runFile(cmd) { fileCmd(cmd); if (cmd === "file.save") view.markSaved(); }
       function runEdit(cmd) { if (!multi.run(cmd)) editCmd(cmd); }   /* with several selections the command is run for each of them */
+      var help = P.helpWindow({ host: document.querySelector(".edw-main"), H: H, back: function (toMenu) { return toMenu ? document.querySelector('#ed-menus [data-cmd="help.open"]') : ta; } });
       function columnModeHelp() {
         dlg.ask({ title: "Column mode", ok: "OK", html: "<p>Column mode puts a cursor on several lines at once, one under the other, so that you can type, delete or paste on all of them together.</p>" +
           "<ul><li><b>Alt + Shift + Down</b> adds a cursor on the next line down, in the same column. <b>Alt + Shift + Up</b> adds one above. Pressing the opposite key takes the last one away.</li>" +
@@ -203,9 +204,10 @@
           "<p>Some Linux desktops keep Alt + drag for moving windows; use Alt + Shift + Up and Down there. Ctrl + click adds a cursor anywhere, and Edit > Multi-Select All selects every match of the text you have selected.</p>" });
       }
       var SEARCH = { "search.find": "find", "search.replace": "replace", "search.inc": "inc", "search.findall": "findall" };
-      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (SEARCH[cmd]) find.open(SEARCH[cmd]); else if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0 || cmd.indexOf("format.") === 0) runEdit(cmd); else if (cmd.indexOf("view.") === 0) view.run(cmd); else runFile(cmd); }, view.checked, function (cmd) { return cmd !== "format.snip.front" || !P.fmt.hasFrontMatter(ta.value); });
+      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (SEARCH[cmd]) find.open(SEARCH[cmd]); else if (cmd === "help.open") help.toggle(); else if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0 || cmd.indexOf("format.") === 0) runEdit(cmd); else if (cmd.indexOf("view.") === 0) view.run(cmd); else runFile(cmd); }, view.checked, function (cmd) { return cmd !== "format.snip.front" || !P.fmt.hasFrontMatter(ta.value); });
       function keys(e) {   /* Ctrl+S saves the draft now and Ctrl+O opens a file, anywhere in the editor */
         if (!ta.isConnected) { document.removeEventListener("keydown", keys); return; }
+        if (e.key === "F1" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) { e.preventDefault(); help.toggle(); return; }   /* F1: Help, from anywhere in the editor */
         if (!(e.ctrlKey || e.metaKey)) return;
         if (view.zoomKey(e)) return;   /* Ctrl + plus, minus, 0 in a pane; elsewhere the browser zooms the page */
         if (e.shiftKey) return;

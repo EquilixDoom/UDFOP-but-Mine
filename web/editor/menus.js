@@ -46,6 +46,7 @@
       ["Callout", [["Note", null, "format.callout.note"], ["Tip", null, "format.callout.tip"], ["Important", null, "format.callout.important"], ["Warning", null, "format.callout.warning"], ["Caution", null, "format.callout.caution"], SEP, ["Remove Callout", null, "format.callout.remove"]]], SEP,
       ["Code Block", [["Plain Text", null, "format.codeblock"], SEP].concat(CODE_LANGS.map(function (l) { return [l[0], null, "format.codeblock." + l[1]]; }))], ["Horizontal Rule", null, "format.hr"], ["Align Table", null, "format.table.align"], ["Clear Formatting", null, "format.clear"], SEP,
       ["Snippets", [["Table 2×2", null, "format.snip.table2"], ["Table 3×3", null, "format.snip.table3"], ["Image", null, "format.snip.image"], ["Spoiler Block", null, "format.snip.spoiler"], ["Infobox", null, "format.snip.infobox"], ["Front Matter", null, "format.snip.front"]]]]],
+    ["?", "help.open"]
   ];
   var uid = 0;
   function list(items, depth) {
@@ -58,6 +59,7 @@
   function html() {
     return '<div class="edw-menubar" role="menubar" aria-label="Editor menus">' + MENUS.map(function (m) {
       var id = "ed-m" + (++uid);
+      if (typeof m[1] === "string") return '<div class="edw-mn"><button type="button" class="edw-mb" role="menuitem" id="' + id + '" data-cmd="' + esc(m[1]) + '" aria-label="Editor help" title="Editor help (F1)">' + esc(m[0]) + "</button></div>";
       return '<div class="edw-mn"><button type="button" class="edw-mb" role="menuitem" id="' + id + '" aria-haspopup="menu" aria-expanded="false">' + esc(m[0]) + "</button>" + list(m[1], 0) + "</div>";
     }).join("") + "</div>";
   }
@@ -67,6 +69,7 @@
     function menuOf(b) { return b.parentNode.querySelector(":scope > .edw-dd"); }
     function itemsOf(ul) { return Array.prototype.slice.call(ul.children).filter(function (li) { return li.getAttribute("role") === "none"; }).map(function (li) { return li.querySelector(":scope > button"); }); }
     function setOpen(btn, open) {   /* a top-level button or a submenu item */
+      if (btn.classList.contains("edw-mb") && !menuOf(btn)) return;
       var ul = btn.classList.contains("edw-mb") ? menuOf(btn) : btn.parentNode.querySelector(":scope > .edw-dd");
       if (!ul) return;
       if (!open) { Array.prototype.forEach.call(ul.querySelectorAll(".edw-dd"), function (u) { u.hidden = true; if (u.previousElementSibling) u.previousElementSibling.setAttribute("aria-expanded", "false"); }); }
@@ -87,12 +90,13 @@
     function closeAll() { tops.forEach(function (b) { setOpen(b, false); }); }
     function openTop(b, focusFirst) {
       closeAll(); setOpen(b, true);
-      if (focusFirst) { var f = itemsOf(menuOf(b))[0]; if (f) f.focus(); }
+      if (focusFirst && menuOf(b)) { var f = itemsOf(menuOf(b))[0]; if (f) f.focus(); }
     }
     function openTopOf(btn) { var mn = btn.closest(".edw-mn"); return mn && mn.querySelector(".edw-mb"); }
     function anyOpen() { return tops.some(function (b) { return b.getAttribute("aria-expanded") === "true"; }); }
     root.addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return;
+      if (b.classList.contains("edw-mb") && !menuOf(b)) { closeAll(); if (onCommand) onCommand(b.getAttribute("data-cmd")); return; }
       if (b.classList.contains("edw-mb")) { var was = b.getAttribute("aria-expanded") === "true"; closeAll(); if (!was) setOpen(b, true); return; }
       if (b.getAttribute("aria-haspopup")) {   /* a submenu item opens its list */
         var ul = b.parentNode.querySelector(":scope > .edw-dd"), open = ul.hidden;
@@ -118,6 +122,7 @@
       if (k === "Tab") { closeAll(); return; }
       if (isTop) {
         if (k === "ArrowRight" || k === "ArrowLeft") { var nt = tops[(ti + (k === "ArrowRight" ? 1 : tops.length - 1)) % tops.length]; go(nt); if (anyOpen()) openTop(nt, false); }
+        else if (!menuOf(b)) { if (k === "Enter" || k === " ") { e.preventDefault(); closeAll(); if (onCommand) onCommand(b.getAttribute("data-cmd")); } }
         else if (k === "ArrowDown" || k === "Enter" || k === " ") { e.preventDefault(); openTop(b, true); }
         else if (k === "ArrowUp") { e.preventDefault(); openTop(b, false); var l = itemsOf(menuOf(b)); l[l.length - 1].focus(); }
         else if (k === "Home") go(tops[0]); else if (k === "End") go(tops[tops.length - 1]);

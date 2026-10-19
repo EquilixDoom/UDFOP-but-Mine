@@ -152,3 +152,32 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .edw .edw-mi { position: relative; }
 .edw-dd.edw-chk > li > .edw-mi { padding-left: 26px; }
 .edw .edw-mi[aria-checked="true"]::before { content: "\2713"; position: absolute; left: 9px; }
+
+/* the help window: floats over the panes, takes no room from them */
+.edw-main { position: relative; }
+.edw-help { position: absolute; z-index: 35; left: 0; top: 0; width: 780px; height: 640px; display: flex; flex-direction: column; min-width: 0; overflow: hidden; background: var(--paper); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 28px rgba(0, 0, 0, .35); outline: 0; }
+.edw-help[hidden] { display: none; }
+.edw-help-bar { flex: none; cursor: move; touch-action: none; user-select: none; }
+.edw-help-bar a, .edw-help-bar button { cursor: pointer; }
+.edw-help-bar a { font-size: 12px; }
+.edw-help-nav { flex: none; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-bottom: 1px solid var(--line); background: var(--soft); }
+.edw .edw-help-nav button { padding: 1px 8px; font-size: 12px; background: var(--paper); color: var(--fg); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; }
+.edw .edw-help-nav button:disabled { opacity: .4; cursor: default; }
+.edw-help-body { flex: 1 1 0; min-height: 0; display: flex; position: relative; }
+.edw-help-page { flex: 1 1 0; min-width: 0; overflow: auto; padding: 8px 16px 16px; }
+.edw-help-page:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.edw-help-ol { position: absolute; inset: 0; z-index: 3; overflow: auto; background: var(--paper); padding: 4px 0; font-size: 13px; line-height: 1.35; }
+.edw-help[data-wide] .edw-help-ol { position: static; flex: none; width: clamp(9em, 32%, 15em); border-right: 1px solid var(--line); background: var(--soft); }
+.edw-help[data-out="off"] .edw-help-ol { display: none; }
+.edw-help-ol ul { list-style: none; margin: 0; padding: 0; }
+.edw-help-ol ul ul { padding-left: 10px; }
+.edw-help-ol ul[hidden] { display: none; }
+.edw .edw-help-ol button { display: block; width: 100%; text-align: left; background: transparent; color: var(--fg); border: 0; border-radius: 0; padding: 3px 10px; font: inherit; white-space: normal; cursor: pointer; }
+.edw .edw-help-ol button:hover { background: var(--line); }
+.edw .edw-help-ol button.gh { font-weight: 600; }
+.edw .edw-help-ol button.dh { font-weight: 700; }
+.edw-help-ol button.gh::before { content: "▸ "; color: var(--muted); }
+.edw-help-ol button.gh[aria-expanded="true"]::before { content: "▾ "; }
+.edw .edw-help-ol button[aria-current="page"] { background: var(--accent); color: var(--paper); }
+.edw-help-grip { position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; cursor: nwse-resize; touch-action: none; z-index: 5; background: linear-gradient(135deg, transparent 50%, var(--muted) 50%, var(--muted) 58%, transparent 58%, transparent 70%, var(--muted) 70%, var(--muted) 78%, transparent 78%); }
+@media (max-width: 720px) { .edw-help { left: 0 !important; top: 0 !important; width: auto !important; height: auto !important; right: 0; bottom: 0; border: 0; border-radius: 0; box-shadow: none; } .edw-help-bar { cursor: default; } .edw-help-grip { display: none; } .edw-help-x { min-height: 44px; } .edw .edw-help-nav button, .edw .edw-help-ol button { min-height: 36px; } .edw-help-ol { font-size: 15px; } }
