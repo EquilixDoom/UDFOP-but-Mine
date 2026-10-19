@@ -260,6 +260,15 @@ def check_alerts(pages, problems):
                 problems.append(('warn', p['_where'], 'the notice box type "[!%s]" is not one the site knows, so it will show as an ordinary quote (use NOTE, TIP, IMPORTANT, WARNING or CAUTION, or INFO for a fact panel)' % name))
 
 
+def check_headings(pages, problems):
+    """A heading needs a space after its hashes: "##Title" is shown as plain text, not as a heading."""
+    for p in pages:
+        bad = re.findall(r'^#{1,6}[^#\s].*$', strip_code(p['_body'], spans=False), flags=re.M)
+        if bad:
+            one = len(bad) == 1
+            problems.append(('warn', p['_where'], '%d line%s begin%s with # but %s no space after the hashes, so %s shown as plain text instead of a heading (first: "%s"). Add a space after the hashes' % (len(bad), '' if one else 's', 's' if one else '', 'has' if one else 'have', 'it is' if one else 'they are', bad[0].strip()[:60])))
+
+
 def patch_versions():
     try:
         raw = open(os.path.join('web', 'data.js'), encoding='utf-8').read()
@@ -342,6 +351,7 @@ def main():
         check_images(by_area[area], problems, root, prefix)
     check_code_languages(pages, problems)
     check_alerts(pages, problems)
+    check_headings(pages, problems)
     check_infoboxes(pages, problems)
     topics = topic_names()
     versions = patch_versions()
