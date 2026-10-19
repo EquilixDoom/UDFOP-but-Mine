@@ -205,6 +205,12 @@
       }
       var SEARCH = { "search.find": "find", "search.replace": "replace", "search.inc": "inc", "search.findall": "findall" };
       P.menubar(document.getElementById("ed-menus"), function (cmd) { if (SEARCH[cmd]) find.open(SEARCH[cmd]); else if (cmd === "help.open") help.toggle(); else if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0 || cmd.indexOf("format.") === 0) runEdit(cmd); else if (cmd.indexOf("view.") === 0) view.run(cmd); else runFile(cmd); }, view.checked, function (cmd) { return cmd !== "format.snip.front" || !P.fmt.hasFrontMatter(ta.value); });
+      prev.addEventListener("click", function (e) {   /* links in the preview do nothing, except a link to a heading on the same page, which scrolls to it */
+        var a = e.target.closest("a"); if (!a) return;
+        var href = a.getAttribute("href") || "";
+        e.preventDefault();
+        if (href.length > 1 && href.charAt(0) === "#" && href.charAt(1) !== "/") { var id = href.slice(1), t; try { id = decodeURIComponent(id); } catch (x) {} t = document.getElementById(id); if (t && prev.contains(t)) t.scrollIntoView(); }
+      });
       function keys(e) {   /* Ctrl+S saves the draft now and Ctrl+O opens a file, anywhere in the editor */
         if (!ta.isConnected) { document.removeEventListener("keydown", keys); return; }
         if (e.key === "F1" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) { e.preventDefault(); help.toggle(); return; }   /* F1: Help, from anywhere in the editor */
