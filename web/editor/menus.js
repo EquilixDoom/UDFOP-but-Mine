@@ -3,6 +3,9 @@
   "use strict";
   var H = window.udfopHost, P = window.udfopEditor = window.udfopEditor || {};
   var esc = H.esc, SEP = "-";
+  /* the languages a code box can be colored as (the names highlight.js knows), as [shown, written after the three backticks] */
+  var CODE_LANGS = [["Bash", "bash"], ["Batch", "bat"], ["C#", "cs"], ["Config", "conf"], ["Console", "console"], ["HTML", "html"], ["INI", "ini"], ["JavaScript", "js"], ["JSON", "json"], ["Lua", "lua"], ["Markdown", "markdown"], ["PowerShell", "powershell"],
+    ["Properties", "properties"], ["Python", "python"], ["Shell", "sh"], ["SVG", "svg"], ["TOML", "toml"], ["TypeScript", "ts"], ["XAML", "xaml"], ["XML", "xml"], ["YAML", "yaml"], ["Zsh", "zsh"]];
   /* [label, shortcut or submenu, command, 1 for a switch]; "-" is a divider */
   var MENUS = [
     ["File", [
@@ -11,7 +14,6 @@
     ["Edit", [
       ["Undo", "Ctrl+Z", "edit.undo"], ["Redo", "Ctrl+Y", "edit.redo"], SEP,
       ["Cut", "Ctrl+X", "edit.cut"], ["Copy", "Ctrl+C", "edit.copy"], ["Paste", "Ctrl+V", "edit.paste"], ["Delete", "Del", "edit.delete"], ["Select All", "Ctrl+A", "edit.selectall"], SEP,
-      ["Insert", [["Formatting snippets are coming"]]],
       ["Indent", [["Increase", "Tab", "edit.indent.inc"], ["Decrease", "Shift+Tab", "edit.indent.dec"]]],
       ["Change Case To", [["UPPER", "Ctrl+Shift+U", "edit.case.upper"], ["lower", "Ctrl+U", "edit.case.lower"], ["Proper", "Alt+U", "edit.case.proper"], ["Sentence", "Ctrl+Alt+U", "edit.case.sentence"]]],
       ["Line Operations", [
@@ -36,6 +38,14 @@
       ["Synchronized Scroll", null, "view.sync", 1], ["Word Wrap", null, "view.wrap", 1], SEP,
       ["Margin", [["Line Number", null, "view.num", 1], ["Change History", null, "view.change", 1]]], SEP,
       ["Current Line Indicator", null, "view.line", 1]]],
+    ["Format", [
+      ["Bold", "Ctrl+B", "format.bold"], ["Italic", "Ctrl+I", "format.italic"], ["Bold Italic", null, "format.bolditalic"], ["Inline Code", "Ctrl+E", "format.code"], ["Spoiler", null, "format.spoiler"], SEP,
+      ["Wiki Link", "Ctrl+K", "format.wiki"], ["Link", null, "format.link"], ["Key", null, "format.key"], SEP,
+      ["Heading", [["Heading 2", "Ctrl+2", "format.h.2"], ["Heading 3", "Ctrl+3", "format.h.3"], ["Heading 4", "Ctrl+4", "format.h.4"], ["Heading 5", "Ctrl+5", "format.h.5"], ["Heading 6", "Ctrl+6", "format.h.6"], SEP, ["Paragraph", null, "format.p"]]],
+      ["Bullet List", null, "format.ul"], ["Numbered List", null, "format.ol"], ["Quote", null, "format.quote"],
+      ["Callout", [["Note", null, "format.callout.note"], ["Tip", null, "format.callout.tip"], ["Important", null, "format.callout.important"], ["Warning", null, "format.callout.warning"], ["Caution", null, "format.callout.caution"], SEP, ["Remove Callout", null, "format.callout.remove"]]], SEP,
+      ["Code Block", [["Plain Text", null, "format.codeblock"], SEP].concat(CODE_LANGS.map(function (l) { return [l[0], null, "format.codeblock." + l[1]]; }))], ["Horizontal Rule", null, "format.hr"], ["Align Table", null, "format.table.align"], ["Clear Formatting", null, "format.clear"], SEP,
+      ["Snippets", [["Table 2×2", null, "format.snip.table2"], ["Table 3×3", null, "format.snip.table3"], ["Image", null, "format.snip.image"], ["Spoiler Block", null, "format.snip.spoiler"], ["Infobox", null, "format.snip.infobox"], ["Front Matter", null, "format.snip.front"]]]]],
   ];
   var uid = 0;
   function list(items, depth) {
@@ -51,7 +61,7 @@
       return '<div class="edw-mn"><button type="button" class="edw-mb" role="menuitem" id="' + id + '" aria-haspopup="menu" aria-expanded="false">' + esc(m[0]) + "</button>" + list(m[1], 0) + "</div>";
     }).join("") + "</div>";
   }
-  P.menubar = function (root, onCommand, state) {   /* onCommand(name) is called for an item that has a command; state(name) says whether a switch is on */
+  P.menubar = function (root, onCommand, state, enabled) {   /* onCommand(name) is called for an item that has a command; state(name) says whether a switch is on; enabled(name) === false greys an item out */
     root.innerHTML = html();
     var tops = Array.prototype.slice.call(root.querySelectorAll(".edw-mb"));
     function menuOf(b) { return b.parentNode.querySelector(":scope > .edw-dd"); }
@@ -62,6 +72,7 @@
       if (!open) { Array.prototype.forEach.call(ul.querySelectorAll(".edw-dd"), function (u) { u.hidden = true; if (u.previousElementSibling) u.previousElementSibling.setAttribute("aria-expanded", "false"); }); }
       ul.hidden = !open; btn.setAttribute("aria-expanded", open ? "true" : "false");
       if (open && state) Array.prototype.forEach.call(ul.querySelectorAll("[aria-checked]"), function (c) { c.setAttribute("aria-checked", state(c.getAttribute("data-cmd")) ? "true" : "false"); });
+      if (open && enabled) Array.prototype.forEach.call(ul.querySelectorAll("[data-cmd]"), function (c) { if (enabled(c.getAttribute("data-cmd")) === false) c.setAttribute("aria-disabled", "true"); else c.removeAttribute("aria-disabled"); });
       if (open) {   /* keep the menu inside the window: a menu near the right edge opens leftwards */
         ul.style.left = ""; ul.style.right = ""; ul.classList.remove("flip");
         var r = ul.getBoundingClientRect();
@@ -88,6 +99,7 @@
         Array.prototype.forEach.call(b.parentNode.parentNode.querySelectorAll(":scope > li > button[aria-haspopup]"), function (o) { if (o !== b) setOpen(o, false); });
         setOpen(b, open); return;
       }
+      if (b.getAttribute("aria-disabled") === "true") return;   /* greyed out: the menu stays open */
       var top = openTopOf(b), cmd = b.getAttribute("data-cmd"); closeAll(); if (top) top.focus();
       if (cmd && onCommand) onCommand(cmd);   /* items without a command do not do anything yet */
     });

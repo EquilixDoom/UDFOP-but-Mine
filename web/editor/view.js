@@ -200,7 +200,7 @@
           "<p>Some Linux desktops keep Alt + drag for moving windows; use Alt + Shift + Up and Down there. Ctrl + click adds a cursor anywhere, and Edit > Multi-Select All selects every match of the text you have selected.</p>" });
       }
       var SEARCH = { "search.find": "find", "search.replace": "replace", "search.inc": "inc", "search.findall": "findall" };
-      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (SEARCH[cmd]) find.open(SEARCH[cmd]); else if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0) runEdit(cmd); else if (cmd.indexOf("view.") === 0) view.run(cmd); else runFile(cmd); }, view.checked);
+      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (SEARCH[cmd]) find.open(SEARCH[cmd]); else if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0 || cmd.indexOf("format.") === 0) runEdit(cmd); else if (cmd.indexOf("view.") === 0) view.run(cmd); else runFile(cmd); }, view.checked, function (cmd) { return cmd !== "format.snip.front" || !P.fmt.hasFrontMatter(ta.value); });
       function keys(e) {   /* Ctrl+S saves the draft now and Ctrl+O opens a file, anywhere in the editor */
         if (!ta.isConnected) { document.removeEventListener("keydown", keys); return; }
         if (!(e.ctrlKey || e.metaKey)) return;
@@ -216,7 +216,7 @@
       }
       document.addEventListener("keydown", keys);
       /* the text box's own keys. Tab indents, so Esc then Tab is how the keyboard leaves the box. */
-      var leaveNext = false;
+      var leaveNext = false, FORMAT_KEYS = { b: "format.bold", i: "format.italic", e: "format.code", k: "format.wiki", 2: "format.h.2", 3: "format.h.3", 4: "format.h.4", 5: "format.h.5", 6: "format.h.6" };
       ta.addEventListener("keydown", function (e) {
         var ctrl = e.ctrlKey || e.metaKey, alt = e.altKey, shift = e.shiftKey, k = e.key;
         if (k === "Escape" && !ctrl && !alt && !shift) { leaveNext = true; return; }
@@ -231,7 +231,8 @@
         if (e.code === "KeyU") {
           if (ctrl && shift && !alt) cmd = "edit.case.upper"; else if (ctrl && !shift && !alt) cmd = "edit.case.lower";
           else if (alt && !ctrl && !shift) cmd = "edit.case.proper"; else if (ctrl && alt && !shift) cmd = "edit.case.sentence";
-        } else if (ctrl && shift && !alt && k === "ArrowUp") cmd = "edit.lines.moveup";
+        } else if (ctrl && !shift && !alt && FORMAT_KEYS[k.toLowerCase()]) cmd = FORMAT_KEYS[k.toLowerCase()];
+        else if (ctrl && shift && !alt && k === "ArrowUp") cmd = "edit.lines.moveup";
         else if (ctrl && shift && !alt && k === "ArrowDown") cmd = "edit.lines.movedown";
         if (cmd) { e.preventDefault(); runEdit(cmd); }
       });

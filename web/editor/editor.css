@@ -76,6 +76,8 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .edw .edw-mi { display: flex; align-items: center; justify-content: space-between; gap: 2em; width: 100%; padding: 4px 10px; font: inherit; font-size: 13.5px; text-align: left; white-space: nowrap; background: transparent; color: var(--fg); border: 0; border-radius: 3px; cursor: pointer; }
 .edw .edw-mi:hover, .edw .edw-mi:focus-visible, .edw .edw-mi[aria-expanded="true"] { background: var(--soft); }
 .edw .edw-mi .mi-k { color: var(--muted); font-size: .92em; }
+.edw .edw-mi[aria-disabled="true"] { color: var(--muted); cursor: default; }
+.edw .edw-mi[aria-disabled="true"]:hover { background: transparent; }
 .edw-pbar #ed-mode { color: var(--muted); font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
 .edw-dlg-btns { flex-wrap: wrap; }
 .edw-dlg:has(.edw-pick) { width: min(34rem, calc(100vw - 32px)); }

@@ -212,7 +212,7 @@
     var box = scratchBox(text), run = P.editCommands({ ta: box, say: function () {}, put: box.put });
     var items = [], done = [], i, k;
     if (perBlock) {
-      var bl = blocks(text, rs), keepsCaret = /^edit\.(indent\.|lines\.(moveup|movedown|blankabove|blankbelow))/.test(cmd);
+      var bl = blocks(text, rs), keepsCaret = /^edit\.(indent\.|lines\.(moveup|movedown|blankabove|blankbelow))|^format\./.test(cmd);
       bl.forEach(function (b) {
         var one = b.items.length === 1 ? rs[b.items[0]] : null, p = b.items.some(function (j) { return rs[j].p; });
         items.push({ seed: keepsCaret && one ? one : { a: b.ls, h: b.le }, p: p, skip: b.ls === b.le && !keepsCaret });
@@ -456,7 +456,7 @@
       var rs = ranges.map(function (r, i) { return i === pi ? { a: r[0], h: r[1], p: true } : { a: r[0], h: r[1] }; });
       ta.focus(); set(rs);
     }
-    var PER_RANGE = /^edit\.(tab|shifttab|case\.)/, PER_BLOCK = /^edit\.(indent\.|lines\.|blank\.)/;
+    var PER_RANGE = /^edit\.(tab|shifttab|case\.)|^format\.(bold|italic|bolditalic|code|spoiler|wiki|key|link|clear)$/, PER_BLOCK = /^edit\.(indent\.|lines\.|blank\.)|^format\.(h\.|p$|ul$|ol$|quote$|callout\.)/;
     function run(cmd) {
       if (cmd.indexOf("edit.multi.") === 0) { selectMatches(cmd.slice(11)); return true; }
       if (!sels) return false;

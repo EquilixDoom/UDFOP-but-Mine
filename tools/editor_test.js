@@ -21,7 +21,7 @@ host.fileExists = (p) => (p in files ? files[p] : null);
 const sandbox = { window: null, console };
 sandbox.window = sandbox; sandbox.udfopHost = host;
 vm.createContext(sandbox);
-for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
+for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
 const P = sandbox.udfopEditor;
 
 let passed = 0, failed = 0;
@@ -497,6 +497,204 @@ test("view: fuzz: symbols keep the text of any row", () => {
     assert.strictEqual(rows.length, plainRows.length);
     rows.forEach((r, j) => assert.strictEqual(plain(r).replace(/<[^>]*>/g, ""), plain(plainRows[j]).replace(/<[^>]*>/g, ""), JSON.stringify(t)));
   }
+});
+
+/* ---- Format menu ---- */
+const FM = P.fmt, S1 = String.fromCharCode(1), S2 = String.fromCharCode(2);
+/* text with the selection between \u0001 and \u0002 (a caret is one \u0001): the text after the command, with the new selection marked the same way (the lines commands leave it out) */
+function fx(name, marked) {
+  const s = marked.indexOf(S1), e = marked.indexOf(S2) < 0 ? s : marked.indexOf(S2) - 1, v = marked.replace(S1, "").replace(S2, "");
+  const r = FM.command(name, v, s, e);
+  if (!r) return null;
+  if (r.lines) {
+    let a, b;
+    if (r.span) { a = r.span.start; b = r.span.end; } else { const last = e > s && v.charAt(e - 1) === "\n" ? e - 1 : e; a = s === 0 ? 0 : v.lastIndexOf("\n", s - 1) + 1; const nl = v.indexOf("\n", last); b = nl < 0 ? v.length : nl; }
+    return v.slice(0, a) + r.lines(v.slice(a, b).split("\n")).join("\n") + v.slice(b);
+  }
+  const p = r.plan; if (!p) return null;
+  const t = v.slice(0, p.start) + p.text + v.slice(p.end);
+  return p.a === p.b ? t.slice(0, p.a) + S1 + t.slice(p.a) : t.slice(0, p.a) + S1 + t.slice(p.a, p.b) + S2 + t.slice(p.b);
+}
+const m1 = (t) => t.replace(/\u0001/g, "[").replace(/\u0002/g, "]");
+test("format: bold wraps the selection and selects what is inside; again takes it off", () => {
+  assert.strictEqual(fx("bold", "a " + S1 + "word" + S2 + " b"), "a **" + S1 + "word" + S2 + "** b");
+  assert.strictEqual(fx("bold", "a **" + S1 + "word" + S2 + "** b"), "a " + S1 + "word" + S2 + " b");
+  assert.strictEqual(fx("bold", "a " + S1 + "**word**" + S2 + " b"), "a " + S1 + "word" + S2 + " b");
+});
+test("format: blanks at the ends of the selection stay outside the marks", () => {
+  assert.strictEqual(fx("bold", "a" + S1 + "  word " + S2 + "b"), "a  **" + S1 + "word" + S2 + "** b");
+  assert.strictEqual(fx("bold", S1 + "   " + S2), null);
+});
+test("format: with nothing selected the word at the caret is marked, or an empty pair is made, or an empty pair is removed", () => {
+  assert.strictEqual(fx("italic", "a wo" + S1 + "rd b"), "a *wo" + S1 + "rd* b");
+  assert.strictEqual(fx("italic", "a *wo" + S1 + "rd* b"), "a wo" + S1 + "rd b");
+  assert.strictEqual(fx("bold", "a " + S1 + " b"), "a **" + S1 + "** b");
+  assert.strictEqual(fx("bold", "a **" + S1 + "** b"), "a " + S1 + " b");
+  assert.strictEqual(fx("code", "x" + S1), "`x" + S1 + "`");
+});
+test("format: bold and italic add to each other", () => {
+  assert.strictEqual(fx("italic", "**" + S1 + "x" + S2 + "**"), "***" + S1 + "x" + S2 + "***");
+  assert.strictEqual(fx("bold", "***" + S1 + "x" + S2 + "***"), "*" + S1 + "x" + S2 + "*");
+  assert.strictEqual(fx("italic", "***" + S1 + "x" + S2 + "***"), "**" + S1 + "x" + S2 + "**");
+  assert.strictEqual(fx("bold", "*" + S1 + "x" + S2 + "*"), "***" + S1 + "x" + S2 + "***");
+  assert.strictEqual(fx("bolditalic", S1 + "x" + S2), "***" + S1 + "x" + S2 + "***");
+  assert.strictEqual(fx("bolditalic", "***" + S1 + "x" + S2 + "***"), S1 + "x" + S2);
+  assert.strictEqual(fx("bolditalic", "**" + S1 + "x" + S2 + "**"), "***" + S1 + "x" + S2 + "***");
+  assert.strictEqual(fx("italic", "*a* and " + S1 + "b" + S2), "*a* and *" + S1 + "b" + S2 + "*");
+});
+test("format: a selection over several lines is marked line by line, and unmarked when every line is", () => {
+  assert.strictEqual(fx("bold", S1 + " a b\n\nc  " + S2), " **" + S1 + "a b**\n\n**c" + S2 + "**  ");
+  assert.strictEqual(fx("bold", S1 + "**a b**\n\n**c**" + S2), S1 + "a b\n\nc" + S2);
+  assert.strictEqual(fx("bold", S1 + "**a b**\n\nc" + S2).replace(/[\u0001\u0002]/g, ""), "**a b**\n\n**c**");
+});
+test("format: code, spoiler, wiki link and key", () => {
+  assert.strictEqual(fx("code", S1 + "x" + S2), "`" + S1 + "x" + S2 + "`");
+  assert.strictEqual(fx("code", S1 + "a`b" + S2), "`` " + S1 + "a`b" + S2 + " ``");
+  assert.strictEqual(fx("spoiler", S1 + "boss" + S2), ">!" + S1 + "boss" + S2 + "!<");
+  assert.strictEqual(fx("spoiler", ">!" + S1 + "boss" + S2 + "!<"), S1 + "boss" + S2);
+  assert.strictEqual(fx("wiki", "see Dagger" + S1 + "fall"), "see [[Dagger" + S1 + "fall]]");
+  assert.strictEqual(fx("wiki", S1 + "Iliac Bay" + S2), "[[" + S1 + "Iliac Bay" + S2 + "]]");
+  assert.strictEqual(fx("wiki", "[[" + S1 + "Iliac Bay" + S2 + "]]"), S1 + "Iliac Bay" + S2);
+  assert.strictEqual(fx("key", "press " + S1 + "W" + S2), "press {{" + S1 + "W" + S2 + "}}");
+});
+test("format: a link takes the selection as its text, or an address as its address", () => {
+  assert.strictEqual(fx("link", "a " + S1 + "guide" + S2), "a [guide](" + S1 + "url" + S2 + ")");
+  assert.strictEqual(fx("link", S1 + "https://x.org/a" + S2), "[" + S1 + "link text" + S2 + "](https://x.org/a)");
+  assert.strictEqual(fx("link", "a wo" + S1 + "rd"), "a [word](" + S1 + "url" + S2 + ")");
+  assert.strictEqual(fx("link", "a " + S1), "a [" + S1 + "link text" + S2 + "](url)");
+});
+test("format: clear formatting takes the marks off the selection or the line", () => {
+  assert.strictEqual(FM.strip("**a** *b* `c` >!d!< {{W}} [[Page]] [[Page|shown]] [t](u) ![alt](p.png)"), "a b c d W Page shown t alt");
+  assert.strictEqual(fx("clear", "x " + S1 + "**a** `b`" + S2 + " **c**"), "x " + S1 + "a b" + S2 + " **c**");
+  assert.strictEqual(fx("clear", "## **a** b" + S1), S1 + "## a b" + S2);
+  assert.strictEqual(fx("clear", "plain" + S1), null);
+});
+test("format: headings replace what is there, and the same one again makes a paragraph", () => {
+  assert.strictEqual(fx("h.2", "text" + S1), "## text");
+  assert.strictEqual(fx("h.3", "## text" + S1), "### text");
+  assert.strictEqual(fx("h.2", "## text" + S1), "text");
+  assert.strictEqual(fx("h.2", "- item" + S1), "## item");
+  assert.strictEqual(fx("h.2", "a\n\n" + S1 + "b\nc" + S2), "a\n\n## b\n## c");
+  assert.strictEqual(fx("p", "### text" + S1), "text");
+  assert.strictEqual(fx("p", "> ## text" + S1), "> text");
+  assert.strictEqual(fx("h.4", "> text" + S1), "> #### text");
+});
+test("format: bullet and numbered lists switch, number and toggle", () => {
+  assert.strictEqual(fx("ul", S1 + "a\n\nb" + S2), "- a\n\n- b");
+  assert.strictEqual(fx("ul", S1 + "- a\n- b" + S2), "a\nb");
+  assert.strictEqual(fx("ul", S1 + "1. a\n- b" + S2), "- a\n- b");
+  assert.strictEqual(fx("ol", S1 + "a\nb\n\nc" + S2), "1. a\n2. b\n\n3. c");
+  assert.strictEqual(fx("ol", S1 + "1. a\n2. b" + S2), "a\nb");
+  assert.strictEqual(fx("ol", S1 + "- a\n- b" + S2), "1. a\n2. b");
+  assert.strictEqual(fx("ul", "  a" + S1), "  - a");
+  assert.strictEqual(fx("ul", "> a" + S1), "> - a");
+  assert.strictEqual(fx("ul", "## a" + S1), "- a");
+  assert.strictEqual(fx("ul", S1), "- ");
+});
+test("format: quote adds and takes off one level", () => {
+  assert.strictEqual(fx("quote", S1 + "a\n\nb" + S2), "> a\n>\n> b");
+  assert.strictEqual(fx("quote", S1 + "> a\n>\n> b" + S2), "a\n\nb");
+  assert.strictEqual(fx("quote", S1 + "> > a" + S2), "> a");
+  assert.strictEqual(fx("quote", S1), "> ");
+  assert.strictEqual(fx("quote", "> a\nb" + S1), "> a\n> b");
+});
+test("format: a callout is a quote that opens with its type; the same type again, or Remove, takes it off", () => {
+  assert.strictEqual(fx("callout.note", "text" + S1), "> [!NOTE]\n> text");
+  assert.strictEqual(fx("callout.tip", S1 + "a\n\nb" + S2), "> [!TIP]\n> a\n>\n> b");
+  assert.strictEqual(fx("callout.warning", "> [!NOTE]\n> text" + S1), "> [!WARNING]\n> text");
+  assert.strictEqual(fx("callout.note", "> [!NOTE]\n> text\n>\n> more" + S1), "text\n\nmore");
+  assert.strictEqual(fx("callout.remove", "x\n\n> [!TIP]\n> a\n> b" + S1 + "\n\ny\n> z"), "x\n\na\nb\n\ny\n> z");
+  assert.strictEqual(fx("callout.note", S1), "> [!NOTE]\n> ");
+  assert.strictEqual(fx("callout.remove", "> [!TIP] inline\n> a" + S1), "inline\na");
+  assert.strictEqual(fx("callout.caution", "> plain\n> quote" + S1), "> [!CAUTION]\n> plain\n> quote");
+  assert.strictEqual(fx("callout.remove", "text" + S1), "text");
+  assert.strictEqual(fx("callout.nonsense", "text" + S1), null);
+});
+test("format: the lines of a whole callout are used when the selection is inside one", () => {
+  const v = "a\n> [!NOTE]\n> x\n> y\n\nb";
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(FM.calloutSpan(v, v.indexOf("y"), v.indexOf("y")))), { start: 2, end: 19 });
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(FM.calloutSpan("> plain\n> quote", 9, 9))), { start: 0, end: 15 });
+  assert.strictEqual(FM.calloutSpan("text", 1, 1), null);
+});
+test("format: a code block wraps the lines, unwraps a box, and uses a longer fence around fences", () => {
+  assert.strictEqual(m1(fx("codeblock", "a\n" + S1 + "b\nc" + S2 + "\nd")), "a\n```\n[b\nc]\n```\nd");
+  assert.strictEqual(m1(fx("codeblock", "a\nb" + S1 + "\nc")), "a\n```\n[b]\n```\nc");
+  assert.strictEqual(fx("codeblock", "a\n" + S1 + "```\nb\n```" + S2 + "\nc"), "a\n" + S1 + "b" + S2 + "\nc");
+  assert.strictEqual(fx("codeblock", "```\nb" + S1 + "\n```").replace(/[\u0001\u0002]/g, ""), "b");
+  assert.strictEqual(fx("codeblock", "a\n" + S1 + "\nb"), "a\n```\n" + S1 + "\n```\nb");
+  assert.strictEqual(fx("codeblock.js", S1 + "```js\nx\n```" + S2).replace(/[\u0001\u0002]/g, ""), "x");
+  assert.strictEqual(fx("codeblock", S1 + "a ``` b" + S2).replace(/[\u0001\u0002]/g, ""), "````\na ``` b\n````");
+});
+test("format: a rule and the snippets stand on lines of their own with a blank line around them", () => {
+  const clean = (t) => t.replace(/[\u0001\u0002]/g, "");
+  assert.strictEqual(clean(fx("hr", "a" + S1 + "\nb")), "a\n\n---\n\nb");
+  assert.strictEqual(clean(fx("hr", "a\n\n" + S1 + "\n\nb")), "a\n\n---\n\nb");
+  assert.strictEqual(clean(fx("hr", S1)), "---");
+  assert.strictEqual(clean(fx("hr", "a\n" + S1)), "a\n\n---");
+  assert.strictEqual(fx("snip.spoiler", S1), ">!" + S1 + "Hidden text" + S2 + "!<");
+  assert.strictEqual(clean(fx("snip.table2", "a\n" + S1)), "a\n\n| Heading | Heading |\n| --- | --- |\n| Text | Text |\n| Text | Text |");
+  assert.strictEqual(clean(fx("snip.table3", S1)).split("\n").length, 5);
+  assert.strictEqual(fx("snip.table2", S1), "| " + S1 + "Heading" + S2 + " | Heading |\n| --- | --- |\n| Text | Text |\n| Text | Text |");
+  assert.strictEqual(fx("snip.infobox", S1), "> [!INFO] " + S1 + "Title" + S2 + "\n> image: images/name.png\n> ## Group\n> Key: Value\n> Key: Value");
+  assert.strictEqual(fx("snip.image", "a " + S1), "a ![alt text](" + S1 + "images/name.png" + S2 + ")");
+  assert.strictEqual(fx("snip.image", "a " + S1 + "photo" + S2), "a ![photo](" + S1 + "images/name.png" + S2 + ")");
+});
+test("format: front matter is added only to a page that has none", () => {
+  assert.strictEqual(fx("snip.front", "Body" + S1), "---\ntitle: " + S1 + "\ncategory: \nsummary: \n---\n\nBody");
+  assert.strictEqual(fx("snip.front", "---\ntitle: T\n---\n" + S1), null);
+  assert.strictEqual(FM.hasFrontMatter("---\na: b\n---"), true);
+  assert.strictEqual(FM.hasFrontMatter("--- x\n"), false);
+  assert.strictEqual(FM.hasFrontMatter(""), false);
+});
+test("format: marks added and taken off again give back the text (fuzz)", () => {
+  const pool = ["a", "b", " ", "  ", "\n", "x y", ".", "-", "#", ">"];
+  let seed = 7; const rnd = (n) => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) % n;
+  for (const name of ["bold", "italic", "code", "spoiler", "wiki", "key", "bolditalic"]) for (let i = 0; i < 300; i++) {
+    let t = ""; for (let k = rnd(12); k >= 0; k--) t += pool[rnd(pool.length)];
+    const a = rnd(t.length + 1), b = rnd(t.length + 1), s = Math.min(a, b), e = Math.max(a, b), r = FM.command(name, t, s, e);
+    if (!r.plan) continue;
+    const p = r.plan, t2 = t.slice(0, p.start) + p.text + t.slice(p.end), sel = t2.slice(p.a, p.b);
+    if (e > s && t.slice(s, e).indexOf("\n") < 0) {
+      assert.strictEqual(sel, t.slice(s, e).replace(/^[ \t]+|[ \t]+$/g, ""), name + " " + JSON.stringify([t, s, e]));
+      const back = FM.command(name, t2, p.a, p.b).plan;
+      assert(back, name + " cannot take its marks off " + JSON.stringify([t, s, e]));
+      assert.strictEqual(t2.slice(0, back.start) + back.text + t2.slice(back.end), t, name + " round trip " + JSON.stringify([t, s, e]));
+    }
+  }
+});
+test("format: the multi-selection code runs a command on every selection", () => {
+  const M = P.multi, out = M.runCommand("ab cd ef", [{ a: 1, h: 1 }, { a: 7, h: 7 }], "format.bold", false);
+  assert.strictEqual(out.text, "**ab** cd **ef**");
+  const out2 = M.runCommand("ab\ncd\n\nef", [{ a: 1, h: 1 }, { a: 8, h: 8 }], "format.ul", true);
+  assert.strictEqual(out2.text, "- ab\ncd\n\n- ef");
+  const out3 = M.runCommand("ab\ncd", [{ a: 1, h: 1 }, { a: 4, h: 4 }], "format.h.2", true);
+  assert.strictEqual(out3.text, "## ab\n## cd");
+  assert.strictEqual(M.runCommand("**ab**", [{ a: 3, h: 3 }], "format.bold", false).text, "ab");
+});
+
+/* ---- code languages and tables ---- */
+test("format: a table is set out in equal columns and keeps its alignment marks", () => {
+  assert.strictEqual(fx("table.align", "|a|bb|\n|-|:-:|\n|ccc|d|" + S1), "| a   | bb  |\n| --- | :-: |\n| ccc | d" + S1 + "   |");
+  assert.strictEqual(fx("table.align", "| long heading | x |" + S1), "| long heading | x" + S1 + "   |");
+  assert.strictEqual(fx("table.align", "text" + S1), null);
+  assert.strictEqual(fx("table.align", "| a |\n| --- |" + S1).replace(S1, ""), "| a   |\n| --- |");
+  assert.strictEqual(fx("table.align", "|a|b|\n|--:|:--|" + S1).replace(S1, ""), "| a   | b   |\n| --: | :-- |");
+});
+const ctxOf = (m) => { const s = m.indexOf(S1); const c = CP.context(m.replace(S1, ""), s); return c && [c.kind, c.query, s - c.from, c.page].filter((x) => x !== undefined).join("|"); };
+test("format: the Code Block menu lists only languages the site colors", () => {
+  const src = fs.readFileSync(path.join(web, "editor", "menus.js"), "utf8"), names = sandbox.udfopHighlight.names;
+  const used = [...src.matchAll(/\["[^"]+", "([a-z#]+)"\]/g)].map((m) => m[1]);
+  assert(used.length >= 20);
+  used.forEach((n) => assert(names.indexOf(n) >= 0, n + " is not a language the site colors"));
+});
+test("format: a language goes after the opening fence, changes in a box of another language, and a box of the same one is unwrapped", () => {
+  assert.strictEqual(m1(fx("codeblock.js", "a\nb" + S1 + "\nc")), "a\n```js\n[b]\n```\nc");
+  assert.strictEqual(fx("codeblock.json", "```js\nx" + S1 + "\n```"), "```json\nx" + S1 + "\n```");
+  assert.strictEqual(fx("codeblock.js", "```js\nx" + S1 + "\n```").replace(/[\u0001\u0002]/g, ""), "x");
+  assert.strictEqual(fx("codeblock", "```js\nx" + S1 + "\n```"), "```\nx" + S1 + "\n```");
+  assert.strictEqual(fx("codeblock.py", S1 + "```js\nx\n```" + S2), S1 + "```py\nx\n```" + S2);
+  assert.strictEqual(fx("codeblock.js", S1 + "```js\nx\n```" + S2).replace(/[\u0001\u0002]/g, ""), "x");
+  assert.strictEqual(fx("codeblock.lua", "a\n" + S1 + "\nb"), "a\n```lua\n" + S1 + "\n```\nb");
 });
 
 console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);

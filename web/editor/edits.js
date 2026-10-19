@@ -86,8 +86,8 @@
       var start = s === 0 ? 0 : v.lastIndexOf("\n", s - 1) + 1, last = has && v.charAt(e - 1) === "\n" ? e - 1 : e, nl = v.indexOf("\n", last);
       return { start: start, end: nl < 0 ? v.length : nl, has: has, whole: false, caret: s };
     }
-    function lines(fn, wholeIfNone, what) {
-      var sp = span(wholeIfNone), old = ta.value.slice(sp.start, sp.end), out = fn(old.split("\n"));
+    function lines(fn, wholeIfNone, what, given) {   /* given: the lines to work on in place of the selection's own: { start, end } */
+      var sp = given ? { start: given.start, end: given.end, has: true, whole: false, caret: ta.selectionStart } : span(wholeIfNone), old = ta.value.slice(sp.start, sp.end), out = fn(old.split("\n"));
       var text = out.join("\n");
       if (text === old) { ctx.say("Nothing to change"); ta.focus(); return; }
       put(sp.start, sp.end, text);
@@ -174,9 +174,20 @@
       if (!extend) ta.setSelectionRange(to, to);
       else ta.setSelectionRange(Math.min(anchor, to), Math.max(anchor, to), to < anchor ? "backward" : "forward");
     }
+    /* The Format menu (format.js says what each command does): the text is replaced as one insertion, or the lines it touches are changed */
+    function format(name) {
+      var r = P.fmt.command(name, ta.value, ta.selectionStart, ta.selectionEnd), pl = r && r.plan;
+      if (!r) return;
+      if (r.lines) { lines(r.lines, false, "Done", r.span); return; }
+      if (!pl) { ctx.say(name === "snip.front" ? "This page already has front matter" : "Nothing to change"); ta.focus(); return; }
+      if (pl.text === ta.value.slice(pl.start, pl.end) && pl.a === ta.selectionStart && pl.b === ta.selectionEnd) { ctx.say("Nothing to change"); ta.focus(); return; }
+      if (pl.text !== ta.value.slice(pl.start, pl.end)) put(pl.start, pl.end, pl.text); else ta.focus();
+      ta.setSelectionRange(pl.a, pl.b);
+    }
     var SORTS = { lex: "lex", lexi: "lexi", int: "int", dec: "dec", len: "len" };
     return function (cmd) {
       var p = cmd.split(".");   /* edit.<group>[.<what>[.<direction>]] */
+      if (p[0] === "format") { format(cmd.slice(7)); return; }
       if (p[1] === "undo") { ta.focus(); document.execCommand("undo"); }
       else if (p[1] === "redo") { ta.focus(); document.execCommand("redo"); }
       else if (p[1] === "cut" || p[1] === "copy") { ta.focus(); if (ta.selectionEnd === ta.selectionStart) ctx.say("Select some text first"); else document.execCommand(p[1]); }

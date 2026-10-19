@@ -85,7 +85,7 @@ Tab stops are every two columns. A selection inside one line counts as a cursor 
 
 Because Tab indents, it no longer moves the cursor out of the text box. To leave the box with the keyboard, press Esc and then Tab.
 
-Every one of these is a single step for Undo. **Insert** is listed but does not do anything yet.
+Every one of these is a single step for Undo.
 
 ## The Search menu
 
@@ -123,6 +123,26 @@ Items with a check mark are switches; the choices are kept in this browser betwe
 **Margin** has **Line Number**, and **Change History**, which draws a bar beside each line changed since the page was opened: orange until you save with Ctrl+S or File > Save draft, green after. The automatic draft saving does not count as a save. Opening a page or file, or Discard draft, clears the bars. Undo does not take a bar away.
 
 **Current Line Indicator** shades the line that has the cursor, or the lines when there are several cursors.
+
+## The Format menu
+
+| Shortcut | Command |
+|---|---|
+| Ctrl + B, Ctrl + I, Ctrl + E | Bold, Italic, Inline Code |
+| Ctrl + K | Wiki Link |
+| Ctrl + 2 to Ctrl + 6 | Heading 2 to Heading 6 |
+
+The items put Markdown marks around the selection, or at the start of the lines it touches. Choosing the same item again takes the marks off. Each one is a single step for Undo, and with several cursors the marks, headings, lists, quotes and callouts are done at every one of them.
+
+- **Bold, Italic** and **Bold Italic** add up: italic on bold text makes it both, and bold on bold italic leaves it italic. A selection over several lines is marked line by line, leaving out blank lines and the spaces at the ends of each line.
+- With nothing selected, the item marks the word at the cursor. Where the cursor is not in a word, it types an empty pair of marks with the cursor between them; used there again, it removes the pair.
+- **Inline Code, Spoiler, Wiki Link** and **Key** work the same way, with `` ` ``, `>!` and `!<`, `[[` and `]]`, and `{{` and `}}`. **Link** makes `[text](url)` and selects the address to be typed; if the selection is an address it becomes the address instead.
+- **Heading** sets the lines to the level you choose, replacing the one they have; the same level again, or **Paragraph**, makes them plain text. There is no Heading 1, because the page title is the first heading.
+- **Bullet List, Numbered List** and **Quote** add their marks to the lines, replacing another kind of list. Used again on lines that already have them, they remove them. A list inside a quote keeps the quote.
+- **Callout** makes the lines a quote that opens with the type you choose: Note, Tip, Important, Warning or Caution. With the cursor inside a callout it changes the whole callout; choosing its own type again, or **Remove Callout**, turns it back into plain lines.
+- **Code Block** puts the lines between fence lines. Its list holds Plain Text and every language the site colors (Bash, Batch, C#, Config, Console, HTML, INI, JavaScript, JSON, Lua, Markdown, PowerShell, Properties, Python, Shell, SVG, TOML, TypeScript, XAML, XML, YAML and Zsh), and the choice is written after the opening fence. On lines that are already in a box, a different language changes the box's language, Plain Text removes it, and the same language takes the fence off.
+- **Horizontal Rule** adds a line of dashes with a blank line on each side. **Align Table** sets the table the cursor is in out in columns of equal width, keeping the alignment colons in the divider row. **Clear Formatting** removes bold, italic, code, spoiler, key and link marks from the selection, or from the line when nothing is selected, and keeps the text.
+- **Snippets** insert a starting point and select the words to type over: **Table 2x2** and **Table 3x3** (columns by rows of text, under a heading row), **Image**, **Spoiler Block**, **Infobox** and **Front Matter**. Front Matter adds the title, category and summary lines at the top of the page, and is greyed out when the page already has them.
 
 ## Several cursors and selections
 
