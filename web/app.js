@@ -1627,7 +1627,7 @@
     Array.prototype.forEach.call(app.querySelectorAll("h2.sec[id], h3.sec[id]"), function (h) {
       if (h.querySelector(".hlink")) return;
       var a = document.createElement("a");
-      a.className = "hlink popup"; a.href = pagePath() + "#" + encodeURIComponent(h.id); a.innerHTML = LINK_ICON;
+      a.className = "hlink popup"; a.href = pagePath() + "#" + encodeURIComponent(h.id); a.textContent = "#";
       a.setAttribute("aria-label", "Copy the link to this section"); a.title = "Copy the link to this section";
       h.insertBefore(a, h.firstChild);
     });
