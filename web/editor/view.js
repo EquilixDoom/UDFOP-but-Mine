@@ -126,7 +126,9 @@
         showProblems();
         var fm = frontMatter(ta.value), t = fm.meta.title || "Untitled page", html;
         try { html = H.renderDoc(fm.body, t, editing ? { area: "guide", key: "guide|" + editing, base: editing.indexOf("/") >= 0 ? editing.replace(/[^/]*$/, "") : "" } : { area: "guide", key: "guide|\u0000editor" }); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
-        prev.innerHTML = '<h1 class="title">' + esc(t) + '</h1><div id="gp">' + html + "</div>";
+        /* the title and the breadcrumb a reader sees above the page (no breadcrumb for an unlisted page); the category link is the one the page will have in the lists */
+        var unlisted = /^(yes|true|1|on)$/i.test((fm.meta.unlisted || "").trim()), cat = (fm.meta.category || "").replace(/\s+/g, " ").trim() || "General";
+        prev.innerHTML = '<h1 class="title">' + esc(t) + "</h1>" + (unlisted ? "" : '<div class="hat breadcrumbs">' + H.GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a></div>") + '<div id="gp">' + html + "</div>";
         if (view) view.resync();
         if (editing) {   /* an existing page: GitHub's edit page cannot be given new text in the address, so the page is copied and pasted over the old text there */
           long = true;
