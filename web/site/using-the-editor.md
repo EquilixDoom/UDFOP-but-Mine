@@ -104,6 +104,26 @@ Every one of these is a single step for Undo. **Insert** is listed but does not 
 
 **Find and Select All** opens the Find bar and, with something to find (selected text, or what is already in the box), turns every match into a selection at once. Otherwise type the text and press Enter. The result is the same as Edit > Multi-Select All: type, delete or paste over all of them, and Ctrl+Z undoes it in one step. The bar's options (Match case, Whole word, Regex) apply.
 
+## The View menu
+
+| Shortcut | Command |
+|---|---|
+| Ctrl + plus, Ctrl + minus, Ctrl + 0 | Zoom in, zoom out, default zoom (also Ctrl + mouse wheel) |
+
+Items with a check mark are switches; the choices are kept in this browser between visits.
+
+**Show Symbol** draws what cannot normally be seen, without moving any text. **Show Space and Tab** marks spaces with a dot and tabs with an arrow. **Show End of Line** marks every line break. **Show Non-Printing Characters** marks the no-break space and the invisible characters such as the zero-width space, soft hyphen and byte order mark, by name. **Show Control Characters & Unicode EOL** names control characters and the Unicode line and paragraph separators. **Show All Characters** switches these four together. **Show Indent Guide** draws a thin line at every second column of the blanks at the start of a line. **Show Wrap Symbol** puts an arrow in the right margin at every row that continues on the next row.
+
+**Zoom** changes the size of the pane that has the focus: the text box, or the preview. Click in a pane first. The menu items change the pane you used last. When the focus is anywhere else, such as the menu bar, Ctrl + plus and minus are left to the browser, which zooms the whole page.
+
+**Synchronized Scroll** keeps the preview and the text level. Each heading in the text is matched to the same heading in the preview, and between two headings the position is carried over in proportion. Scrolling either one moves the other. It needs the same number of headings in both; if some are drawn differently, the two scroll by the same fraction of their length instead.
+
+**Word Wrap** turns the wrapping of long lines on and off; with it off, the text box scrolls sideways.
+
+**Margin** has **Line Number**, and **Change History**, which draws a bar beside each line changed since the page was opened: orange until you save with Ctrl+S or File > Save draft, green after. The automatic draft saving does not count as a save. Opening a page or file, or Discard draft, clears the bars. Undo does not take a bar away.
+
+**Current Line Indicator** shades the line that has the cursor, or the lines when there are several cursors.
+
 ## Several cursors and selections
 
 You can hold more than one cursor or selection at once and edit at all of them together. On a Mac, use Cmd where this says Ctrl.

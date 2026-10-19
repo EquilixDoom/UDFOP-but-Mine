@@ -21,7 +21,7 @@ host.fileExists = (p) => (p in files ? files[p] : null);
 const sandbox = { window: null, console };
 sandbox.window = sandbox; sandbox.udfopHost = host;
 vm.createContext(sandbox);
-for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/edits.js", "editor/search.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
+for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
 const P = sandbox.udfopEditor;
 
 let passed = 0, failed = 0;
@@ -418,6 +418,85 @@ test("search: replaceAt only at the given start", () => { const re = SR.build("b
 test("search: matches are drawn as marks, over a selection too", () => {
   assert.strictEqual(P.highlightRows("a bb a", { ranges: [], carets: [], finds: [[2, 4]] })[0], '<div class="l">a <mark class="find">bb</mark> a</div>');
   assert(P.highlightRows("a bb a", { ranges: [[3, 5]], carets: [], finds: [[2, 4]] })[0].indexOf('<mark class="sel find">b</mark>') > 0);
+});
+
+/* ---- View menu ---- */
+const VO = P.viewOpts, NB = String.fromCharCode(0xA0), ZW = String.fromCharCode(0x200B), SOH = String.fromCharCode(1);
+const plain = (h) => h.replace(/<[^>]*>/g, "");
+test("view: symbols wrap blanks and keep the text as it was", () => {
+  const h = P.symbolize("a b\t" + NB + "c", { ws: true, np: true });
+  assert.strictEqual(h, 'a<span class="sw"> </span>b<span class="st">\t</span><span class="sn">' + NB + "</span>c");
+  assert.strictEqual(plain(h), "a b\t" + NB + "c");
+});
+test("view: symbols leave everything alone when off, and never touch tags or entities", () => {
+  assert.strictEqual(P.symbolize("a b", {}), "a b");
+  assert.strictEqual(P.symbolize('<span class="t-m">a &amp; b</span>', { ws: true }), '<span class="t-m">a<span class="sw"> </span>&amp;<span class="sw"> </span>b</span>');
+});
+test("view: non-printing and control characters get a name", () => {
+  assert.strictEqual(P.symbolize("a" + ZW + "b", { np: true }), 'a<span class="sg" data-g="ZWSP">' + ZW + "</span>b");
+  assert.strictEqual(P.symbolize(SOH, { cc: true }), '<span class="sg" data-g="SOH">' + SOH + "</span>");
+  assert.strictEqual(P.symbolize(ZW + SOH, { ws: true }), ZW + SOH);
+});
+test("view: indent guides sit at every second column of the leading blanks only", () => {
+  const h = P.symbolize("    a  b", { guide: true });
+  assert.strictEqual((h.match(/class="ig"/g) || []).length, 2);
+  assert.strictEqual(P.symbolize("\t\tx", { guide: true }), '<span class="ig">\t</span><span class="ig">\t</span>x');
+  assert.strictEqual(P.symbolize("a  b", { guide: true }), "a  b");
+});
+test("view: rows get the line break mark except the last, and the classes asked for", () => {
+  const r = P.highlightRows("a\n\nb", null, { sym: { eol: true }, cls: (i) => (i === 1 ? "cur" : "") });
+  assert.strictEqual(r[0], '<div class="l">a<span class="se"></span></div>');
+  assert.strictEqual(r[1], '<div class="l cur">' + ZW + '<span class="se"></span></div>');
+  assert.strictEqual(r[2], '<div class="l">b</div>');
+});
+test("view: rows without options are as before, and a caret in an empty row keeps its height", () => {
+  assert.strictEqual(P.highlightRows("a", null)[0], '<div class="l">a</div>');
+  assert.strictEqual(P.highlightRows("\n", { ranges: [], carets: [0] }, { sym: { ws: true } })[0], '<div class="l"><span class="mc"></span>' + ZW + "</div>");
+});
+test("view: headings skip the front matter and code", () => {
+  assert.strictEqual(JSON.stringify(VO.headings("---\ntitle: x\n# no\n---\n# A\ntext\n```\n# no\n```\n## B\n#no\n####### no\n### C")), "[4,9,12]");
+  assert.strictEqual(JSON.stringify(VO.headings("# A\n~~~\n# no\n~~~\n# B")), "[0,4]");
+});
+test("view: scrolling carries over in proportion between headings", () => {
+  const a = [0, 100, 300, 500], b = [0, 40, 440, 600];
+  assert.strictEqual(VO.mapScroll(a, b, 0), 0);
+  assert.strictEqual(VO.mapScroll(a, b, 100), 40);
+  assert.strictEqual(VO.mapScroll(a, b, 200), 240);
+  assert.strictEqual(VO.mapScroll(a, b, 500), 600);
+  assert.strictEqual(VO.mapScroll(b, a, 240), 200);
+  assert.strictEqual(VO.mapScroll([0, 0, 0], [0, 0, 0], 5), 0);
+});
+test("view: anchors never go back or past the end", () => { assert.strictEqual(JSON.stringify(VO.monotone([0, 50, 30, 900], 400)), "[0,50,50,400]"); });
+test("view: change marks follow the lines", () => {
+  const was = ["a", "b", "c"], st = [0, 0, 0];
+  assert.deepStrictEqual(VO.track(st, was, ["a", "B", "c"]), [0, 1, 0]);
+  assert.deepStrictEqual(VO.track(st, was, ["a", "x", "y", "b", "c"]), [0, 1, 1, 0, 0]);
+  assert.deepStrictEqual(VO.track([0, 2, 0], was, ["a", "c"]), [0, 1]);
+  assert.deepStrictEqual(VO.track([0, 1, 2], was, ["a", "b", "c", "d"]), [0, 1, 2, 1]);
+  assert.deepStrictEqual(VO.saved([0, 1, 2]), [0, 2, 2]);
+});
+test("view: zoom steps move through the sizes and stop at the ends", () => {
+  assert.strictEqual(VO.zoomStep(VO.EZ, 14, 1), 16); assert.strictEqual(VO.zoomStep(VO.EZ, 14, -1), 13);
+  assert.strictEqual(VO.zoomStep(VO.EZ, 40, 1), 40); assert.strictEqual(VO.zoomStep(VO.EZ, 8, -1), 8);
+  assert.strictEqual(VO.zoomStep(VO.PZ, 1, 1), 1.1); assert.strictEqual(VO.zoomStep(VO.PZ, 0.5, -1), 0.5);
+});
+test("view: settings load with defaults, and bad stored values are ignored", () => {
+  const store = (v) => ({ getItem: () => v });
+  assert.deepStrictEqual(VO.load(store(null)), VO.DEFAULTS);
+  assert.strictEqual(VO.load(store("{\"wrap\":false,\"ez\":16,\"pz\":9,\"num\":\"x\"}")).wrap, false);
+  const s = VO.load(store("{\"wrap\":false,\"ez\":16,\"pz\":9,\"num\":\"x\"}"));
+  assert.strictEqual(s.ez, 16); assert.strictEqual(s.pz, 1); assert.strictEqual(s.num, true);
+  assert.deepStrictEqual(VO.load(store("not json")), VO.DEFAULTS);
+});
+test("view: fuzz: symbols keep the text of any row", () => {
+  const pool = ["a", " ", "\t", NB, ZW, SOH, "&", "<", "`", "*", "[[", "]]", "- ", "# "];
+  let seed = 99; const rnd = (n) => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) % n;
+  for (let i = 0; i < 2000; i++) {
+    let t = ""; for (let k = rnd(30); k >= 0; k--) t += pool[rnd(pool.length)] + (rnd(5) ? "" : "\n");
+    const o = { sym: { ws: true, eol: true, np: true, cc: true, guide: true } }, plainRows = P.highlightRows(t, null), rows = P.highlightRows(t, null, o);
+    assert.strictEqual(rows.length, plainRows.length);
+    rows.forEach((r, j) => assert.strictEqual(plain(r).replace(/<[^>]*>/g, ""), plain(plainRows[j]).replace(/<[^>]*>/g, ""), JSON.stringify(t)));
+  }
 });
 
 console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);

@@ -19,7 +19,7 @@
       '<div class="edw-pbar"><strong>Problems</strong><small id="ed-pn"></small><span class="edw-grow"></span><button type="button" id="ed-pclose" aria-label="Close the Problems panel">Close</button></div><div id="ed-plist" class="edw-plist"></div></div>' +
       '<div class="edw-sbar"><span id="ed-pos"></span><span id="ed-words"></span><span class="edw-grow"></span><small id="ed-note"></small></div></section>' +
       '<section class="edw-pane" aria-label="Preview"><div class="edw-pbar"><strong>Preview</strong><span class="edw-grow"></span><small id="ed-file"></small></div>' +
-      '<div class="edw-pv"><article id="ed-prev"></article></div><div class="edw-sbar"><span id="ed-size"></span></div></section></div></div>';
+      '<div class="edw-pv" tabindex="0"><article id="ed-prev"></article></div><div class="edw-sbar"><span id="ed-size"></span></div></section></div></div>';
     return { title: "Write a guide page", html: h, toc: false, after: function () {
       var ta = document.getElementById("ed-text"), prev = document.getElementById("ed-prev"), gh = document.getElementById("ed-gh"), note = document.getElementById("ed-note"), chip = document.getElementById("ed-chip"), fileEl = document.getElementById("ed-file"), sizeEl = document.getElementById("ed-size"), prob = document.getElementById("ed-prob"), problems = [], errors = [], plist = document.getElementById("ed-plist"), timer = null, long = false;
       var saved = "", editing = null, modeEl = document.getElementById("ed-mode");   /* editing: the slug of the existing guide page the text is a copy of, or null for a new page */
@@ -34,6 +34,7 @@
       var hl = document.getElementById("ed-hl"), hlBox = hl.parentNode, paintQueued = false;
       var shown = [];   /* the rows now in the colored copy */
       var find = null;   /* the Find / Replace bar (search.js) */
+      var view = null;   /* the View menu's settings and margin (viewopts.js) */
       var multi = null;   /* the extra selections (multi.js); the colored copy also draws the selection while the text box is not focused, because the browser stops drawing it then */
       ta.addEventListener("blur", function () { paintSoon(); });
       ta.addEventListener("focus", function () { paintSoon(); });
@@ -47,7 +48,7 @@
         paintQueued = false;
         var drawn = multi ? multi.draw(document.activeElement !== ta) : null, found = find ? find.draw() : null;
         if (found) drawn = { ranges: drawn ? drawn.ranges : [], carets: drawn ? drawn.carets : [], finds: found };
-        var rows = P.highlightRows(ta.value, drawn), n = rows.length, m = shown.length, a = 0, b = 0;
+        var rows = view ? view.rows(ta.value, drawn) : P.highlightRows(ta.value, drawn), n = rows.length, m = shown.length, a = 0, b = 0;
         while (a < n && a < m && rows[a] === shown[a]) a++;
         while (b < n - a && b < m - a && rows[n - 1 - b] === shown[m - 1 - b]) b++;
         if (!m) hl.innerHTML = rows.join("");
@@ -59,6 +60,7 @@
         shown = rows;
         hlBox.style.setProperty("--sb", (ta.offsetWidth - ta.clientWidth) + "px");   /* the text box's scroll bar takes room the copy does not have */
         hl.style.transform = "translate(" + -ta.scrollLeft + "px," + -ta.scrollTop + "px)";
+        if (view) view.after();
       }
       function paintSoon() { if (!paintQueued) { paintQueued = true; requestAnimationFrame(paint); } }
       ta.addEventListener("scroll", function () { hl.style.transform = "translate(" + -ta.scrollLeft + "px," + -ta.scrollTop + "px)"; });
@@ -125,6 +127,7 @@
         var fm = frontMatter(ta.value), t = fm.meta.title || "Untitled page", html;
         try { html = H.renderDoc(fm.body, t, editing ? { area: "guide", key: "guide|" + editing, base: editing.indexOf("/") >= 0 ? editing.replace(/[^/]*$/, "") : "" } : { area: "guide", key: "guide|\u0000editor" }); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
         prev.innerHTML = '<h1 class="title">' + esc(t) + '</h1><div id="gp">' + html + "</div>";
+        if (view) view.resync();
         if (editing) {   /* an existing page: GitHub's edit page cannot be given new text in the address, so the page is copied and pasted over the old text there */
           long = true;
           fileEl.textContent = "guide/" + editing + ".md";
@@ -158,6 +161,7 @@
         var ok = false; try { ok = document.execCommand("insertText", false, t); } catch (e) {}
         if (!ok || ta.value !== t) { ta.value = t; ta.dispatchEvent(new Event("input")); }
         ta.setSelectionRange(0, 0); ta.scrollTop = 0;
+        if (view) view.resetChanges();   /* a new text starts with no change marks */
       }
       function copyForGitHub() {
         var done = function () { say(editing ? "Copied: on GitHub select all the old text (Ctrl+A) and paste (Ctrl+V)" : "Copied: paste it into the GitHub page (Ctrl+V)"); };
@@ -184,6 +188,8 @@
       var editCmd = P.editCommands({ ta: ta, say: say });
       multi = P.multiSelect({ ta: ta, hl: hl, repaint: paintSoon, say: say, reveal: reveal });
       find = P.findBar({ ta: ta, say: say, repaint: paintSoon, reveal: reveal, clear: function () { multi.clear(); }, selectAll: function (r, i) { multi.selectRanges(r, i); } });
+      view = P.viewControls({ ta: ta, hl: hl, hlBox: hlBox, pv: prev.parentNode, prev: prev, repaint: paintSoon, say: say });
+      function runFile(cmd) { fileCmd(cmd); if (cmd === "file.save") view.markSaved(); }
       function runEdit(cmd) { if (!multi.run(cmd)) editCmd(cmd); }   /* with several selections the command is run for each of them */
       function columnModeHelp() {
         dlg.ask({ title: "Column mode", ok: "OK", html: "<p>Column mode puts a cursor on several lines at once, one under the other, so that you can type, delete or paste on all of them together.</p>" +
@@ -194,16 +200,18 @@
           "<p>Some Linux desktops keep Alt + drag for moving windows; use Alt + Shift + Up and Down there. Ctrl + click adds a cursor anywhere, and Edit > Multi-Select All selects every match of the text you have selected.</p>" });
       }
       var SEARCH = { "search.find": "find", "search.replace": "replace", "search.inc": "inc", "search.findall": "findall" };
-      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (SEARCH[cmd]) find.open(SEARCH[cmd]); else if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0) runEdit(cmd); else fileCmd(cmd); });
+      P.menubar(document.getElementById("ed-menus"), function (cmd) { if (SEARCH[cmd]) find.open(SEARCH[cmd]); else if (cmd === "edit.columnmode") columnModeHelp(); else if (cmd.indexOf("edit.") === 0) runEdit(cmd); else if (cmd.indexOf("view.") === 0) view.run(cmd); else runFile(cmd); }, view.checked);
       function keys(e) {   /* Ctrl+S saves the draft now and Ctrl+O opens a file, anywhere in the editor */
         if (!ta.isConnected) { document.removeEventListener("keydown", keys); return; }
-        if (!(e.ctrlKey || e.metaKey) || e.shiftKey) return;
+        if (!(e.ctrlKey || e.metaKey)) return;
+        if (view.zoomKey(e)) return;   /* Ctrl + plus, minus, 0 in a pane; elsewhere the browser zooms the page */
+        if (e.shiftKey) return;
         if (e.altKey) {   /* Ctrl+Alt+I: incremental search (not on a keyboard where Ctrl+Alt is AltGr) */
           if (e.code === "KeyI" && !(e.getModifierState && e.getModifierState("AltGraph"))) { e.preventDefault(); find.open("inc"); }
           return;
         }
         var k = e.key.toLowerCase();
-        if (k === "s") { e.preventDefault(); fileCmd("file.save"); } else if (k === "o") { e.preventDefault(); fileCmd("file.open"); }
+        if (k === "s") { e.preventDefault(); runFile("file.save"); } else if (k === "o") { e.preventDefault(); runFile("file.open"); }
         else if (k === "f") { e.preventDefault(); find.open("find"); } else if (k === "h") { e.preventDefault(); find.open("replace"); }
       }
       document.addEventListener("keydown", keys);

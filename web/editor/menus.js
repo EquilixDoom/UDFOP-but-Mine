@@ -1,9 +1,9 @@
-/* Write a guide page: the menu bar. Menus open, close and work from the keyboard; an item with a command name (data-cmd) runs it through onCommand. */
+/* Write a guide page: the menu bar. Menus open, close and work from the keyboard; an item with a command name (data-cmd) runs it through onCommand. An item with a fourth entry of 1 is a switch: it shows a check mark while state(command) is true. */
 (function () {
   "use strict";
   var H = window.udfopHost, P = window.udfopEditor = window.udfopEditor || {};
   var esc = H.esc, SEP = "-";
-  /* [label, shortcut or submenu]; "-" is a divider */
+  /* [label, shortcut or submenu, command, 1 for a switch]; "-" is a divider */
   var MENUS = [
     ["File", [
       ["New from template", H.TEMPLATES.map(function (t) { return [t[1], null, "file.tpl:" + t[0]]; })], ["Open a guide page…", null, "file.page"], ["Open from this computer…", "Ctrl+O", "file.open"], SEP,
@@ -28,13 +28,21 @@
       ["Multi-Select All", [["Ignore Case & Whole Word", null, "edit.multi.ignore"], ["Match Case Only", null, "edit.multi.case"], ["Match Whole Word Only", null, "edit.multi.word"], ["Match Case & Whole Word", null, "edit.multi.caseword"]]], SEP,
       ["Column Mode", null, "edit.columnmode"]]],
     ["Search", [["Find…", "Ctrl+F", "search.find"], ["Replace…", "Ctrl+H", "search.replace"], ["Incremental Search", "Ctrl+Alt+I", "search.inc"], ["Find and Select All", null, "search.findall"]]],
+    ["View", [
+      ["Show Symbol", [
+        ["Show Space and Tab", null, "view.ws", 1], ["Show End of Line", null, "view.eol", 1], ["Show Non-Printing Characters", null, "view.np", 1], ["Show Control Characters & Unicode EOL", null, "view.cc", 1], ["Show All Characters", null, "view.all", 1], SEP,
+        ["Show Indent Guide", null, "view.guide", 1], ["Show Wrap Symbol", null, "view.wsym", 1]]],
+      ["Zoom", [["Zoom In", "Ctrl++", "view.zoomin"], ["Zoom Out", "Ctrl+-", "view.zoomout"], ["Restore Default Zoom", "Ctrl+0", "view.zoom0"]]],
+      ["Synchronized Scroll", null, "view.sync", 1], ["Word Wrap", null, "view.wrap", 1], SEP,
+      ["Margin", [["Line Number", null, "view.num", 1], ["Change History", null, "view.change", 1]]], SEP,
+      ["Current Line Indicator", null, "view.line", 1]]],
   ];
   var uid = 0;
   function list(items, depth) {
-    return '<ul class="edw-dd' + (depth ? " edw-sub" : "") + '" role="menu" hidden>' + items.map(function (it) {
+    return '<ul class="edw-dd' + (depth ? " edw-sub" : "") + (items.some(function (it) { return it !== SEP && it[3]; }) ? " edw-chk" : "") + '" role="menu" hidden>' + items.map(function (it) {
       if (it === SEP) return '<li role="separator"></li>';
       if (Array.isArray(it[1])) return '<li role="none" class="has-sub"><button type="button" role="menuitem" class="edw-mi" aria-haspopup="menu" aria-expanded="false">' + esc(it[0]) + '<span class="mi-k" aria-hidden="true">▸</span></button>' + list(it[1], depth + 1) + "</li>";
-      return '<li role="none"><button type="button" role="menuitem" class="edw-mi"' + (it[2] ? ' data-cmd="' + esc(it[2]) + '"' : "") + '>' + esc(it[0]) + (it[1] ? '<span class="mi-k">' + esc(it[1]) + "</span>" : "") + "</button></li>";
+      return '<li role="none"><button type="button" role="' + (it[3] ? 'menuitemcheckbox" aria-checked="false' : 'menuitem') + '" class="edw-mi"' + (it[2] ? ' data-cmd="' + esc(it[2]) + '"' : "") + '>' + esc(it[0]) + (it[1] ? '<span class="mi-k">' + esc(it[1]) + "</span>" : "") + "</button></li>";
     }).join("") + "</ul>";
   }
   function html() {
@@ -43,7 +51,7 @@
       return '<div class="edw-mn"><button type="button" class="edw-mb" role="menuitem" id="' + id + '" aria-haspopup="menu" aria-expanded="false">' + esc(m[0]) + "</button>" + list(m[1], 0) + "</div>";
     }).join("") + "</div>";
   }
-  P.menubar = function (root, onCommand) {   /* onCommand(name) is called for an item that has a command */
+  P.menubar = function (root, onCommand, state) {   /* onCommand(name) is called for an item that has a command; state(name) says whether a switch is on */
     root.innerHTML = html();
     var tops = Array.prototype.slice.call(root.querySelectorAll(".edw-mb"));
     function menuOf(b) { return b.parentNode.querySelector(":scope > .edw-dd"); }
@@ -53,6 +61,7 @@
       if (!ul) return;
       if (!open) { Array.prototype.forEach.call(ul.querySelectorAll(".edw-dd"), function (u) { u.hidden = true; if (u.previousElementSibling) u.previousElementSibling.setAttribute("aria-expanded", "false"); }); }
       ul.hidden = !open; btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open && state) Array.prototype.forEach.call(ul.querySelectorAll("[aria-checked]"), function (c) { c.setAttribute("aria-checked", state(c.getAttribute("data-cmd")) ? "true" : "false"); });
       if (open) {   /* keep the menu inside the window: a menu near the right edge opens leftwards */
         ul.style.left = ""; ul.style.right = ""; ul.classList.remove("flip");
         var r = ul.getBoundingClientRect();
