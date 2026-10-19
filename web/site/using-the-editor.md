@@ -17,6 +17,8 @@ A new draft starts from the guide template. Replace the placeholders, delete the
 
 The text is colored as you type: the front matter, headings, code boxes, notice boxes, bold, italic, code, links and spoilers each have a color. A link to a page that exists is colored as a link, and a link to a page that does not exist is red with a wavy underline.
 
+The preview shows the page as it will look: the title, then the Game Guide breadcrumb with the category from your front matter (General when there is none; a page marked `unlisted` has no breadcrumb). Links in the preview do nothing when pressed, so you cannot lose your place; only a link to a heading on the same page works, and it scrolls to that heading.
+
 Each pane has a title bar and a status bar. The Editor's status bar shows the line and column, the word count and when the draft was saved. The Preview's title bar shows the file name the page will get, made from your title, and its status bar shows how much of the Submit link's length limit the page uses.
 
 ## Problems
@@ -173,6 +175,17 @@ With several cursors, typing, Backspace, Delete, Ctrl+Backspace, Ctrl+Delete and
 One Ctrl+Z undoes a change made at all the cursors together. It restores the text and one cursor, not all of them. Select All, Page Up and Page Down, and Ctrl+Home and Ctrl+End also go back to one cursor, and so does anything that changes the text another way, such as a File command. A change that would rewrite more than 400,000 characters between the first and last selection is refused.
 
 Some Linux desktops use Alt + drag to move windows, so the box selection may never reach the page there; use Alt + Shift + Up and Down instead. Touch screens have no Ctrl or Alt. Screen readers and the spelling menu only see one of the selections.
+
+## Help
+
+The **?** at the end of the menu bar, or **F1** from anywhere in the editor, opens this help in a window that floats over the editor. It takes no room from the two panes and the text behind it stays editable.
+
+- Drag the title bar to move the window and the bottom-right corner to resize it. It remembers where you left it.
+- **Contents** lists four pages: How to use the editor, How to write a guide page, Formatting reference and Troubleshooting and FAQ. The page you are reading opens out into its sections, and each section is a page of its own.
+- **<** and **>**, or the Left and Right arrow keys while the window has the focus, go to the previous and next page.
+- **Close** or Esc closes the window. **Open on the site** shows the page in a new tab. Links to other site pages also open in a new tab, so your draft is not disturbed.
+
+On a narrow screen the window fills the editor instead of floating.
 
 ## Editing an existing page
 
