@@ -964,16 +964,20 @@
   }
   var mdRoot = "guide/";   /* "guide/" or "site/": which section's folder the page being rendered is in */
   var mdBase = "";   /* folder of the page being rendered, so pictures resolve next to it */
-  function markdown(src, title) {
-    var lines = src.replace(/\r\n?/g, "\n").split("\n"), out = [], i = 0, first = true, figSince = false;
-    function para(buf) { if (buf.length) out.push("<p>" + inline(buf.join(" ")) + "</p>"); }
+  /* ln0: with a number, every block gets data-ln="first-last", its lines in the source (1-based; ln0 lines come before src). The editor's Pick mode reads it. Left out, nothing is added. */
+  function markdown(src, title, ln0) {
+    var lines = src.replace(/\r\n?/g, "\n").split("\n"), out = [], i = 0, first = true, figSince = false, at0 = 0;
+    function emit(h, from, to) { out.push(ln0 === undefined ? h : lnTag(h, ln0 + from + 1, ln0 + to + 1)); }
+    function nested(skip) { return ln0 === undefined ? undefined : ln0 + at0 + skip; }
+    function para(buf, from) { if (buf.length) emit("<p>" + inline(buf.join(" ")) + "</p>", from, from + buf.length - 1); }
     while (i < lines.length) {
       var l = lines[i], m;
+      at0 = i;
       if (!l.trim()) { i++; continue; }
       if ((m = /^(`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$/.exec(l))) {   /* a code box: three or more backticks or tildes; only a bare fence at least as long closes it */
         var code = [], lang = (m[2] || "").toLowerCase(), fence = m[1], fm; i++;
         while (i < lines.length && !((fm = /^(`{3,}|~{3,})\s*$/.exec(lines[i])) && fm[1].charAt(0) === fence.charAt(0) && fm[1].length >= fence.length)) code.push(lines[i++]);
-        i++; out.push(codeBox(lang, code.join("\n"))); continue;
+        i++; emit(codeBox(lang, code.join("\n")), at0, Math.min(i, lines.length) - 1); continue;
       }
       if ((m = /^(#{1,6})\s+(.*?)(?:\s+#+)?\s*$/.exec(l))) {
         var text = plainText(m[2]);
@@ -981,46 +985,50 @@
         var lvl = Math.min(6, Math.max(2, m[1].length));
         var hd = lvl <= 3 ? sec(text, text, lvl) : "<h" + lvl + ">" + inline(m[2]) + "</h" + lvl + ">";
         if (figSince && lvl <= 3) hd = hd.replace('class="sec"', 'class="sec cl"');
-        figSince = false; out.push(hd); i++; first = false; continue;
+        figSince = false; emit(hd, at0, at0); i++; first = false; continue;
       }
       first = false;
-      if (/^\s*([-*_])\s*(\1\s*){2,}$/.test(l)) { out.push("<hr>"); i++; continue; }
+      if (/^\s*([-*_])\s*(\1\s*){2,}$/.test(l)) { emit("<hr>", at0, at0); i++; continue; }
       if (/^>(?!!.*!<)/.test(l)) {   /* a line that opens with a >!spoiler!< is a paragraph, not a quote */
         var q = [];
         while (i < lines.length && /^>(?!!.*!<)/.test(lines[i])) q.push(lines[i++].replace(/^>\s?/, ""));
         /* a quote whose first line is [!NOTE], [!TIP], [!IMPORTANT], [!WARNING] or [!CAUTION] is a notice box (GitHub's alert syntax); any other quote stays a quote */
         var inf = /^\[!INFO\](?:[ \t]+(.*?))?\s*$/i.exec(q[0]);
-        if (inf) { out.push(infobox(inf[1] || title || "", q.slice(1))); continue; }   /* a fact panel: floats right like a captioned picture */
+        if (inf) { emit(infobox(inf[1] || title || "", q.slice(1)), at0, i - 1); continue; }   /* a fact panel: floats right like a captioned picture */
         var al = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$/i.exec(q[0]);
         if (al) {
           var kind = al[1].toLowerCase();
-          out.push('<div class="alert alert-' + kind + '" role="note"><span class="alert-label">' + kind.charAt(0).toUpperCase() + kind.slice(1) + "</span>" + markdown(q.slice(1).join("\n")) + "</div>"); continue;
+          emit('<div class="alert alert-' + kind + '" role="note"><span class="alert-label">' + kind.charAt(0).toUpperCase() + kind.slice(1) + "</span>" + markdown(q.slice(1).join("\n"), undefined, nested(1)) + "</div>", at0, i - 1); continue;
         }
-        out.push("<blockquote>" + markdown(q.join("\n")) + "</blockquote>"); continue;
+        emit("<blockquote>" + markdown(q.join("\n"), undefined, nested(0)) + "</blockquote>", at0, i - 1); continue;
       }
       if (l.indexOf("|") >= 0 && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(lines[i + 1])) {
         var head = splitRow(l), body = [], aligns = splitRow(lines[i + 1]).map(function (c) { return /^:-+:$/.test(c) ? "center" : /^-+:$/.test(c) ? "right" : /^:-+$/.test(c) ? "left" : ""; });
         function al(k) { return aligns[k] ? ' style="text-align:' + aligns[k] + '"' : ""; }
         i += 2;
         while (i < lines.length && lines[i].trim() && lines[i].indexOf("|") >= 0) body.push(splitRow(lines[i++]));
-        out.push('<div class="wrap"><table class="wikitable"><thead><tr>' + head.map(function (c, k) { return "<th" + al(k) + ">" + inline(c) + "</th>"; }).join("") +
-          "</tr></thead><tbody>" + body.map(function (r) { return "<tr>" + head.map(function (_, k) { return "<td" + al(k) + ">" + inline(r[k] || "") + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table></div>");
+        function tr(cells, at) { var h = "<tr>" + cells + "</tr>"; return ln0 === undefined ? h : lnTag(h, ln0 + at + 1, ln0 + at + 1); }
+        emit('<div class="wrap"><table class="wikitable"><thead>' + tr(head.map(function (c, k) { return "<th" + al(k) + ">" + inline(c) + "</th>"; }).join(""), at0) +
+          "</thead><tbody>" + body.map(function (r, n) { return tr(head.map(function (_, k) { return "<td" + al(k) + ">" + inline(r[k] || "") + "</td>"; }).join(""), at0 + 2 + n); }).join("") + "</tbody></table></div>", at0, i - 1);
         continue;
       }
       if (/^\s*([-*+]|\d+[.)])\s+/.test(l)) {
         var items = [];
         while (i < lines.length && lines[i].trim() && (/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) || /^\s{2,}\S/.test(lines[i]))) items.push(lines[i++]);
-        out.push(list(items)); continue;
+        emit(list(items, ln0 === undefined ? undefined : ln0 + at0), at0, i - 1); continue;
       }
-      if ((m = FIG_LINE.exec(l.trim())) && (m[3] || m[4] !== undefined)) { out.push(figure(m)); figSince = true; i++; continue; }
+      if ((m = FIG_LINE.exec(l.trim())) && (m[3] || m[4] !== undefined)) { emit(figure(m), at0, at0); figSince = true; i++; continue; }
       var buf = [];
       while (i < lines.length && lines[i].trim() && !/^((`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$|#{1,6}\s|>(?!!.*!<))/.test(lines[i]) && !/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) &&
              !((m = FIG_LINE.exec(lines[i].trim())) && (m[3] || m[4] !== undefined))) buf.push(lines[i++].trim());
-      para(buf);
+      para(buf, at0);
     }
     return out.join("\n");
   }
-  function list(items) {
+  /* adds data-ln to the first tag of an html string (an empty string stays empty) */
+  function lnTag(h, from, to) { return h.replace(/^<[a-z0-9]+/i, function (t) { return t + ' data-ln="' + from + "-" + to + '"'; }); }
+  /* lnBase: the source line before the first item, or undefined for no data-ln; only the items of the outer list are tagged */
+  function list(items, lnBase) {
     function indentOf(l) { return l.match(/^\s*/)[0].replace(/\t/g, "  ").length; }
     function build(from, to, base) {
       var m0 = /^\s*(\d+[.)])/.exec(items[from]), tag = m0 ? "ol" : "ul", h = "<" + tag + ">", k = from;
@@ -1032,7 +1040,7 @@
           var sub = items.slice(k + 1, j).filter(function (x) { return /^\s*([-*+]|\d+[.)])\s+/.test(x); });
           if (sub.length) kids = list(sub); else text += " " + items.slice(k + 1, j).map(function (x) { return x.trim(); }).join(" ");
         }
-        h += "<li>" + inline(text) + kids + "</li>"; k = j;
+        h += "<li" + (lnBase === undefined ? "" : ' data-ln="' + (lnBase + k + 1) + "-" + (lnBase + j) + '"') + ">" + inline(text) + kids + "</li>"; k = j;
       }
       return h + "</" + tag + ">";
     }
@@ -1979,10 +1987,10 @@
     onLintData: function (fn) { lintCb = fn; },
     pageExists: function (key, site) { return !!(site ? (siteByTitle[key] || siteBySlug[key]) : (guideByTitle[key] || guideBySlug[key])); },
     /* draws Markdown as a page of the given area ("guide" or "site"); the renderer's per-page state is set for the call and put back after it. o: { area, base, key, related } */
-    renderDoc: function (body, title, o) {
+    renderDoc: function (body, title, o) {   /* o.lines: the number of source lines before body; with it each block carries its source lines (data-ln) */
       var sRoot = mdRoot, sBase = mdBase, sRefs = refs;
       mdRoot = o.area === "site" ? "site/" : "guide/"; mdBase = o.base || ""; refs = newRefs(o.key || "");
-      try { var html = markdown(body, title); return o.related ? html + buildReferences(refs, o.related) : html; }
+      try { var html = markdown(body, title, typeof o.lines === "number" ? o.lines : undefined); return o.related ? html + buildReferences(refs, o.related) : html; }
       finally { mdRoot = sRoot; mdBase = sBase; refs = sRefs; }
     }
   };
@@ -2013,7 +2021,7 @@
       return { title: "Loading", html: '<h1 class="title">Loading</h1><p role="status">Loading the editor…</p>', toc: false };
     };
   }
-  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/highlight.js", "editor/menus.js", "editor/dialog.js", "editor/files.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/help.js", "editor/search.js", "editor/viewopts.js", "editor/suggest.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
+  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/highlight.js", "editor/menus.js", "editor/dialog.js", "editor/files.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/help.js", "editor/search.js", "editor/viewopts.js", "editor/suggest.js", "editor/pick.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";

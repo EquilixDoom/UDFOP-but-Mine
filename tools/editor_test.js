@@ -21,7 +21,7 @@ host.fileExists = (p) => (p in files ? files[p] : null);
 const sandbox = { window: null, console };
 sandbox.window = sandbox; sandbox.udfopHost = host;
 vm.createContext(sandbox);
-for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
+for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js", "editor/pick.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
 const P = sandbox.udfopEditor;
 
 let passed = 0, failed = 0;
@@ -872,6 +872,25 @@ test("format: a language goes after the opening fence, changes in a box of anoth
   assert.strictEqual(fx("codeblock.js", S1 + "```js\nx\n```" + S2).replace(/[\u0001\u0002]/g, ""), "x");
   assert.strictEqual(fx("codeblock.lua", "a\n" + S1 + "\nb"), "a\n```lua\n" + S1 + "\n```\nb");
 });
+
+test("pick: lineRange gives the text of the lines without the last line break", () => {
+  const t = "one\ntwo\nthree\nfour";
+  assert.strictEqual(JSON.stringify(P.pick.lineRange(t, 1, 1)), "[0,3]");
+  assert.strictEqual(JSON.stringify(P.pick.lineRange(t, 2, 3)), "[4,13]");
+  assert.strictEqual(JSON.stringify(P.pick.lineRange(t, 4, 4)), "[14,18]");
+  assert.strictEqual(t.slice(...P.pick.lineRange(t, 2, 3)), "two\nthree");
+});
+test("pick: parseLn and within", () => {
+  assert.strictEqual(JSON.stringify(P.pick.parseLn("3-5")), "[3,5]");
+  assert.strictEqual(P.pick.parseLn("x"), null);
+  const t = "a\nSee [the **big** page](x) now\nz";
+  const r = P.pick.within(t, 2, 2, "big");
+  assert.strictEqual(t.slice(...r), "big");
+  assert.strictEqual(P.pick.within(t, 2, 2, "missing"), null);
+  assert.strictEqual(P.pick.within(t, 1, 1, "big"), null);
+  assert.strictEqual(P.pick.within(t, 2, 2, "  "), null);
+});
+test("pick is off by default and is a View toggle", () => assert.strictEqual(P.viewOpts.DEFAULTS.pick, false));
 
 console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);
 process.exit(failed ? 1 : 0);

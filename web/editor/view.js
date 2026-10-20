@@ -18,7 +18,7 @@
       '<div class="edw-stack"><div class="edw-hl edw-code" aria-hidden="true"><div id="ed-hl"></div></div><textarea id="ed-text" class="edw-code" spellcheck="true" aria-label="Page source (Markdown)"></textarea></div><div id="ed-prob" class="edw-prob" hidden><div id="ed-ph" class="edw-ph" role="separator" aria-orientation="horizontal" aria-label="Resize the Problems panel" tabindex="0"></div>' +
       '<div class="edw-pbar"><strong>Problems</strong><small id="ed-pn"></small><span class="edw-grow"></span><button type="button" id="ed-pclose" aria-label="Close the Problems panel">Close</button></div><div id="ed-plist" class="edw-plist"></div></div>' +
       '<div class="edw-sbar"><span id="ed-pos"></span><span id="ed-words"></span><span class="edw-grow"></span><small id="ed-note"></small></div></section>' +
-      '<section class="edw-pane" aria-label="Preview"><div class="edw-pbar"><strong>Preview</strong><span class="edw-grow"></span><small id="ed-file"></small></div>' +
+      '<section class="edw-pane" aria-label="Preview"><div class="edw-pbar"><strong>Preview</strong><span class="edw-grow"></span><button type="button" id="ed-pick" class="edw-tg" aria-pressed="false" title="Pick Element: hover a block to mark its lines in the text, click to select them (Esc turns it off)">Pick</button><small id="ed-file"></small></div>' +
       '<div class="edw-pv" tabindex="0"><article id="ed-prev"></article></div><div class="edw-sbar"><span id="ed-size"></span></div></section></div></div>';
     return { title: "Guide editor", html: h, toc: false, after: function () {
       var ta = document.getElementById("ed-text"), prev = document.getElementById("ed-prev"), gh = document.getElementById("ed-gh"), note = document.getElementById("ed-note"), chip = document.getElementById("ed-chip"), fileEl = document.getElementById("ed-file"), sizeEl = document.getElementById("ed-size"), prob = document.getElementById("ed-prob"), problems = [], errors = [], plist = document.getElementById("ed-plist"), timer = null, long = false;
@@ -34,6 +34,7 @@
       var hl = document.getElementById("ed-hl"), hlBox = hl.parentNode, paintQueued = false;
       var shown = [];   /* the rows now in the colored copy */
       var find = null;   /* the Find / Replace bar (search.js) */
+      var pick = null;   /* Pick mode (pick.js) */
       var view = null;   /* the View menu's settings and margin (viewopts.js) */
       var multi = null;   /* the extra selections (multi.js); the colored copy also draws the selection while the text box is not focused, because the browser stops drawing it then */
       ta.addEventListener("blur", function () { paintSoon(); });
@@ -48,6 +49,8 @@
         paintQueued = false;
         var drawn = multi ? multi.draw(document.activeElement !== ta) : null, found = find ? find.draw() : null;
         if (found) drawn = { ranges: drawn ? drawn.ranges : [], carets: drawn ? drawn.carets : [], finds: found };
+        var picked = pick ? pick.draw() : null;
+        if (picked) drawn = { ranges: drawn ? drawn.ranges : [], carets: drawn ? drawn.carets : [], finds: drawn ? drawn.finds : null, pick: picked };
         var rows = view ? view.rows(ta.value, drawn) : P.highlightRows(ta.value, drawn), n = rows.length, m = shown.length, a = 0, b = 0;
         while (a < n && a < m && rows[a] === shown[a]) a++;
         while (b < n - a && b < m - a && rows[n - 1 - b] === shown[m - 1 - b]) b++;
@@ -125,11 +128,14 @@
         paint();
         showProblems();
         var fm = frontMatter(ta.value), t = fm.meta.title || "Untitled page", html;
-        try { html = H.renderDoc(fm.body, t, editing ? { area: "guide", key: "guide|" + editing, base: editing.indexOf("/") >= 0 ? editing.replace(/[^/]*$/, "") : "" } : { area: "guide", key: "guide|\u0000editor" }); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
+        var ro = editing ? { area: "guide", key: "guide|" + editing, base: editing.indexOf("/") >= 0 ? editing.replace(/[^/]*$/, "") : "" } : { area: "guide", key: "guide|\u0000editor" };
+        if (view && view.picking()) ro.lines = ta.value.split("\n").length - fm.body.split("\n").length;   /* the lines before the body: each block then carries its line numbers */
+        try { html = H.renderDoc(fm.body, t, ro); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
         /* the title and the breadcrumb a reader sees above the page (no breadcrumb for an unlisted page); the category link is the one the page will have in the lists */
         var unlisted = /^(yes|true|1|on)$/i.test((fm.meta.unlisted || "").trim()), cat = (fm.meta.category || "").replace(/\s+/g, " ").trim() || "General";
         prev.innerHTML = '<h1 class="title">' + esc(t) + "</h1>" + (unlisted ? "" : '<div class="hat breadcrumbs">' + H.GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a></div>") + '<div id="gp">' + html + "</div>";
         if (view) view.resync();
+        if (pick) pick.clear();
         if (editing) {   /* an existing page: GitHub's edit page cannot be given new text in the address, so the page is copied and pasted over the old text there */
           long = true;
           fileEl.textContent = "guide/" + editing + ".md";
@@ -190,7 +196,9 @@
       var editCmd = P.editCommands({ ta: ta, say: say });
       multi = P.multiSelect({ ta: ta, hl: hl, repaint: paintSoon, say: say, reveal: reveal });
       find = P.findBar({ ta: ta, say: say, repaint: paintSoon, reveal: reveal, clear: function () { multi.clear(); }, selectAll: function (r, i) { multi.selectRanges(r, i); } });
-      view = P.viewControls({ ta: ta, hl: hl, hlBox: hlBox, pv: prev.parentNode, prev: prev, repaint: paintSoon, say: say });
+      view = P.viewControls({ ta: ta, hl: hl, hlBox: hlBox, pv: prev.parentNode, prev: prev, repaint: paintSoon, say: say, onPick: function (on) { pick.sync(on); render(); } });
+      pick = P.pickElement({ ta: ta, prev: prev, btn: document.getElementById("ed-pick"), repaint: paintSoon, reveal: reveal, say: say, toggle: function () { view.run("view.pick"); }, off: function () { view.setPick(false); } });
+      pick.sync(view.picking());
       var complete = P.completion({ ta: ta, hl: hl, multi: multi, H: H, say: say });   /* before the keys below, so that its Enter, Tab and Backspace come first */
       function runFile(cmd) { fileCmd(cmd); if (cmd === "file.save") view.markSaved(); }
       function runEdit(cmd) { if (!multi.run(cmd)) editCmd(cmd); }   /* with several selections the command is run for each of them */

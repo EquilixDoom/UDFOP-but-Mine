@@ -120,6 +120,8 @@ Items with a check mark are switches; the choices are kept in this browser betwe
 
 **Synchronized Scroll** keeps the preview and the text level. Each heading in the text is matched to the same heading in the preview, and between two headings the position is carried over in proportion. Scrolling either one moves the other. It needs the same number of headings in both; if some are drawn differently, the two scroll by the same fraction of their length instead.
 
+**Pick Element** (also the **Pick** button above the preview) finds the text behind something you see. With it on, hover a paragraph, heading, list item, table row, picture, notice or code box in the preview: it is outlined, and its lines are shaded in the text. Click it to select those lines in the text box. Clicking a link, bold or italic text, or inline code selects just those words when they can be found in the line. Links in the preview do nothing while Pick is on. On a touch screen, tap. **Esc** turns it off.
+
 **Word Wrap** turns the wrapping of long lines on and off; with it off, the text box scrolls sideways.
 
 **Margin** has **Line Number**, and **Change History**, which draws a bar beside each line changed since the page was opened: orange until you save with Ctrl+S or File > Save draft, green after. The automatic draft saving does not count as a save. Opening a page or file, or Discard draft, clears the bars. Undo does not take a bar away.
