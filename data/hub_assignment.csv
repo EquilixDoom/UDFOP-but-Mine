@@ -1009,3 +1009,9 @@ Growth Tab,Character and Progression,,11,Character; UI,
 Shared Containers,Items and Equipment,,10,Online,
 Specialisation Reset,Character and Progression,,6,Character; Online; UI,
 Town Economy,Economy and Trade,,5,Online; World,
+Class Skill Swap,Character and Progression,,1,Character,yes
+Jungle of Bantha,World and Overworld,,2,Graphics,yes
+Layered Gearing,Rendering,,8,Graphics; Other; UI,
+Passage Under Sail,Naval,,6,Online; UI; World,
+Questlines,Arena and Quests,,8,Items; Online; World,
+Shared Foes,Combat and AI,,2,Online,yes
