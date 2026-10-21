@@ -8,7 +8,7 @@ data/normalized until every row has been confirmed by a person. The guesses it f
 (Guesser in notes.py), not a language model; anything a language model would normally write (topic descriptions)
 is typed by a person, with an optional prompt to copy into an LLM.
 """
-import csv, difflib, io, json, os, re, subprocess, sys, threading, webbrowser
+import csv, difflib, glob, io, json, os, re, subprocess, sys, threading, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -219,16 +219,68 @@ def describe():
              "current": desc[t][0] if t in desc else "", "changes": change_lines(t)} for t in stale]
 
 
-def prompt_for(topic):
-    d = next((x for x in describe() if x["topic"] == topic), None) or {"topic": topic, "current": "", "changes": change_lines(topic)}
-    lines = [f"Write the description for the topic \"{d['topic']}\" of a Daggerfall Online patch notes wiki.",
-             "Rules: 1 to 4 plain sentences saying what the topic is and how it works as of its latest change. Later changes override earlier ones, so describe the current behaviour and mention what changed only when it explains the current state. Never invent anything the changes do not say. Keep numbers, names and units exactly. Reply with the description only.", ""]
+DESC_RULES = ("Rules: 1 to 4 plain sentences saying what the topic is and how it works as of its latest change. Later changes override earlier ones, "
+              "so describe the current behaviour and mention what changed only when it explains the current state. Never invent anything the changes do not say. "
+              "Keep numbers, names and units exactly.")
+
+
+def topic_lines(d):
+    lines = []
     if d["current"]:
         lines += ["Current description (update it rather than starting over):", d["current"], ""]
     lines.append("Changes, oldest first:")
     for c in d["changes"]:
         lines.append(f"- {c['version']} {c['type']}{'' if c['direction'] == 'n/a' else c['direction']}: {c['text']}")
+    return lines
+
+
+def prompt_for(topic):
+    d = next((x for x in describe() if x["topic"] == topic), None) or {"topic": topic, "current": "", "changes": change_lines(topic)}
+    return "\n".join([f"Write the description for the topic \"{d['topic']}\" of a Daggerfall Online patch notes wiki.", DESC_RULES + " Reply with the description only.", ""] + topic_lines(d))
+
+
+def prompt_all(topics):
+    """One prompt for several topics; the reply is one `Topic ||| description` line per topic, which the page can split back out."""
+    ds = [d for d in describe() if d["topic"] in topics]
+    lines = ["Write a description for each topic below, for a Daggerfall Online patch notes wiki.", DESC_RULES,
+             "Reply with exactly one line per topic in the form `Topic ||| description`, using the topic name exactly as given, and nothing else.", ""]
+    for d in ds:
+        lines += [f"## {d['topic']}"] + topic_lines(d) + [""]
     return "\n".join(lines)
+
+
+def last_ingest():
+    """Counts for the rows added by the newest ingest (from its archived rows file), for the report after Build."""
+    arch = sorted(glob.glob(f"{N.INBOX}/done/rows-*.jsonl"), key=lambda f: N.vkey(os.path.basename(f)[:-6].split("-")[-1]))
+    rows = N.read_jsonl(N.ALL)
+    if arch:
+        ids = {r["id"] for r in N.read_jsonl(arch[-1])}
+        mine = [r for r in rows if r["id"] in ids]
+    else:
+        v = max((r["version"] for r in rows), key=N.vkey, default="")
+        mine = [r for r in rows if r["version"] == v]
+    alias = N.merge_alias()
+    hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
+    versions = sorted({r["version"] for r in mine}, key=N.vkey)
+    first = {}
+    for r in rows:
+        first.setdefault(N.topic_of(r["entity"], alias), r["version"])
+    new = sorted({N.topic_of(r["entity"], alias) for r in mine if first.get(N.topic_of(r["entity"], alias)) in versions})
+    return {"versions": versions, "n": len(mine), "types": dict(N.Counter(r["change_type"] for r in mine)),
+            "new_topics": [{"topic": t, "hub": hub.get(t, "-")} for t in new]}
+
+
+def serve_site(path):
+    """Static files of web/ under /site/, so the result can be looked at without a second server."""
+    import mimetypes
+    rel = path[len("/site/"):].split("?")[0].split("#")[0] or "index.html"
+    full = os.path.realpath(os.path.join(ROOT, "web", rel))
+    base = os.path.realpath(os.path.join(ROOT, "web"))
+    if os.path.isdir(full):
+        full = os.path.join(full, "index.html")
+    if not full.startswith(base + os.sep) or not os.path.isfile(full):
+        return None
+    return open(full, "rb").read(), mimetypes.guess_type(full)[0] or "application/octet-stream"
 
 
 def save_description(topic, text):
@@ -271,6 +323,17 @@ class H(BaseHTTPRequestHandler):
         if self.path == "/api/describe":
             with LOCK:
                 return self.send(describe())
+        if self.path == "/api/summary":
+            with LOCK:
+                return self.send(last_ingest())
+        if self.path == "/site":
+            self.send_response(301)
+            self.send_header("Location", "/site/")
+            self.end_headers()
+            return
+        if self.path.startswith("/site/"):
+            f = serve_site(self.path)
+            return self.send(f[0], ctype=f[1]) if f else self.send({"error": "not found"}, 404)
         self.send({"error": "not found"}, 404)
 
     def do_POST(self):
@@ -290,6 +353,8 @@ class H(BaseHTTPRequestHandler):
                     return self.send(ingest(body))
                 if self.path == "/api/prompt":
                     return self.send({"prompt": prompt_for(body["topic"])})
+                if self.path == "/api/prompt_all":
+                    return self.send({"prompt": prompt_all(set(body["topics"]))})
                 if self.path == "/api/describe/save":
                     return self.send(save_description(body["topic"], body["text"]))
             except Exception as e:  # shown in the page

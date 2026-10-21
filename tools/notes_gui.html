@@ -58,7 +58,7 @@ textarea{width:100%;min-height:80px}
 <div id="foot"></div>
 <script>
 "use strict";
-var S = null, rows = [], skipped = [], tab = "home", filter = "unconf", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0;
+var S = null, rows = [], skipped = [], tab = "home", filter = "unconf", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [];
 var $ = function (s) { return document.querySelector(s); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function api(path, body) {
@@ -100,6 +100,12 @@ function fetchPrepare() {
     });
   }).then(function () { busy = false; render(); });
 }
+/* ---------- undo (one level) ---------- */
+function snap(label) { UNDO = { label: label, data: JSON.stringify({ rows: rows, skipped: skipped }) }; }
+function undo() {
+  if (!UNDO) return;
+  var d = JSON.parse(UNDO.data); rows = d.rows; skipped = d.skipped; UNDO = null; cur = -1; save(); render();
+}
 /* ---------- helpers ---------- */
 function isNew(t) { return !S.topics.some(function (x) { return x.name === t; }); }
 function flagged(r, f) { return (r._review || []).indexOf(f) >= 0; }
@@ -137,6 +143,7 @@ function bar() {
   var un = rows.filter(function (r) { return !r._confirmed; }).length, n = rows.filter(safe).length, done = rows.length - un, er = rows.filter(function (r) { return errsOf(r).length; }).length;
   f.style.display = "flex";
   f.innerHTML = '<div class="prog"><i style="width:' + Math.round(100 * done / rows.length) + '%"></i></div><span>' + done + " / " + rows.length + " confirmed</span>" + (er ? '<span class="tag new">' + er + " with errors</span>" : "") +
+    (UNDO ? '<button class="b" data-a="undo" title="Undo the last change of this kind (Z)">Undo ' + esc(UNDO.label) + "</button>" : "") +
     '<button class="b" data-a="confsafe"' + (n ? "" : " disabled") + ' title="Rows whose topic already exists and that nothing flagged">Confirm ' + n + " unflagged</button>" +
     '<button class="b pri" data-a="ingest"' + (un || er || busy ? " disabled" : "") + ' title="' + (un ? un + " row(s) still need confirming" : er ? er + " row(s) have errors" : "Write the rows to the wiki data") + '">Ingest ' + rows.length + " rows</button>";
 }
@@ -147,6 +154,7 @@ function render() {
   var scroll = window.scrollY; $("#m").innerHTML = v(); window.scrollTo(0, scroll);
   bar();
   if (tab === "desc" && !D) loadDesc();
+  if (tab === "fin" && !SUM) loadSum();
 }
 function logBox() { return logTxt ? '<div class="log">' + esc(logTxt) + "</div>" : ""; }
 function home() {
@@ -257,7 +265,7 @@ function reviewView() {
   var h = '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
   h += '<div class="bar"><select id="flt"><option value="unconf"' + (filter === "unconf" ? " selected" : "") + ">Unconfirmed</option><option value=\"flag\"" + (filter === "flag" ? " selected" : "") + ">Flagged and unconfirmed</option><option value=\"all\"" + (filter === "all" ? " selected" : "") + ">All rows</option></select>" +
     '<span class="mut">' + vers.map(function (v) { var a = rows.filter(function (r) { return r.version === v; }); return esc(v) + " " + a.filter(function (r) { return r._confirmed; }).length + "/" + a.length; }).join(" · ") + "</span></div>" +
-    '<p class="mut"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> edit · <kbd>T</kbd> topic · <kbd>S</kbd> split · <kbd>X</kbd> leave out · <kbd>U</kbd> unconfirm · <kbd>Esc</kbd> close</p>';
+    '<p class="mut"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> edit · <kbd>T</kbd> topic · <kbd>S</kbd> split · <kbd>X</kbd> leave out · <kbd>U</kbd> unconfirm · <kbd>Z</kbd> undo · <kbd>Esc</kbd> close</p>';
   list.forEach(function (i) { h += card(rows[i], i); });
   if (!list.length) h += '<div class="card">' + (rows.some(function (r) { return !r._confirmed; }) ? "Nothing to show with this filter." : "Every row is confirmed. Ingest from the bar below.") + "</div>";
   if (skipped.length) {
@@ -266,23 +274,80 @@ function reviewView() {
   }
   return h + logBox();
 }
+function descCard(d, i) {
+  return '<div class="card' + (d.saved ? " ok" : "") + '" data-d="' + i + '"><div class="row-h"><b>' + esc(d.topic) + '</b><span class="mut">' + esc(d.hub) + " · " + d.n + " changes" + (d.new ? " · new" : " · was " + d.was) + "</span></div>" +
+    (d.current ? '<div class="src"><span class="mut">Current:</span> ' + esc(d.current) + "</div>" : "") +
+    '<details><summary>' + d.changes.length + " changes</summary><ul>" + d.changes.map(function (c) { return "<li><span class=\"mut\">" + esc(c.version + " " + c.type) + ":</span> " + esc(c.text) + "</li>"; }).join("") + "</ul></details>" +
+    '<textarea data-d="' + i + '" placeholder="Description">' + esc(d.draft != null ? d.draft : d.current) + '</textarea>' +
+    '<div class="bar" style="margin:6px 0 0"><button class="b" data-a="prompt" data-d="' + i + '">Copy LLM prompt</button>' +
+    (d.current ? '<button class="b" data-a="dkeep" data-d="' + i + '" title="The latest changes do not alter the description: save it as it is">Keep current</button>' : "") +
+    '<button class="b pri" data-a="dsave" data-d="' + i + '">Save</button><span class="mut" id="dm' + i + '">' + (d.saved ? "Saved." : "") + "</span></div></div>";
+}
 function descView() {
   if (!D) return '<div class="card">Loading…</div>';
   if (!D.length) return '<div class="card">Every description is current.</div>' + logBox();
-  var h = logBox() + '<p>Descriptions are written by a person. For a draft, copy the prompt into an LLM and paste the answer here, then edit it. The site labels descriptions as AI-assisted.</p>';
-  D.forEach(function (d, i) {
-    h += '<div class="card" data-d="' + i + '"><div class="row-h"><b>' + esc(d.topic) + '</b><span class="mut">' + esc(d.hub) + " · " + d.n + " changes" + (d.new ? " · new" : " · was " + d.was) + "</span></div>" +
-      (d.current ? '<div class="src"><span class="mut">Current:</span> ' + esc(d.current) + "</div>" : "") +
-      '<details><summary>' + d.changes.length + " changes</summary><ul>" + d.changes.map(function (c) { return "<li><span class=\"mut\">" + esc(c.version + " " + c.type) + ":</span> " + esc(c.text) + "</li>"; }).join("") + "</ul></details>" +
-      '<textarea data-d="' + i + '" placeholder="Description">' + esc(d.draft != null ? d.draft : d.current) + '</textarea>' +
-      '<div class="bar" style="margin:6px 0 0"><button class="b" data-a="prompt" data-d="' + i + '">Copy LLM prompt</button><button class="b pri" data-a="dsave" data-d="' + i + '">Save</button><span class="mut" id="dm' + i + '"></span></div></div>';
-  });
+  var left = D.filter(function (d) { return !d.saved; }).length;
+  var h = logBox() + '<p>Descriptions are written by a person. For a draft, copy a prompt into an LLM and paste the answer here, then edit it. The site labels descriptions as AI-assisted.</p>' +
+    '<div id="dall" class="card ok" style="display:' + (left ? "none" : "block") + '">All saved. <button class="b pri" data-a="tab" data-t="fin">Go to Build →</button></div>' +
+    '<div class="card"><div class="bar"><button class="b" data-a="promptall">Copy one prompt for all ' + D.length + ' topics</button><span class="mut" id="pam"></span></div>' +
+    '<textarea id="paste" placeholder="Paste the reply here, one line per topic: Topic ||| description"></textarea>' +
+    '<div class="bar" style="margin:6px 0 0"><button class="b" data-a="paste">Fill the boxes from the paste</button><span class="mut" id="psm"></span></div></div>';
+  D.forEach(function (d, i) { h += descCard(d, i); });
   return h;
+}
+function saveDesc(j, txt) {
+  return api("/api/describe/save", { topic: D[j].topic, text: txt }).then(function (x) {
+    var m = $("#dm" + j);
+    if (!x.ok) { m.textContent = x.out; return; }
+    D[j].saved = true; D[j].draft = txt; m.textContent = "Saved.";
+    var card = document.querySelector('.card[data-d="' + j + '"]'); card.classList.add("ok");
+    var nx = D.findIndex(function (d, k) { return k > j && !d.saved; }); if (nx < 0) nx = D.findIndex(function (d) { return !d.saved; });
+    if (nx >= 0) document.querySelector('.card[data-d="' + nx + '"]').scrollIntoView({ block: "start", behavior: "smooth" });
+    else $("#dall").style.display = "block";
+  });
+}
+function pasteFill() {
+  var n = 0, bad = [];
+  $("#paste").value.split(/\r?\n/).forEach(function (line) {
+    var k = line.indexOf("|||"); if (k < 0) return;
+    var name = line.slice(0, k).replace(/^[\s\-*#"`]+|[\s"`]+$/g, "").toLowerCase(), txt = line.slice(k + 3).trim();
+    var j = D.findIndex(function (d) { return d.topic.toLowerCase() === name; });
+    if (j < 0 || !txt) return bad.push(line.slice(0, k).trim());
+    D[j].draft = txt; D[j].saved = false; n++;
+    var ta = document.querySelector('textarea[data-d="' + j + '"]'); if (ta) ta.value = txt;
+    var card = document.querySelector('.card[data-d="' + j + '"]'); if (card) card.classList.remove("ok");
+    $("#dm" + j).textContent = "Filled, not saved.";
+  });
+  $("#psm").textContent = n + " filled" + (bad.length ? ", no match for: " + bad.join(", ") : "") + ". Check each, then Save.";
 }
 function loadDesc() { api("/api/describe").then(function (d) { D = d; render(); }); }
 function finView() {
-  return '<div class="card"><b>Step 4.</b> Rebuild the site data, then check it.<div class="bar" style="margin-top:8px"><button class="b pri" data-a="run" data-c="build"' + (busy ? " disabled" : "") + '>Build site data</button><button class="b" data-a="run" data-c="validate"' + (busy ? " disabled" : "") + '>Validate</button><button class="b" data-a="run" data-c="selftest"' + (busy ? " disabled" : "") + '>Self-test</button></div>' +
-    '<p class="mut">Then look at the result: start the site with <code>python -m http.server 8000 --directory web</code> and open <code>#/patch/&lt;version&gt;</code>. Commit and push are yours to do.</p></div>' + logBox();
+  var h = '<div class="card"><b>Step 4.</b> Rebuild the site data, validate it and run the self-test.<div class="bar" style="margin-top:8px"><button class="b pri" data-a="checks"' + (busy ? " disabled" : "") + '>Build, validate and self-test</button>' +
+    '<button class="b" data-a="run" data-c="build"' + (busy ? " disabled" : "") + '>Build only</button><button class="b" data-a="run" data-c="validate"' + (busy ? " disabled" : "") + '>Validate only</button><button class="b" data-a="run" data-c="selftest"' + (busy ? " disabled" : "") + '>Self-test only</button></div>' +
+    (CH.length ? '<div class="bar">' + CH.map(function (c) { return '<span class="tag" style="background:var(' + (c.ok ? "--ok);border-color:var(--okline" : "--bad);border-color:var(--badline") + ')">' + (c.ok ? "✓ " : "✗ ") + esc(c.cmd) + "</span>"; }).join("") + "</div>" : "") + "</div>";
+  if (SUM && SUM.versions.length) {
+    var ty = Object.keys(SUM.types).sort(function (x, y) { return SUM.types[y] - SUM.types[x]; }).map(function (k) { return k + " " + SUM.types[k]; }).join(" · ");
+    h += '<div class="card"><b>Last ingest:</b> ' + SUM.n + " rows in " + esc(SUM.versions.join(", ")) + "<br>" + esc(ty) +
+      (SUM.new_topics.length ? "<br>New topics: " + SUM.new_topics.map(function (x) { return esc(x.topic) + ' <span class="mut">(' + esc(x.hub) + ")</span>"; }).join(", ") : "<br>No new topics.") +
+      '<div class="bar" style="margin-top:8px">' + SUM.versions.slice(-4).map(function (v) { return '<a href="/site/#/patch/' + esc(v) + '" target="_blank">Patch ' + esc(v) + "</a>"; }).join(" · ") +
+      ' · <a href="/site/#/patchnotes" target="_blank">Patch Notes page</a> · <a href="/site/#/patches" target="_blank">Patch index</a></div>' +
+      '<p class="mut">Look at "Other changes" on the patch page, and at the Legacy candidates in the build log. Commit and push are yours to do.</p></div>';
+  }
+  return h + logBox();
+}
+function loadSum() { api("/api/summary").then(function (x) { SUM = x; if (tab === "fin") render(); }); }
+function runChecks() {
+  busy = true; CH = []; logTxt = ""; render();
+  var seq_ = ["build", "validate", "selftest"];
+  (function next(k) {
+    if (k >= seq_.length) { busy = false; return load().then(loadSum); }
+    logTxt += (logTxt ? "\n\n" : "") + "== " + seq_[k] + " ==\n"; render();
+    return api("/api/run", { cmd: seq_[k] }).then(function (r) {
+      logTxt += r.out; CH.push({ cmd: seq_[k], ok: r.ok });
+      if (!r.ok) { busy = false; return load(); }
+      return next(k + 1);
+    });
+  })(0);
 }
 function setField(i, f, val) {
   var r = rows[i], old = r[f]; r[f] = val.trim(); r._confirmed = false;
@@ -302,6 +367,7 @@ document.addEventListener("click", function (e) {
   var a = t.dataset.a, i = +t.dataset.i, r = rows[i];
   if (a === "tab") { tab = t.dataset.t; return render(); }
   if (a === "fetchprep") return fetchPrepare();
+  if (a === "checks") return runChecks();
   if (a === "run") return t.dataset.c === "prepare" && !replaceOk() ? undefined : run(t.dataset.c);
   if (a === "tag" || a === "plat") {
     var k = a === "tag" ? "tags" : "platforms", v = t.dataset.v, p = r[k].indexOf(v);
@@ -313,11 +379,12 @@ document.addEventListener("click", function (e) {
   if (a === "conf") return confirmRow(i);
   if (a === "sug") return setField(i, "entity", t.dataset.v);
   if (a === "open") { r._open = !r._open; return swapCard(i); }
-  if (a === "confsafe") { rows.forEach(function (x) { if (safe(x)) x._confirmed = true; }); cur = -1; save(); return render(); }
-  if (a === "split") { var c2 = JSON.parse(JSON.stringify(r)); c2._confirmed = false; c2._open = true; r._confirmed = false; rows.splice(i + 1, 0, c2); renum(); cur = i + 1; save(); return render(); }
-  if (a === "del") { skipped.push({ version: r.version, section: null, text: r.source }); rows.splice(i, 1); renum(); cur = Math.min(i, rows.length - 1); save(); return render(); }
+  if (a === "undo") return undo();
+  if (a === "confsafe") { snap("batch confirm"); rows.forEach(function (x) { if (safe(x)) x._confirmed = true; }); cur = -1; save(); return render(); }
+  if (a === "split") { snap("split"); var c2 = JSON.parse(JSON.stringify(r)); c2._confirmed = false; c2._open = true; r._confirmed = false; rows.splice(i + 1, 0, c2); renum(); cur = i + 1; save(); return render(); }
+  if (a === "del") { snap("leave out"); skipped.push({ version: r.version, section: null, text: r.source }); rows.splice(i, 1); renum(); cur = Math.min(i, rows.length - 1); save(); return render(); }
   if (a === "restore") {
-    var s = skipped[+t.dataset.j];
+    var s = skipped[+t.dataset.j]; snap("add back");
     return api("/api/restore", { version: s.version, text: s.text, section: s.section }).then(function (x) {
       if (!x.row) return alert("Could not make a row.");
       var at = rows.map(function (q) { return q.version; }).lastIndexOf(s.version); rows.splice(at + 1, 0, x.row); skipped.splice(+t.dataset.j, 1); renum(); save(); render();
@@ -330,11 +397,12 @@ document.addEventListener("click", function (e) {
       return load().then(function () { if (x.ok) { tab = "desc"; render(); } });
     });
   }
+  if (a === "promptall") return api("/api/prompt_all", { topics: D.map(function (d) { return d.topic; }) }).then(function (x) { copy(x.prompt); $("#pam").textContent = "Prompt copied."; });
+  if (a === "paste") return pasteFill();
+  if (a === "dkeep") { var q = +t.dataset.d; return saveDesc(q, D[q].current); }
   if (a === "prompt") { var d = D[+t.dataset.d]; return api("/api/prompt", { topic: d.topic }).then(function (x) { copy(x.prompt); $("#dm" + t.dataset.d).textContent = "Prompt copied."; }); }
-  if (a === "dsave") {
-    var j = +t.dataset.d, txt = document.querySelector('textarea[data-d="' + j + '"]').value;
-    return api("/api/describe/save", { topic: D[j].topic, text: txt }).then(function (x) { $("#dm" + j).textContent = x.ok ? "Saved. Run Build to mark it current." : x.out; });
-  }
+  if (a === "dsave") { var j = +t.dataset.d; return saveDesc(j, document.querySelector('textarea[data-d="' + j + '"]').value); }
+
 });
 document.addEventListener("change", function (e) {
   var t = e.target;
@@ -351,6 +419,7 @@ document.addEventListener("keydown", function (e) {
   if (k === "j" || k === "arrowdown") { if (list[p + 1] !== undefined) setCur(list[p + 1]); }
   else if (k === "k" || k === "arrowup") { if (p > 0) setCur(list[p - 1]); }
   else if (k === "enter" || k === " ") confirmRow(cur);
+  else if (k === "z") undo();
   else if (k === "u") { if (r._confirmed) confirmRow(cur); }
   else if (k === "e") { r._open = !r._open; swapCard(cur); }
   else if (k === "escape") { if (r._open) { r._open = false; swapCard(cur); } }
