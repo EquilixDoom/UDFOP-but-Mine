@@ -203,7 +203,7 @@
       view = P.viewControls({ ta: ta, hl: hl, hlBox: hlBox, pv: prev.parentNode, prev: prev, repaint: paintSoon, say: say, onPick: function (on) { pick.sync(on); render(); }, onEdit: function (on) { vis.sync(on); render(); } });
       pick = P.pickElement({ ta: ta, prev: prev, btn: document.getElementById("ed-pick"), repaint: paintSoon, reveal: reveal, say: say, toggle: function () { view.run("view.pick"); }, off: function () { view.setPick(false); } });
       pick.sync(view.picking());
-      vis = P.visualEditor({ ta: ta, prev: prev, btn: document.getElementById("ed-edit"), H: H, dlg: dlg, opts: function () { return lastRo; }, say: say, toggle: function () { view.run("view.edit"); }, off: function () { view.setEdit(false); },
+      vis = P.visualEditor({ ta: ta, prev: prev, btn: document.getElementById("ed-edit"), H: H, dlg: dlg, repaint: paintSoon, reveal: reveal, opts: function () { return lastRo; }, say: say, toggle: function () { view.run("view.edit"); }, off: function () { view.setEdit(false); },
         render: function () { clearTimeout(timer); persist(); render(); } });
       vis.sync(view.editing());
       var complete = P.completion({ ta: ta, hl: hl, multi: multi, H: H, say: say });   /* before the keys below, so that its Enter, Tab and Backspace come first */

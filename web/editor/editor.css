@@ -208,3 +208,110 @@ html[data-editor] .dock[data-dock] { display: none; }   /* the editor always sho
 .edw-handle .edw-grip { cursor: grab; touch-action: none; letter-spacing: -2px; }
 .edw-drop { position: fixed; z-index: 33; height: 3px; background: var(--accent); border-radius: 2px; pointer-events: none; }
 .edw-drop[hidden] { display: none; }
+
+/* Edit in Preview, polish: soft focus rings, floating bars that fade in, quiet buttons, a glowing drop line */
+.vedit [data-ln] { transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
+.vedit .vis-hot { outline: 0; border-radius: 4px; background: color-mix(in srgb, var(--accent) 9%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 9%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.vedit .vis-on { outline: 0; border-radius: 4px; background: color-mix(in srgb, var(--link) 7%, transparent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--link) 12%, transparent), 0 0 0 1.5px var(--link); caret-color: var(--link); }
+.edw-vbar { padding: 5px; gap: 2px; border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--paper) 88%, transparent); -webkit-backdrop-filter: blur(10px) saturate(1.3); backdrop-filter: blur(10px) saturate(1.3); box-shadow: 0 1px 2px rgba(0,0,0,.18), 0 10px 28px rgba(0,0,0,.32); animation: edw-pop .14s cubic-bezier(.2,.8,.3,1) both; transform-origin: 50% 100%; }
+.edw-vbar button, .edw-vbar select { min-height: 28px; padding: 2px 9px; border: 0; border-radius: 6px; background: transparent; transition: background-color .12s ease, color .12s ease, transform .08s ease; }
+.edw-vbar select { padding-right: 4px; background: color-mix(in srgb, var(--fg) 6%, transparent); }
+.edw-vbar button:hover:not(:disabled), .edw-vbar select:hover { background: color-mix(in srgb, var(--fg) 12%, transparent); }
+.edw-vbar button:active:not(:disabled) { transform: scale(.94); }
+.edw-vbar button:focus-visible, .edw-vbar select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.edw-vbar button[aria-pressed="true"] { background: var(--accent); color: var(--paper); box-shadow: 0 1px 4px color-mix(in srgb, var(--accent) 50%, transparent); }
+.edw-handle { transform-origin: 50% 0; }
+.edw-vmenu { gap: 1px; transform-origin: 50% 0; }
+.edw-vmenu button { padding: 5px 12px; border-radius: 6px; }
+.edw-handle .edw-grip { color: var(--muted); }
+.edw-handle .edw-grip:hover { color: var(--fg); }
+.edw-drop { height: 3px; border-radius: 3px; animation: edw-fade .1s ease both; }
+.edw-dlg { animation: edw-pop .16s cubic-bezier(.2,.8,.3,1) both; }
+@keyframes edw-pop { from { opacity: 0; transform: translateY(4px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes edw-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .vedit [data-ln], .edw-vbar button, .edw-vbar select { transition: none; } .edw-vbar, .edw-dlg, .edw-drop { animation: none; } }
+/* every block that can be edited carries a faint resting shade (the hover and edit states above are stronger) */
+.vedit :where([data-ln][data-bk="p"], [data-ln][data-bk="h"], [data-bk="list"], [data-bk="table"], [data-bk="code"], [data-bk="fig"], [data-bk="alert"], [data-bk="info"], [data-bk="quote"]):not(.vis-hot):not(.vis-on):not(.vis-sel) { background-image: linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 6%, transparent); border-radius: 4px; }
+.vedit .vis-hot { background-image: none; }
+/* more air between blocks while editing, so each block's shade and ring stay apart */
+.vedit :where([data-ln][data-bk="p"], [data-ln][data-bk="h"], [data-bk="code"], [data-bk="fig"], [data-bk="alert"], [data-bk="info"], [data-bk="quote"]) { margin-top: 1.1em; margin-bottom: 1.1em; }
+.vedit :where([data-ln][data-bk="li"]) { margin-top: .4em; margin-bottom: .4em; }
+/* a selected block (first click): a solid accent ring; the second click, Enter or F2 starts typing */
+.vedit .vis-sel { background-image: none; border-radius: 4px; background-color: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 14%, transparent), 0 0 0 1.5px var(--accent); }
+.vedit :where([data-ln][data-bk="p"], [data-ln][data-bk="h"], [data-bk="list"], [data-bk="table"], [data-bk="code"], [data-bk="fig"], [data-bk="alert"], [data-bk="info"], [data-bk="quote"]).vis-sel { background-image: none; }
+.vedit .vis-lift { opacity: .7; position: relative; z-index: 20; pointer-events: none; box-shadow: 0 10px 28px rgba(0,0,0,.4); transition: none; }
+.vedit { padding-left: 8px; }
+/* the shade reaches left into the margin: the block itself is wider, its text stays where it was */
+.vedit #gp > [data-ln] { padding-left: 24px; }
+.vedit [data-bk="list"] { cursor: text; }
+.vedit #gp > [data-ln][data-bk="list"]:not([data-bk="fig"]) { padding-left: 64px; }   /* the 40px indent of the bullets plus the 24px of shade on the left */
+.vedit #gp > [data-bk="fig"] { box-sizing: content-box; }   /* a picture has a set width: the extra 24px must come on top of it */
+/* a hand over any block that can be picked; the text cursor only while its words are being edited */
+.vedit #gp > [data-ln], .vedit #gp [data-ln][data-bk], .vedit #gp [data-bk="tr"] td, .vedit #gp [data-bk="tr"] th, .vedit #gp [data-bk="list"] { cursor: pointer; }
+.vedit #gp .vis-on[contenteditable] { cursor: text; }
+/* a picture's shaded box is part of the picture for the text around it: it keeps its own margins, so the text reflows around the whole shaded box */
+.vedit #gp > figure.fig-center { margin-left: auto; padding-left: 24px; padding-right: 24px; }   /* the shade reaches 24px out on both sides, so the picture itself stays centered */
+/* shaded boxes never overlap: a block beside a floated picture is narrowed to stay clear of the picture's box (and of the 24px it reaches into the margin) */
+.vedit #gp > [data-ln]:not(figure) { display: flow-root; }
+/* the grip in a block's left extension */
+.edw-lgrip { position: fixed; z-index: 31; pointer-events: none; box-sizing: border-box; width: 24px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center; font: 700 12px/1 system-ui, sans-serif; letter-spacing: -2px; color: var(--muted); background: transparent; border: 0; border-radius: 6px; animation: edw-fade .12s ease both; }
+.edw-lgrip[hidden] { display: none; }
+.vedit #gp > [data-ln]:not(.vis-on) { user-select: none; -webkit-user-select: none; }
+.vedit #gp > [data-ln]:active { cursor: grabbing; }
+/* where a picture goes: the drop line says so, and a dashed line marks where a floated picture is anchored now */
+.edw-drop[data-label]:not([data-label=""])::after, .edw-anchor::after { content: attr(data-label); position: absolute; left: 8px; top: 50%; transform: translateY(-50%); padding: 1px 8px; font: 600 11px/1.5 system-ui, sans-serif; border-radius: 999px; white-space: nowrap; }
+.edw-drop[data-label]:not([data-label=""])::after { color: var(--paper); background: var(--accent); }
+.edw-anchor { position: fixed; z-index: 28; height: 0; border-top: 2px dashed color-mix(in srgb, var(--accent) 70%, transparent); pointer-events: none; animation: edw-fade .12s ease both; }
+.edw-anchor[hidden] { display: none; }
+.edw-anchor::after { color: var(--accent); background: var(--paper); border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); }
+.edw-dropbox { position: fixed; z-index: 32; box-sizing: border-box; border: 2px dashed var(--accent); border-radius: 6px; background: color-mix(in srgb, var(--accent) 10%, transparent); pointer-events: none; animation: edw-fade .1s ease both; }
+.edw-dropbox[hidden] { display: none; }
+/* the width handle of a selected picture */
+.edw-resize { position: fixed; z-index: 31; width: 16px; height: 16px; box-sizing: border-box; border: 2px solid var(--paper); border-radius: 50%; background: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,.4); cursor: ew-resize; touch-action: none; animation: edw-fade .12s ease both; }
+.edw-resize[hidden] { display: none; }
+.edw-resize[data-label]::after { content: attr(data-label); position: absolute; left: 50%; top: -26px; transform: translateX(-50%); padding: 1px 8px; font: 600 11px/1.5 system-ui, sans-serif; white-space: nowrap; color: var(--paper); background: var(--accent); border-radius: 999px; }
+/* a little more air between blocks of every kind (lists and tables too), so the shade of one never nears the next */
+.vedit #gp > [data-ln] { margin-top: 24px; margin-bottom: 24px; }   /* in pixels, so that a heading's larger type does not make its gap larger */
+.vedit #gp > figure.fig-left, .vedit #gp > figure.fig-right { margin-top: 0; }   /* a picture to a side starts level with the text beside it (the text's own 24px is above both) */
+/* the button in a gap that adds a block: styled like the "Picture starts here" line, a dashed accent line with a small label */
+.edw-gap { position: fixed; z-index: 31; height: 20px; box-sizing: border-box; padding: 0; background: transparent; border: 0; cursor: pointer; animation: edw-fade .12s ease both; }
+.edw-gap[hidden] { display: none; }
+.edw-gap::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 0; border-top: 2px dashed color-mix(in srgb, var(--accent) 70%, transparent); }
+.edw-gap::after { content: "+ Add block"; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); padding: 1px 8px; font: 600 11px/1.5 system-ui, sans-serif; white-space: nowrap; color: var(--accent); background: var(--paper); border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); border-radius: 999px; }
+.edw-gap:hover::before { border-top-style: solid; border-top-color: var(--accent); }
+.edw-gap:hover::after { color: var(--paper); background: var(--accent); border-color: var(--accent); }
+.edw-gap:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.edw-anchor.edw-anchor-off { display: none; }
+/* a picture placed to the left or right: a thin strip as wide as the page sits above it (its place in the text), a block like the others with the same 24px around it; the picture hangs below it on its side and the text runs beside the picture */
+.vis-figbar { display: none; }
+.vedit #gp > .vis-figbar { display: block; box-sizing: border-box; height: 16px; margin: 24px 0; padding: 0 8px 0 24px; font: 600 10px/16px system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; border-radius: 3px; cursor: pointer; user-select: none; background-image: linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 6%, transparent); }
+.vedit #gp > .vis-figbar:has(+ .vis-hot) { background-image: none; background-color: color-mix(in srgb, var(--accent) 9%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 9%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.vedit #gp > .vis-figbar:has(+ .vis-sel) { background-image: none; background-color: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 14%, transparent), 0 0 0 1.5px var(--accent); }
+.vedit #gp > .vis-figbar.vis-lift { opacity: .7; position: relative; z-index: 20; pointer-events: none; box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+.vedit #gp > figure.fig-left + [data-ln], .vedit #gp > figure.fig-right + [data-ln] { margin-top: 0; }   /* the text beside a side picture starts level with the picture */
+.edw-dropbox.ghost { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 3%, transparent); opacity: .8; }
+/* square edges on blocks, strip and drop indicators */
+.vedit .vis-hot, .vedit .vis-on, .vedit .vis-sel, .vedit #gp > .vis-figbar, .vedit [data-ln][data-bk]:not(.vis-hot):not(.vis-on):not(.vis-sel) { border-radius: 0; }
+.edw-drop, .edw-gap, .edw-dropbox, .edw-dropbox.ghost { border-radius: 0; }
+.edw-lgrip { justify-content: flex-start; padding-left: 4px; }   /* the grip hugs the left edge of the block */
+/* the left extension carries a slightly stronger tint */
+.vedit #gp > [data-ln][data-bk]:not(.vis-hot):not(.vis-on):not(.vis-sel) { background-image: linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent), color-mix(in srgb, var(--accent) 7%, transparent)), linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)); background-size: 24px 100%, auto; background-repeat: no-repeat; background-position: left top, 0 0; }
+.vedit #gp > [data-ln][data-bk].vis-hot, .vedit #gp > [data-ln][data-bk].vis-on, .vedit #gp > [data-ln][data-bk].vis-sel { background-image: linear-gradient(color-mix(in srgb, var(--accent) 9%, transparent), color-mix(in srgb, var(--accent) 9%, transparent)); background-size: 24px 100%; background-repeat: no-repeat; background-position: left top; }
+/* the tint also covers the shading that spills past the left edge */
+.vedit #gp > [data-ln][data-bk]:not(.vis-hot):not(.vis-on):not(.vis-sel) { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 6%, transparent), -3px 0 0 color-mix(in srgb, var(--accent) 7%, transparent); }
+.vedit #gp > [data-ln][data-bk].vis-hot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 9%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), -4px 0 0 color-mix(in srgb, var(--accent) 9%, transparent); }
+.vedit #gp > [data-ln][data-bk].vis-on { box-shadow: 0 0 0 5px color-mix(in srgb, var(--link) 12%, transparent), 0 0 0 1.5px var(--link); }
+.vedit #gp > [data-ln][data-bk].vis-sel { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 14%, transparent), 0 0 0 1.5px var(--accent), -5px 0 0 color-mix(in srgb, var(--accent) 9%, transparent); }
+/* a thin, clearer strip along the left edge */
+.vedit #gp > [data-ln][data-bk]:not(.vis-hot):not(.vis-on):not(.vis-sel) { background-image: linear-gradient(color-mix(in srgb, var(--accent) 16%, transparent), color-mix(in srgb, var(--accent) 16%, transparent)), linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)); background-size: 16px 100%, auto; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 6%, transparent), -3px 0 0 color-mix(in srgb, var(--accent) 16%, transparent); }
+.vedit #gp > [data-ln][data-bk].vis-hot, .vedit #gp > [data-ln][data-bk].vis-on, .vedit #gp > [data-ln][data-bk].vis-sel { background-image: linear-gradient(color-mix(in srgb, var(--accent) 24%, transparent), color-mix(in srgb, var(--accent) 24%, transparent)); background-size: 16px 100%; }
+.vedit #gp > [data-ln][data-bk].vis-hot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 9%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), -4px 0 0 color-mix(in srgb, var(--accent) 24%, transparent); }
+.vedit #gp > [data-ln][data-bk].vis-sel { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 14%, transparent), 0 0 0 1.5px var(--accent), -5px 0 0 color-mix(in srgb, var(--accent) 24%, transparent); }
+/* the strip sits at the inner edge of the extension, against the text */
+.vedit #gp > [data-ln][data-bk]:not(.vis-hot):not(.vis-on):not(.vis-sel) { background-position: 0 top, 0 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 6%, transparent); }
+.vedit #gp > [data-ln][data-bk].vis-hot, .vedit #gp > [data-ln][data-bk].vis-on, .vedit #gp > [data-ln][data-bk].vis-sel { background-position: 0 top; }
+.vedit #gp > [data-ln][data-bk].vis-hot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 9%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.vedit #gp > [data-ln][data-bk].vis-sel { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 14%, transparent), 0 0 0 1.5px var(--accent); }
+/* picture strips carry the same left highlight */
+.vedit #gp > .vis-figbar { background-image: linear-gradient(color-mix(in srgb, var(--accent) 16%, transparent), color-mix(in srgb, var(--accent) 16%, transparent)), linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)); background-size: 16px 100%, auto; background-repeat: no-repeat; background-position: 0 top, 0 0; }
+.vedit #gp > .vis-figbar:has(+ .vis-hot), .vedit #gp > .vis-figbar:has(+ .vis-sel) { background-image: linear-gradient(color-mix(in srgb, var(--accent) 24%, transparent), color-mix(in srgb, var(--accent) 24%, transparent)); background-size: 16px 100%; background-repeat: no-repeat; background-position: 0 top; }

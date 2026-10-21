@@ -999,5 +999,17 @@ test("visual: moveBlockTo moves a block across several others", () => {
   assert.strictEqual(P.visual.moveBlockTo(JL("a", "b", "", "c"), [[1, 2], [4, 4]], 1, 0), JL("c", "", "a", "b"));
 });
 
+test("a picture is given a side, keeping its width and caption", () => {
+  const V = P.visual;
+  assert.strictEqual(V.setFigSide("a\n![x](p.png \"Cap\")\nb", 2, "left"), "a\n![x](p.png \"Cap\"){left}\nb");
+  assert.strictEqual(V.setFigSide("![x](p.png){right 240}", 1, "center"), "![x](p.png){center 240}");
+  assert.strictEqual(V.setFigSide("not a picture", 1, "left"), null);
+});
+test("a picture is given a width, keeping its side", () => {
+  const V = P.visual;
+  assert.strictEqual(V.setFigWidth("![x](p.png \"C\")", 1, 300), "![x](p.png \"C\"){300}");
+  assert.strictEqual(V.setFigWidth("![x](p.png){left 240}", 1, 100), "![x](p.png){left 100}");
+  assert.strictEqual(V.setFigWidth("![x](p.png){right 240px}", 1, 5000), "![x](p.png){right 1200}");
+});
 console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);
 process.exit(failed ? 1 : 0);
