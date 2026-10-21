@@ -378,7 +378,7 @@
     function rangeOf(el) { return P.pick.parseLn(el.getAttribute("data-ln")); }
     /* puts new text in the text box as one change (one Ctrl+Z), touching only what differs, and draws the preview again */
     function applyText(next, note) {
-      var d = diffEdit(ta.value, next), ok = false, keepTop = ta.scrollTop;
+      var d = diffEdit(ta.value, next), ok = false, keepTop = ta.scrollTop, pv = prev.parentNode, pvTop = pv.scrollTop;
       if (!d.repl && d.start === d.end) return;
       ta.focus({ preventScroll: true });
       ta.setSelectionRange(d.start, d.end);
@@ -386,7 +386,11 @@
       if (!ok || ta.value !== next) { ta.value = next; ta.dispatchEvent(new Event("input")); }
       ta.scrollTop = keepTop;
       ta.setSelectionRange(d.start, d.start + d.repl.length);
+      prev.style.minHeight = prev.offsetHeight + "px";   /* the page is drawn again: until its pictures load it would be shorter, and the scroll position would be pulled up with it */
       ctx.render();
+      pv.scrollTop = pvTop;   /* the change was made in the preview, so the preview stays where it is (the scroll sync would follow the text box) */
+      requestAnimationFrame(function () { pv.scrollTop = pvTop; });
+      setTimeout(function () { prev.style.minHeight = ""; }, 400);
       if (note) ctx.say(note);
     }
     function enterAt(first) {   /* the block that starts on line `first` goes into editing, its words selected; a block that cannot be edited here has its lines selected */
