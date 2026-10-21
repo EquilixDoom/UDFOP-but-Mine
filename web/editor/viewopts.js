@@ -3,10 +3,10 @@
   "use strict";
   var P = window.udfopEditor = window.udfopEditor || {};
   var KEY = "udfop.editor.view";
-  var DEFAULTS = { wrap: true, num: true, change: false, line: true, sync: true, pick: false, edit: false, ws: false, eol: false, np: false, cc: false, guide: false, wsym: false, ez: 14, pz: 1 };
+  var DEFAULTS = { wrap: true, num: true, change: false, line: true, sync: true, edit: false, ws: false, eol: false, np: false, cc: false, guide: false, wsym: false, ez: 14, pz: 1 };
   var EZ = [8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 28, 32, 40];   /* editor font sizes in pixels; 14 is the default */
   var PZ = [0.5, 0.67, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3];   /* preview sizes as a factor */
-  var TOGGLES = { "view.ws": "ws", "view.eol": "eol", "view.np": "np", "view.cc": "cc", "view.guide": "guide", "view.wsym": "wsym", "view.sync": "sync", "view.pick": "pick", "view.edit": "edit", "view.wrap": "wrap", "view.num": "num", "view.change": "change", "view.line": "line" };
+  var TOGGLES = { "view.ws": "ws", "view.eol": "eol", "view.np": "np", "view.cc": "cc", "view.guide": "guide", "view.wsym": "wsym", "view.sync": "sync", "view.edit": "edit", "view.wrap": "wrap", "view.num": "num", "view.change": "change", "view.line": "line" };
   var SYMBOLS = ["ws", "eol", "np", "cc"];   /* what Show All Characters switches */
 
   /* ---- pure parts ---- */
@@ -109,9 +109,8 @@
         if (drawn) (drawn.carets || []).forEach(function (c) { cur[lineAt(text, c)] = true; });
       }
       var sym = S.ws || S.eol || S.np || S.cc || S.guide ? { ws: S.ws, eol: S.eol, np: S.np, cc: S.cc, guide: S.guide } : null;
-      var pk = drawn && drawn.pick;   /* Pick mode: the rows of the block under the pointer in the preview */
       return P.highlightRows(text, drawn, { sym: sym, cls: function (i) {
-        return (cur[i] ? "cur" : "") + (S.change && states[i] ? (cur[i] ? " " : "") + (states[i] === 1 ? "cm" : "cs") : "") + (pk && i >= pk[0] && i <= pk[1] ? " pk" : "");
+        return (cur[i] ? "cur" : "") + (S.change && states[i] ? (cur[i] ? " " : "") + (states[i] === 1 ? "cm" : "cs") : "");
       } });
     }
     /* ---- wrap marks: one at the end of every line of the text that continues on the next row ---- */
@@ -187,19 +186,14 @@
       S[key] = value === undefined ? !S[key] : value;
       save(); apply(); ctx.repaint(); marksSoon();
       if (key === "sync" || key === "wrap") follow("ed");
-      if (key === "pick" && S.pick && S.edit) { S.edit = false; save(); apply(); if (ctx.onEdit) ctx.onEdit(false); }   /* Pick and Edit both answer a click in the preview: one at a time */
-      if (key === "edit" && S.edit && S.pick) { S.pick = false; save(); apply(); if (ctx.onPick) ctx.onPick(false); }
-      if (key === "pick" && ctx.onPick) ctx.onPick(S.pick);
       if (key === "edit" && ctx.onEdit) ctx.onEdit(S.edit);
     }
     var ctl = {
       rows: rows,
       after: function () { hl.style.setProperty("--sl", ta.scrollLeft + "px"); marksSoon(); },
       resync: function () { follow("ed"); },
-      picking: function () { return S.pick; },
       editing: function () { return S.edit; },
       setEdit: function (on) { if (S.edit !== on) toggle("edit", on); },
-      setPick: function (on) { if (S.pick !== on) toggle("pick", on); },
       resetChanges: function () { resetNext = true; },
       markSaved: function () { states = P.viewOpts.saved(states); ctx.repaint(); },
       checked: function (cmd) {

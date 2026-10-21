@@ -35,7 +35,7 @@
         ["Show Space and Tab", null, "view.ws", 1], ["Show End of Line", null, "view.eol", 1], ["Show Non-Printing Characters", null, "view.np", 1], ["Show Control Characters & Unicode EOL", null, "view.cc", 1], ["Show All Characters", null, "view.all", 1], SEP,
         ["Show Indent Guide", null, "view.guide", 1], ["Show Wrap Symbol", null, "view.wsym", 1]]],
       ["Zoom", [["Zoom In", "Ctrl++", "view.zoomin"], ["Zoom Out", "Ctrl+-", "view.zoomout"], ["Restore Default Zoom", "Ctrl+0", "view.zoom0"]]],
-      ["Synchronized Scroll", null, "view.sync", 1], ["Pick Element", null, "view.pick", 1], ["Edit in Preview", null, "view.edit", 1], ["Word Wrap", null, "view.wrap", 1], SEP,
+      ["Synchronized Scroll", null, "view.sync", 1], ["Edit in Preview", null, "view.edit", 1], ["Word Wrap", null, "view.wrap", 1], SEP,
       ["Margin", [["Line Number", null, "view.num", 1], ["Change History", null, "view.change", 1]]], SEP,
       ["Current Line Indicator", null, "view.line", 1]]],
     ["Format", [

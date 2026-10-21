@@ -18,7 +18,7 @@
       '<div class="edw-stack"><div class="edw-hl edw-code" aria-hidden="true"><div id="ed-hl"></div></div><textarea id="ed-text" class="edw-code" spellcheck="true" aria-label="Page source (Markdown)"></textarea></div><div id="ed-prob" class="edw-prob" hidden><div id="ed-ph" class="edw-ph" role="separator" aria-orientation="horizontal" aria-label="Resize the Problems panel" tabindex="0"></div>' +
       '<div class="edw-pbar"><strong>Problems</strong><small id="ed-pn"></small><span class="edw-grow"></span><button type="button" id="ed-pclose" aria-label="Close the Problems panel">Close</button></div><div id="ed-plist" class="edw-plist"></div></div>' +
       '<div class="edw-sbar"><span id="ed-pos"></span><span id="ed-words"></span><span class="edw-grow"></span><small id="ed-note"></small></div></section>' +
-      '<section class="edw-pane" aria-label="Preview"><div class="edw-pbar"><strong>Preview</strong><span class="edw-grow"></span><button type="button" id="ed-edit" class="edw-tg" aria-pressed="false" title="Edit in Preview: click a paragraph or heading in the preview to change its text there (Enter saves, Esc cancels)">Edit</button><button type="button" id="ed-pick" class="edw-tg" aria-pressed="false" title="Pick Element: hover a block to mark its lines in the text, click to select them (Esc turns it off)">Pick</button><small id="ed-file"></small></div>' +
+      '<section class="edw-pane" aria-label="Preview"><div class="edw-pbar"><strong>Preview</strong><span class="edw-grow"></span><button type="button" id="ed-edit" class="edw-tg" aria-pressed="false" title="Edit in Preview: click a paragraph or heading in the preview to change its text there (Enter saves, Esc cancels)">Edit</button><small id="ed-file"></small></div>' +
       '<div class="edw-pv" tabindex="0"><article id="ed-prev"></article></div><div class="edw-sbar"><span id="ed-size"></span></div></section></div></div>';
     return { title: "Guide editor", html: h, toc: false, after: function () {
       var ta = document.getElementById("ed-text"), prev = document.getElementById("ed-prev"), gh = document.getElementById("ed-gh"), note = document.getElementById("ed-note"), chip = document.getElementById("ed-chip"), fileEl = document.getElementById("ed-file"), sizeEl = document.getElementById("ed-size"), prob = document.getElementById("ed-prob"), problems = [], errors = [], plist = document.getElementById("ed-plist"), timer = null, long = false;
@@ -34,7 +34,6 @@
       var hl = document.getElementById("ed-hl"), hlBox = hl.parentNode, paintQueued = false;
       var shown = [];   /* the rows now in the colored copy */
       var find = null;   /* the Find / Replace bar (search.js) */
-      var pick = null;   /* Pick mode (pick.js) */
       var lastRo = null;   /* the options the preview was last drawn with */
       var vis = null;   /* Edit in Preview (visual.js) */
       var view = null;   /* the View menu's settings and margin (viewopts.js) */
@@ -51,8 +50,6 @@
         paintQueued = false;
         var drawn = multi ? multi.draw(document.activeElement !== ta) : null, found = find ? find.draw() : null;
         if (found) drawn = { ranges: drawn ? drawn.ranges : [], carets: drawn ? drawn.carets : [], finds: found };
-        var picked = pick ? pick.draw() : null;
-        if (picked) drawn = { ranges: drawn ? drawn.ranges : [], carets: drawn ? drawn.carets : [], finds: drawn ? drawn.finds : null, pick: picked };
         var rows = view ? view.rows(ta.value, drawn) : P.highlightRows(ta.value, drawn), n = rows.length, m = shown.length, a = 0, b = 0;
         while (a < n && a < m && rows[a] === shown[a]) a++;
         while (b < n - a && b < m - a && rows[n - 1 - b] === shown[m - 1 - b]) b++;
@@ -131,14 +128,13 @@
         showProblems();
         var fm = frontMatter(ta.value), t = fm.meta.title || "Untitled page", html;
         var ro = editing ? { area: "guide", key: "guide|" + editing, base: editing.indexOf("/") >= 0 ? editing.replace(/[^/]*$/, "") : "" } : { area: "guide", key: "guide|\u0000editor" };
-        if (view && (view.picking() || view.editing())) ro.lines = ta.value.split("\n").length - fm.body.split("\n").length;   /* the lines before the body: each block then carries its line numbers */
+        if (view && (view.editing())) ro.lines = ta.value.split("\n").length - fm.body.split("\n").length;   /* the lines before the body: each block then carries its line numbers */
         lastRo = ro;
         try { html = H.renderDoc(fm.body, t, ro); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
         /* the title and the breadcrumb a reader sees above the page (no breadcrumb for an unlisted page); the category link is the one the page will have in the lists */
         var unlisted = /^(yes|true|1|on)$/i.test((fm.meta.unlisted || "").trim()), cat = (fm.meta.category || "").replace(/\s+/g, " ").trim() || "General";
         prev.innerHTML = '<h1 class="title">' + esc(t) + "</h1>" + (unlisted ? "" : '<div class="hat breadcrumbs">' + H.GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a></div>") + '<div id="gp">' + html + "</div>";
         if (view) view.resync();
-        if (pick) pick.clear();
         if (vis) vis.clear();
         if (editing) {   /* an existing page: GitHub's edit page cannot be given new text in the address, so the page is copied and pasted over the old text there */
           long = true;
@@ -200,9 +196,7 @@
       var editCmd = P.editCommands({ ta: ta, say: say });
       multi = P.multiSelect({ ta: ta, hl: hl, repaint: paintSoon, say: say, reveal: reveal });
       find = P.findBar({ ta: ta, say: say, repaint: paintSoon, reveal: reveal, clear: function () { multi.clear(); }, selectAll: function (r, i) { multi.selectRanges(r, i); } });
-      view = P.viewControls({ ta: ta, hl: hl, hlBox: hlBox, pv: prev.parentNode, prev: prev, repaint: paintSoon, say: say, onPick: function (on) { pick.sync(on); render(); }, onEdit: function (on) { vis.sync(on); render(); } });
-      pick = P.pickElement({ ta: ta, prev: prev, btn: document.getElementById("ed-pick"), repaint: paintSoon, reveal: reveal, say: say, toggle: function () { view.run("view.pick"); }, off: function () { view.setPick(false); } });
-      pick.sync(view.picking());
+      view = P.viewControls({ ta: ta, hl: hl, hlBox: hlBox, pv: prev.parentNode, prev: prev, repaint: paintSoon, say: say, onEdit: function (on) { vis.sync(on); render(); } });
       vis = P.visualEditor({ ta: ta, prev: prev, btn: document.getElementById("ed-edit"), H: H, dlg: dlg, repaint: paintSoon, reveal: reveal, opts: function () { return lastRo; }, say: say, toggle: function () { view.run("view.edit"); }, off: function () { view.setEdit(false); },
         render: function () { clearTimeout(timer); persist(); render(); } });
       vis.sync(view.editing());

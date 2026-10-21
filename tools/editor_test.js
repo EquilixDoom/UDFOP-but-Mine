@@ -890,7 +890,6 @@ test("pick: parseLn and within", () => {
   assert.strictEqual(P.pick.within(t, 1, 1, "big"), null);
   assert.strictEqual(P.pick.within(t, 2, 2, "  "), null);
 });
-test("pick is off by default and is a View toggle", () => assert.strictEqual(P.viewOpts.DEFAULTS.pick, false));
 
 test("edit: off by default and a View toggle", () => assert.strictEqual(P.viewOpts.DEFAULTS.edit, false));
 test("visual: replaceLines swaps only the block's lines", () => {

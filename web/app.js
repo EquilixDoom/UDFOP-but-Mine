@@ -966,7 +966,7 @@
   }
   var mdRoot = "guide/";   /* "guide/" or "site/": which section's folder the page being rendered is in */
   var mdBase = "";   /* folder of the page being rendered, so pictures resolve next to it */
-  /* ln0: with a number, every block gets data-ln="first-last", its lines in the source (1-based; ln0 lines come before src). The editor's Pick mode reads it. Left out, nothing is added. */
+  /* ln0: with a number, every block gets data-ln="first-last", its lines in the source (1-based; ln0 lines come before src). The editor reads it. Left out, nothing is added. */
   function markdown(src, title, ln0) {
     var lines = src.replace(/\r\n?/g, "\n").split("\n"), out = [], i = 0, first = true, figSince = false, at0 = 0;
     function emit(h, from, to, bk) { out.push(ln0 === undefined ? h : lnTag(h, ln0 + from + 1, ln0 + to + 1, bk)); }
