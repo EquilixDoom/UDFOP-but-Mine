@@ -23,7 +23,7 @@ D = "data"
 NOTES = f"{D}/release_notes.md"
 ALL = f"{D}/normalized/all.jsonl"
 RELS = f"{D}/normalized/releases.jsonl"
-SOURCES = f"{D}/normalized/sources.jsonl"   # verbatim bullet text, kept local (git-ignored)
+SOURCES = f"{D}/normalized/sources.jsonl"   # the developer's bullet for each row, shown on the site
 TAX = f"{D}/normalized/taxonomy.json"
 HUBS = f"{D}/hub_assignment.csv"
 INBOX = f"{D}/inbox"
@@ -490,12 +490,48 @@ def norm_src(s):
     return re.sub(r"[^a-z0-9]+", " ", clean(s).lower()).strip()
 
 
+def cmd_sources(a):
+    """Fill in sources.jsonl for rows that have none by matching each row to a bullet of its release (needs release_notes.md)."""
+    rows = read_jsonl(ALL)
+    src = {r["id"]: r["source"] for r in read_jsonl(SOURCES)} if os.path.exists(SOURCES) else {}
+    if not os.path.exists(NOTES):
+        sys.exit("needs data/release_notes.md: run `python tools/notes.py fetch` first.")
+    rels = {r["version"]: r for r in parse_notes()}
+    by_ver = defaultdict(list)
+    for r in rows:
+        by_ver[r["version"]].append(r)
+    words = lambda s: set(w for w in norm_src(s).split() if len(w) > 2)
+    found, unsure = {}, []
+    for v, rs in by_ver.items():
+        miss = [r for r in rs if r["id"] not in src]
+        if not miss:
+            continue
+        bl = [b["text"] for b in bullets_of(rels[v])[0]] if v in rels else []
+        for r in miss:
+            rw = words(re.sub(r"^[^:]*: ", "", r["summary"]) + " " + (r.get("dev_note") or ""))
+            head = norm_src(re.sub(r"^[^:]*: ", "", r["summary"]))
+            sc = [(len(rw & words(b)) / max(len(rw), 1) + (0.5 if norm_src(b).startswith(head) else 0), i) for i, b in enumerate(bl)]
+            sc.sort(reverse=True)
+            if sc and sc[0][0] >= a.min_score and (len(sc) < 2 or sc[0][0] > sc[1][0]):
+                found[r["id"]] = bl[sc[0][1]]
+            else:
+                unsure.append((r["id"], r["summary"], [(round(s, 2), bl[i][:80]) for s, i in sc[:2]]))
+    print(f"{len(found)} rows matched, {len(unsure)} unmatched")
+    for u in unsure:
+        print("  ", u)
+    if a.dry_run:
+        return
+    allsrc = dict(src, **found)
+    write_jsonl(SOURCES, [{"id": r["id"], "source": allsrc[r["id"]]} for r in rows if r["id"] in allsrc], "w")
+    print(f"wrote {SOURCES}: {len(allsrc)} of {len(rows)} rows now have a source")
+
+
 def cmd_backtest(a):
     rows = read_jsonl(ALL)
     src = {r["id"]: r["source"] for r in read_jsonl(SOURCES)}
     if not src or not os.path.exists(NOTES):
         sys.exit("backtest needs the original release text, which is not stored in the repo. Run `python tools/notes.py fetch` "
-                 "to download data/release_notes.md, and restore data/normalized/sources.jsonl (kept locally, git-ignored).")
+                 "to download data/release_notes.md, and make sure data/normalized/sources.jsonl is present.")
     rows = [dict(r, source=src[r["id"]]) for r in rows if r["id"] in src]   # rows with no local source text cannot be scored
     rels = [r for r in parse_notes() if r["has_body_notes"]]
     rels = sorted(rels, key=lambda r: vkey(r["version"]))[-a.last:]
@@ -800,6 +836,8 @@ def cmd_validate(a):
     src = {r["id"] for r in read_jsonl(SOURCES)}
     if src and not src <= seen:
         errs.append(f"sources.jsonl has {len(src - seen)} id(s) that are not in all.jsonl")
+    if seen - src:
+        errs.append(f"{len(seen - src)} row(s) have no source in sources.jsonl (run: python tools/notes.py sources), e.g. " + ", ".join(sorted(seen - src)[:5]))
     artifact = re.compile(r"\[cite\b|\b(TODO|FIXME|TBD)\b")      # leftovers from drafting; 210 "[cite: N]" markers once got in
     for f in sorted(glob.glob(f"{DESC}/*.txt")):
         for n, line in enumerate(open(f, encoding="utf-8"), 1):
@@ -916,11 +954,11 @@ def cmd_status(a):
     print(f"pending (in notes, not ingested): {', '.join(r['version'] for r in pend) or 'none'}")
     src = {r["id"] for r in read_jsonl(SOURCES)}
     if not src:
-        print("sources.jsonl: missing or empty (git-ignored; selftest and backtest need it)")
+        print("sources.jsonl: missing or empty (the site shows these bullets; restore it from git)")
     else:
         nosrc = [r for r in rows if r["id"] not in src]
         print(f"rows without local source text: {len(nosrc)} in {len({r['version'] for r in nosrc})} release(s); "
-              "sources.jsonl is local-only, so rows another maintainer ingested on their own machine have none here (backtest skips them)")
+              "run `python tools/notes.py sources` to fill them in from data/release_notes.md")
     print(f"inbox rows.jsonl present: {os.path.exists(f'{INBOX}/rows.jsonl')}")
     stale, _, _ = stale_topics()
     print(f"stale descriptions: {len(stale)}")
@@ -934,12 +972,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     for name, fn in [("status", cmd_status), ("fetch", cmd_fetch), ("prepare", cmd_prepare), ("approve", cmd_approve),
-                     ("ingest", cmd_ingest), ("describe", cmd_describe), ("build", cmd_build), ("validate", cmd_validate), ("backtest", cmd_backtest), ("selftest", cmd_selftest), ("backup", cmd_backup), ("relmeta", cmd_relmeta)]:
+                     ("ingest", cmd_ingest), ("describe", cmd_describe), ("build", cmd_build), ("validate", cmd_validate), ("backtest", cmd_backtest), ("selftest", cmd_selftest), ("backup", cmd_backup), ("relmeta", cmd_relmeta), ("sources", cmd_sources)]:
         p = sp.add_parser(name)
         p.add_argument("--dry-run", action="store_true")
         p.add_argument("--force", action="store_true", help="prepare: overwrite an existing rows.draft.jsonl")
         p.add_argument("--check", action="store_true", help="build: write nothing, exit 1 if web/data.js or web/shards/ are out of date")
         p.add_argument("--last", type=int, default=25, help="backtest: how many recent releases to score")
+        p.add_argument("--min-score", type=float, default=0.6, help="sources: lowest word-overlap score accepted")
         p.set_defaults(fn=fn)
     a = ap.parse_args()
     a.fn(a)

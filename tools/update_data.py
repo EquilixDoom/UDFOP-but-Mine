@@ -27,13 +27,21 @@ rows = [json.loads(l) for l in open('data/normalized/all.jsonl', encoding='utf-8
 alias = {m['from']: m['to'] for m in csv.DictReader(open('data/merges.csv', encoding='utf-8'))
          if m['recommend'] == 'merge' and m['from'] != m['to']}
 hub = {h['topic']: h['primary_hub'] for h in csv.DictReader(open('data/hub_assignment.csv', encoding='utf-8'))}
+# x is the developer's own bullet (sources.jsonl), unchanged apart from Markdown emphasis marks; the wiki's wording is only a fallback
+src = {d['id']: d['source'] for d in map(json.loads, open('data/normalized/sources.jsonl', encoding='utf-8'))}
 out = []
 for r in rows:
     e = alias.get(r['entity'], r['entity']); s = r['summary']
     for p in (r['entity'] + ': ', e + ': '):
         if s.startswith(p): s = s[len(p):]; break
+    o = src.get(r['id'])
+    n = r['dev_note']
+    if o:
+        o = o.replace('**', '').replace('`', '')
+        if n and n.lower()[:25] in o.lower(): n = ''   # the bullet already says it
+        s = o
     out.append(dict(id=r['id'], v=r['version'], d=r['date'], s=r['system'], e=e, t=r['change_type'],
-                    r=r['direction'], x=s, g=r['tags'], n=r['dev_note']))
+                    r=r['direction'], x=s, g=r['tags'], n=n))
 nrows = Counter(r['version'] for r in rows)
 # per release: u = Update name, t = title, k = kind (release, likely-hotfix, bulk-import), c = recorded changes, tier only when set
 rels = {}

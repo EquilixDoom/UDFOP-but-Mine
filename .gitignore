@@ -9,9 +9,8 @@ __pycache__/
 .claude/settings.local.json
 .claude/CLAUDE.md
 
-# the developer's verbatim release text stays on your machine (re-download with: python tools/notes.py fetch)
+# the full downloaded release text stays on your machine (re-download with: python tools/notes.py fetch); the per-row bullets in data/normalized/sources.jsonl are committed
 data/release_notes.md
-data/normalized/sources.jsonl
 
 web/guide/index.json
 web/guide/images.json

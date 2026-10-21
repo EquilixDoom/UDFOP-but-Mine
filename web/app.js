@@ -192,7 +192,7 @@
   function typeTag(r) { return '<span class="tp" data-type="' + esc(r.t) + '"' + (r.t === "Other" ? ' title="Not sorted into a more specific type"' : "") + ">" + esc(r.t) + "</span>"; }
   var DIR_TITLE = { "+": "Increased", "\u2212": "Decreased", "~": "Changed, neither clearly up nor down" };
   function dir(r) { return r.r === "+" ? " (increase)" : r.r === "−" ? " (decrease)" : ""; }
-  function text(r) { return esc(cap(r.x)) + (r.n ? '<span class="dev">Developer note: ' + esc(r.n) + "</span>" : ""); }
+  function text(r) { return esc(r.x) + (r.n ? '<span class="dev">Developer note: ' + esc(r.n) + "</span>" : ""); }
 
   var HOME_HAT = '<a href="#/">Main Page</a>';   /* every breadcrumb starts at the Main Page */
   var PN_HAT = HOME_HAT + ' › <a href="#/patchnotes">Patch Notes</a> › ';   /* every patch-notes page starts its breadcrumb here */
@@ -558,7 +558,7 @@
     var h = '<div class="pager">' + (i < allVersions.length - 1 ? '<a href="#/patch/' + enc(allVersions[i + 1]) + '">← Older: ' + esc(allVersions[i + 1]) + "</a>" : "") +
       (i > 0 ? '<a href="#/patch/' + enc(allVersions[i - 1]) + '">Newer: ' + esc(allVersions[i - 1]) + " →</a>" : "") + "</div>";
     h += "<p><b>Patch " + esc(v) + "</b>" + (rel && rel.t ? " (" + esc(rel.t) + ")" : "") + " was released on " + esc(dateOf(v)) + ". " + (l.length ? "It records " + plural(l.length, "change") + " to " + plural(names.length, "topic") + "." : "It has no recorded changes in this wiki.") + relTags(v) + "</p>";
-    h += '<p class="srcnote">These changes are compiled from the developers&rsquo; notes. <a href="' + RELEASES_URL + "/tag/app-v" + enc(v) + '" rel="noopener">Read the original release notes for patch ' + esc(v) + " on GitHub ↗</a></p>";   /* every release's tag is app-v plus its version */
+    h += '<p class="srcnote">Each change shows the developers&rsquo; own wording. <a href="' + RELEASES_URL + "/tag/app-v" + enc(v) + '" rel="noopener">Read the original release notes for patch ' + esc(v) + " on GitHub ↗</a></p>";   /* every release's tag is app-v plus its version */
     var mode = routeQuery.group === "topic" ? "topic" : "type";
     if (l.length) h += groupSwitch("#/patch/" + enc(v), mode, { type: plural(typeGroupCount(l), "group"), topic: plural(names.length, "topic") });
     if (!l.length) h += "<p>No change is recorded for this patch here. The developers&rsquo; original notes, linked above, may say more.</p>";
@@ -637,7 +637,7 @@
       sec("Site framework", "Site framework", 3) +
       '<p>The site&rsquo;s framework was built with an AI assistant (Claude, through Claude Code): the page code and the build scripts were written with its help, and directed and reviewed by the maintainer. Bugs in any of it can be reported on <a href="#/feedback">Feedback &amp; Bugs</a>.</p>' +
       sec("Patch Notes", "Patch Notes", 3) +
-      '<p>Every change in the Patch Notes comes from the <a href="' + RELEASES_URL + '" rel="noopener">public release notes</a> of the developers&rsquo; GitHub repository, which remain the authoritative record. A script compiles them for each release. Each change is condensed into a short plain sentence (many keep the developers&rsquo; own wording), filed under a topic, a game system and a type, and linked back to the pull requests it came from.</p>' +
+      '<p>Every change in the Patch Notes comes from the <a href="' + RELEASES_URL + '" rel="noopener">public release notes</a> of the developers&rsquo; GitHub repository, which remain the authoritative record. A script compiles them for each release. Each change shows the developers&rsquo; own wording, one bullet per change, filed under a topic, a game system and a type, and linked back to the pull requests it came from.</p>' +
       "<p>The opening paragraph of each topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history. These paragraphs can be wrong or out of date, so the <b>History</b> table on each page is the thing to trust. Corrections are welcome.</p>" +
       sec("Site Guide and editor", "Site Guide and editor", 3) +
       '<p>The <a href="#/site">Site Guide</a> and the in-browser <a href="#/editor">guide editor</a> were also written with the help of the same AI assistant, and directed and reviewed by the maintainer.</p>';
