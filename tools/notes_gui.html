@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Release Notes Tool</title>
+<style>
+:root{--bg:#f6f4ee;--fg:#1f1d19;--mut:#6b665c;--card:#fff;--line:#d9d4c7;--acc:#7a4b12;--flag:#fff1c9;--flagline:#c98a00;--ok:#e3f3df;--okline:#3c8a31;--bad:#fbe3df;--badline:#b3392b}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1a17;--fg:#ece8dd;--mut:#a39d8e;--card:#25231f;--line:#3d3a33;--acc:#e0b36a;--flag:#473a14;--flagline:#d39a1c;--ok:#1f3a1c;--okline:#5db04f;--bad:#4a2420;--badline:#e0685a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,sans-serif}
+header{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;align-items:center;position:sticky;top:0;background:var(--bg);z-index:5}
+h1{font-size:18px;margin:0 12px 0 0}
+nav button{background:none;border:0;color:var(--fg);padding:6px 12px;font:inherit;cursor:pointer;border-bottom:2px solid transparent}
+nav button.on{border-color:var(--acc);font-weight:600}
+main{max-width:1000px;margin:0 auto;padding:16px}
+button.b,select,input,textarea{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:4px;padding:5px 8px}
+button.b{cursor:pointer}button.b:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;margin:0 0 12px}
+.card.ok{border-left:4px solid var(--okline)}.card.un{border-left:4px solid var(--flagline)}
+.src{background:var(--bg);border-radius:4px;padding:8px;margin:6px 0 10px;white-space:pre-wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+label{display:block;font-size:12px;color:var(--mut)}label>*{display:block;width:100%;margin-top:2px}
+.f{background:var(--flag)!important;border-color:var(--flagline)!important}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.chip{border:1px solid var(--line);border-radius:12px;padding:1px 9px;font-size:12px;cursor:pointer;user-select:none}
+.chip.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.row-h{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.tag{font-size:12px;border-radius:10px;padding:1px 8px;border:1px solid var(--flagline);background:var(--flag)}
+.tag.new{border-color:var(--badline);background:var(--bad)}
+.mut{color:var(--mut)}.log{white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:8px;max-height:300px;overflow:auto;font:12px/1.4 ui-monospace,monospace}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+.warn{background:var(--bad);border:1px solid var(--badline);border-radius:4px;padding:6px 10px;margin:0 0 8px}
+textarea{width:100%;min-height:80px}
+</style>
+</head>
+<body>
+<header><h1>Release Notes Tool</h1>
+<nav><button data-t="home" class="on">1 Get notes</button><button data-t="rows">2 Review rows</button><button data-t="desc">3 Descriptions</button><button data-t="fin">4 Build &amp; check</button></nav>
+<span id="stat" class="mut"></span></header>
+<main id="m"></main>
+<script>
+"use strict";
+var S = null, rows = [], skipped = [], tab = "home", filter = "unconf", logTxt = "", busy = false, saveT = null, D = null;
+var $ = function (s) { return document.querySelector(s); };
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function api(path, body) {
+  return fetch(path, body === undefined ? undefined : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); });
+}
+function load() {
+  return api("/api/state").then(function (s) {
+    S = s; rows = s.draft.map(function (r) { r._confirmed = !!s.confirmed[r.id]; return r; }); skipped = s.skipped; render();
+  });
+}
+function save() { clearTimeout(saveT); saveT = setTimeout(function () { api("/api/save", { rows: rows, skipped: skipped }); }, 500); }
+function run(cmd) {
+  busy = true; logTxt = "Running " + cmd + "…"; render();
+  return api("/api/run", { cmd: cmd }).then(function (r) { logTxt = r.out; busy = false; return load(); });
+}
+/* ---------- views ---------- */
+function render() {
+  document.querySelectorAll("nav button").forEach(function (b) { b.classList.toggle("on", b.dataset.t === tab); });
+  var un = rows.filter(function (r) { return !r._confirmed; }).length;
+  $("#stat").textContent = S ? S.rows_total + " rows stored, newest " + S.last_version + " · " + S.pending.length + " pending · " + (rows.length ? un + " of " + rows.length + " draft rows unconfirmed" : "no draft") : "";
+  var v = { home: home, rows: reviewView, desc: descView, fin: finView }[tab];
+  var scroll = window.scrollY; $("#m").innerHTML = v(); window.scrollTo(0, scroll);
+  if (tab === "desc" && !D) loadDesc();
+}
+function logBox() { return logTxt ? '<div class="log">' + esc(logTxt) + "</div>" : ""; }
+function home() {
+  var h = '<div class="card"><b>Step 1.</b> Download new releases from GitHub, then build the draft rows. The draft is rule-based guesses: nothing is final until you confirm each row.<div class="bar" style="margin-top:8px">' +
+    '<button class="b" data-a="run" data-c="fetch"' + (busy ? " disabled" : "") + '>Fetch new releases</button>' +
+    '<button class="b pri" data-a="run" data-c="prepare"' + (busy || !S.pending.length ? " disabled" : "") + '>Prepare draft rows</button>' +
+    '<button class="b" data-a="run" data-c="status"' + (busy ? " disabled" : "") + '>Status</button></div>';
+  if (!S.have_notes) h += '<div class="warn">data/release_notes.md is missing. Press Fetch.</div>';
+  if (S.behind) h += '<div class="warn">Local notes end at ' + esc(S.behind[0]) + " but rows reach " + esc(S.behind[1]) + ". Press Fetch.</div>";
+  h += "<p>Pending releases: " + (S.pending.length ? S.pending.map(function (p) { return "<b>" + esc(p.version) + "</b> (" + esc(p.date) + (p.body ? "" : ", PR titles only") + ")"; }).join(", ") : "none") + "</p>";
+  if (rows.length) h += '<p>A draft with ' + rows.length + ' rows is waiting. <button class="b" data-a="tab" data-t="rows">Review rows →</button></p>';
+  return h + "</div>" + logBox();
+}
+function isNew(t) { return !S.topics.some(function (x) { return x.name === t; }); }
+function flagged(r, f) { return (r._review || []).indexOf(f) >= 0; }
+function sel(i, f, opts, extra) {
+  return '<select data-i="' + i + '" data-f="' + f + '" class="' + (flagged(rows[i], f) && !rows[i]._confirmed ? "f" : "") + '">' + opts.map(function (o) { return '<option' + (rows[i][f] === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>";
+}
+function card(r, i) {
+  var long = r.source.length > 300 || (r.source.match(/[.!?] [A-Z]/g) || []).length >= 3;
+  var fl = (r._review || []).filter(function (f) { return f !== "summary"; });
+  if (long && fl.indexOf("split") < 0) fl.push("split?");
+  var h = '<div class="card ' + (r._confirmed ? "ok" : "un") + '" data-i="' + i + '"><div class="row-h"><b>' + esc(r.id) + "</b><span>" +
+    (r._confirmed ? '<span class="tag" style="background:var(--ok);border-color:var(--okline)">confirmed</span>' : fl.map(function (f) { return '<span class="tag">check ' + esc(f) + "</span> "; }).join("")) +
+    (isNew(r.entity) ? ' <span class="tag new">new topic</span>' : "") + "</span></div>" +
+    '<div class="src">' + esc(r.source) + '</div><div class="grid">' +
+    '<label>Topic<input list="topics" data-i="' + i + '" data-f="entity" value="' + esc(r.entity) + '" class="' + (flagged(r, "entity") && !r._confirmed ? "f" : "") + '"></label>' +
+    "<label>System" + sel(i, "system", S.tax.systems) + "</label><label>Type" + sel(i, "change_type", S.tax.change_types) + "</label>" +
+    "<label>Direction" + sel(i, "direction", ["n/a", "+", "−", "~"]) + "</label></div>" +
+    '<div class="chips">' + S.tax.tags.map(function (t) { return '<span class="chip' + (r.tags.indexOf(t) >= 0 ? " on" : "") + '" data-a="tag" data-i="' + i + '" data-v="' + esc(t) + '">' + esc(t) + "</span>"; }).join("") + "</div>" +
+    '<div class="chips">platforms: ' + S.tax.platform_values.map(function (t) { return '<span class="chip' + (r.platforms.indexOf(t) >= 0 ? " on" : "") + '" data-a="plat" data-i="' + i + '" data-v="' + t + '">' + t + "</span>"; }).join("") + "</div>" +
+    '<div class="bar" style="margin:10px 0 0"><button class="b pri" data-a="conf" data-i="' + i + '">' + (r._confirmed ? "Unconfirm" : "Confirm row") + '</button><button class="b" data-a="split" data-i="' + i + '" title="Same bullet becomes a second row, for a bullet that holds two changes">Split into another row</button><button class="b" data-a="del" data-i="' + i + '" title="Not a change; moves the bullet to Left out">Leave out</button></div></div>';
+  return h;
+}
+function reviewView() {
+  if (!rows.length && !skipped.length) return '<div class="card">No draft. Go to step 1 and press Prepare draft rows.</div>';
+  var vers = Array.from(new Set(rows.map(function (r) { return r.version; })));
+  var h = '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
+  S.warnings.forEach(function (w) { h += '<div class="warn">' + esc(w) + "</div>"; });
+  h += '<div class="bar"><select id="flt"><option value="unconf"' + (filter === "unconf" ? " selected" : "") + ">Unconfirmed</option><option value=\"flag\"" + (filter === "flag" ? " selected" : "") + ">Flagged and unconfirmed</option><option value=\"all\"" + (filter === "all" ? " selected" : "") + ">All rows</option></select>" +
+    '<button class="b" data-a="confall">Confirm all shown</button><span class="mut">Versions: ' + esc(vers.join(", ")) + "</span></div>";
+  var shown = 0;
+  rows.forEach(function (r, i) {
+    if (filter !== "all" && r._confirmed) return;
+    if (filter === "flag" && !(r._review || []).some(function (f) { return f !== "summary"; })) return;
+    shown++; h += card(r, i);
+  });
+  if (!shown) h += '<div class="card">Nothing to show with this filter.</div>';
+  if (skipped.length) {
+    h += "<h3>Left out (" + skipped.length + ")</h3><p class=\"mut\">Statements of no change, rollout and credits are skipped automatically. Add one back if it is a real change.</p>";
+    skipped.forEach(function (s, j) { h += '<div class="card"><div class="mut">' + esc(s.version) + (s.section ? " · " + esc(s.section) : "") + '</div><div class="src">' + esc(s.text) + '</div><button class="b" data-a="restore" data-j="' + j + '">Add as a row</button></div>'; });
+  }
+  h += '<div class="card"><b>Ready?</b> Ingest is blocked until every row is confirmed.<div class="bar" style="margin-top:8px"><button class="b pri" data-a="ingest"' + (busy ? " disabled" : "") + ">Ingest " + rows.length + " rows</button></div></div>" + logBox();
+  return h;
+}
+function descView() {
+  if (!D) return '<div class="card">Loading…</div>';
+  if (!D.length) return '<div class="card">Every description is current.</div>' + logBox();
+  var h = '<p>Descriptions are written by a person. For a draft, copy the prompt into an LLM and paste the answer here, then edit it. The site labels descriptions as AI-assisted.</p>';
+  D.forEach(function (d, i) {
+    h += '<div class="card" data-d="' + i + '"><div class="row-h"><b>' + esc(d.topic) + '</b><span class="mut">' + esc(d.hub) + " · " + d.n + " changes" + (d.new ? " · new" : " · was " + d.was) + "</span></div>" +
+      (d.current ? '<div class="src"><span class="mut">Current:</span> ' + esc(d.current) + "</div>" : "") +
+      '<details><summary>' + d.changes.length + " changes</summary><ul>" + d.changes.map(function (c) { return "<li><span class=\"mut\">" + esc(c.version + " " + c.type) + ":</span> " + esc(c.text) + "</li>"; }).join("") + "</ul></details>" +
+      '<textarea data-d="' + i + '" placeholder="Description">' + esc(d.draft != null ? d.draft : d.current) + '</textarea>' +
+      '<div class="bar" style="margin:6px 0 0"><button class="b" data-a="prompt" data-d="' + i + '">Copy LLM prompt</button><button class="b pri" data-a="dsave" data-d="' + i + '">Save</button><span class="mut" id="dm' + i + '"></span></div></div>';
+  });
+  return h;
+}
+function loadDesc() { api("/api/describe").then(function (d) { D = d; render(); }); }
+function finView() {
+  return '<div class="card"><b>Step 4.</b> Rebuild the site data, then check it.<div class="bar" style="margin-top:8px"><button class="b pri" data-a="run" data-c="build"' + (busy ? " disabled" : "") + '>Build site data</button><button class="b" data-a="run" data-c="validate"' + (busy ? " disabled" : "") + '>Validate</button><button class="b" data-a="run" data-c="selftest"' + (busy ? " disabled" : "") + '>Self-test</button></div>' +
+    '<p class="mut">Then look at the result: start the site with <code>python -m http.server 8000 --directory web</code> and open <code>#/patch/&lt;version&gt;</code>. Commit and push are yours to do.</p></div>' + logBox();
+}
+/* ---------- events ---------- */
+document.addEventListener("click", function (e) {
+  var t = e.target.closest("[data-a],nav button"); if (!t) return;
+  if (t.matches("nav button")) { tab = t.dataset.t; return render(); }
+  var a = t.dataset.a, i = +t.dataset.i, r = rows[i];
+  if (a === "tab") { tab = t.dataset.t; return render(); }
+  if (a === "run") return run(t.dataset.c);
+  if (a === "tag" || a === "plat") {
+    var k = a === "tag" ? "tags" : "platforms", v = t.dataset.v, p = r[k].indexOf(v);
+    if (p >= 0) r[k].splice(p, 1); else { if (k === "tags" && r.tags.length >= 3) return alert("At most 3 tags."); r[k].push(v); }
+    if (k === "platforms" && !r.platforms.length) r.platforms = ["all"];
+    if (k === "platforms" && v !== "all" && r.platforms.indexOf("all") >= 0 && r.platforms.length > 1) r.platforms.splice(r.platforms.indexOf("all"), 1);
+    r._confirmed = false; save(); return render();
+  }
+  if (a === "conf") { if (!r._confirmed && (!r.entity || r.entity === "TODO")) return alert("Set a topic first."); r._confirmed = !r._confirmed; save(); return render(); }
+  if (a === "confall") {
+    rows.forEach(function (x) { if (x._confirmed || (filter === "flag" && !(x._review || []).some(function (f) { return f !== "summary"; }))) return; if (x.entity && x.entity !== "TODO") x._confirmed = true; });
+    save(); return render();
+  }
+  if (a === "split") { var c = JSON.parse(JSON.stringify(r)); c._confirmed = false; r._confirmed = false; rows.splice(i + 1, 0, c); renum(); save(); return render(); }
+  if (a === "del") { skipped.push({ version: r.version, section: null, text: r.source }); rows.splice(i, 1); renum(); save(); return render(); }
+  if (a === "restore") {
+    var s = skipped[+t.dataset.j];
+    return api("/api/restore", { version: s.version, text: s.text, section: s.section }).then(function (x) {
+      if (!x.row) return alert("Could not make a row.");
+      var at = rows.map(function (q) { return q.version; }).lastIndexOf(s.version); rows.splice(at + 1, 0, x.row); skipped.splice(+t.dataset.j, 1); renum(); save(); render();
+    });
+  }
+  if (a === "ingest") {
+    clearTimeout(saveT); busy = true; logTxt = "Ingesting…"; render();
+    return api("/api/ingest", { rows: rows, skipped: skipped }).then(function (r) { logTxt = r.out; busy = false; D = null; return load(); });
+  }
+  if (a === "prompt") { var d = D[+t.dataset.d]; return api("/api/prompt", { topic: d.topic }).then(function (x) { copy(x.prompt); $("#dm" + t.dataset.d).textContent = "Prompt copied."; }); }
+  if (a === "dsave") {
+    var j = +t.dataset.d, txt = document.querySelector('textarea[data-d="' + j + '"]').value;
+    return api("/api/describe/save", { topic: D[j].topic, text: txt }).then(function (x) { $("#dm" + j).textContent = x.ok ? "Saved. Run Build to mark it current." : x.out; });
+  }
+});
+document.addEventListener("change", function (e) {
+  var t = e.target;
+  if (t.id === "flt") { filter = t.value; return render(); }
+  if (t.dataset.f) {
+    var r = rows[+t.dataset.i]; r[t.dataset.f] = t.value.trim(); r._confirmed = false;
+    if (t.dataset.f === "entity") { var k = S.topics.filter(function (x) { return x.name === r.entity; })[0]; if (k && k.systems.length === 1) r.system = k.systems[0]; }
+    save(); render();
+  }
+});
+document.addEventListener("input", function (e) { var t = e.target; if (t.dataset.d !== undefined && t.tagName === "TEXTAREA") D[+t.dataset.d].draft = t.value; });
+function renum() { var n = {}; rows.forEach(function (r) { n[r.version] = (n[r.version] || 0) + 1; r.id = r.version + "-" + ("00" + n[r.version]).slice(-3); }); }
+function copy(txt) {
+  if (navigator.clipboard) return navigator.clipboard.writeText(txt);
+  var a = document.createElement("textarea"); a.value = txt; document.body.appendChild(a); a.select(); document.execCommand("copy"); a.remove();
+}
+load();
+</script>
+</body>
+</html>

@@ -13,6 +13,8 @@
   python tools/notes.py backtest [--last N] score the prefill guesses against already-ingested releases
   python tools/notes.py selftest           run the whole pipeline in a temp copy and check your real files are untouched
   python tools/notes.py validate           check all stored rows, releases and description files against the taxonomy (writes nothing; CI runs it)
+  python tools/notes_gui.py                browser tool for the whole workflow: fetch, review every row, ingest, descriptions, build
+  python tools/notes.py sources            fill in sources.jsonl for rows that have no stored bullet
   python tools/notes.py backup             snapshot data/ and web/ into _backups/
 """
 import argparse, csv, glob, json, os, re, shutil, subprocess, sys, urllib.request
