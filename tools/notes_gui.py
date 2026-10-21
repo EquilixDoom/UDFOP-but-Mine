@@ -8,7 +8,7 @@ data/normalized until every row has been confirmed by a person. The guesses it f
 (Guesser in notes.py), not a language model; anything a language model would normally write (topic descriptions)
 is typed by a person, with an optional prompt to copy into an LLM.
 """
-import json, os, re, subprocess, sys, threading, webbrowser
+import csv, difflib, io, json, os, re, subprocess, sys, threading, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -63,8 +63,88 @@ def state():
         "behind": behind, "rows_total": len(rows), "last_version": max((r["version"] for r in rows), key=N.vkey, default=""),
         "have_notes": os.path.exists(N.NOTES),
         "draft": draft, "skipped": read_skipped(), "confirmed": review.get("confirmed", {}), "stale": stale,
-        "warnings": N.topic_name_warnings(draft, {r["entity"] for r in rows}) if draft else [],
+        "hubs": review.get("hubs", {}), "check": check(draft) if draft else None,
     }
+
+
+_G = {}
+
+
+def guesser():
+    """The Guesser is slow to build, so it is rebuilt only when the stored rows change."""
+    m = os.path.getmtime(N.ALL)
+    if _G.get("m") != m:
+        _G.update(m=m, g=N.Guesser(N.read_jsonl(N.ALL)))
+    return _G["g"]
+
+
+def summary_for(r):
+    return f"{r['entity']}: {lower_first(r['source'], r['entity'])}"
+
+
+def check(rows):
+    """Per-row help for the review page: topic suggestions, errors ingest would raise, name warnings for new topics,
+    and a guessed hub for each new topic."""
+    alias = N.merge_alias()
+    allrows = N.read_jsonl(N.ALL)
+    known = {r["entity"] for r in allrows}
+    hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
+    by_plain = {N._plain(t): t for t in hub}
+    g = guesser()
+    out = {"rows": {}, "names": {}, "hubs": {}, "hub_options": sorted(set(hub.values()) | {"Uncategorised"})}
+    for r in rows:
+        ent, cand = r.get("entity", ""), {}
+        for n, sc in g.scores(r.get("source", "")).items():
+            t = N.topic_of(n, alias)
+            cand[t] = max(cand.get(t, 0), sc)
+        sug = [t for t, _ in sorted(cand.items(), key=lambda kv: -kv[1]) if t != ent][:4]
+        if ent and N.topic_of(ent, alias) not in hub:
+            for m in difflib.get_close_matches(N._plain(ent), list(by_plain), n=3, cutoff=0.7):
+                if by_plain[m] != ent and by_plain[m] not in sug:
+                    sug.insert(0, by_plain[m])
+        out["rows"][r["id"]] = {"sug": [{"t": t, "hub": hub.get(t, "-")} for t in sug[:5]], "errs": []}
+    for name in sorted({r["entity"] for r in rows if r.get("entity") and r["entity"] != "TODO" and N.topic_of(r["entity"], alias) not in hub}):
+        mine = [r for r in rows if r["entity"] == name]
+        out["names"][name] = [w for w in N.topic_name_warnings(mine, known) if not w.startswith("A topic should be")]
+        out["hubs"][name] = N.guess_hub(mine, allrows, hub)
+    try:
+        tax = json.load(open(N.TAX, encoding="utf-8-sig"))
+        tmp = []
+        for r in rows:
+            c = {k: v for k, v in r.items() if k not in ("_confirmed", "_open", "_review")}
+            if c.get("entity") and c["entity"] != "TODO":
+                c["summary"] = summary_for(c)
+            tmp.append(c)
+        errs, _ = N.validate(tmp, N.pending_releases(), tax, known)
+    except Exception as e:
+        errs = [f"row 0 (?): could not check ({type(e).__name__}: {e})"]
+    for e in errs:
+        m = re.match(r"row (\d+) \((.*?)\): (.*)", e)
+        r = rows[int(m.group(1)) - 1] if m and 0 < int(m.group(1)) <= len(rows) else None
+        if r is None:
+            out.setdefault("global", []).append(e)
+        elif r.get("entity") and r["entity"] != "TODO":
+            out["rows"][r["id"]]["errs"].append(m.group(3))
+    for r in rows:
+        if not r.get("entity") or r["entity"] == "TODO":
+            out["rows"][r["id"]]["errs"].insert(0, "set a topic")
+    return out
+
+
+def apply_hubs(picks):
+    """Rewrite the hub of the topics ingest just added, for the ones whose hub was chosen in the page."""
+    alias = N.merge_alias()
+    want = {N.topic_of(e, alias): h for e, h in picks.items() if h}
+    lines = open(N.HUBS, encoding="utf-8", newline="").read().splitlines(keepends=True)
+    for k, line in enumerate(lines[1:], 1):
+        row = next(csv.reader([line]), None)
+        if row and row[0] in want and row[1] != want[row[0]]:
+            row[1] = want[row[0]]
+            b = io.StringIO()
+            csv.writer(b, lineterminator="\n").writerow(row)
+            lines[k] = b.getvalue()
+    with open(N.HUBS, "w", encoding="utf-8", newline="") as f:
+        f.write("".join(lines))
 
 
 def save_draft(body):
@@ -80,7 +160,7 @@ def save_draft(body):
     N.write_jsonl(DRAFT, rows)
     with open(SKIPPED, "w", encoding="utf-8", newline="\n") as f:
         f.write("".join(f"{s['version']} [{s['section']}] {s['text']}\n" for s in body.get("skipped", [])))
-    json.dump({"confirmed": conf}, open(REVIEW, "w", encoding="utf-8"))
+    json.dump({"confirmed": conf, "hubs": body.get("hubs", {})}, open(REVIEW, "w", encoding="utf-8"))
     return rows
 
 
@@ -101,8 +181,13 @@ def ingest(body):
         save_draft(body)
         return {"ok": False, "out": f"{unconf} row(s) are not confirmed and {todo} have no topic. Nothing was ingested."}
     rows = save_draft(body)
+    chk = check(rows)
+    bad = sum(1 for v in chk["rows"].values() if v["errs"])
+    picks = {t: h for t, h in body.get("hubs", {}).items() if t in chk["hubs"]}
+    if bad:
+        return {"ok": False, "out": f"{bad} row(s) have errors. Nothing was ingested."}
     for r in rows:
-        r["summary"] = f"{r['entity']}: {lower_first(r['source'], r['entity'])}"
+        r["summary"] = summary_for(r)
     N.write_jsonl(DRAFT, rows)
     a = run("approve")
     if not a["ok"]:
@@ -110,6 +195,8 @@ def ingest(body):
     b = run("ingest")
     b["out"] = a["out"] + "\n" + b["out"]
     if b["ok"]:
+        if picks:
+            apply_hubs(picks)
         for f in (DRAFT, SKIPPED, REVIEW):
             if os.path.exists(f):
                 os.remove(f)
@@ -195,8 +282,7 @@ class H(BaseHTTPRequestHandler):
                 if self.path == "/api/run" and body.get("cmd") in RUNNABLE:
                     return self.send(run(body["cmd"]))
                 if self.path == "/api/save":
-                    save_draft(body)
-                    return self.send({"ok": True})
+                    return self.send({"ok": True, "check": check(save_draft(body))})
                 if self.path == "/api/restore":
                     r = new_row(body["version"], body["text"], body.get("section"))
                     return self.send({"ok": bool(r), "row": r})

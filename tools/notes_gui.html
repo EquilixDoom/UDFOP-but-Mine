@@ -29,6 +29,9 @@ button:disabled{opacity:.5;cursor:default}
 .pill{border:1px solid var(--line);border-radius:10px;padding:0 8px}
 .pill.f{background:var(--flag);border-color:var(--flagline)}
 .pv{font-size:12px;color:var(--mut);margin-top:2px}
+.nt:empty{display:none}.nt .warn{font-size:12px;margin:6px 0 0;padding:3px 8px}.nt .warn.soft{background:var(--flag);border-color:var(--flagline)}
+.nt .chips{align-items:center;font-size:12px}.sg{border:1px dashed var(--acc);border-radius:12px;padding:1px 9px;font-size:12px;cursor:pointer;background:none;color:var(--fg)}
+.nt label{display:flex;align-items:center;gap:6px;margin-top:6px}.nt label select{width:auto;margin:0;padding:1px 6px}
 kbd{font:12px ui-monospace,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;padding:0 4px;background:var(--card)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 label{display:block;font-size:12px;color:var(--mut)}label>*{display:block;width:100%;margin-top:2px}
@@ -55,7 +58,7 @@ textarea{width:100%;min-height:80px}
 <div id="foot"></div>
 <script>
 "use strict";
-var S = null, rows = [], skipped = [], tab = "home", filter = "unconf", logTxt = "", busy = false, saveT = null, D = null, cur = -1;
+var S = null, rows = [], skipped = [], tab = "home", filter = "unconf", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0;
 var $ = function (s) { return document.querySelector(s); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function api(path, body) {
@@ -63,10 +66,16 @@ function api(path, body) {
 }
 function load() {
   return api("/api/state").then(function (s) {
-    S = s; rows = s.draft.map(function (r) { r._confirmed = !!s.confirmed[r.id]; return r; }); skipped = s.skipped; render();
+    S = s; CHK = s.check; HUBS = s.hubs || {}; rows = s.draft.map(function (r) { r._confirmed = !!s.confirmed[r.id]; return r; }); skipped = s.skipped; render();
   });
 }
-function save() { clearTimeout(saveT); saveT = setTimeout(function () { api("/api/save", { rows: rows, skipped: skipped }); }, 500); }
+function save() {
+  clearTimeout(saveT);
+  saveT = setTimeout(function () {
+    var n = ++seq;
+    api("/api/save", { rows: rows, skipped: skipped, hubs: HUBS }).then(function (x) { if (n === seq && x.check) { CHK = x.check; refreshNotes(); } });
+  }, 500);
+}
 function run(cmd) {
   busy = true; logTxt = "Running " + cmd + "…"; render();
   return api("/api/run", { cmd: cmd }).then(function (r) {
@@ -101,7 +110,8 @@ function flagsOf(r) {
   return fl;
 }
 function hasTopic(r) { return !!r.entity && r.entity !== "TODO"; }
-function safe(r) { return !r._confirmed && hasTopic(r) && !isNew(r.entity) && !flagsOf(r).length; }
+function errsOf(r) { return (CHK && CHK.rows[r.id] && CHK.rows[r.id].errs) || []; }
+function safe(r) { return !r._confirmed && hasTopic(r) && !isNew(r.entity) && !flagsOf(r).length && !errsOf(r).length; }
 function visible(r) {
   if (filter === "all") return true;
   if (r._confirmed) return false;
@@ -124,11 +134,11 @@ function stat() {
 function bar() {
   var f = $("#foot");
   if (tab !== "rows" || !rows.length) { f.style.display = "none"; return; }
-  var un = rows.filter(function (r) { return !r._confirmed; }).length, n = rows.filter(safe).length, done = rows.length - un;
+  var un = rows.filter(function (r) { return !r._confirmed; }).length, n = rows.filter(safe).length, done = rows.length - un, er = rows.filter(function (r) { return errsOf(r).length; }).length;
   f.style.display = "flex";
-  f.innerHTML = '<div class="prog"><i style="width:' + Math.round(100 * done / rows.length) + '%"></i></div><span>' + done + " / " + rows.length + " confirmed</span>" +
+  f.innerHTML = '<div class="prog"><i style="width:' + Math.round(100 * done / rows.length) + '%"></i></div><span>' + done + " / " + rows.length + " confirmed</span>" + (er ? '<span class="tag new">' + er + " with errors</span>" : "") +
     '<button class="b" data-a="confsafe"' + (n ? "" : " disabled") + ' title="Rows whose topic already exists and that nothing flagged">Confirm ' + n + " unflagged</button>" +
-    '<button class="b pri" data-a="ingest"' + (un || busy ? " disabled" : "") + ' title="' + (un ? un + " row(s) still need confirming" : "Write the rows to the wiki data") + '">Ingest ' + rows.length + " rows</button>";
+    '<button class="b pri" data-a="ingest"' + (un || er || busy ? " disabled" : "") + ' title="' + (un ? un + " row(s) still need confirming" : er ? er + " row(s) have errors" : "Write the rows to the wiki data") + '">Ingest ' + rows.length + " rows</button>";
 }
 function render() {
   document.querySelectorAll("nav button").forEach(function (b) { b.classList.toggle("on", b.dataset.t === tab); });
@@ -164,6 +174,28 @@ function pills(r) {
   if (r.platforms.join() !== "all") h += '<span class="mut">[' + esc(r.platforms.join(", ")) + "]</span>";
   return h;
 }
+function notesHtml(r, i) {
+  var c = (CHK && CHK.rows[r.id]) || {}, h = "";
+  (c.errs || []).forEach(function (e) { h += '<div class="warn">' + esc(e) + "</div>"; });
+  var nw = isNew(r.entity) && hasTopic(r) && CHK && rows.findIndex(function (x) { return x.entity === r.entity; }) === i;
+  if (nw) {
+    (CHK.names[r.entity] || []).forEach(function (w) { h += '<div class="warn' + (w.indexOf("looks wrong") < 0 ? " soft" : "") + '">' + esc(w) + "</div>"; });
+    if (CHK.hubs[r.entity] !== undefined) {
+      var pick = HUBS[r.entity] || CHK.hubs[r.entity];
+      h += '<label>Hub for new topic <select data-h="' + esc(r.entity) + '">' + CHK.hub_options.map(function (o) { return "<option" + (o === pick ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select></label>";
+    }
+  }
+  if (c.sug && c.sug.length && (r._open || isNew(r.entity) || flagged(r, "entity") || !hasTopic(r)) && !r._confirmed)
+    h += '<div class="chips">Topic? ' + c.sug.map(function (x) { return '<button class="sg" data-a="sug" data-i="' + i + '" data-v="' + esc(x.t) + '" title="' + esc(x.hub) + '">' + esc(x.t) + "</button>"; }).join("") + "</div>";
+  return h;
+}
+function refreshNotes() {
+  document.querySelectorAll(".card[data-i]").forEach(function (el) {
+    var nt = el.querySelector(".nt"), r = rows[+el.dataset.i];
+    if (nt && r && !nt.contains(document.activeElement)) nt.innerHTML = notesHtml(r, +el.dataset.i);
+  });
+  bar();
+}
 function editor(r, i) {
   return '<div class="grid" style="margin-top:8px">' +
     '<label>Topic<input list="topics" data-i="' + i + '" data-f="entity" value="' + esc(r.entity) + '" class="' + (flagged(r, "entity") && !r._confirmed ? "f" : "") + '"></label>' +
@@ -178,14 +210,15 @@ function card(r, i) {
     '<button class="b" data-a="open" data-i="' + i + '">' + (r._open ? "Done" : "Edit") + "</button>" +
     '<button class="b" data-a="split" data-i="' + i + '" title="Same bullet becomes a second row, for a bullet that holds two changes">Split</button>' +
     '<button class="b" data-a="del" data-i="' + i + '" title="Not a change; moves the bullet to Left out">Leave out</button></span></div>' +
-    '<div class="src' + (r._open ? "" : " clamp") + '">' + esc(r.source) + '</div><div class="pl">' + pills(r) + "</div>" +
+    '<div class="src' + (r._open ? "" : " clamp") + '">' + esc(r.source) + '</div><div class="pl">' + pills(r) + '</div><div class="nt">' + notesHtml(r, i) + "</div>" +
     (r._open ? '<div class="pv">' + esc(preview(r)) + "</div>" + editor(r, i) : "") + "</div>";
 }
 /* Update a card in place, so a Tab out of a field keeps its focus. */
 function syncCard(i) {
   var el = cardEl(i), r = rows[i]; if (!el) return;
   el.classList.toggle("ok", !!r._confirmed); el.classList.toggle("un", !r._confirmed);
-  el.querySelector(".st").innerHTML = stTags(r); el.querySelector(".pl").innerHTML = pills(r); var pv = el.querySelector(".pv"); if (pv) pv.textContent = preview(r);
+  el.querySelector(".st").innerHTML = stTags(r); el.querySelector(".pl").innerHTML = pills(r);
+  var nt = el.querySelector(".nt"); if (nt && !nt.contains(document.activeElement)) nt.innerHTML = notesHtml(r, i); var pv = el.querySelector(".pv"); if (pv) pv.textContent = preview(r);
   el.querySelector(".cb").textContent = r._confirmed ? "Unconfirm" : "Confirm";
   el.querySelectorAll("select[data-f],input[data-f]").forEach(function (x) { if (x.value !== r[x.dataset.f]) x.value = r[x.dataset.f]; });
   el.querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", r[c.dataset.a === "tag" ? "tags" : "platforms"].indexOf(c.dataset.v) >= 0); });
@@ -204,6 +237,7 @@ function setCur(i) {
 function confirmRow(i) {
   var r = rows[i];
   if (!r._confirmed && !hasTopic(r)) { r._open = true; swapCard(i); var inp = cardEl(i).querySelector('input[data-f="entity"]'); inp.classList.add("f"); inp.focus(); return; }
+  if (!r._confirmed && errsOf(r).length) { r._open = true; swapCard(i); return; }
   var list = vis(), p = list.indexOf(i);
   r._confirmed = !r._confirmed; save();
   if (!visible(r)) {
@@ -221,7 +255,6 @@ function reviewView() {
   var list = vis(); if (list.indexOf(cur) < 0) cur = list.length ? list[0] : -1;
   var vers = Array.from(new Set(rows.map(function (r) { return r.version; })));
   var h = '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
-  S.warnings.forEach(function (w) { h += '<div class="warn">' + esc(w) + "</div>"; });
   h += '<div class="bar"><select id="flt"><option value="unconf"' + (filter === "unconf" ? " selected" : "") + ">Unconfirmed</option><option value=\"flag\"" + (filter === "flag" ? " selected" : "") + ">Flagged and unconfirmed</option><option value=\"all\"" + (filter === "all" ? " selected" : "") + ">All rows</option></select>" +
     '<span class="mut">' + vers.map(function (v) { var a = rows.filter(function (r) { return r.version === v; }); return esc(v) + " " + a.filter(function (r) { return r._confirmed; }).length + "/" + a.length; }).join(" · ") + "</span></div>" +
     '<p class="mut"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> edit · <kbd>T</kbd> topic · <kbd>S</kbd> split · <kbd>X</kbd> leave out · <kbd>U</kbd> unconfirm · <kbd>Esc</kbd> close</p>';
@@ -251,6 +284,15 @@ function finView() {
   return '<div class="card"><b>Step 4.</b> Rebuild the site data, then check it.<div class="bar" style="margin-top:8px"><button class="b pri" data-a="run" data-c="build"' + (busy ? " disabled" : "") + '>Build site data</button><button class="b" data-a="run" data-c="validate"' + (busy ? " disabled" : "") + '>Validate</button><button class="b" data-a="run" data-c="selftest"' + (busy ? " disabled" : "") + '>Self-test</button></div>' +
     '<p class="mut">Then look at the result: start the site with <code>python -m http.server 8000 --directory web</code> and open <code>#/patch/&lt;version&gt;</code>. Commit and push are yours to do.</p></div>' + logBox();
 }
+function setField(i, f, val) {
+  var r = rows[i], old = r[f]; r[f] = val.trim(); r._confirmed = false;
+  if (f === "entity") { var k = S.topics.filter(function (x) { return x.name === r.entity; })[0]; if (k && k.systems.length === 1) r.system = k.systems[0]; }
+  if (f === "change_type") {
+    if (r.change_type === "Buff") r.direction = "+"; else if (r.change_type === "Nerf") r.direction = "−";
+    else if (old === "Buff" || old === "Nerf") r.direction = "n/a";
+  }
+  save(); syncCard(i);
+}
 /* ---------- events ---------- */
 document.addEventListener("click", function (e) {
   var c = e.target.closest(".card[data-i]"); if (c && tab === "rows") setCur(+c.dataset.i);
@@ -269,6 +311,7 @@ document.addEventListener("click", function (e) {
     r._confirmed = false; save(); return syncCard(i);
   }
   if (a === "conf") return confirmRow(i);
+  if (a === "sug") return setField(i, "entity", t.dataset.v);
   if (a === "open") { r._open = !r._open; return swapCard(i); }
   if (a === "confsafe") { rows.forEach(function (x) { if (safe(x)) x._confirmed = true; }); cur = -1; save(); return render(); }
   if (a === "split") { var c2 = JSON.parse(JSON.stringify(r)); c2._confirmed = false; c2._open = true; r._confirmed = false; rows.splice(i + 1, 0, c2); renum(); cur = i + 1; save(); return render(); }
@@ -296,15 +339,8 @@ document.addEventListener("click", function (e) {
 document.addEventListener("change", function (e) {
   var t = e.target;
   if (t.id === "flt") { filter = t.value; cur = -1; return render(); }
-  if (t.dataset.f) {
-    var i = +t.dataset.i, r = rows[i], f = t.dataset.f, old = r[f]; r[f] = t.value.trim(); r._confirmed = false;
-    if (f === "entity") { var k = S.topics.filter(function (x) { return x.name === r.entity; })[0]; if (k && k.systems.length === 1) r.system = k.systems[0]; }
-    if (f === "change_type") {
-      if (r.change_type === "Buff") r.direction = "+"; else if (r.change_type === "Nerf") r.direction = "−";
-      else if (old === "Buff" || old === "Nerf") r.direction = "n/a";
-    }
-    save(); syncCard(i);
-  }
+  if (t.dataset.h !== undefined) { HUBS[t.dataset.h] = t.value; return save(); }
+  if (t.dataset.f) setField(+t.dataset.i, t.dataset.f, t.value);
 });
 document.addEventListener("keydown", function (e) {
   if (tab !== "rows" || e.ctrlKey || e.metaKey || e.altKey) return;
