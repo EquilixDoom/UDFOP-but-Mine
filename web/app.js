@@ -894,21 +894,23 @@
     }
     return out;
   }
+  var tagSrc = false;   /* set while drawing for the editor's Edit in Preview: links, pictures, keys and wiki links then carry their source text (data-md, data-href) so that an edited line can be written back */
+  function atom(h, src) { return tagSrc ? '<span class="vis-atom" data-md="' + esc(src) + '" contenteditable="false">' + h + "</span>" : h; }
   function inline(s) {
     var stash = [];
     function keep(h) { stash.push(h); return "\u0000" + (stash.length - 1) + "\u0000"; }
     s = codeSpans(s, keep);
-    s = s.replace(/\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g, function (m, t, l) { return keep(wikiLink(t, l)); });
-    s = s.replace(/\{\{([^{}]+)\}\}/g, function (m, t) { return keep(keycaps(t)); });
+    s = s.replace(/\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g, function (m, t, l) { return keep(atom(wikiLink(t, l), m)); });
+    s = s.replace(/\{\{([^{}]+)\}\}/g, function (m, t) { return keep(atom(keycaps(t), m)); });
     s = s.replace(IMG_RE, function (m, alt, src) {
       src = imgSrc(src); if (!src) return "";
-      return keep('<img src="' + esc(src) + '" alt="' + esc(alt) + '" loading="lazy">');
+      return keep(atom('<img src="' + esc(src) + '" alt="' + esc(alt) + '" loading="lazy">', m));
     });
     s = s.replace(/\[([^\]]+)\]\(([^()\s]*(?:\([^()\s]*\)[^()\s]*)*)\)/g, function (m, text, url) {
-      url = safeUrl(url); if (!url) return text;
+      var rawUrl = url; url = safeUrl(url); if (!url) return text;
       var ext = /^https?:/i.test(url);
       if (ext) noteRef("ext", url, { url: url, text: plainText(text) });
-      return keep('<a href="' + esc(url) + '"' + (ext ? ' rel="noopener"' : "") + ">" + inlineBasic(text) + "</a>" + (ext ? MARK_EXT : ""));
+      return keep('<a href="' + esc(url) + '"' + (tagSrc ? ' data-href="' + esc(rawUrl) + '"' : "") + (ext ? ' rel="noopener"' : "") + ">" + inlineBasic(text) + "</a>" + (ext ? MARK_EXT : ""));
     });
     /* a spoiler: >!hidden text!< is masked until clicked (or Enter or Space pressed on it) */
     s = s.replace(/>!(.+?)!</g, function (m, t) { return keep('<span class="spoiler" role="button" tabindex="0" aria-expanded="false" title="Spoiler: click to show">') + t + keep("</span>"); });
@@ -967,9 +969,9 @@
   /* ln0: with a number, every block gets data-ln="first-last", its lines in the source (1-based; ln0 lines come before src). The editor's Pick mode reads it. Left out, nothing is added. */
   function markdown(src, title, ln0) {
     var lines = src.replace(/\r\n?/g, "\n").split("\n"), out = [], i = 0, first = true, figSince = false, at0 = 0;
-    function emit(h, from, to) { out.push(ln0 === undefined ? h : lnTag(h, ln0 + from + 1, ln0 + to + 1)); }
+    function emit(h, from, to, bk) { out.push(ln0 === undefined ? h : lnTag(h, ln0 + from + 1, ln0 + to + 1, bk)); }
     function nested(skip) { return ln0 === undefined ? undefined : ln0 + at0 + skip; }
-    function para(buf, from) { if (buf.length) emit("<p>" + inline(buf.join(" ")) + "</p>", from, from + buf.length - 1); }
+    function para(buf, from) { if (buf.length) emit("<p>" + inline(buf.join(" ")) + "</p>", from, from + buf.length - 1, "p"); }
     while (i < lines.length) {
       var l = lines[i], m;
       at0 = i;
@@ -977,7 +979,7 @@
       if ((m = /^(`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$/.exec(l))) {   /* a code box: three or more backticks or tildes; only a bare fence at least as long closes it */
         var code = [], lang = (m[2] || "").toLowerCase(), fence = m[1], fm; i++;
         while (i < lines.length && !((fm = /^(`{3,}|~{3,})\s*$/.exec(lines[i])) && fm[1].charAt(0) === fence.charAt(0) && fm[1].length >= fence.length)) code.push(lines[i++]);
-        i++; emit(codeBox(lang, code.join("\n")), at0, Math.min(i, lines.length) - 1); continue;
+        i++; emit(codeBox(lang, code.join("\n")), at0, Math.min(i, lines.length) - 1, "code"); continue;
       }
       if ((m = /^(#{1,6})\s+(.*?)(?:\s+#+)?\s*$/.exec(l))) {
         var text = plainText(m[2]);
@@ -985,39 +987,39 @@
         var lvl = Math.min(6, Math.max(2, m[1].length));
         var hd = lvl <= 3 ? sec(text, text, lvl) : "<h" + lvl + ">" + inline(m[2]) + "</h" + lvl + ">";
         if (figSince && lvl <= 3) hd = hd.replace('class="sec"', 'class="sec cl"');
-        figSince = false; emit(hd, at0, at0); i++; first = false; continue;
+        figSince = false; emit(hd, at0, at0, "h"); i++; first = false; continue;
       }
       first = false;
-      if (/^\s*([-*_])\s*(\1\s*){2,}$/.test(l)) { emit("<hr>", at0, at0); i++; continue; }
+      if (/^\s*([-*_])\s*(\1\s*){2,}$/.test(l)) { emit("<hr>", at0, at0, "hr"); i++; continue; }
       if (/^>(?!!.*!<)/.test(l)) {   /* a line that opens with a >!spoiler!< is a paragraph, not a quote */
         var q = [];
         while (i < lines.length && /^>(?!!.*!<)/.test(lines[i])) q.push(lines[i++].replace(/^>\s?/, ""));
         /* a quote whose first line is [!NOTE], [!TIP], [!IMPORTANT], [!WARNING] or [!CAUTION] is a notice box (GitHub's alert syntax); any other quote stays a quote */
         var inf = /^\[!INFO\](?:[ \t]+(.*?))?\s*$/i.exec(q[0]);
-        if (inf) { emit(infobox(inf[1] || title || "", q.slice(1)), at0, i - 1); continue; }   /* a fact panel: floats right like a captioned picture */
+        if (inf) { emit(infobox(inf[1] || title || "", q.slice(1)), at0, i - 1, "info"); continue; }   /* a fact panel: floats right like a captioned picture */
         var al = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$/i.exec(q[0]);
         if (al) {
           var kind = al[1].toLowerCase();
-          emit('<div class="alert alert-' + kind + '" role="note"><span class="alert-label">' + kind.charAt(0).toUpperCase() + kind.slice(1) + "</span>" + markdown(q.slice(1).join("\n"), undefined, nested(1)) + "</div>", at0, i - 1); continue;
+          emit('<div class="alert alert-' + kind + '" role="note"><span class="alert-label">' + kind.charAt(0).toUpperCase() + kind.slice(1) + "</span>" + markdown(q.slice(1).join("\n"), undefined, nested(1)) + "</div>", at0, i - 1, "alert"); continue;
         }
-        emit("<blockquote>" + markdown(q.join("\n"), undefined, nested(0)) + "</blockquote>", at0, i - 1); continue;
+        emit("<blockquote>" + markdown(q.join("\n"), undefined, nested(0)) + "</blockquote>", at0, i - 1, "quote"); continue;
       }
       if (l.indexOf("|") >= 0 && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(lines[i + 1])) {
         var head = splitRow(l), body = [], aligns = splitRow(lines[i + 1]).map(function (c) { return /^:-+:$/.test(c) ? "center" : /^-+:$/.test(c) ? "right" : /^:-+$/.test(c) ? "left" : ""; });
         function al(k) { return aligns[k] ? ' style="text-align:' + aligns[k] + '"' : ""; }
         i += 2;
         while (i < lines.length && lines[i].trim() && lines[i].indexOf("|") >= 0) body.push(splitRow(lines[i++]));
-        function tr(cells, at) { var h = "<tr>" + cells + "</tr>"; return ln0 === undefined ? h : lnTag(h, ln0 + at + 1, ln0 + at + 1); }
+        function tr(cells, at) { var h = "<tr>" + cells + "</tr>"; return ln0 === undefined ? h : lnTag(h, ln0 + at + 1, ln0 + at + 1, "tr"); }
         emit('<div class="wrap"><table class="wikitable"><thead>' + tr(head.map(function (c, k) { return "<th" + al(k) + ">" + inline(c) + "</th>"; }).join(""), at0) +
-          "</thead><tbody>" + body.map(function (r, n) { return tr(head.map(function (_, k) { return "<td" + al(k) + ">" + inline(r[k] || "") + "</td>"; }).join(""), at0 + 2 + n); }).join("") + "</tbody></table></div>", at0, i - 1);
+          "</thead><tbody>" + body.map(function (r, n) { return tr(head.map(function (_, k) { return "<td" + al(k) + ">" + inline(r[k] || "") + "</td>"; }).join(""), at0 + 2 + n); }).join("") + "</tbody></table></div>", at0, i - 1, "table");
         continue;
       }
       if (/^\s*([-*+]|\d+[.)])\s+/.test(l)) {
         var items = [];
         while (i < lines.length && lines[i].trim() && (/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) || /^\s{2,}\S/.test(lines[i]))) items.push(lines[i++]);
-        emit(list(items, ln0 === undefined ? undefined : ln0 + at0), at0, i - 1); continue;
+        emit(list(items, ln0 === undefined ? undefined : ln0 + at0), at0, i - 1, "list"); continue;
       }
-      if ((m = FIG_LINE.exec(l.trim())) && (m[3] || m[4] !== undefined)) { emit(figure(m), at0, at0); figSince = true; i++; continue; }
+      if ((m = FIG_LINE.exec(l.trim())) && (m[3] || m[4] !== undefined)) { emit(figure(m), at0, at0, "fig"); figSince = true; i++; continue; }
       var buf = [];
       while (i < lines.length && lines[i].trim() && !/^((`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$|#{1,6}\s|>(?!!.*!<))/.test(lines[i]) && !/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) &&
              !((m = FIG_LINE.exec(lines[i].trim())) && (m[3] || m[4] !== undefined))) buf.push(lines[i++].trim());
@@ -1026,7 +1028,7 @@
     return out.join("\n");
   }
   /* adds data-ln to the first tag of an html string (an empty string stays empty) */
-  function lnTag(h, from, to) { return h.replace(/^<[a-z0-9]+/i, function (t) { return t + ' data-ln="' + from + "-" + to + '"'; }); }
+  function lnTag(h, from, to, bk) { return h.replace(/^<[a-z0-9]+/i, function (t) { return t + ' data-ln="' + from + "-" + to + '"' + (bk ? ' data-bk="' + bk + '"' : ""); }); }
   /* lnBase: the source line before the first item, or undefined for no data-ln; only the items of the outer list are tagged */
   function list(items, lnBase) {
     function indentOf(l) { return l.match(/^\s*/)[0].replace(/\t/g, "  ").length; }
@@ -1040,7 +1042,7 @@
           var sub = items.slice(k + 1, j).filter(function (x) { return /^\s*([-*+]|\d+[.)])\s+/.test(x); });
           if (sub.length) kids = list(sub); else text += " " + items.slice(k + 1, j).map(function (x) { return x.trim(); }).join(" ");
         }
-        h += "<li" + (lnBase === undefined ? "" : ' data-ln="' + (lnBase + k + 1) + "-" + (lnBase + j) + '"') + ">" + inline(text) + kids + "</li>"; k = j;
+        h += "<li" + (lnBase === undefined ? "" : ' data-ln="' + (lnBase + k + 1) + "-" + (lnBase + j) + '" data-bk="li"') + ">" + inline(text) + kids + "</li>"; k = j;
       }
       return h + "</" + tag + ">";
     }
@@ -1988,10 +1990,10 @@
     pageExists: function (key, site) { return !!(site ? (siteByTitle[key] || siteBySlug[key]) : (guideByTitle[key] || guideBySlug[key])); },
     /* draws Markdown as a page of the given area ("guide" or "site"); the renderer's per-page state is set for the call and put back after it. o: { area, base, key, related } */
     renderDoc: function (body, title, o) {   /* o.lines: the number of source lines before body; with it each block carries its source lines (data-ln) */
-      var sRoot = mdRoot, sBase = mdBase, sRefs = refs;
+      var sRoot = mdRoot, sBase = mdBase, sRefs = refs, sTag = tagSrc; tagSrc = typeof o.lines === "number";
       mdRoot = o.area === "site" ? "site/" : "guide/"; mdBase = o.base || ""; refs = newRefs(o.key || "");
       try { var html = markdown(body, title, typeof o.lines === "number" ? o.lines : undefined); return o.related ? html + buildReferences(refs, o.related) : html; }
-      finally { mdRoot = sRoot; mdBase = sBase; refs = sRefs; }
+      finally { mdRoot = sRoot; mdBase = sBase; refs = sRefs; tagSrc = sTag; }
     }
   };
   /* Files fetched on first use: a style sheet is added as a link, a script is added so that scripts run in the order they were asked for. Each file is fetched once. */
@@ -2021,7 +2023,7 @@
       return { title: "Loading", html: '<h1 class="title">Loading</h1><p role="status">Loading the editor…</p>', toc: false };
     };
   }
-  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/highlight.js", "editor/menus.js", "editor/dialog.js", "editor/files.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/help.js", "editor/search.js", "editor/viewopts.js", "editor/suggest.js", "editor/pick.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
+  lazyView("editor", ["editor/editor.css", "editor/lint.js", "editor/highlight.js", "editor/menus.js", "editor/dialog.js", "editor/files.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/help.js", "editor/search.js", "editor/viewopts.js", "editor/suggest.js", "editor/pick.js", "editor/visual.js", "editor/view.js"]);   /* view.js replaces this stub with the real view */
   var routeQuery = {};   /* choices written after a ? in the address, for example group=topic */
   function route() {
     scrollMem.leave(); pendingSection = "";

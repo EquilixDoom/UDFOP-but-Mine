@@ -21,7 +21,7 @@ host.fileExists = (p) => (p in files ? files[p] : null);
 const sandbox = { window: null, console };
 sandbox.window = sandbox; sandbox.udfopHost = host;
 vm.createContext(sandbox);
-for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js", "editor/pick.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
+for (const f of ["highlight.js", "editor/lint.js", "editor/highlight.js", "editor/html2md.js", "editor/multi.js", "editor/format.js", "editor/complete.js", "editor/edits.js", "editor/search.js", "editor/viewopts.js", "editor/pick.js", "editor/visual.js"]) vm.runInContext(fs.readFileSync(path.join(web, f), "utf8"), sandbox, { filename: f });
 const P = sandbox.udfopEditor;
 
 let passed = 0, failed = 0;
@@ -891,6 +891,113 @@ test("pick: parseLn and within", () => {
   assert.strictEqual(P.pick.within(t, 2, 2, "  "), null);
 });
 test("pick is off by default and is a View toggle", () => assert.strictEqual(P.viewOpts.DEFAULTS.pick, false));
+
+test("edit: off by default and a View toggle", () => assert.strictEqual(P.viewOpts.DEFAULTS.edit, false));
+test("visual: replaceLines swaps only the block's lines", () => {
+  const r = P.visual.replaceLines("a\nb\nc\n\nd", 2, 3, "X");
+  assert.strictEqual(r.text, "a\nX\n\nd");
+  assert.strictEqual(P.visual.replaceLines("a\nb", 2, 2, "Z").text, "a\nZ");
+});
+test("visual: rewrite keeps the heading hashes and refuses text that would become another block", () => {
+  assert.strictEqual(P.visual.rewrite("h", ["### Old"], "New"), "### New");
+  assert.strictEqual(P.visual.rewrite("h", ["Old"], "New"), null);
+  assert.strictEqual(P.visual.rewrite("p", ["x"], " two\nlines "), "two lines");
+  assert.strictEqual(P.visual.rewrite("p", ["x"], "# not a heading"), null);
+  assert.strictEqual(P.visual.rewrite("p", ["x"], "- not a list"), null);
+  assert.strictEqual(P.visual.rewrite("p", ["x"], ""), null);
+});
+
+const T = (v) => ({ nodeType: 3, nodeValue: v });
+const E = (tag, attrs, ...kids) => ({ nodeType: 1, tagName: tag.toUpperCase(), childNodes: kids, className: (attrs && attrs.class) || "", getAttribute: (k) => (attrs && k in attrs ? attrs[k] : null) });
+const ser = (...kids) => P.visual.serialize({ childNodes: kids });
+test("visual: serialize writes marks, links, code, atoms and spoilers back as Markdown", () => {
+  assert.strictEqual(ser(T("a "), E("b", null, T("big")), T(" and "), E("i", null, T("it"))), "a **big** and *it*");
+  assert.strictEqual(ser(E("a", { href: "x", "data-href": "[[y]]".slice(0, 0) + "#/guide/p" }, T("go")), E("sup", { class: "lt" }, T("↗"))), "[go](#/guide/p)");
+  assert.strictEqual(ser(E("code", null, T("a`b"))), "``a`b``");
+  assert.strictEqual(ser(E("span", { class: "vis-atom", "data-md": "[[Page]]" }, E("a", { href: "#/g" }, T("Page")))), "[[Page]]");
+  assert.strictEqual(ser(E("span", { class: "spoiler" }, T("boo"))), ">!boo!<");
+  assert.strictEqual(ser(T("x y"), E("br")), "x y ");
+  assert.strictEqual(P.visual.serialize({ childNodes: [T("one"), E("ul", null, E("li", null, T("sub")))] }, true), "one");
+});
+test("visual: cellSpans finds each cell's words, with and without edge pipes", () => {
+  const w = (l) => Array.from(P.visual.cellSpans(l)).map((s) => l.slice(s[0], s[1]));
+  assert.deepStrictEqual(w("| a | b c | d |"), ["a", "b c", "d"]);
+  assert.deepStrictEqual(w("a | b"), ["a", "b"]);
+  assert.deepStrictEqual(w("| a \\| b | c |"), ["a \\| b", "c"]);
+  assert.deepStrictEqual(w("| a |  | c |"), ["a", "", "c"]);
+});
+test("visual: rewrite replaces one cell or one list item's words and keeps the rest", () => {
+  assert.strictEqual(P.visual.rewrite("cell", ["| a | b | c |"], "X|Y", 1), "| a | X\\|Y | c |");
+  assert.strictEqual(P.visual.rewrite("cell", ["| a |  | c |"], "mid", 1), "| a | mid | c |");
+  assert.strictEqual(P.visual.rewrite("li", ["  2. old"], "new"), "  2. new");
+  assert.strictEqual(P.visual.rewrite("li", ["- old"], "- nested"), null);
+});
+test("visual: convertLine builds the line for another block kind", () => {
+  assert.strictEqual(P.visual.convertLine("h3", "Words"), "### Words");
+  assert.strictEqual(P.visual.convertLine("li", "Words"), "- Words");
+  assert.strictEqual(P.visual.convertLine("quote", "Words"), "> Words");
+  assert.strictEqual(P.visual.convertLine("p", "# Words"), null);
+});
+test("visual: sourceWords gives the words the way the source spells them", () => {
+  assert.strictEqual(P.visual.sourceWords("p", ["  one ", "two"]), "one two");
+  assert.strictEqual(P.visual.sourceWords("h", ["## Title ##"]), "Title");
+  assert.strictEqual(P.visual.sourceWords("li", ["1. item"]), "item");
+  assert.strictEqual(P.visual.sourceWords("cell", ["| a | b |"], 1), "b");
+});
+test("visual: diffEdit gives the smallest replacement", () => {
+  const d = P.visual.diffEdit("one two three", "one 2 three");
+  assert.strictEqual("one two three".slice(0, d.start) + d.repl + "one two three".slice(d.end), "one 2 three");
+  assert.strictEqual(d.repl, "2");
+});
+const NL = String.fromCharCode(10), JL = (...l) => l.join(NL);
+test("visual: deleteBlock removes the block and one blank line", () => {
+  assert.strictEqual(P.visual.deleteBlock(JL("a", "", "b", "", "c"), 3, 3), JL("a", "", "c"));
+  assert.strictEqual(P.visual.deleteBlock(JL("a", "", "b", ""), 3, 3), JL("a", ""));
+  assert.strictEqual(P.visual.deleteBlock(JL("a", "", "b"), 3, 3), "a");
+});
+test("visual: insertAfter and duplicateBlock set the new block apart with blank lines", () => {
+  const r = P.visual.insertAfter(JL("a", "", "b"), 1, ["X", "Y"]);
+  assert.strictEqual(r.text, JL("a", "", "X", "Y", "", "b")); assert.strictEqual(r.first, 3);
+  assert.strictEqual(P.visual.insertAfter(JL("a", "b"), 1, ["X"]).text, JL("a", "", "X", "", "b"));
+  assert.strictEqual(P.visual.duplicateBlock(JL("a", "b", "", "c"), 1, 2).text, JL("a", "b", "", "a", "b", "", "c"));
+});
+test("visual: swapBlocks keeps what lies between the blocks", () => {
+  assert.strictEqual(P.visual.swapBlocks(JL("a", "a2", "", "b", "", "c"), [1, 2], [4, 4]), JL("b", "", "a", "a2", "", "c"));
+  assert.strictEqual(P.visual.swapBlocks(JL("a", "x", "b"), [1, 1], [3, 3]), null);
+});
+test("visual: table rows and columns", () => {
+  const t = ["| H1 | H2 |", "|---|---|", "| a | b |"];
+  assert.deepStrictEqual(Array.from(P.visual.tableAddRow(t, 2)), [...t, "|  |  |"]);
+  assert.deepStrictEqual(Array.from(P.visual.tableAddRow(t, 0)), [t[0], t[1], "|  |  |", t[2]]);
+  assert.strictEqual(P.visual.tableDelRow(t, 1), null);
+  assert.deepStrictEqual(Array.from(P.visual.tableDelRow(t, 2)), [t[0], t[1]]);
+  assert.deepStrictEqual(Array.from(P.visual.tableAddCol(t, 0, true)), ["| H1 | Heading | H2 |", "| --- | --- | --- |", "| a |  | b |"]);
+  assert.deepStrictEqual(Array.from(P.visual.tableDelCol(t, 0)), ["| H2 |", "| --- |", "| b |"]);
+  assert.strictEqual(P.visual.tableDelCol(["| H |", "|---|"], 0), null);
+  assert.deepStrictEqual(Array.from(P.visual.tableSnippet(2, 1)), ["| Heading | Heading |", "| --- | --- |", "| Text | Text |"]);
+});
+test("visual: code boxes, pictures and quotes are taken apart and put back", () => {
+  const c = P.visual.parseCode(["```js", "a", "b", "```"]);
+  assert.strictEqual(c.lang, "js"); assert.strictEqual(c.body, "a" + NL + "b"); assert.strictEqual(c.closed, true);
+  c.lang = ""; c.body = "x" + NL + "```";
+  assert.deepStrictEqual(Array.from(P.visual.buildCode(c)), ["````", "x", "```", "````"]);
+  const f = P.visual.parseFig('![Alt](images/a.png "Cap"){right 240}');
+  assert.strictEqual(f.alt, "Alt"); assert.strictEqual(f.src, "images/a.png"); assert.strictEqual(f.caption, "Cap"); assert.strictEqual(f.opts, "right 240");
+  assert.strictEqual(P.visual.buildFig(f), '![Alt](images/a.png "Cap"){right 240}');
+  assert.strictEqual(P.visual.parseFig("not a picture"), null);
+  const q = P.visual.parseQuote(["> [!INFO] Title", "> Key: Value", ">", "> More"]);
+  assert.strictEqual(q.kind, "info"); assert.strictEqual(q.title, "Title"); assert.strictEqual(q.body, "Key: Value" + NL + NL + "More");
+  assert.deepStrictEqual(Array.from(P.visual.buildQuote(q)), ["> [!INFO] Title", "> Key: Value", ">", "> More"]);
+  q.kind = "warning"; assert.strictEqual(P.visual.buildQuote(q)[0], "> [!WARNING]");
+  assert.strictEqual(P.visual.parseQuote(["> plain"]).kind, "quote");
+});
+test("visual: moveBlockTo moves a block across several others", () => {
+  const t = JL("a", "", "b", "", "c", "", "d");
+  const r = [[1, 1], [3, 3], [5, 5], [7, 7]];
+  assert.strictEqual(P.visual.moveBlockTo(t, r, 0, 3), JL("b", "", "c", "", "d", "", "a"));
+  assert.strictEqual(P.visual.moveBlockTo(t, r, 3, 1), JL("a", "", "d", "", "b", "", "c"));
+  assert.strictEqual(P.visual.moveBlockTo(JL("a", "b", "", "c"), [[1, 2], [4, 4]], 1, 0), JL("c", "", "a", "b"));
+});
 
 console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);
 process.exit(failed ? 1 : 0);
