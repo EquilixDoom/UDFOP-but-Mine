@@ -75,7 +75,7 @@ def save_draft(body):
         new = f"{r['version']}-{n:03d}"
         if r.get("_confirmed"):
             conf[new] = True
-        rows.append({k: v for k, v in r.items() if k != "_confirmed"} | {"id": new})
+        rows.append({k: v for k, v in r.items() if k not in ("_confirmed", "_open")} | {"id": new})
     os.makedirs(N.INBOX, exist_ok=True)
     N.write_jsonl(DRAFT, rows)
     with open(SKIPPED, "w", encoding="utf-8", newline="\n") as f:
