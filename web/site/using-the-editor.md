@@ -48,18 +48,18 @@ The check reads another page's headings, and looks for picture files, the first 
 ## The File menu
 
 - **New from template** opens a window listing the starter templates (How it works, Item, Place, Creature or boss), each with a line on what it is for. Choosing one replaces the text with it and selects the first placeholder so you can type over it.
-- **Open a guide page** lists the pages already in the Game Guide, grouped by category with each page's summary. Type to narrow the list (it matches titles, categories and summaries), use the arrow keys and Enter or click to choose a page to edit it (see below).
-- **Open from this computer** (Ctrl+O) loads a Markdown or text file (`.md`, `.markdown`, `.mdown` or `.txt`, up to 2 MB) into the editor.
-- **Save draft** (Ctrl+S) saves the draft now instead of waiting.
+- **Open a guide page** lists the pages already in the Game Guide, grouped by category with each page's summary. Type to narrow the list (it matches titles, categories and summaries), use the arrow keys and {{Enter}} or click to choose a page to edit it (see below).
+- **Open from this computer** ({{Ctrl+O}}) loads a Markdown or text file (`.md`, `.markdown`, `.mdown` or `.txt`, up to 2 MB) into the editor.
+- **Save draft** ({{Ctrl+S}}) saves the draft now instead of waiting.
 - **Download .md** saves the text as a file named after your title, for example `my-page.md`.
 - **Discard draft** deletes the saved draft and starts a new page from the template.
 
-Whenever one of these would replace the text you have written, the editor asks first. You can cancel, replace the text (Ctrl+Z brings the old text back), or choose **Download, then replace** to save a copy to your device before it goes.
+Whenever one of these would replace the text you have written, the editor asks first. You can cancel, replace the text ({{Ctrl+Z}} brings the old text back), or choose **Download, then replace** to save a copy to your device before it goes.
 
 ## The Edit menu
 
 - **Undo, Redo, Cut, Copy, Delete** and **Select All** work on the text box as usual.
-- **Paste** puts the clipboard's text where the caret is, or over the selection. A browser asks before a page may read your clipboard; if you decline, or the browser does not allow it, the status bar says to press Ctrl+V instead.
+- **Paste** puts the clipboard's text where the caret is, or over the selection. A browser asks before a page may read your clipboard; if you decline, or the browser does not allow it, the status bar says to press {{Ctrl+V}} instead.
 - **Paste Special > Paste HTML Content** reads formatted text from the clipboard, such as something copied from a web page or a Word document, and pastes it as Markdown: headings, paragraphs, bold, italic, code, links, pictures, lists, tables, code blocks and quotes. Colors, fonts, scripts and styles are dropped, and so are links that run code. The browser asks for permission here too.
 - **Indent** adds or removes two spaces at the start of the selected lines, or of the line the caret is on.
 - **Change Case To** changes the selection to UPPER, lower, Proper or Sentence. Proper capitalizes the first letter of each word, skipping anything in front of it that is not a letter, so `(hello)` becomes `(Hello)` and `2nd` becomes `2Nd`. Sentence capitalizes the first letter of the selection, of each line and of each sentence (after a full stop, question mark or exclamation mark), skipping what comes before it, so `## my heading` becomes `## My heading` and `- item` becomes `- Item`. With nothing selected they change the word the caret is in, and Sentence changes the line.
@@ -73,19 +73,19 @@ These keys work while the cursor is in the text box:
 
 | Key | What it does |
 |---|---|
-| Tab | Indents the line when several lines are selected, a whole line is selected, or only spaces are to the left of the cursor; then the cursor moves to the end of the line's leading spaces. Anywhere else in a line it types spaces up to the next tab stop |
-| Shift+Tab | Decreases the indentation in the same cases. Anywhere else in a line it moves the cursor back one tab stop at a time, until only spaces are left of it, and the next press decreases the line's indentation |
-| Ctrl+Shift+Up, Ctrl+Shift+Down | Moves the current line or the selected lines up or down |
-| Home | Moves the cursor to the end of the line's leading spaces; from there, to the start of the line. A long line that wraps counts as one line |
-| Shift+Home | The same, selecting every character the cursor passes |
-| Ctrl+Shift+U | UPPER |
-| Ctrl+U | lower |
-| Alt+U | Proper |
-| Ctrl+Alt+U | Sentence |
+| {{Tab}} | Indents the line when several lines are selected, a whole line is selected, or only spaces are to the left of the cursor; then the cursor moves to the end of the line's leading spaces. Anywhere else in a line it types spaces up to the next tab stop |
+| {{Shift+Tab}} | Decreases the indentation in the same cases. Anywhere else in a line it moves the cursor back one tab stop at a time, until only spaces are left of it, and the next press decreases the line's indentation |
+| {{Ctrl+Shift+Up}}, {{Ctrl+Shift+Down}} | Moves the current line or the selected lines up or down |
+| {{Home}} | Moves the cursor to the end of the line's leading spaces; from there, to the start of the line. A long line that wraps counts as one line |
+| {{Shift+Home}} | The same, selecting every character the cursor passes |
+| {{Ctrl+Shift+U}} | UPPER |
+| {{Ctrl+U}} | lower |
+| {{Alt+U}} | Proper |
+| {{Ctrl+Alt+U}} | Sentence |
 
-Tab stops are every two columns. A selection inside one line counts as a cursor at its end for Tab and at its start for Shift+Tab. The **Edit > Indent** menu items always indent or outdent the line or the selected lines, wherever the cursor is.
+Tab stops are every two columns. A selection inside one line counts as a cursor at its end for {{Tab}} and at its start for {{Shift+Tab}}. The **Edit > Indent** menu items always indent or outdent the line or the selected lines, wherever the cursor is.
 
-Because Tab indents, it no longer moves the cursor out of the text box. To leave the box with the keyboard, press Esc and then Tab.
+Because {{Tab}} indents, it no longer moves the cursor out of the text box. To leave the box with the keyboard, press {{Esc}} and then {{Tab}}.
 
 Every one of these is a single step for Undo.
 
@@ -93,48 +93,62 @@ Every one of these is a single step for Undo.
 
 | Shortcut | Command |
 |---|---|
-| Ctrl+F | Find |
-| Ctrl+H | Replace |
-| Ctrl+Alt+I | Incremental Search |
+| {{Ctrl+F}} | Find |
+| {{Ctrl+H}} | Replace |
+| {{Ctrl+Alt+I}} | Incremental Search |
 | (menu only) | Find and Select All |
 
-**Find** opens a bar above the text: a search box, `<` and `>` buttons, the **Match case**, **Whole word** and **Regex** checkboxes, **Highlight all**, and the position of the match ("2/5"). Enter or Shift+Enter moves to the next or previous match, going round at the ends. If text is selected when you open the bar, it is searched for. **Close** or Esc closes the bar.
+**Find** opens a bar above the text: a search box, `<` and `>` buttons, the **Match case**, **Whole word** and **Regex** checkboxes, **Highlight all**, and the position of the match ("2/5"). {{Enter}} or {{Shift+Enter}} moves to the next or previous match, going round at the ends. If text is selected when you open the bar, it is searched for. **Close** or {{Esc}} closes the bar.
 
 **Replace** adds a second line. Replace changes the selected match and moves to the next; Replace All changes every match as one step for Undo. In a regular expression, $1, $& and \n in the replacement stand for a group, the match and a new line.
 
-**Incremental Search** is the same bar without Whole word and Regex, and without Replace. The text is found as you type, starting from the cursor. Enter keeps the match selected and closes the bar; Esc or **Close** closes it and puts the cursor back. The Up and Down keys move between matches.
+**Incremental Search** is the same bar without Whole word and Regex, and without Replace. The text is found as you type, starting from the cursor. {{Enter}} keeps the match selected and closes the bar; {{Esc}} or **Close** closes it and puts the cursor back. The {{Up}} and {{Down}} keys move between matches.
 
-**Find and Select All** opens the Find bar and, with something to find (selected text, or what is already in the box), turns every match into a selection at once. Otherwise type the text and press Enter. The result is the same as Edit > Multi-Select All: type, delete or paste over all of them, and Ctrl+Z undoes it in one step. The bar's options (Match case, Whole word, Regex) apply.
+**Find and Select All** opens the Find bar and, with something to find (selected text, or what is already in the box), turns every match into a selection at once. Otherwise type the text and press {{Enter}}. The result is the same as Edit > Multi-Select All: type, delete or paste over all of them, and {{Ctrl+Z}} undoes it in one step. The bar's options (Match case, Whole word, Regex) apply.
 
 ## The View menu
 
 | Shortcut | Command |
 |---|---|
-| Ctrl + plus, Ctrl + minus, Ctrl + 0 | Zoom in, zoom out, default zoom (also Ctrl + mouse wheel) |
+| {{Ctrl+Plus}}, {{Ctrl+Minus}}, {{Ctrl+0}} | Zoom in, zoom out, default zoom (also {{Ctrl+mouse wheel}}) |
 
 Items with a check mark are switches; the choices are kept in this browser between visits.
 
 **Show Symbol** draws what cannot normally be seen, without moving any text. **Show Space and Tab** marks spaces with a dot and tabs with an arrow. **Show End of Line** marks every line break. **Show Non-Printing Characters** marks the no-break space and the invisible characters such as the zero-width space, soft hyphen and byte order mark, by name. **Show Control Characters & Unicode EOL** names control characters and the Unicode line and paragraph separators. **Show All Characters** switches these four together. **Show Indent Guide** draws a thin line at every second column of the blanks at the start of a line. **Show Wrap Symbol** puts an arrow in the right margin at every row that continues on the next row.
 
-**Zoom** changes the size of the pane that has the focus: the text box, or the preview. Click in a pane first. The menu items change the pane you used last. When the focus is anywhere else, such as the menu bar, Ctrl + plus and minus are left to the browser, which zooms the whole page.
+**Zoom** changes the size of the pane that has the focus: the text box, or the preview. Click in a pane first. The menu items change the pane you used last. When the focus is anywhere else, such as the menu bar, {{Ctrl+Plus}} and {{Ctrl+Minus}} are left to the browser, which zooms the whole page.
 
 **Synchronized Scroll** keeps the preview and the text level. Each heading in the text is matched to the same heading in the preview, and between two headings the position is carried over in proportion. Scrolling either one moves the other. It needs the same number of headings in both; if some are drawn differently, the two scroll by the same fraction of their length instead.
 
-**Edit in Preview** (also the **Edit** button above the preview) changes text where you see it. With it on, click a paragraph, heading, list item or table cell in the preview and type; a bar above it has **Bold**, **Italic**, inline code, **Link** (also Ctrl+K) and a menu that turns the block into a paragraph, heading, bullet item or quote. Wiki links and keys show as boxed chips that stay whole; **Enter** saves the change into the text, **Esc** cancels, and clicking another block saves and moves on. Only the lines of that block are rewritten, and **Ctrl+Z** takes the change back in one step. A block whose text the preview draws differently from how it is written (for example italics written with underscores) is not edited in place: its lines are selected in the text instead. Point at any block and a small bar offers **Move up**, **Move down**, **Copy**, **Delete** and **Add**, which adds a paragraph, heading, list, table, code box, notice, infobox, picture, quote, spoiler or rule after it and starts editing it. While you edit a table cell, the bar also adds or removes the row or column. The grip (two columns of dots) on the left of the bar drags the block to another place; a line shows where it will land. Click a code box, picture, notice, infobox or quote, or press **Edit…** on its bar, to change its parts in a window: the language and code of a code box, the file, description, caption and options of a picture, or the type, title and text of a notice, infobox or quote. Each of these is one change in the text.
+**Edit in Preview** changes text where you see it in the preview; see [Edit in Preview](#edit-in-preview) below.
 
 **Word Wrap** turns the wrapping of long lines on and off; with it off, the text box scrolls sideways.
 
-**Margin** has **Line Number**, and **Change History**, which draws a bar beside each line changed since the page was opened: orange until you save with Ctrl+S or File > Save draft, green after. The automatic draft saving does not count as a save. Opening a page or file, or Discard draft, clears the bars. Undo does not take a bar away.
+**Margin** has **Line Number**, and **Change History**, which draws a bar beside each line changed since the page was opened: orange until you save with {{Ctrl+S}} or File > Save draft, green after. The automatic draft saving does not count as a save. Opening a page or file, or Discard draft, clears the bars. Undo does not take a bar away.
 
 **Current Line Indicator** shades the line that has the cursor, or the lines when there are several cursors.
+
+## Edit in Preview
+
+Switch it on with the **Edit** button above the preview or with **View > Edit in Preview**; {{Esc}} switches it off.
+
+**Edit in Preview** changes the page where you see it. With it on, the preview works on blocks: a paragraph, heading, list, table, code box, picture, notice, infobox, quote or rule. Every change is written into the text as one step for Undo ({{Ctrl+Z}}), and only the lines of that block are rewritten.
+
+- **Typing in a block.** Click a paragraph, heading, list item or table cell and type. A bar above it has **Bold**, **Italic**, inline code, **Link** (also {{Ctrl+K}}) and a menu that turns the block into a paragraph, heading, bullet item or quote. Wiki links and keys show as boxed chips that stay whole. {{Enter}} saves the change into the text, {{Shift+Enter}} is ignored (a block here is one line), {{Esc}} cancels, and clicking another block saves and moves on. In a table cell, the bar also adds or removes the row or column. A block whose text the preview draws differently from how it is written (for example italics written with underscores) is not edited in place: its lines are selected in the text instead.
+- **Selecting a block.** Point at a block to see it outlined with a grip (two columns of dots) on its left. Click the grip to select the block. The selected block has a ring and a bar with **Move up**, **Move down**, **Edit…**, **Copy**, **Delete** and **Add**. The bar stays with the selected block while you point at others.
+- **Moving.** Drag the grip to another place; a line shows where the block will land. **Move up** and **Move down** do the same one step at a time.
+- **Adding.** Point between two blocks and press the line that appears (**Add a block here**), or press **Add** on the bar to add after the selected block. The menu offers a paragraph, heading, list, table (it asks for the size), code box, notice, infobox, picture, quote, spoiler or rule, and starts editing it.
+- **Edit…** opens a window for the parts of a code box (language and code), a picture (file, description, caption and options) or a notice, infobox or quote (type, title and text).
+- **Pictures.** A picture placed left or right sits beside the text, so a strip labeled "Picture, left" or "Picture, right" marks where it falls in the text, and a dashed line labeled "Picture starts here" shows the gap it is anchored in. With a picture selected, drag the handle on its lower outer corner to change its width (the size shows while dragging; it is written as the picture's width option).
+- **Keyboard.** With the preview focused and nothing selected, {{Up}} and {{Down}} move a highlight from block to block and {{Enter}} selects the highlighted block. With a block selected: {{Enter}} or {{F2}} edits it, {{Up}} and {{Down}} move it, {{Delete}} or {{Backspace}} deletes it, and {{Esc}} deselects it (a second {{Esc}} switches the mode off). For a selected picture, {{Left}} and {{Right}} change its side (left, center, right), and {{+}} and {{-}} change its width by 10 px (50 px with {{Shift}} held).
 
 ## The Format menu
 
 | Shortcut | Command |
 |---|---|
-| Ctrl + B, Ctrl + I, Ctrl + E | Bold, Italic, Inline Code |
-| Ctrl + K | Wiki Link |
-| Ctrl + 2 to Ctrl + 6 | Heading 2 to Heading 6 |
+| {{Ctrl+B}}, {{Ctrl+I}}, {{Ctrl+E}} | Bold, Italic, Inline Code |
+| {{Ctrl+K}} | Wiki Link |
+| {{Ctrl+2}} to {{Ctrl+6}} | Heading 2 to Heading 6 |
 
 The items put Markdown marks around the selection, or at the start of the lines it touches. Choosing the same item again takes the marks off. Each one is a single step for Undo, and with several cursors the marks, headings, lists, quotes and callouts are done at every one of them.
 
@@ -150,42 +164,42 @@ The items put Markdown marks around the selection, or at the start of the lines 
 
 ## Finishing what you type
 
-The editor closes brackets and marks, carries lists and tables on, and offers names as you type. All of it works with one cursor; with several cursors the keys do what they always do. Nothing is changed inside a code box, except that Enter keeps the indentation there. Each change is a single step for Undo.
+The editor closes brackets and marks, carries lists and tables on, and offers names as you type. All of it works with one cursor; with several cursors the keys do what they always do. Nothing is changed inside a code box, except that {{Enter}} keeps the indentation there. Each change is a single step for Undo.
 
 - **Pairs.** Typing `(`, `[`, `{`, `` ` ``, `*` or `>!` adds the closing half and puts the cursor between them, so `[[` makes `[[]]`. Typing the closing half steps over it. Backspace between an empty pair removes both. A `*` makes a pair only where emphasis can begin (after a space or an opening bracket, not at the start of a line, where it is a bullet, or inside a word). With text selected, `*`, `` ` ``, `[`, `(` and `{` put the marks around it and keep it selected, so `[` twice makes a wiki link and `*` twice makes bold.
-- **Enter** in a list starts the next item, with the next number in a numbered list; on an empty item it ends the list. In a quote or a callout it carries the `>` on, and on an empty quote line it ends the quote. After an opening code fence it adds the closing fence below. In a table it adds a row; in the heading row of a table that has no divider yet it adds the divider as well, and in an empty last row it ends the table.
-- **Tab and Shift+Tab** in a table row move to the next or previous cell and set the table out in columns. Tab in the last cell adds a row. Esc then Tab still leaves the text box.
-- **Suggestions** appear in a list under the cursor. Up and Down choose, Enter or Tab or a click accepts, and Esc closes the list until you type something different. After `[[` they are the Game Guide pages, then `topic:` and `site:` names; after `[[Page#` the headings of that page; after `{{` the key and button names; after `> [!` the box types; after `![text](` or an `image:` line the pictures already in the guide's folders. In the front matter they are the field names, the categories already in use, and, after `related:`, the pages and topics. Accepting adds the closing `]]`, `}}` or `)` unless an auto-closed one is already there.
+- {{Enter}} in a list starts the next item, with the next number in a numbered list; on an empty item it ends the list. In a quote or a callout it carries the `>` on, and on an empty quote line it ends the quote. After an opening code fence it adds the closing fence below. In a table it adds a row; in the heading row of a table that has no divider yet it adds the divider as well, and in an empty last row it ends the table.
+- {{Tab}} and {{Shift+Tab}} in a table row move to the next or previous cell and set the table out in columns. {{Tab}} in the last cell adds a row. {{Esc}} then {{Tab}} still leaves the text box.
+- **Suggestions** appear in a list under the cursor. {{Up}} and {{Down}} choose, {{Enter}} or {{Tab}} or a click accepts, and {{Esc}} closes the list until you type something different. After `[[` they are the Game Guide pages, then `topic:` and `site:` names; after `[[Page#` the headings of that page; after `{{` the key and button names; after `> [!` the box types; after `![text](` or an `image:` line the pictures already in the guide's folders. In the front matter they are the field names, the categories already in use, and, after `related:`, the pages and topics. Accepting adds the closing `]]`, `}}` or `)` unless an auto-closed one is already there.
 
 ## Several cursors and selections
 
-You can hold more than one cursor or selection at once and edit at all of them together. On a Mac, use Cmd where this says Ctrl.
+You can hold more than one cursor or selection at once and edit at all of them together. On a Mac, use {{Cmd}} where this says {{Ctrl}}.
 
 | Key or mouse | What it does |
 |---|---|
-| Ctrl + click | Adds a cursor where you click. Ctrl + click on a cursor or selection you already added takes it away again |
-| Ctrl + double click | Adds the word under the pointer, or the run of spaces or punctuation if you click on that |
-| Ctrl + triple click | Adds the whole line under the pointer, with its line break |
-| Alt + drag | Box selection: drag a rectangle, and every line it crosses gets a selection over the same columns. It replaces the selections you had. A line shorter than the box is selected only as far as it goes |
-| Alt + Shift + Down | Column mode: adds a cursor on the next line down in the same column. If the column grows upward from where it started, it takes the top cursor away instead |
-| Alt + Shift + Up | The same upward |
-| Escape | Goes back to one cursor, the one you added last |
+| {{Ctrl+click}} | Adds a cursor where you click. {{Ctrl+click}} on a cursor or selection you already added takes it away again |
+| {{Ctrl+double click}} | Adds the word under the pointer, or the run of spaces or punctuation if you click on that |
+| {{Ctrl+triple click}} | Adds the whole line under the pointer, with its line break |
+| {{Alt+drag}} | Box selection: drag a rectangle, and every line it crosses gets a selection over the same columns. It replaces the selections you had. A line shorter than the box is selected only as far as it goes |
+| {{Alt+Shift+Down}} | Column mode: adds a cursor on the next line down in the same column. If the column grows upward from where it started, it takes the top cursor away instead |
+| {{Alt+Shift+Up}} | The same upward |
+| {{Esc}} | Goes back to one cursor, the one you added last |
 | A click with no key | Goes back to one cursor where you click |
 
-With several cursors, typing, Backspace, Delete, Ctrl+Backspace, Ctrl+Delete and Enter act at every one. Pasting puts the same text at each cursor, or one line of it at each when the clipboard has as many lines as there are cursors. Copy and cut join the selected pieces with line breaks. The arrow keys, Home and End move every cursor (with Shift they extend every selection, with Ctrl they go a word at a time). Tab, Shift+Tab, the case shortcuts and Move Line, and the Edit menu commands, act on each selection; lines that two selections share are changed once, and the line operations treat lines that touch as one block.
+With several cursors, typing, {{Backspace}}, {{Delete}}, {{Ctrl+Backspace}}, {{Ctrl+Delete}} and {{Enter}} act at every one. Pasting puts the same text at each cursor, or one line of it at each when the clipboard has as many lines as there are cursors. Copy and cut join the selected pieces with line breaks. The arrow keys, {{Home}} and {{End}} move every cursor (with {{Shift}} they extend every selection, with {{Ctrl}} they go a word at a time). {{Tab}}, {{Shift+Tab}}, the case shortcuts and Move Line, and the Edit menu commands, act on each selection; lines that two selections share are changed once, and the line operations treat lines that touch as one block.
 
-One Ctrl+Z undoes a change made at all the cursors together. It restores the text and one cursor, not all of them. Select All, Page Up and Page Down, and Ctrl+Home and Ctrl+End also go back to one cursor, and so does anything that changes the text another way, such as a File command. A change that would rewrite more than 400,000 characters between the first and last selection is refused.
+One {{Ctrl+Z}} undoes a change made at all the cursors together. It restores the text and one cursor, not all of them. Select All, {{Page Up}} and {{Page Down}}, and {{Ctrl+Home}} and {{Ctrl+End}} also go back to one cursor, and so does anything that changes the text another way, such as a File command. A change that would rewrite more than 400,000 characters between the first and last selection is refused.
 
-Some Linux desktops use Alt + drag to move windows, so the box selection may never reach the page there; use Alt + Shift + Up and Down instead. Touch screens have no Ctrl or Alt. Screen readers and the spelling menu only see one of the selections.
+Some Linux desktops use {{Alt+drag}} to move windows, so the box selection may never reach the page there; use {{Alt+Shift+Up}} and {{Alt+Shift+Down}} instead. Touch screens have no {{Ctrl}} or {{Alt}}. Screen readers and the spelling menu only see one of the selections.
 
 ## Help
 
-The **?** at the end of the menu bar, or **F1** from anywhere in the editor, opens this help in a window that floats over the editor. It takes no room from the two panes and the text behind it stays editable.
+The **?** at the end of the menu bar, or {{F1}} from anywhere in the editor, opens this help in a window that floats over the editor. It takes no room from the two panes and the text behind it stays editable.
 
 - Drag the title bar to move the window and the bottom-right corner to resize it. It remembers where you left it.
 - **Contents** lists five pages: How to use the editor, How to write a guide page, Formatting reference, Extended formatting and Fixing a page. The page you are reading opens out into its sections, and each section is a page of its own.
-- **<** and **>**, or the Left and Right arrow keys while the window has the focus, go to the previous and next page.
-- **Close** or Esc closes the window. **Open on the site** shows the page in a new tab. Links to other site pages also open in a new tab, so your draft is not disturbed.
+- **<** and **>**, or the {{Left}} and {{Right}} arrow keys while the window has the focus, go to the previous and next page.
+- **Close** or {{Esc}} closes the window. **Open on the site** shows the page in a new tab. Links to other site pages also open in a new tab, so your draft is not disturbed.
 
 On a narrow screen the window fills the editor instead of floating.
 
@@ -193,7 +207,7 @@ On a narrow screen the window fills the editor instead of floating.
 
 There are two ways in: **File > Open a guide page**, or the **Edit in the browser editor** link at the bottom of any Game Guide page. The page's text is loaded into the editor, and the title bar says "editing guide/the-page.md". Change it as you would a new page; the preview, the Problems check and the draft work the same.
 
-Submitting is different. GitHub's page for changing an existing file cannot be filled in from a link, so **Copy and open on GitHub** copies your whole page and opens that file on GitHub. There, select all of the old text (Ctrl+A) and paste yours over it (Ctrl+V), then commit as usual. As always, fork the project first.
+Submitting is different. GitHub's page for changing an existing file cannot be filled in from a link, so **Copy and open on GitHub** copies your whole page and opens that file on GitHub. There, select all of the old text ({{Ctrl+A}}) and paste yours over it ({{Ctrl+V}}), then commit as usual. As always, fork the project first.
 
 The editor keeps one draft. Opening a page replaces the draft, after asking, and the draft remembers which page it is a copy of. Choosing **New from template**, **Open from this computer** or **Discard draft** ends the editing of that page. A page you are editing keeps its file name and its pictures stay where they are; its own title is not counted as a clash, but another page's title still is.
 
@@ -205,9 +219,9 @@ The editor saves your draft in this browser a moment after you stop typing, and 
 
 Press **Submit on GitHub**. GitHub opens on its "new file" screen with your page already filled in, ready for you to commit and open a pull request. The steps from there are on the page [[site:How to write a guide page]], from step 5.
 
-While the page has an error, the button is outlined in red and pressing it opens a window listing the errors, with **Cancel** and **Submit anyway**. Press a line in the list to go straight to that error in the text. Cancel, Esc, or a click outside the window takes you back and opens the Problems panel. Warnings never open this window.
+While the page has an error, the button is outlined in red and pressing it opens a window listing the errors, with **Cancel** and **Submit anyway**. Press a line in the list to go straight to that error in the text. Cancel, {{Esc}}, or a click outside the window takes you back and opens the Problems panel. Warnings never open this window.
 
-All the editor's windows work this way: Esc or a click outside closes them without changing anything, and when one asks you to confirm a change, **Cancel** has the focus so pressing Enter never confirms by accident.
+All the editor's windows work this way: {{Esc}} or a click outside closes them without changing anything, and when one asks you to confirm a change, **Cancel** has the focus so pressing {{Enter}} never confirms by accident.
 
 If the page is too long to carry in the link, the button reads **Copy and paste on GitHub**: it copies the text, then opens GitHub's new-file page, where you paste it.
 
