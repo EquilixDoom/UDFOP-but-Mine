@@ -28,6 +28,9 @@ button:disabled{opacity:.5;cursor:default}
 .pl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:13px}
 .pill{border:1px solid var(--line);border-radius:10px;padding:0 8px}
 .pill.f{background:var(--flag);border-color:var(--flagline)}
+.strip{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}.strip .b{padding:2px 8px;font-size:13px}.mut2{opacity:.7;font-size:12px}
+.ph{font-size:20px;margin:0}.gh{font-size:16px;margin:18px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.card.ok.cmp{opacity:.75}
 .pv{font-size:12px;color:var(--mut);margin-top:2px}
 .nt:empty{display:none}.nt .warn{font-size:12px;margin:6px 0 0;padding:3px 8px}.nt .warn.soft{background:var(--flag);border-color:var(--flagline)}
 .nt .chips{align-items:center;font-size:12px}.sg{border:1px dashed var(--acc);border-radius:12px;padding:1px 9px;font-size:12px;cursor:pointer;background:none;color:var(--fg)}
@@ -58,7 +61,7 @@ textarea{width:100%;min-height:80px}
 <div id="foot"></div>
 <script>
 "use strict";
-var S = null, rows = [], skipped = [], tab = "home", filter = "unconf", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [], dshow = 25;
+var S = null, rows = [], skipped = [], tab = "home", filter = "all", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [], dshow = 25;
 var $ = function (s) { return document.querySelector(s); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function api(path, body) {
@@ -123,7 +126,31 @@ function visible(r) {
   if (r._confirmed) return false;
   return filter !== "flag" || flagsOf(r).length > 0;
 }
-function vis() { var o = []; rows.forEach(function (r, i) { if (visible(r)) o.push(i); }); return o; }
+/* Review is one patch at a time, laid out like the wiki's patch page: headings by kind of change, in the same order. */
+var TG = [["Additions", ["New"]], ["Reworks", ["Rework"]], ["Fixes", ["Fix"]], ["Performance", ["Performance"]], ["Economy", ["Economy"]],
+  ["Interface and quality of life", ["UI", "QoL"]], ["Balance (buffs and nerfs)", ["Buff", "Nerf"]], ["Removals", ["Removal"]], ["Other changes", ["Other"]]];
+var pv = "";
+function gOf(r) { for (var k = 0; k < TG.length; k++) if (TG[k][1].indexOf(r.change_type) >= 0) return k; return TG.length - 1; }
+function versions() { var v = []; rows.forEach(function (r) { if (v.indexOf(r.version) < 0) v.push(r.version); }); return v; }
+function verDone(v) { return rows.every(function (r) { return r.version !== v || r._confirmed; }); }
+function curVer() {
+  var vs = versions();
+  if (vs.indexOf(pv) < 0) pv = vs.filter(function (v) { return !verDone(v); })[0] || vs[0] || "";
+  return pv;
+}
+function patchRows() {
+  var v = curVer(), o = [];
+  rows.forEach(function (r, i) { if (r.version === v) o.push(i); });
+  return o.sort(function (a, b) { return gOf(rows[a]) - gOf(rows[b]) || a - b; });
+}
+function vis() { return patchRows().filter(function (i) { return visible(rows[i]); }); }
+function patchDone() { return verDone(curVer()); }
+function gotoPatch(v) { pv = v; cur = -1; render(); window.scrollTo(0, 0); }
+function nextPatch() {
+  var vs = versions(), at = vs.indexOf(curVer()), rest = vs.slice(at + 1).concat(vs.slice(0, at));
+  var nx = rest.filter(function (v) { return !verDone(v); })[0] || vs[at + 1];
+  if (nx) gotoPatch(nx);
+}
 function lowerFirst(text, entity) {
   var first = text.split(" ")[0];
   var up = first === first.toUpperCase() && first !== first.toLowerCase();
@@ -140,11 +167,12 @@ function stat() {
 function bar() {
   var f = $("#foot");
   if (tab !== "rows" || !rows.length) { f.style.display = "none"; return; }
-  var un = rows.filter(function (r) { return !r._confirmed; }).length, n = rows.filter(safe).length, done = rows.length - un, er = rows.filter(function (r) { return errsOf(r).length; }).length;
+  var un = rows.filter(function (r) { return !r._confirmed; }).length, n = patchRows().filter(function (j) { return safe(rows[j]); }).length, done = rows.length - un, er = rows.filter(function (r) { return errsOf(r).length; }).length;
   f.style.display = "flex";
   f.innerHTML = '<div class="prog"><i style="width:' + Math.round(100 * done / rows.length) + '%"></i></div><span>' + done + " / " + rows.length + " confirmed</span>" + (er ? '<span class="tag new">' + er + " with errors</span>" : "") +
     (UNDO ? '<button class="b" data-a="undo" title="Undo the last change of this kind (Z)">Undo ' + esc(UNDO.label) + "</button>" : "") +
-    '<button class="b" data-a="confsafe"' + (n ? "" : " disabled") + ' title="Rows whose topic already exists and that nothing flagged">Confirm ' + n + " unflagged</button>" +
+    (patchDone() && versions().length > 1 ? '<button class="b" data-a="nextpatch">Next patch →</button>' : "") +
+    '<button class="b" data-a="confsafe"' + (n ? "" : " disabled") + ' title="Rows of this patch whose topic already exists and that nothing flagged">Confirm ' + n + " unflagged here</button>" +
     '<button class="b pri" data-a="ingest"' + (un || er || busy ? " disabled" : "") + ' title="' + (un ? un + " row(s) still need confirming" : er ? er + " row(s) have errors" : "Write the rows to the wiki data") + '">Ingest ' + rows.length + " rows</button>";
 }
 function render() {
@@ -249,10 +277,8 @@ function confirmRow(i) {
   var list = vis(), p = list.indexOf(i);
   r._confirmed = !r._confirmed; save();
   if (!visible(r)) {
-    var el = cardEl(i); if (el) el.remove();
-    if (!vis().length) { cur = -1; return render(); }
-    var nx = list[p + 1] !== undefined ? list[p + 1] : list[p - 1];
-    cur = -1; stat(); bar(); setCur(nx);
+    cur = list[p + 1] !== undefined ? list[p + 1] : list[p - 1] !== undefined ? list[p - 1] : -1;
+    render(); var ne = cardEl(cur); if (ne) ne.scrollIntoView({ block: "nearest" });
   } else {
     syncCard(i);
     if (r._confirmed && list[p + 1] !== undefined) setCur(list[p + 1]);
@@ -260,17 +286,28 @@ function confirmRow(i) {
 }
 function reviewView() {
   if (!rows.length && !skipped.length) return '<div class="card">No draft. Go to step 1 and press Fetch &amp; prepare.</div>' + logBox();
-  var list = vis(); if (list.indexOf(cur) < 0) cur = list.length ? list[0] : -1;
-  var vers = Array.from(new Set(rows.map(function (r) { return r.version; })));
+  var v = curVer(), list = vis(); if (list.indexOf(cur) < 0) cur = list.length ? list[0] : -1;
+  var all = patchRows(), nconf = all.filter(function (i) { return rows[i]._confirmed; }).length;
+  var rel = S.pending.filter(function (p) { return p.version === v; })[0], date = all.length ? rows[all[0]].date : (rel ? rel.date : "");
   var h = '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
-  h += '<div class="bar"><select id="flt"><option value="unconf"' + (filter === "unconf" ? " selected" : "") + ">Unconfirmed</option><option value=\"flag\"" + (filter === "flag" ? " selected" : "") + ">Flagged and unconfirmed</option><option value=\"all\"" + (filter === "all" ? " selected" : "") + ">All rows</option></select>" +
-    '<span class="mut">' + vers.map(function (v) { var a = rows.filter(function (r) { return r.version === v; }); return esc(v) + " " + a.filter(function (r) { return r._confirmed; }).length + "/" + a.length; }).join(" · ") + "</span></div>" +
-    '<p class="mut"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> edit · <kbd>T</kbd> topic · <kbd>S</kbd> split · <kbd>X</kbd> leave out · <kbd>U</kbd> unconfirm · <kbd>Z</kbd> undo · <kbd>Esc</kbd> close</p>';
-  list.forEach(function (i) { h += card(rows[i], i); });
-  if (!list.length) h += '<div class="card">' + (rows.some(function (r) { return !r._confirmed; }) ? "Nothing to show with this filter." : "Every row is confirmed. Ingest from the bar below.") + "</div>";
-  if (skipped.length) {
-    h += "<h3>Left out (" + skipped.length + ")</h3><p class=\"mut\">Statements of no change, rollout and credits are skipped automatically. Add one back if it is a real change.</p>";
-    skipped.forEach(function (s, j) { h += '<div class="card"><div class="mut">' + esc(s.version) + (s.section ? " · " + esc(s.section) : "") + '</div><div class="src">' + esc(s.text) + '</div><button class="b" data-a="restore" data-j="' + j + '">Add as a row</button></div>'; });
+  h += '<div class="strip">' + versions().map(function (x) {
+    var a = rows.filter(function (r) { return r.version === x; }), c = a.filter(function (r) { return r._confirmed; }).length;
+    return '<button class="b' + (x === v ? " pri" : "") + '" data-a="patch" data-v="' + esc(x) + '" title="' + c + " of " + a.length + ' confirmed">' + (c === a.length ? "✓ " : "") + esc(x) + ' <span class="mut2">' + c + "/" + a.length + "</span></button>";
+  }).join("") + "</div>";
+  h += '<div class="bar"><h2 class="ph">Patch ' + esc(v) + '</h2><span class="mut">' + esc(date) + " · " + all.length + " rows, " + nconf + ' confirmed</span><span style="flex:1"></span>' +
+    '<select id="flt"><option value="all"' + (filter === "all" ? " selected" : "") + ">All rows in this patch</option><option value=\"unconf\"" + (filter === "unconf" ? " selected" : "") + ">Unconfirmed</option><option value=\"flag\"" + (filter === "flag" ? " selected" : "") + ">Flagged and unconfirmed</option></select></div>" +
+    '<p class="mut"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>[</kbd>/<kbd>]</kbd> patch · <kbd>E</kbd> edit · <kbd>T</kbd> topic · <kbd>S</kbd> split · <kbd>X</kbd> leave out · <kbd>U</kbd> unconfirm · <kbd>Z</kbd> undo · <kbd>Esc</kbd> close</p>';
+  var last = -1;
+  list.forEach(function (i) {
+    var g = gOf(rows[i]);
+    if (g !== last) { last = g; h += '<h3 class="gh">' + TG[g][0] + ' <span class="mut2">' + all.filter(function (j) { return gOf(rows[j]) === g; }).length + "</span></h3>"; }
+    h += card(rows[i], i);
+  });
+  if (!list.length) h += '<div class="card">' + (all.length ? (nconf === all.length ? "Every row of this patch is confirmed." : "Nothing to show with this filter.") : "This patch has no rows.") + "</div>";
+  var sk = skipped.map(function (s, j) { return [s, j]; }).filter(function (x) { return x[0].version === v; });
+  if (sk.length) {
+    h += "<h3>Left out of " + esc(v) + " (" + sk.length + ")</h3><p class=\"mut\">Statements of no change, rollout and credits are skipped automatically. Add one back if it is a real change.</p>";
+    sk.forEach(function (x) { var s = x[0]; h += '<div class="card">' + (s.section ? '<div class="mut">' + esc(s.section) + "</div>" : "") + '<div class="src">' + esc(s.text) + '</div><button class="b" data-a="restore" data-j="' + x[1] + '">Add as a row</button></div>'; });
   }
   return h + logBox();
 }
@@ -363,7 +400,9 @@ function setField(i, f, val) {
     if (r.change_type === "Buff") r.direction = "+"; else if (r.change_type === "Nerf") r.direction = "−";
     else if (old === "Buff" || old === "Nerf") r.direction = "n/a";
   }
-  save(); syncCard(i);
+  save();
+  if (f === "change_type") { cur = i; return render(); }  /* the row moves under another heading */
+  syncCard(i);
 }
 /* ---------- events ---------- */
 document.addEventListener("click", function (e) {
@@ -387,7 +426,9 @@ document.addEventListener("click", function (e) {
   if (a === "sug") return setField(i, "entity", t.dataset.v);
   if (a === "open") { r._open = !r._open; return swapCard(i); }
   if (a === "undo") return undo();
-  if (a === "confsafe") { snap("batch confirm"); rows.forEach(function (x) { if (safe(x)) x._confirmed = true; }); cur = -1; save(); return render(); }
+  if (a === "patch") return gotoPatch(t.dataset.v);
+  if (a === "nextpatch") return nextPatch();
+  if (a === "confsafe") { snap("batch confirm"); patchRows().forEach(function (j) { if (safe(rows[j])) rows[j]._confirmed = true; }); cur = -1; save(); return render(); }
   if (a === "split") { snap("split"); var c2 = JSON.parse(JSON.stringify(r)); c2._confirmed = false; c2._open = true; r._confirmed = false; rows.splice(i + 1, 0, c2); renum(); cur = i + 1; save(); return render(); }
   if (a === "del") { snap("leave out"); skipped.push({ version: r.version, section: null, text: r.source }); rows.splice(i, 1); renum(); cur = Math.min(i, rows.length - 1); save(); return render(); }
   if (a === "restore") {
@@ -428,6 +469,8 @@ document.addEventListener("keydown", function (e) {
   else if (k === "k" || k === "arrowup") { if (p > 0) setCur(list[p - 1]); }
   else if (k === "enter" || k === " ") confirmRow(cur);
   else if (k === "z") undo();
+  else if (k === "]") nextPatch();
+  else if (k === "[") { var vs = versions(), at = vs.indexOf(curVer()); if (at > 0) gotoPatch(vs[at - 1]); }
   else if (k === "u") { if (r._confirmed) confirmRow(cur); }
   else if (k === "e") { r._open = !r._open; swapCard(cur); }
   else if (k === "escape") { if (r._open) { r._open = false; swapCard(cur); } }
