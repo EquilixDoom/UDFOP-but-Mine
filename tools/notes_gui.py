@@ -27,12 +27,6 @@ def run(*args):
     return {"ok": p.returncode == 0, "out": (p.stdout + p.stderr).strip()}
 
 
-def lower_first(text, entity):
-    first = text.split(" ", 1)[0]
-    keep = (first.isupper() and len(first) > 1) or re.search(r"\d", first) or first in entity.split()
-    return text if keep else text[:1].lower() + text[1:]
-
-
 def read_skipped():
     out = []
     for line in (open(SKIPPED, encoding="utf-8").read().splitlines() if os.path.exists(SKIPPED) else []):
@@ -52,6 +46,7 @@ def state():
     draft = N.read_jsonl(DRAFT)
     review = json.load(open(REVIEW, encoding="utf-8")) if os.path.exists(REVIEW) else {}
     stale, _, _ = N.stale_topics()
+    pv = {r["version"] for r in pend}
     return {
         "tax": json.load(open(N.TAX, encoding="utf-8-sig")),
         "topics": [{"name": t, "hub": hub.get(t, "-"), "n": cnt[t]} for t in sorted(cnt)],
@@ -60,6 +55,7 @@ def state():
         "have_notes": os.path.exists(N.NOTES),
         "draft": draft, "skipped": read_skipped(), "confirmed": review.get("confirmed", {}), "stale": stale,
         "hubs": review.get("hubs", {}), "check": check(draft) if draft else None,
+        "draft_stale": bool(draft) and not any(r["version"] in pv for r in draft),
     }
 
 
@@ -75,7 +71,7 @@ def guesser():
 
 
 def summary_for(r):
-    return f"{r['entity']}: {lower_first(r['source'], r['entity'])}"
+    return f"{r['entity']}: {r['source']}"
 
 
 def check(rows):
@@ -158,7 +154,7 @@ def save_draft(body):
         new = f"{r['version']}-{n:03d}"
         if r.get("_confirmed"):
             conf[new] = True
-        rows.append({k: v for k, v in r.items() if k not in ("_confirmed", "_open")} | {"id": new})
+        rows.append({k: v for k, v in r.items() if k not in ("_confirmed", "_open", "system", "direction")} | {"id": new})
     os.makedirs(N.INBOX, exist_ok=True)
     N.write_jsonl(DRAFT, rows)
     with open(SKIPPED, "w", encoding="utf-8", newline="\n") as f:
@@ -167,10 +163,18 @@ def save_draft(body):
     return rows
 
 
+def discard_draft():
+    """Remove the draft, the left-out list and the confirmations; the other files in data/inbox stay."""
+    gone = [f for f in (DRAFT, SKIPPED, REVIEW) if os.path.exists(f)]
+    for f in gone:
+        os.remove(f)
+    return {"ok": True, "out": f"Discarded {len(gone)} file(s) of the draft."}
+
+
 def new_row(version, text, section):
     """A draft row for a bullet that was left out (or typed in), guessed like prepare does."""
     rel = next((r for r in N.pending_releases() if r["version"] == version), None)
-    g = N.Guesser(N.read_jsonl(N.ALL))
+    g = guesser()
     d, _ = N.draft_for({"version": version, "date": rel["date"] if rel else "", "prs": [], "body": f"## {section or 'Changes'}\n- {text}\n"}, g)
     return d[0] if d else None
 
@@ -250,16 +254,16 @@ def describe_changes(topics):
                 for r in sorted(rs, key=lambda r: (N.vkey(r["version"]), r["id"]))] for t, rs in by.items()}
 
 
-def describe(only=None):
+def describe(only=None, changes=True):
     """Topics whose description a person has not reviewed since their last change (all of them until reviewed)."""
     desc = N.descriptions()
     hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
     stale, cnt, _ = N.stale_topics()
     reviewed = N.load_reviewed()
     stale = [t for t in stale if only is None or t in only]
-    ch = describe_changes(stale)
+    ch = describe_changes(stale) if changes else {}
     return [{"topic": t, "hub": hub.get(t, "-"), "n": cnt[t], "new": t not in desc, "was": reviewed.get(t),
-             "current": desc[t][0] if t in desc else "", "changes": ch[t]} for t in stale]
+             "current": desc[t][0] if t in desc else "", "changes": ch.get(t, [])} for t in stale]
 
 
 DESC_RULES = ("Rules: 1 to 4 plain sentences saying what the topic is and how it works as of its latest change. Later changes override earlier ones, "
@@ -369,7 +373,7 @@ class H(BaseHTTPRequestHandler):
                 return self.send(state())
         if self.path == "/api/describe":
             with LOCK:
-                return self.send(describe())
+                return self.send(describe(changes=False))
         if self.path == "/api/summary":
             with LOCK:
                 return self.send(last_ingest())
@@ -403,6 +407,10 @@ class H(BaseHTTPRequestHandler):
                     hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
                     ch = change_lines(t)
                     return self.send({"topic": t, "hub": hub.get(t), "n": len(ch), "desc": (N.descriptions().get(t) or [""])[0], "recent": ch[-3:][::-1]})
+                if self.path == "/api/changes":
+                    return self.send({"changes": change_lines(body["topic"])})
+                if self.path == "/api/discard":
+                    return self.send(discard_draft())
                 if self.path == "/api/raw":
                     return self.send(raw_for(body["version"], body["text"]))
                 if self.path == "/api/prompt":

@@ -102,7 +102,10 @@ function run(cmd) {
     return load().then(function () { if (cmd === "prepare" && rows.length) { tab = "rows"; render(); } });
   });
 }
-function replaceOk() { return !rows.length || confirm("A draft with " + rows.length + " rows exists. Preparing again replaces it. Continue?"); }
+function staleBanner() {
+  return S && S.draft_stale ? '<div class="warn">This draft is for releases that are already ingested (' + esc(versions().join(", ")) + '), so none of it can be ingested. <button class="b" data-a="discard">Discard this draft</button></div>' : "";
+}
+function replaceOk() { return !rows.length || (S && S.draft_stale) || confirm("A draft with " + rows.length + " rows exists. Preparing again replaces it. Continue?"); }
 function fetchPrepare() {
   if (!replaceOk()) return;
   busy = true; logTxt = "Fetching…"; render();
@@ -161,13 +164,7 @@ function nextPatch() {
   var nx = rest.filter(function (v) { return !verDone(v); })[0] || vs[at + 1];
   if (nx) gotoPatch(nx);
 }
-function lowerFirst(text, entity) {
-  var first = text.split(" ")[0];
-  var up = first === first.toUpperCase() && first !== first.toLowerCase();
-  if ((up && first.length > 1) || /\d/.test(first) || entity.split(/\s+/).indexOf(first) >= 0) return text;
-  return text.charAt(0).toLowerCase() + text.slice(1);
-}
-function preview(r) { return "→ " + r.entity + ": " + lowerFirst(r.source, r.entity); }
+function shown(r) { return r.source.replace(/\*\*/g, "").replace(/`/g, ""); }  /* the site drops these marks (tools/update_data.py) */
 /* ---------- views ---------- */
 function stat() {
   var un = rows.filter(function (r) { return !r._confirmed; }).length;
@@ -203,8 +200,8 @@ function home() {
   if (!S.have_notes) h += '<div class="warn">data/release_notes.md is missing. Press Fetch.</div>';
   if (S.behind) h += '<div class="warn">Local notes end at ' + esc(S.behind[0]) + " but rows reach " + esc(S.behind[1]) + ". Press Fetch.</div>";
   h += "<p>Pending releases: " + (S.pending.length ? S.pending.map(function (p) { return "<b>" + esc(p.version) + "</b> (" + esc(p.date) + (p.body ? "" : ", PR titles only") + ")"; }).join(", ") : "none") + "</p>";
-  if (rows.length) h += '<p>A draft with ' + rows.length + ' rows is waiting. <button class="b" data-a="tab" data-t="rows">Review rows →</button></p>';
-  return h + "</div>" + logBox();
+  if (rows.length) h += "<p>A draft with " + rows.length + ' rows is waiting. <button class="b" data-a="tab" data-t="rows">Review rows →</button></p>';
+  return staleBanner() + h + "</div>" + logBox();
 }
 var TC = {}, RC = {}, hide = false;
 function rawInfo(r) {
@@ -332,7 +329,7 @@ function detailHtml() {
   var okTag = '<span class="tag" style="background:var(--ok);border-color:var(--okline)">';
   var h = '<div class="row-h"><span class="mut">Row ' + pos + " of " + all.length + " · " + esc(r.id) + "</span><span>" + (r._confirmed ? okTag + "confirmed</span>" : need.length ? '<span class="tag">' + need.length + " to decide</span>" : okTag + "nothing flagged</span>") + "</span></div>" +
     rawHtml(r);
-  if (hasTopic(r)) h += '<div class="out"><span class="mut">Will read on the patch page, under ' + esc(TG[gOf(r)][0]) + ":</span><br><b>" + esc(r.entity) + "</b>: " + esc(lowerFirst(r.source, r.entity).split(/(?<=[.!?])\s+(?=[A-Z])/)[0]) + "</div>";
+  if (hasTopic(r)) h += '<div class="out"><span class="mut">The patch page shows the developers\' bullet as written, under ' + esc(TG[gOf(r)][0]) + ", with the topic <b>" + esc(r.entity) + "</b>:</span><br>" + esc(shown(r)) + "</div>";
   errsOf(r).forEach(function (e) { h += '<div class="warn">' + esc(e) + "</div>"; });
   if (fields.indexOf("entity") < 0) h += evidence(r, i);
   var cl = fields.filter(function (f) { return CLS.some(function (c) { return c[0] === f; }); });
@@ -341,7 +338,7 @@ function detailHtml() {
   if (!open) h += '<div class="fine"><span class="mut">' + (need.length ? "Taken as guessed:" : "Fields:") + "</span> " + summaryLine(r, fields) + "</div>";
   return h + '<div class="acts big">' + (r._confirmed ? '<button class="b" data-a="conf" data-i="' + i + '">Unconfirm</button>' : '<button class="b pri" data-a="conf" data-i="' + i + '">' + (need.length ? "Decided, confirm" : "Confirm") + " &amp; next <kbd>Enter</kbd></button>") +
     '<button class="b" data-a="open" data-i="' + i + '">' + (open ? "Done editing" : "Edit all fields") + "</button>" +
-    (need.indexOf("split") < 0 ? '<button class="b" data-a="split" data-i="' + i + '" title="The bullet becomes a second row">Split</button>' : "") +
+    (need.indexOf("split") < 0 ? '<button class="b" data-a="split" data-i="' + i + '" title="The bullet becomes a second row. Both rows keep the whole bullet as their text, so the patch page shows it under each">Split</button>' : "") +
     '<button class="b" data-a="del" data-i="' + i + '" title="Not a change; moves the bullet to Left out">Leave out</button></div>';
 }
 function paintDetail() {
@@ -371,7 +368,7 @@ function reviewView() {
   var v = curVer(), all = patchRows(); if (all.indexOf(cur) < 0) cur = all.filter(function (j) { return !rows[j]._confirmed; })[0] || all[0] || -1;
   var list = vis(), nconf = all.filter(function (i) { return rows[i]._confirmed; }).length;
   var rel = S.pending.filter(function (p) { return p.version === v; })[0], date = all.length ? rows[all[0]].date : (rel ? rel.date : "");
-  var h = '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
+  var h = staleBanner() + '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
   h += '<div class="strip">' + versions().map(function (x) {
     var a = rows.filter(function (r) { return r.version === x; }), c = a.filter(function (r) { return r._confirmed; }).length;
     return '<button class="b' + (x === v ? " pri" : "") + '" data-a="patch" data-v="' + esc(x) + '" title="' + c + " of " + a.length + ' confirmed">' + (c === a.length ? "✓ " : "") + esc(x) + ' <span class="mut2">' + c + "/" + a.length + "</span></button>";
@@ -392,10 +389,15 @@ function setField(i, f, val) {
   save(); setCur(i);
 }
 function refreshNotes() { if (tab === "rows") { paintDetail(); bar(); } }
+function changeItems(ch) { return ch.map(function (c) { return "<li><span class=\"mut\">" + esc(c.version + " " + c.type) + ":</span> " + esc(c.text) + "</li>"; }).join(""); }
+document.addEventListener("toggle", function (e) {
+  var t = e.target, i = t.dataset && t.dataset.dl; if (i === undefined || !t.open || !D || D[+i].changes.length) return;
+  api("/api/changes", { topic: D[+i].topic }).then(function (x) { D[+i].changes = x.changes; t.querySelector("ul").innerHTML = changeItems(x.changes); });
+}, true);
 function descCard(d, i) {
   return '<div class="card' + (d.saved ? " ok" : "") + '" data-d="' + i + '"><div class="row-h"><b>' + esc(d.topic) + '</b><span class="mut">' + esc(d.hub) + " · " + d.n + " changes" + (d.new ? " · new" : d.was ? " · reviewed at " + d.was : " · not reviewed") + "</span></div>" +
     (d.current ? '<div class="src"><span class="mut">Current:</span> ' + esc(d.current) + "</div>" : "") +
-    '<details><summary>' + d.changes.length + " changes</summary><ul>" + d.changes.map(function (c) { return "<li><span class=\"mut\">" + esc(c.version + " " + c.type) + ":</span> " + esc(c.text) + "</li>"; }).join("") + "</ul></details>" +
+    '<details data-dl="' + i + '"><summary>' + d.n + " changes</summary><ul>" + changeItems(d.changes) + "</ul></details>" +
     '<textarea data-d="' + i + '" placeholder="Description">' + esc(d.draft != null ? d.draft : d.current) + '</textarea>' +
     '<div class="bar" style="margin:6px 0 0"><button class="b" data-a="prompt" data-d="' + i + '">Copy LLM prompt</button>' +
     (d.current ? '<button class="b" data-a="dkeep" data-d="' + i + '" title="The latest changes do not alter the description: save it as it is">Keep current</button>' : "") +
@@ -498,6 +500,7 @@ document.addEventListener("click", function (e) {
   if (a === "set") return setField(i, t.dataset.f, t.dataset.v);
   if (a === "open") { r._open = !r._open; return setCur(i); }
   if (a === "undo") return undo();
+  if (a === "discard") { if (!confirm("Discard the draft of " + rows.length + " rows and its confirmations?")) return; return api("/api/discard", {}).then(function (x) { logTxt = x.out; cur = -1; pv = ""; return load(); }); }
   if (a === "patch") return gotoPatch(t.dataset.v);
   if (a === "nextpatch") return nextPatch();
   if (a === "confsafe") { snap("batch confirm"); patchRows().forEach(function (j) { if (safe(rows[j])) rows[j]._confirmed = true; }); cur = -1; save(); return render(); }
