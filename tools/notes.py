@@ -632,7 +632,7 @@ def cmd_selftest(a):
         write_jsonl(t(f"{INBOX}/rows.draft.jsonl"), [dict(r, entity="TODO") if i == 0 else r for i, r in enumerate(draft)])
         rc, out = run("approve")
         check("approve refuses a draft with an unresolved TODO entity", rc != 0 and not os.path.exists(t(f"{INBOX}/rows.jsonl")))
-        fixed = [dict(r, entity="Selftest Topic", summary="Selftest Topic: " + r["summary"].split(": ", 1)[-1]) if i == 0 else r
+        fixed = [dict(r, entity="Selftest Topic", summary="Selftest Topic: " + r["summary"].split(": ", 1)[-1]) if i == 0 or r["entity"] == "TODO" else r
                  for i, r in enumerate(draft)]
         write_jsonl(t(f"{INBOX}/rows.draft.jsonl"), fixed)
         rc, out = run("approve")

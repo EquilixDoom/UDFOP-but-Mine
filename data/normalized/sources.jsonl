@@ -6655,3 +6655,73 @@
 {"id":"0.1.10431-004","source":"Damage numbers on Spire lords and enemies now show the damage each hit actually did, a moment after it lands. Before, they showed what the hit would do to an ordinary enemy, which can be far more than a lord takes. The numbers now add up to the fight's damage chart. Damage over time and Arcane Echo repeats show their numbers too, and a follow-up blow (Open Hand, Many Endings) is counted in its blow's number rather than popping a second one."}
 {"id":"0.1.10435-001","source":"Changing a class skill on the Growth tab could be repeated to push your level far past what any class can reach. One class reached level 223. A skill's training now leaves your class with it. Your level and its progress still never drop, but after you give up a trained skill for a less trained one, your class skills make up the difference before your next level comes any closer."}
 {"id":"0.1.10435-002","source":"The swap form now tells you how many points that is, beside the picks and again when it asks you to confirm."}
+{"id":"0.1.10454-001","source":"Asking around for work no longer sends you to \"someone named .\" at \"a place called .\" after you've taken (or turned down) a job, or after loading a save. The answer always names a person who has work and the place to find them."}
+{"id":"0.1.10454-002","source":"A woman with work for you is now \"her\" in those answers, not \"him\"."}
+{"id":"0.1.10454-003","source":"A quest that sends you to a temple or a guild hall now always names it. The Orrery of Endings, and other questline steps that began while you were out on the road, used to say things like \"at in Daggerfall\" with the name missing. Quests already in your journal get their names back the next time you load."}
+{"id":"0.1.10454-004","source":"A palace a quest picks while you are on the road now has its proper name (Castle Daggerfall, Castle Wayrest, Castle Sentinel) instead of just \"Palace\"."}
+{"id":"0.1.10454-005","source":"You can now skin the Enemy Expansion's animals. Bats give Bat Leather, blood spiders Spider Silk, mountain lions Tiger Pelts and land dreugh Dreugh Shells. Wolves, snow wolves and dogs give the new Wolf Pelt, boars the new Boar Hide, and mudcrabs the new Mudcrab Chitin."}
+{"id":"0.1.10454-006","source":"All three new hides cure to Cured Leather, and Wolf Pelts and Boar Hides make Large and Small Skins at the loom."}
+{"id":"0.1.10454-007","source":"If you take apart a piece you crafted with materials from your pack, its Arcane Essence no longer says \"bought with gold\". It now shows as \"made from pack goods\", and the Reforge with Essence can use it. Essence already in your Stores has been corrected."}
+{"id":"0.1.10454-008","source":"The Stores page no longer says Arcane Essence can go to your pack."}
+{"id":"0.1.10454-009","source":"A Soul Gem holding the soul of one of the Enemy Expansion's creatures (an Ogre, a Goblin, a Troll and the rest) no longer freezes your trading. If trapping one froze yours, that hold and the strikes it added are lifted."}
+{"id":"0.1.10454-010","source":"In a trade with another player, an item that cannot be traded now tells you so when you offer it. Before, it sat on your side of the table while the other player saw nothing, and a trade could finish without it ever reaching them."}
+{"id":"0.1.10454-011","source":"When a player dies in the Wrothgarian Mountains, all the gold they drop now shows in their remains. Before, a drop of more than 65,535 gold never appeared, and no one could pick it up."}
+{"id":"0.1.10454-012","source":"Taking only part of the gold from someone's remains, because your pack can't hold it all, now leaves the rest showing. Before, the pile could show less gold than was really there, or lose it from view."}
+{"id":"0.1.10454-013","source":"Pressing Tab no longer moves the keyboard onto the Social button or any other on-screen button."}
+{"id":"0.1.10454-014","source":"Clicking Social, Chat, Show or \"Play online here\" no longer leaves that button selected, so your next jump no longer opens the friends panel again."}
+{"id":"0.1.10461-001","source":"When you come down from the Overworld, the grass around you no longer freezes the game while it grows back."}
+{"id":"0.1.10461-002","source":"Crossing into a new region (desert, mountains, swamp, snow) no longer stalls the game while its ground is prepared."}
+{"id":"0.1.10461-003","source":"The first time you take a hit, the blood on your screen no longer causes a freeze."}
+{"id":"0.1.10461-004","source":"Long journeys hitch less often overall: the grass, the snow on the ground and the weather now create far less garbage, so the game stops much less often to clean it up."}
+{"id":"0.1.10461-005","source":"At the edge of a snowline, grass is now buried by snow on the same slopes the snow is drawn on."}
+{"id":"0.1.10469-001","source":"Steep mountainsides keep their snow in winter. The straight green band up snowy ranges is gone: a steep face is now white like the rest of the slope. (Faces steeper than 50° still grow no trees, as in Daggerfall Unity.)"}
+{"id":"0.1.10469-002","source":"Turning \"Weather as places\" or \"Enhanced environments\" on or off mid-game now redraws the ground properly, instead of leaving squares wearing the other setting's season."}
+{"id":"0.1.10469-003","source":"Online, a mission keeps real time: it keeps going while you're logged off. A day abroad is 2 real hours. Resting, waiting or traveling still doesn't speed it up."}
+{"id":"0.1.10469-004","source":"Online, a mission's time left is shown in real minutes and hours."}
+{"id":"0.1.10469-005","source":"Making Cured Leather from mixed hides now uses Wolf Pelts and Boar Hides before Bear Hides, so your Bear Hides stay for Ram Kits."}
+{"id":"0.1.10469-006","source":"The Stores say \"3 Mudcrab Chitin\", like \"3 Scorpion Chitin\"."}
+{"id":"0.1.10477-001","source":"Sails work again after loading a save. A save made in a dungeon or building kept the indoors' calm, and a load that woke you outdoors (online, a dungeon save always wakes you at a temple or town) brought it out to sea: under sail your ship drifted while the oars still rowed. A load outdoors now has the outdoors' wind."}
+{"id":"0.1.10477-002","source":"\"Under Sail\" counts your voyage in any boat. A slow boat - a rowboat, or a Large Boat in a light wind - had its departure counted from the edge of the harbour instead of the quay, so short trips down the coast never counted. The voyage now counts from where you last lay still."}
+{"id":"0.1.10477-003","source":"Running aground in the next harbour, or leaving the helm as you come in, now counts as making port."}
+{"id":"0.1.10477-004","source":"A voyage survives a reload or a crash between the two ports."}
+{"id":"0.1.10477-005","source":"Pencart's harbour can be reached (its water had all been counted as Longham's)."}
+{"id":"0.1.10477-006","source":"The harbourmaster now says what counts: the harbour of another port a quarter league off or more. \"The Packet Lanes\" says the same."}
+{"id":"0.1.10477-007","source":"A lantern lit with O (or Use, or the hotbar) shows in the Lantern slot, where it hangs at your hip - not on the shield's panel."}
+{"id":"0.1.10477-008","source":"O lights the lantern in your Lantern slot first, a hung lantern lights with both hands full, and the hotbar's lantern no longer takes your shield off."}
+{"id":"0.1.10477-009","source":"Fixed a memory leak in winter snow: every map area you travelled through stayed in memory, about 1.8 MB each - long journeys could run the game out of memory."}
+{"id":"0.1.10477-010","source":"Fixed a rare stall where the world stopped loading new ground for the rest of the session (offline play, about one area in 37)."}
+{"id":"0.1.10477-011","source":"On the desktop app, a game that stops now says so and why, and offers Restart, instead of leaving a black window. A game that stops responding offers Wait or Restart. The reason is kept in crash.log beside your saves - please include it in a bug report."}
+{"id":"0.1.10477-012","source":"Soul Cakes have a daily limit of 120, and the game now tells you when you reach it and the time more can be found (midnight UTC, shown in your own time). The Wyrd Sister's window shows how many you have found today."}
+{"id":"0.1.10485-001","source":"Each wave at a fallen star is now larger, and it grows as the fight goes on. Alone you face 4, 5, 6 and then 7 foes. Every player beside you adds two more. A group of four faces 10 to 13 a wave, a group of eight 18 to 21, and the largest waves reach 24."}
+{"id":"0.1.10485-002","source":"The coven's foes are tougher: its waves and the master's circle have twice their usual health. The master is unchanged."}
+{"id":"0.1.10485-003","source":"The coven's breath between waves is now 5 seconds, down from 12."}
+{"id":"0.1.10485-004","source":"Waves now gather just outside the crater instead of far beyond it, so they reach you sooner."}
+{"id":"0.1.10485-005","source":"In a group, a wave you clear quickly now ends when you clear it. Before, a large group could stand in an empty crater for up to a minute."}
+{"id":"0.1.10485-006","source":"The mound of earth around a fallen star's crater is now solid. You can no longer walk through it. You also can't get stuck in it if the crater forms around you."}
+{"id":"0.1.10491-001","source":"Barbarian: primaries Axe, Blunt Weapon and Critical Strike; majors Long Blade, Dodging and Running (were Jumping, Running and Swimming)."}
+{"id":"0.1.10491-002","source":"Acrobat: gains Short Blade as a primary and Archery as a major."}
+{"id":"0.1.10491-003","source":"Mage and Sorcerer are no longer identical. Both lead with Destruction, the Sorcerer adds Blunt Weapon, and neither spends skill slots on Dragonish or Daedric."}
+{"id":"0.1.10491-004","source":"Healer: Blunt Weapon is now a major."}
+{"id":"0.1.10491-005","source":"Archer: Critical Strike replaces Hand-to-Hand as a primary; Short Blade, Long Blade and Stealth are its majors."}
+{"id":"0.1.10491-006","source":"Warrior, Barbarian: two weapons and Critical Strike as primaries, so every swing trains both the weapon in hand and Critical Strike."}
+{"id":"0.1.10491-007","source":"No class spends a skill slot on a language. Languages are still learnable."}
+{"id":"0.1.10491-008","source":"Burglar can now wear leather armour (it is forbidden chain and plate instead of leather and chain)."}
+{"id":"0.1.10530-001","source":"In busy areas, other players' enemies no longer die for one player and stay alive for another, or vanish when the player who controls them leaves, dies or goes through a door."}
+{"id":"0.1.10530-002","source":"At a crowded Starfall, every player's enemies now reach everyone in turn - including the player who controls the star's waves, whose enemies could go unseen by others before."}
+{"id":"0.1.10530-003","source":"Enemies controlled by a slow or lagging player now move smoothly for everyone else instead of freezing and jumping."}
+{"id":"0.1.10530-004","source":"On a slow computer with other players nearby, enemies keep pace with your character instead of moving at half speed - outdoors, in buildings and in dungeons, and the town watch with them."}
+{"id":"0.1.10530-005","source":"Ships far out at sea, other players' boats and your own moored boats far away cost much less to draw."}
+{"id":"0.1.10530-006","source":"Horses - other players', strangers' on the road and those standing in towns - are only animated in full when you can see them, and a horse that comes into view is drawn in its current stride."}
+{"id":"0.1.10530-007","source":"Grass no longer stutters while riding or running fast on a slower computer, and fills in around you even when you arrive at speed."}
+{"id":"0.1.10536-001","source":"The ocean no longer stays nearly black after sunrise and before sunset; it brightens along with the sky."}
+{"id":"0.1.10536-002","source":"A guild can now hold 75 members (up from 50)."}
+{"id":"0.1.10537-001","source":"Grass sways more gently in the wind. Blades lean less than half as far at a full gust, and gusts roll through the field more softly instead of whipping it."}
+{"id":"0.1.10537-002","source":"The wind wisps are more transparent and shorter. You can still see which way the wind blows, but they no longer stand out against the scenery."}
+{"id":"0.1.10543-001","source":"Once anyone steps through an Abyss Dungeon's Rift, a portal - the Way Through - opens beside everyone in the dungeon, and beside everyone who enters it afterwards. Use it to go straight to the Shattered Hour."}
+{"id":"0.1.10543-002","source":"The Way Through closes when the Brass Remnant falls."}
+{"id":"0.1.10547-001","source":"Signing in, and joining the world, failed for many players for an hour or two after midnight UTC every night. The game no longer has every player's client check in with the server in the same second when the day changes. Each client now waits a random 0–10 minutes past midnight."}
+{"id":"0.1.10547-002","source":"For those few minutes after midnight, the ground's gathering nodes, your profession's day and the town reports stay on the day before's until your client catches up. Nothing is lost."}
+{"id":"0.1.10555-001","source":"A yellow \"!\" over anyone a quest needs, including the townsfolk who've been named as having work for you."}
+{"id":"0.1.10555-002","source":"An amber coin over merchants: shopkeepers, bankers and innkeepers."}
+{"id":"0.1.10555-003","source":"A blue gem over guild trainers, spell sellers and quest givers, the witches' coven, and the arena's officers."}
+{"id":"0.1.10555-004","source":"Walls hide the markers, and they fade out beyond about 30 metres. Classic sprites don't get one, because their picture already tells you who they are. Turn them off with **Morrowind People Marks** on the Features page."}

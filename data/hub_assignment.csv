@@ -1020,3 +1020,5 @@ Hearth Offerings,World and Overworld,,7,Online; World,
 Monster Volume,Audio,,2,Engine; UI,yes
 Starfall,World and Overworld,,10,Combat; Items; World,
 Witches' Festival,World and Overworld,,9,Graphics; Items; Online; UI; World,
+Enemy Sync,Online,,3,Online,
+Premade Classes,Character and Progression,,8,Character,
