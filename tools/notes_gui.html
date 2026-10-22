@@ -6,35 +6,27 @@
 <title>Release Notes Tool</title>
 <style>
 :root{--bg:#f6f4ee;--fg:#1f1d19;--mut:#6b665c;--card:#fff;--line:#d9d4c7;--acc:#7a4b12;--flag:#fff1c9;--flagline:#c98a00;--ok:#e3f3df;--okline:#3c8a31;--bad:#fbe3df;--badline:#b3392b}
-@media (prefers-color-scheme:dark){:root{--bg:#1b1a17;--fg:#ece8dd;--mut:#a39d8e;--card:#25231f;--line:#3d3a33;--acc:#e0b36a;--flag:#473a14;--flagline:#d39a1c;--ok:#1f3a1c;--okline:#5db04f;--bad:#4a2420;--badline:#e0685a}}
 *{box-sizing:border-box}
+:root{color-scheme:light}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,sans-serif}
 header{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;align-items:center;position:sticky;top:0;background:var(--bg);z-index:5}
 h1{font-size:18px;margin:0 12px 0 0}
 nav button{background:none;border:0;color:var(--fg);padding:6px 12px;font:inherit;cursor:pointer;border-bottom:2px solid transparent}
 nav button.on{border-color:var(--acc);font-weight:600}
-main{max-width:1000px;margin:0 auto;padding:16px 16px 84px}
+main{max-width:1200px;margin:0 auto;padding:16px 16px 84px}
 button.b,select,input,textarea{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:4px;padding:5px 8px}
 button.b{cursor:pointer}button.b:hover{border-color:var(--acc)}
 button.pri{background:var(--acc);color:var(--bg);border-color:var(--acc)}
 button:disabled{opacity:.5;cursor:default}
 .card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;margin:0 0 12px}
 .card.ok{border-left:4px solid var(--okline)}.card.un{border-left:4px solid var(--flagline)}
-.card.cmp{padding:8px 12px;margin:0 0 8px}
-.card.cur{outline:2px solid var(--acc);outline-offset:1px}
 .src{background:var(--bg);border-radius:4px;padding:8px;margin:6px 0 10px;white-space:pre-wrap}
-.src.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:6px 0 4px}
 .acts{display:flex;flex-wrap:wrap;gap:6px}.acts button{padding:2px 8px}
 .pl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:13px}
 .pill{border:1px solid var(--line);border-radius:10px;padding:0 8px}
 .pill.f{background:var(--flag);border-color:var(--flagline)}
 .strip{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}.strip .b{padding:2px 8px;font-size:13px}.mut2{opacity:.7;font-size:12px}
 .ph{font-size:20px;margin:0}.gh{font-size:16px;margin:18px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
-.card.ok.cmp{opacity:.75}
-.pv{font-size:12px;color:var(--mut);margin-top:2px}
-.nt:empty{display:none}.nt .warn{font-size:12px;margin:6px 0 0;padding:3px 8px}.nt .warn.soft{background:var(--flag);border-color:var(--flagline)}
-.nt .chips{align-items:center;font-size:12px}.sg{border:1px dashed var(--acc);border-radius:12px;padding:1px 9px;font-size:12px;cursor:pointer;background:none;color:var(--fg)}
-.nt label{display:flex;align-items:center;gap:6px;margin-top:6px}.nt label select{width:auto;margin:0;padding:1px 6px}
 kbd{font:12px ui-monospace,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;padding:0 4px;background:var(--card)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 label{display:block;font-size:12px;color:var(--mut)}label>*{display:block;width:100%;margin-top:2px}
@@ -51,6 +43,30 @@ label{display:block;font-size:12px;color:var(--mut)}label>*{display:block;width:
 textarea{width:100%;min-height:80px}
 #foot{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--bg);border-top:1px solid var(--line);padding:8px 16px;display:none;flex-wrap:wrap;gap:8px;align-items:center}
 #foot .prog{flex:1 1 120px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}#foot .prog i{display:block;height:100%;background:var(--okline)}
+.rv{display:grid;grid-template-columns:minmax(240px,340px) 1fr;gap:16px;align-items:start}
+#rail{max-height:calc(100vh - 220px);overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+.rv>*{min-width:0}.rv>div:first-child{position:sticky;top:64px}
+.chk{display:flex;align-items:center;gap:6px;margin:0 0 6px}.chk input{width:auto;margin:0}
+.rg{position:sticky;top:0;background:var(--bg);font-size:12px;font-weight:600;padding:4px 8px;border-bottom:1px solid var(--line)}
+.it{display:flex;gap:8px;align-items:baseline;padding:6px 8px;border-bottom:1px solid var(--line);cursor:pointer}.it:hover{background:var(--bg)}
+.it.cur{background:var(--flag);box-shadow:inset 3px 0 var(--acc)}.it.done .tx{opacity:.55}
+.it .tx{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
+.dot{flex:none;width:20px;height:20px;border-radius:10px;text-align:center;font-size:12px;line-height:20px;color:var(--mut)}
+.it:not(.done) .dot:not(:empty){background:var(--flag);border:1px solid var(--flagline);color:var(--fg)}.it.done .dot{color:var(--okline)}.dot.er{background:var(--bad)!important;border-color:var(--badline)!important}
+#dt{margin:0}.srcbig{font-size:17px;line-height:1.5;margin:10px 0;white-space:pre-wrap}
+.out{background:var(--bg);border-left:3px solid var(--acc);padding:6px 10px;margin:0 0 12px;font-size:14px}
+.fb{border-top:1px solid var(--line);padding:10px 0}.fb h4{margin:0 0 6px;font-size:14px}.fb.need h4 .why{font-weight:400;font-size:12px;color:var(--flagline);margin-left:6px}
+.seg{display:flex;flex-wrap:wrap;gap:4px}.seg .b.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.fb input[list]{width:100%}.cls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;border-top:1px solid var(--line);padding:10px 0}.cell{font-size:13px;color:var(--fg);font-weight:600}.cell select{margin-top:4px;font-weight:400}.cell .mut2{display:block;font-weight:400;margin-top:3px}.cell.need select{border-color:var(--flagline);background:var(--flag)}.cell .why{display:inline;width:auto;margin:0 0 0 6px;font-weight:400;font-size:12px;color:var(--flagline)}
+.ev{margin-top:8px;font-size:13px;background:var(--bg);border-radius:4px;padding:6px 10px}.clamp3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.ev ul{margin:4px 0 0;padding-left:18px}.ev li{margin:2px 0}
+.fine{border-top:1px solid var(--line);padding:10px 0;font-size:13px}
+.acts.big{border-top:1px solid var(--line);padding-top:12px;gap:8px}.acts.big button{padding:6px 14px}
+.tchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.tchip{border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer;background:var(--card);max-width:100%}.tchip:hover{border-color:var(--acc)}.tchip.on{border-color:var(--acc);background:var(--flag)}.tchip .rs{display:block;font-size:12px;color:var(--mut)}
+.trow{display:flex;gap:6px}.trow input{flex:1;min-width:0}.picker{border:1px solid var(--line);border-radius:6px;margin-top:6px;padding:6px}.picker #pl{max-height:260px;overflow:auto;margin-top:6px}.pk{padding:5px 8px;border-bottom:1px solid var(--line);cursor:pointer}.pk:hover{background:var(--flag)}
+.kw{text-decoration:underline dotted;text-underline-offset:3px}.kw.cur{background:rgba(122,75,18,.18);text-decoration:underline}
+.keys{font-size:12px}.pri kbd{background:transparent;color:inherit;border-color:currentColor}
+.raw{font:15px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:4px;padding:10px;margin:4px 0 10px}.ctx{max-height:340px;overflow:auto;position:relative;font-size:14px}.ctx .hd{color:var(--mut)}mark.hit{display:block;background:var(--flag);color:var(--fg);border-left:3px solid var(--flagline);margin-left:-10px;padding-left:7px}.sec summary{cursor:pointer;font-size:12px;color:var(--mut)}.sec .raw{font-size:12px;max-height:260px;overflow:auto}.sec .raw b{background:var(--flag)}
+@media(max-width:760px){.rv{grid-template-columns:1fr}.rv>div:first-child{position:static}#rail{max-height:240px}}
 </style>
 </head>
 <body>
@@ -61,7 +77,7 @@ textarea{width:100%;min-height:80px}
 <div id="foot"></div>
 <script>
 "use strict";
-var S = null, rows = [], skipped = [], tab = "home", filter = "all", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [], dshow = 25;
+var S = null, rows = [], skipped = [], tab = "home", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [], dshow = 25;
 var $ = function (s) { return document.querySelector(s); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function api(path, body) {
@@ -121,11 +137,6 @@ function flagsOf(r) {
 function hasTopic(r) { return !!r.entity && r.entity !== "TODO"; }
 function errsOf(r) { return (CHK && CHK.rows[r.id] && CHK.rows[r.id].errs) || []; }
 function safe(r) { return !r._confirmed && hasTopic(r) && !isNew(r.entity) && !flagsOf(r).length && !errsOf(r).length; }
-function visible(r) {
-  if (filter === "all") return true;
-  if (r._confirmed) return false;
-  return filter !== "flag" || flagsOf(r).length > 0;
-}
 /* Review is one patch at a time, laid out like the wiki's patch page: headings by kind of change, in the same order. */
 var TG = [["Additions", ["New"]], ["Reworks", ["Rework"]], ["Fixes", ["Fix"]], ["Performance", ["Performance"]], ["Economy", ["Economy"]],
   ["Interface and quality of life", ["UI", "QoL"]], ["Balance (buffs and nerfs)", ["Buff", "Nerf"]], ["Removals", ["Removal"]], ["Other changes", ["Other"]]];
@@ -143,7 +154,6 @@ function patchRows() {
   rows.forEach(function (r, i) { if (r.version === v) o.push(i); });
   return o.sort(function (a, b) { return gOf(rows[a]) - gOf(rows[b]) || a - b; });
 }
-function vis() { return patchRows().filter(function (i) { return visible(rows[i]); }); }
 function patchDone() { return verDone(curVer()); }
 function gotoPatch(v) { pv = v; cur = -1; render(); window.scrollTo(0, 0); }
 function nextPatch() {
@@ -158,7 +168,6 @@ function lowerFirst(text, entity) {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
 function preview(r) { return "→ " + r.entity + ": " + lowerFirst(r.source, r.entity); }
-function cardEl(i) { return document.querySelector('.card[data-i="' + i + '"]'); }
 /* ---------- views ---------- */
 function stat() {
   var un = rows.filter(function (r) { return !r._confirmed; }).length;
@@ -181,6 +190,7 @@ function render() {
   var v = { home: home, rows: reviewView, desc: descView, fin: finView }[tab];
   var scroll = window.scrollY; $("#m").innerHTML = v(); window.scrollTo(0, scroll);
   bar();
+  if (tab === "rows") showHit();
   if (tab === "desc" && !D) loadDesc();
   if (tab === "fin" && !SUM) loadSum();
 }
@@ -196,121 +206,198 @@ function home() {
   if (rows.length) h += '<p>A draft with ' + rows.length + ' rows is waiting. <button class="b" data-a="tab" data-t="rows">Review rows →</button></p>';
   return h + "</div>" + logBox();
 }
-function sel(i, f, opts) {
-  return '<select data-i="' + i + '" data-f="' + f + '" class="' + (flagged(rows[i], f) && !rows[i]._confirmed ? "f" : "") + '">' + opts.map(function (o) { return '<option' + (rows[i][f] === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>";
+var TC = {}, RC = {}, hide = false;
+function rawInfo(r) {
+  var k = r.version + "|" + r.source;
+  if (!(k in RC)) { RC[k] = null; api("/api/raw", { version: r.version, text: r.source }).catch(function () { return {}; }).then(function (x) { RC[k] = x.found ? x : { found: false }; paintDetail(); }); }
+  return RC[k];
 }
-function stTags(r) {
-  return (r._confirmed ? '<span class="tag" style="background:var(--ok);border-color:var(--okline)">confirmed</span>' : flagsOf(r).map(function (f) { return '<span class="tag">check ' + esc(f) + "</span> "; }).join("")) +
-    (isNew(r.entity) ? ' <span class="tag new">new topic</span>' : "");
-}
-function pills(r) {
-  var p = [["entity", r.entity || "(no topic)"], ["system", r.system], ["change_type", r.change_type], ["direction", r.direction]];
-  var h = p.map(function (x, k) { return '<span class="pill' + (flagged(r, x[0]) && !r._confirmed ? " f" : "") + '">' + (k ? esc(x[1]) : "<b>" + esc(x[1]) + "</b>") + "</span>"; }).join("");
-  if (r.tags.length) h += '<span class="mut">' + esc(r.tags.join(", ")) + "</span>";
-  if (r.platforms.join() !== "all") h += '<span class="mut">[' + esc(r.platforms.join(", ")) + "]</span>";
-  return h;
-}
-function notesHtml(r, i) {
-  var c = (CHK && CHK.rows[r.id]) || {}, h = "";
-  (c.errs || []).forEach(function (e) { h += '<div class="warn">' + esc(e) + "</div>"; });
-  var nw = isNew(r.entity) && hasTopic(r) && CHK && rows.findIndex(function (x) { return x.entity === r.entity; }) === i;
-  if (nw) {
-    (CHK.names[r.entity] || []).forEach(function (w) { h += '<div class="warn' + (w.indexOf("looks wrong") < 0 ? " soft" : "") + '">' + esc(w) + "</div>"; });
-    if (CHK.hubs[r.entity] !== undefined) {
-      var pick = HUBS[r.entity] || CHK.hubs[r.entity];
-      h += '<label>Hub for new topic <select data-h="' + esc(r.entity) + '">' + CHK.hub_options.map(function (o) { return "<option" + (o === pick ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select></label>";
-    }
-  }
-  if (c.sug && c.sug.length && (r._open || isNew(r.entity) || flagged(r, "entity") || !hasTopic(r)) && !r._confirmed)
-    h += '<div class="chips">Topic? ' + c.sug.map(function (x) { return '<button class="sg" data-a="sug" data-i="' + i + '" data-v="' + esc(x.t) + '" title="' + esc(x.hub) + '">' + esc(x.t) + "</button>"; }).join("") + "</div>";
-  return h;
-}
-function refreshNotes() {
-  document.querySelectorAll(".card[data-i]").forEach(function (el) {
-    var nt = el.querySelector(".nt"), r = rows[+el.dataset.i];
-    if (nt && r && !nt.contains(document.activeElement)) nt.innerHTML = notesHtml(r, +el.dataset.i);
+var pickOpen = false, pickQ = "", pickH = "";
+function pickList(i) {
+  var inPatch = {}, q = pickQ.trim().toLowerCase();
+  patchRows().forEach(function (j) { inPatch[rows[j].entity] = (inPatch[rows[j].entity] || 0) + 1; });
+  var l = S.topics.filter(function (t) { return (!pickH || t.hub === pickH) && (!q || t.name.toLowerCase().indexOf(q) >= 0); });
+  l.sort(function (x, y) {
+    var px = (inPatch[x.name] ? 0 : 2) + (q && x.name.toLowerCase().indexOf(q) === 0 ? 0 : 1), py = (inPatch[y.name] ? 0 : 2) + (q && y.name.toLowerCase().indexOf(q) === 0 ? 0 : 1);
+    return px - py || y.n - x.n || (x.name < y.name ? -1 : 1);
   });
-  bar();
+  var more = l.length > 40;
+  return l.slice(0, 40).map(function (t) {
+    return '<div class="pk" data-a="sug" data-i="' + i + '" data-v="' + esc(t.name) + '"><b>' + esc(t.name) + '</b> <span class="mut">' + esc(t.hub) + " · " + t.n + " changes" + (inPatch[t.name] ? " · in this patch" : "") + "</span></div>";
+  }).join("") + (more ? '<div class="mut2" style="padding:6px 8px">' + (l.length - 40) + " more. Type to narrow the list.</div>" : "") + (l.length ? "" : '<div class="mut2" style="padding:6px 8px">No topic matches.</div>');
 }
-function editor(r, i) {
-  return '<div class="grid" style="margin-top:8px">' +
-    '<label>Topic<input list="topics" data-i="' + i + '" data-f="entity" value="' + esc(r.entity) + '" class="' + (flagged(r, "entity") && !r._confirmed ? "f" : "") + '"></label>' +
-    "<label>System" + sel(i, "system", S.tax.systems) + "</label><label>Type" + sel(i, "change_type", S.tax.change_types) + "</label>" +
-    "<label>Direction" + sel(i, "direction", ["n/a", "+", "−", "~"]) + "</label></div>" +
-    '<div class="chips">' + S.tax.tags.map(function (t) { return '<span class="chip' + (r.tags.indexOf(t) >= 0 ? " on" : "") + '" data-a="tag" data-i="' + i + '" data-v="' + esc(t) + '">' + esc(t) + "</span>"; }).join("") + "</div>" +
-    '<div class="chips">platforms: ' + S.tax.platform_values.map(function (t) { return '<span class="chip' + (r.platforms.indexOf(t) >= 0 ? " on" : "") + '" data-a="plat" data-i="' + i + '" data-v="' + t + '">' + t + "</span>"; }).join("") + "</div>";
+function pickerHtml(i) {
+  var hubs = []; S.topics.forEach(function (t) { if (hubs.indexOf(t.hub) < 0) hubs.push(t.hub); }); hubs.sort();
+  return '<div class="picker"><div class="trow"><input id="pq" placeholder="Search topics" value="' + esc(pickQ) + '"><select id="ph"><option value="">All areas</option>' +
+    hubs.map(function (h) { return "<option" + (h === pickH ? " selected" : "") + ">" + esc(h) + "</option>"; }).join("") + '</select></div><div id="pl" data-i="' + i + '">' + pickList(i) + "</div></div>";
 }
-function card(r, i) {
-  return '<div class="card cmp ' + (r._confirmed ? "ok" : "un") + (i === cur ? " cur" : "") + '" data-i="' + i + '"><div class="row-h"><span><b>' + esc(r.id) + '</b> <span class="st">' + stTags(r) + '</span></span><span class="acts">' +
-    '<button class="b pri cb" data-a="conf" data-i="' + i + '">' + (r._confirmed ? "Unconfirm" : "Confirm") + "</button>" +
-    '<button class="b" data-a="open" data-i="' + i + '">' + (r._open ? "Done" : "Edit") + "</button>" +
-    '<button class="b" data-a="split" data-i="' + i + '" title="Same bullet becomes a second row, for a bullet that holds two changes">Split</button>' +
-    '<button class="b" data-a="del" data-i="' + i + '" title="Not a change; moves the bullet to Left out">Leave out</button></span></div>' +
-    '<div class="src' + (r._open ? "" : " clamp") + '">' + esc(r.source) + '</div><div class="pl">' + pills(r) + '</div><div class="nt">' + notesHtml(r, i) + "</div>" +
-    (r._open ? '<div class="pv">' + esc(preview(r)) + "</div>" + editor(r, i) : "") + "</div>";
+function reEsc(w) { return w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+function markWords(r, line) {
+  var c = (CHK && CHK.rows[r.id]) || {}, ws = [];
+  (c.sug || []).forEach(function (x) { if (x.word) ws.push(x.word); });
+  if (c.cur && c.cur.word) ws.push(c.cur.word);
+  var out = esc(line);
+  ws.sort(function (a, b) { return b.length - a.length; }).forEach(function (w) {
+    var cls = c.cur && c.cur.word === w ? "kw cur" : "kw";
+    out = out.replace(new RegExp("(" + reEsc(esc(w)) + ")(?![^<]*>)", "ig"), '<span class="' + cls + '">$1</span>');
+  });
+  return out;
 }
-/* Update a card in place, so a Tab out of a field keeps its focus. */
-function syncCard(i) {
-  var el = cardEl(i), r = rows[i]; if (!el) return;
-  el.classList.toggle("ok", !!r._confirmed); el.classList.toggle("un", !r._confirmed);
-  el.querySelector(".st").innerHTML = stTags(r); el.querySelector(".pl").innerHTML = pills(r);
-  var nt = el.querySelector(".nt"); if (nt && !nt.contains(document.activeElement)) nt.innerHTML = notesHtml(r, i); var pv = el.querySelector(".pv"); if (pv) pv.textContent = preview(r);
-  el.querySelector(".cb").textContent = r._confirmed ? "Unconfirm" : "Confirm";
-  el.querySelectorAll("select[data-f],input[data-f]").forEach(function (x) { if (x.value !== r[x.dataset.f]) x.value = r[x.dataset.f]; });
-  el.querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", r[c.dataset.a === "tag" ? "tags" : "platforms"].indexOf(c.dataset.v) >= 0); });
-  stat(); bar();
+function rawHtml(r) {
+  var x = rawInfo(r);
+  if (!x || !x.found) return '<div class="srcbig">' + esc(r.source) + "</div>" + (x ? '<div class="mut2">The original wording was not found in data/release_notes.md.</div>' : "");
+  var ls = x.lines.slice(); while (ls.length && !ls[ls.length - 1].t.trim()) ls.pop();
+  return '<div class="mut2">The patch note as written, with the bullet under review marked. Underlined words are what the topic suggestions matched.</div><pre class="raw ctx"><b class="hd">' + esc(x.head) + "</b>\n" +
+    ls.map(function (l) { return l.hit ? '<mark class="hit">' + markWords(r, l.t) + "</mark>" : esc(l.t); }).join("\n") + "</pre>";
 }
-function swapCard(i) {
-  var el = cardEl(i); if (!el) return;
-  var t = document.createElement("div"); t.innerHTML = card(rows[i], i); el.replaceWith(t.firstChild);
+function showHit() { var m = document.querySelector("#dt mark.hit"); if (m) { var c = m.parentNode; c.scrollTop = Math.max(0, m.offsetTop - 40); } }
+function topicInfo(t) {
+  if (!t || isNew(t)) return null;
+  if (!(t in TC)) { TC[t] = null; api("/api/topic", { topic: t }).catch(function () { return { error: "request failed" }; }).then(function (x) { TC[t] = x.recent ? x : { bad: x.out || x.error || "no response", recent: [] }; paintDetail(); }); }
+  return TC[t];
+}
+var FQ = { entity: "Which topic is this about?", change_type: "What kind of change is it?", system: "Which game system?", direction: "Does it make something stronger or weaker?", tags: "Tags (up to 3)", platforms: "Which platforms does it apply to?", split: "Does this bullet hold two changes?" };
+var FWHY = { entity: "weak guess", change_type: "unsure", system: "unsure", direction: "text mentions amounts", platforms: "text names a platform", split: "long bullet" };
+var DIRL = { "n/a": "neither", "+": "+ stronger / more", "−": "− weaker / less", "~": "~ mixed" };
+function seg(i, f, opts, lab) {
+  var r = rows[i];
+  return '<div class="seg">' + opts.map(function (o) { return '<button class="b' + (r[f] === o ? " on" : "") + '" data-a="set" data-i="' + i + '" data-f="' + f + '" data-v="' + esc(o) + '">' + esc(lab ? lab[o] : o) + "</button>"; }).join("") + "</div>";
+}
+function evidence(r, i) {
+  var t = r.entity, h = "";
+  if (!hasTopic(r)) return "";
+  var same = patchRows().filter(function (j) { return j !== i && rows[j].entity === t; }).length;
+  if (isNew(t)) return '<div class="ev"><b>' + esc(t) + "</b>: new topic, no earlier changes." + (same ? " " + same + " other row(s) in this patch use it." : "") + "</div>";
+  var x = topicInfo(t);
+  if (x && x.bad) return '<div class="ev"><b>' + esc(t) + '</b> <span class="mut">Could not load its earlier changes: ' + esc(x.bad) + '. If this says "not found", the server is an old process: stop every notes_gui.py and start it again.</span></div>';
+  h +='<div class="ev"><b>' + esc(t) + "</b> " + (x ? '<span class="mut">' + esc(x.hub || "-") + " · " + x.n + " earlier changes" + (same ? " · " + same + " other in this patch" : "") + "</span>" : '<span class="mut">loading…</span>');
+  if (x && x.desc) h += '<div class="mut clamp3">' + esc(x.desc) + "</div>";
+  if (x && x.recent.length) h += "<ul>" + x.recent.map(function (c) { return '<li><span class="mut">' + esc(c.version + " " + c.type) + ":</span> " + esc(c.text.length > 160 ? c.text.slice(0, 160) + "…" : c.text) + "</li>"; }).join("") + "</ul>";
+  return h + "</div>";
+}
+var CLS = [["change_type", "Type"], ["system", "System"], ["direction", "Direction"]];
+function selCell(r, i, f, need) {
+  var opts = f === "direction" ? ["n/a", "+", "−", "~"] : S.tax[f === "system" ? "systems" : "change_types"];
+  var lab = f === "direction" ? DIRL : null, why = need && !r._confirmed ? ' <span class="why">' + FWHY[f] + "</span>" : "";
+  return '<label class="cell' + (need ? " need" : "") + '">' + CLS.filter(function (c) { return c[0] === f; })[0][1] + why +
+    '<select data-i="' + i + '" data-f="' + f + '">' + opts.map(function (o) { return "<option value=\"" + esc(o) + '"' + (r[f] === o ? " selected" : "") + ">" + esc(lab ? lab[o] : o) + "</option>"; }).join("") +
+    (f === "system" ? '<option value="__new">+ New system…</option>' : "") + "</select>" +
+    (f === "change_type" ? '<span class="mut2">Appears under ' + esc(TG[gOf(r)][0]) + "</span>" : "") + "</label>";
+}
+function fieldBlock(r, i, f, need) {
+  var c = (CHK && CHK.rows[r.id]) || {}, h, why = need && !r._confirmed ? '<span class="why">' + FWHY[f] + "</span>" : "";
+  if (f === "entity") {
+    var cur = c.cur || {}, sg = (hasTopic(r) ? [{ t: r.entity, why: cur.why, guess: true }] : []).concat(c.sug || []);
+    h = '<div class="tchips">' + sg.map(function (x) {
+      return '<div class="tchip' + (x.t === r.entity ? " on" : "") + '" data-a="sug" data-i="' + i + '" data-v="' + esc(x.t) + '"><b>' + esc(x.t) + (x.guess ? ' <span class="mut2">guess</span>' : "") + '</b><span class="rs">' + (x.hub ? esc(x.hub) + " · " : "") + esc(x.why || "") + "</span></div>";
+    }).join("") + "</div>" +
+      '<div class="trow"><input list="topics" data-i="' + i + '" data-f="entity" placeholder="Type a topic name; a new name makes a new topic" value="' + esc(r.entity === "TODO" ? "" : r.entity) + '"><button class="b" data-a="pick" data-i="' + i + '">' + (pickOpen ? "Close list" : "Browse all topics") + "</button></div>" +
+      (pickOpen ? pickerHtml(i) : "") + evidence(r, i);
+    if (isNew(r.entity) && hasTopic(r) && CHK) {
+      (CHK.names[r.entity] || []).forEach(function (w) { h += '<div class="warn' + (w.indexOf("looks wrong") < 0 ? " soft" : "") + '">' + esc(w) + "</div>"; });
+      if (CHK.hubs[r.entity] !== undefined) {
+        var pick = HUBS[r.entity] || CHK.hubs[r.entity];
+        h += '<label>Hub for the new topic <select data-h="' + esc(r.entity) + '">' + CHK.hub_options.map(function (o) { return "<option" + (o === pick ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select></label>";
+      }
+    }
+  } else if (f === "tags") h = '<div class="chips" style="margin:0">' + S.tax.tags.map(function (t) { return '<span class="chip' + (r.tags.indexOf(t) >= 0 ? " on" : "") + '" data-a="tag" data-i="' + i + '" data-v="' + esc(t) + '">' + esc(t) + "</span>"; }).join("") + "</div>";
+  else if (f === "platforms") h = '<div class="chips" style="margin:0">' + S.tax.platform_values.map(function (t) { return '<span class="chip' + (r.platforms.indexOf(t) >= 0 ? " on" : "") + '" data-a="plat" data-i="' + i + '" data-v="' + t + '">' + t + "</span>"; }).join("") + "</div>";
+  else if (f === "split") h = '<button class="b" data-a="split" data-i="' + i + '">Split into two rows</button>';
+  return '<section class="fb' + (need ? " need" : "") + '"><h4>' + FQ[f] + " " + why + "</h4>" + h + "</section>";
+}
+function needOf(r) {
+  var fl = flagsOf(r), n = [];
+  if (!hasTopic(r) || isNew(r.entity) || fl.indexOf("entity") >= 0) n.push("entity");
+  ["change_type", "system", "direction", "platforms"].forEach(function (f) { if (fl.indexOf(f) >= 0) n.push(f); });
+  if (fl.some(function (f) { return f.indexOf("split") === 0; })) n.push("split");
+  return n;
+}
+function summaryLine(r, skip) {
+  var p = [["entity", "Topic", r.entity || "(none)"], ["change_type", "Type", r.change_type], ["system", "System", r.system], ["direction", "Direction", DIRL[r.direction] || r.direction], ["tags", "Tags", r.tags.join(", ") || "none"], ["platforms", "Platforms", r.platforms.join(", ")]];
+  return p.filter(function (x) { return skip.indexOf(x[0]) < 0; }).map(function (x) { return '<span class="pill"><span class="mut">' + x[1] + "</span> " + esc(x[2]) + "</span>"; }).join(" ");
+}
+function railHtml(list) {
+  var h = "", last = -1, all = patchRows();
+  list.forEach(function (i) {
+    var r = rows[i], g = gOf(r), nf = r._confirmed ? 0 : needOf(r).length;
+    if (g !== last) { last = g; h += '<div class="rg">' + TG[g][0] + ' <span class="mut2">' + all.filter(function (j) { return gOf(rows[j]) === g; }).length + "</span></div>"; }
+    h += '<div class="it' + (i === cur ? " cur" : "") + (r._confirmed ? " done" : "") + '" data-a="sel" data-i="' + i + '"><span class="dot' + (errsOf(r).length && !r._confirmed ? " er" : "") + '">' + (r._confirmed ? "✓" : errsOf(r).length ? "!" : nf || "") + '</span><span class="tx"><b>' + esc(r.entity || "(no topic)") + '</b> <span class="mut">' + esc(r.source) + "</span></span></div>";
+  });
+  return h || '<div class="mut" style="padding:8px">Nothing to show.</div>';
+}
+function detailHtml() {
+  var i = cur, r = rows[i];
+  if (!r) return patchDone() ? "Every row of this patch is confirmed." + (versions().length > 1 ? ' <button class="b pri" data-a="nextpatch">Next patch →</button>' : "") : "Select a row.";
+  var all = patchRows(), pos = all.indexOf(i) + 1, need = r._confirmed ? [] : needOf(r), open = !!r._open;
+  var fields = open ? ["entity", "change_type", "system", "direction", "tags", "platforms"] : need;
+  var okTag = '<span class="tag" style="background:var(--ok);border-color:var(--okline)">';
+  var h = '<div class="row-h"><span class="mut">Row ' + pos + " of " + all.length + " · " + esc(r.id) + "</span><span>" + (r._confirmed ? okTag + "confirmed</span>" : need.length ? '<span class="tag">' + need.length + " to decide</span>" : okTag + "nothing flagged</span>") + "</span></div>" +
+    rawHtml(r);
+  if (hasTopic(r)) h += '<div class="out"><span class="mut">Will read on the patch page, under ' + esc(TG[gOf(r)][0]) + ":</span><br><b>" + esc(r.entity) + "</b>: " + esc(lowerFirst(r.source, r.entity).split(/(?<=[.!?])\s+(?=[A-Z])/)[0]) + "</div>";
+  errsOf(r).forEach(function (e) { h += '<div class="warn">' + esc(e) + "</div>"; });
+  if (fields.indexOf("entity") < 0) h += evidence(r, i);
+  var cl = fields.filter(function (f) { return CLS.some(function (c) { return c[0] === f; }); });
+  fields.forEach(function (f) { if (cl.indexOf(f) < 0) h += fieldBlock(r, i, f, need.indexOf(f) >= 0); });
+  if (cl.length) h += '<div class="cls">' + cl.map(function (f) { return selCell(r, i, f, need.indexOf(f) >= 0); }).join("") + "</div>";
+  if (!open) h += '<div class="fine"><span class="mut">' + (need.length ? "Taken as guessed:" : "Fields:") + "</span> " + summaryLine(r, fields) + "</div>";
+  return h + '<div class="acts big">' + (r._confirmed ? '<button class="b" data-a="conf" data-i="' + i + '">Unconfirm</button>' : '<button class="b pri" data-a="conf" data-i="' + i + '">' + (need.length ? "Decided, confirm" : "Confirm") + " &amp; next <kbd>Enter</kbd></button>") +
+    '<button class="b" data-a="open" data-i="' + i + '">' + (open ? "Done editing" : "Edit all fields") + "</button>" +
+    (need.indexOf("split") < 0 ? '<button class="b" data-a="split" data-i="' + i + '" title="The bullet becomes a second row">Split</button>' : "") +
+    '<button class="b" data-a="del" data-i="' + i + '" title="Not a change; moves the bullet to Left out">Leave out</button></div>';
+}
+function paintDetail() {
+  var el = $("#dt"), a = document.activeElement;
+  if (!el || (a && el.contains(a) && /^(INPUT|SELECT)$/.test(a.tagName))) return;
+  el.innerHTML = detailHtml(); showHit();
 }
 function setCur(i) {
-  if (i === cur) return;
-  var o = cardEl(cur); if (o) o.classList.remove("cur");
-  cur = i; var n = cardEl(i);
-  if (n) { n.classList.add("cur"); n.scrollIntoView({ block: "nearest" }); }
+  cur = i; var rl = $("#rail"), st = rl ? rl.scrollTop : 0;
+  render(); rl = $("#rail"); if (rl) { rl.scrollTop = st; var n = rl.querySelector(".it.cur"); if (n) n.scrollIntoView({ block: "nearest" }); }
+}
+function nextOpen(from) {
+  var all = patchRows(), p = all.indexOf(from), k;
+  for (k = 1; k <= all.length; k++) { var j = all[(p + k) % all.length]; if (!rows[j]._confirmed) return j; }
+  return all[p + 1] !== undefined ? all[p + 1] : from;
 }
 function confirmRow(i) {
   var r = rows[i];
-  if (!r._confirmed && !hasTopic(r)) { r._open = true; swapCard(i); var inp = cardEl(i).querySelector('input[data-f="entity"]'); inp.classList.add("f"); inp.focus(); return; }
-  if (!r._confirmed && errsOf(r).length) { r._open = true; swapCard(i); return; }
-  var list = vis(), p = list.indexOf(i);
-  r._confirmed = !r._confirmed; save();
-  if (!visible(r)) {
-    cur = list[p + 1] !== undefined ? list[p + 1] : list[p - 1] !== undefined ? list[p - 1] : -1;
-    render(); var ne = cardEl(cur); if (ne) ne.scrollIntoView({ block: "nearest" });
-  } else {
-    syncCard(i);
-    if (r._confirmed && list[p + 1] !== undefined) setCur(list[p + 1]);
-  }
+  if (!r._confirmed && !hasTopic(r)) { r._open = true; setCur(i); var inp = $('#dt input[data-f="entity"]'); if (inp) inp.focus(); return; }
+  if (!r._confirmed && errsOf(r).length) { r._open = true; return setCur(i); }
+  r._confirmed = !r._confirmed; r._open = false; save();
+  setCur(r._confirmed ? nextOpen(i) : i);
 }
+function vis() { return patchRows().filter(function (i) { return !(hide && rows[i]._confirmed) || i === cur; }); }
 function reviewView() {
   if (!rows.length && !skipped.length) return '<div class="card">No draft. Go to step 1 and press Fetch &amp; prepare.</div>' + logBox();
-  var v = curVer(), list = vis(); if (list.indexOf(cur) < 0) cur = list.length ? list[0] : -1;
-  var all = patchRows(), nconf = all.filter(function (i) { return rows[i]._confirmed; }).length;
+  var v = curVer(), all = patchRows(); if (all.indexOf(cur) < 0) cur = all.filter(function (j) { return !rows[j]._confirmed; })[0] || all[0] || -1;
+  var list = vis(), nconf = all.filter(function (i) { return rows[i]._confirmed; }).length;
   var rel = S.pending.filter(function (p) { return p.version === v; })[0], date = all.length ? rows[all[0]].date : (rel ? rel.date : "");
   var h = '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
   h += '<div class="strip">' + versions().map(function (x) {
     var a = rows.filter(function (r) { return r.version === x; }), c = a.filter(function (r) { return r._confirmed; }).length;
     return '<button class="b' + (x === v ? " pri" : "") + '" data-a="patch" data-v="' + esc(x) + '" title="' + c + " of " + a.length + ' confirmed">' + (c === a.length ? "✓ " : "") + esc(x) + ' <span class="mut2">' + c + "/" + a.length + "</span></button>";
   }).join("") + "</div>";
-  h += '<div class="bar"><h2 class="ph">Patch ' + esc(v) + '</h2><span class="mut">' + esc(date) + " · " + all.length + " rows, " + nconf + ' confirmed</span><span style="flex:1"></span>' +
-    '<select id="flt"><option value="all"' + (filter === "all" ? " selected" : "") + ">All rows in this patch</option><option value=\"unconf\"" + (filter === "unconf" ? " selected" : "") + ">Unconfirmed</option><option value=\"flag\"" + (filter === "flag" ? " selected" : "") + ">Flagged and unconfirmed</option></select></div>" +
-    '<p class="mut"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>[</kbd>/<kbd>]</kbd> patch · <kbd>E</kbd> edit · <kbd>T</kbd> topic · <kbd>S</kbd> split · <kbd>X</kbd> leave out · <kbd>U</kbd> unconfirm · <kbd>Z</kbd> undo · <kbd>Esc</kbd> close</p>';
-  var last = -1;
-  list.forEach(function (i) {
-    var g = gOf(rows[i]);
-    if (g !== last) { last = g; h += '<h3 class="gh">' + TG[g][0] + ' <span class="mut2">' + all.filter(function (j) { return gOf(rows[j]) === g; }).length + "</span></h3>"; }
-    h += card(rows[i], i);
-  });
-  if (!list.length) h += '<div class="card">' + (all.length ? (nconf === all.length ? "Every row of this patch is confirmed." : "Nothing to show with this filter.") : "This patch has no rows.") + "</div>";
+  h += '<div class="bar"><h2 class="ph">Patch ' + esc(v) + '</h2><span class="mut">' + esc(date) + " · " + nconf + " of " + all.length + " confirmed</span></div>";
+  h += '<div class="rv"><div><label class="chk"><input type="checkbox" id="hide"' + (hide ? " checked" : "") + "> Hide confirmed rows</label><div id=\"rail\">" + railHtml(list) + '</div></div><div class="card" id="dt">' + detailHtml() + "</div></div>";
+  h += '<p class="mut keys"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> edit all · <kbd>T</kbd> topic · <kbd>S</kbd> split · <kbd>X</kbd> leave out · <kbd>U</kbd> unconfirm · <kbd>Z</kbd> undo · <kbd>[</kbd>/<kbd>]</kbd> patch</p>';
   var sk = skipped.map(function (s, j) { return [s, j]; }).filter(function (x) { return x[0].version === v; });
   if (sk.length) {
-    h += "<h3>Left out of " + esc(v) + " (" + sk.length + ")</h3><p class=\"mut\">Statements of no change, rollout and credits are skipped automatically. Add one back if it is a real change.</p>";
+    h += "<details><summary>Left out of " + esc(v) + " (" + sk.length + ")</summary><p class=\"mut\">Statements of no change, rollout and credits are skipped automatically. Add one back if it is a real change.</p>";
     sk.forEach(function (x) { var s = x[0]; h += '<div class="card">' + (s.section ? '<div class="mut">' + esc(s.section) + "</div>" : "") + '<div class="src">' + esc(s.text) + '</div><button class="b" data-a="restore" data-j="' + x[1] + '">Add as a row</button></div>'; });
+    h += "</details>";
   }
   return h + logBox();
 }
+function setField(i, f, val) {
+  var r = rows[i], old = r[f]; r[f] = val.trim(); r._confirmed = false;
+  if (f === "entity") { var k = S.topics.filter(function (x) { return x.name === r.entity; })[0]; if (k && k.systems.length === 1) r.system = k.systems[0]; }
+  if (f === "change_type") {
+    if (r.change_type === "Buff") r.direction = "+"; else if (r.change_type === "Nerf") r.direction = "−";
+    else if (old === "Buff" || old === "Nerf") r.direction = "n/a";
+  }
+  save(); setCur(i);
+}
+function refreshNotes() { if (tab === "rows") { paintDetail(); bar(); } }
 function descCard(d, i) {
   return '<div class="card' + (d.saved ? " ok" : "") + '" data-d="' + i + '"><div class="row-h"><b>' + esc(d.topic) + '</b><span class="mut">' + esc(d.hub) + " · " + d.n + " changes" + (d.new ? " · new" : d.was ? " · reviewed at " + d.was : " · not reviewed") + "</span></div>" +
     (d.current ? '<div class="src"><span class="mut">Current:</span> ' + esc(d.current) + "</div>" : "") +
@@ -393,20 +480,8 @@ function runChecks() {
     });
   })(0);
 }
-function setField(i, f, val) {
-  var r = rows[i], old = r[f]; r[f] = val.trim(); r._confirmed = false;
-  if (f === "entity") { var k = S.topics.filter(function (x) { return x.name === r.entity; })[0]; if (k && k.systems.length === 1) r.system = k.systems[0]; }
-  if (f === "change_type") {
-    if (r.change_type === "Buff") r.direction = "+"; else if (r.change_type === "Nerf") r.direction = "−";
-    else if (old === "Buff" || old === "Nerf") r.direction = "n/a";
-  }
-  save();
-  if (f === "change_type") { cur = i; return render(); }  /* the row moves under another heading */
-  syncCard(i);
-}
 /* ---------- events ---------- */
 document.addEventListener("click", function (e) {
-  var c = e.target.closest(".card[data-i]"); if (c && tab === "rows") setCur(+c.dataset.i);
   var t = e.target.closest("[data-a],nav button"); if (!t) return;
   if (t.tagName === "BUTTON") t.blur();
   if (t.matches("nav button")) { tab = t.dataset.t; return render(); }
@@ -420,11 +495,14 @@ document.addEventListener("click", function (e) {
     if (p >= 0) r[k].splice(p, 1); else { if (k === "tags" && r.tags.length >= 3) return alert("At most 3 tags."); r[k].push(v); }
     if (k === "platforms" && !r.platforms.length) r.platforms = ["all"];
     if (k === "platforms" && v !== "all" && r.platforms.indexOf("all") >= 0 && r.platforms.length > 1) r.platforms.splice(r.platforms.indexOf("all"), 1);
-    r._confirmed = false; save(); return syncCard(i);
+    r._confirmed = false; save(); return setCur(i);
   }
   if (a === "conf") return confirmRow(i);
-  if (a === "sug") return setField(i, "entity", t.dataset.v);
-  if (a === "open") { r._open = !r._open; return swapCard(i); }
+  if (a === "sug") { pickOpen = false; return setField(i, "entity", t.dataset.v); }
+  if (a === "pick") { pickOpen = !pickOpen; pickQ = ""; setCur(i); var pq = $("#pq"); if (pq) pq.focus(); return; }
+  if (a === "sel") return setCur(i);
+  if (a === "set") return setField(i, t.dataset.f, t.dataset.v);
+  if (a === "open") { r._open = !r._open; return setCur(i); }
   if (a === "undo") return undo();
   if (a === "patch") return gotoPatch(t.dataset.v);
   if (a === "nextpatch") return nextPatch();
@@ -455,7 +533,16 @@ document.addEventListener("click", function (e) {
 });
 document.addEventListener("change", function (e) {
   var t = e.target;
-  if (t.id === "flt") { filter = t.value; cur = -1; return render(); }
+  if (t.id === "ph") { pickH = t.value; $("#pl").innerHTML = pickList(+$("#pl").dataset.i); return; }
+  if (t.id === "hide") { hide = t.checked; return render(); }
+  if (t.dataset.f === "system" && t.value === "__new") {
+    var ri = +t.dataset.i, nm = prompt("Name of the new game system (letters, digits, spaces, & or -; up to 24 characters):");
+    if (!nm || !nm.trim()) return setCur(ri);
+    return api("/api/system", { name: nm }).then(function (x) {
+      if (!x.ok) { alert(x.out); return setCur(ri); }
+      S.tax.systems = x.systems; setField(ri, "system", x.name);
+    });
+  }
   if (t.dataset.h !== undefined) { HUBS[t.dataset.h] = t.value; return save(); }
   if (t.dataset.f) setField(+t.dataset.i, t.dataset.f, t.value);
 });
@@ -472,15 +559,17 @@ document.addEventListener("keydown", function (e) {
   else if (k === "]") nextPatch();
   else if (k === "[") { var vs = versions(), at = vs.indexOf(curVer()); if (at > 0) gotoPatch(vs[at - 1]); }
   else if (k === "u") { if (r._confirmed) confirmRow(cur); }
-  else if (k === "e") { r._open = !r._open; swapCard(cur); }
-  else if (k === "escape") { if (r._open) { r._open = false; swapCard(cur); } }
-  else if (k === "t") { r._open = true; swapCard(cur); var inp = cardEl(cur).querySelector('input[data-f="entity"]'); inp.focus(); inp.select(); }
-  else if (k === "s") cardEl(cur).querySelector('[data-a="split"]').click();
-  else if (k === "x") cardEl(cur).querySelector('[data-a="del"]').click();
+  else if (k === "e") { r._open = !r._open; setCur(cur); }
+  else if (k === "escape") { if (r._open) { r._open = false; setCur(cur); } }
+  else if (k === "t") { r._open = true; setCur(cur); var inp = $('#dt input[data-f="entity"]'); if (inp) { inp.focus(); inp.select(); } }
+  else if (k === "s") $('#dt [data-a="split"]').click();
+  else if (k === "x") $('#dt [data-a="del"]').click();
   else ok = false;
   if (ok) e.preventDefault();
 });
-document.addEventListener("input", function (e) { var t = e.target; if (t.dataset.d !== undefined && t.tagName === "TEXTAREA") D[+t.dataset.d].draft = t.value; });
+document.addEventListener("input", function (e) {
+  var t = e.target;
+  if (t.id === "pq") { pickQ = t.value; $("#pl").innerHTML = pickList(+$("#pl").dataset.i); return; } if (t.dataset.d !== undefined && t.tagName === "TEXTAREA") D[+t.dataset.d].draft = t.value; });
 function renum() { var n = {}; rows.forEach(function (r) { n[r.version] = (n[r.version] || 0) + 1; r.id = r.version + "-" + ("00" + n[r.version]).slice(-3); }); }
 function copy(txt) {
   if (navigator.clipboard) return navigator.clipboard.writeText(txt);

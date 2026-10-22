@@ -92,17 +92,24 @@ def check(rows):
     by_plain = {N._plain(t): t for t in hub}
     g = guesser()
     out = {"rows": {}, "names": {}, "hubs": {}, "hub_options": sorted(set(hub.values()) | {"Uncategorised"})}
+    pats = dict(g.pats)
     for r in rows:
-        ent, cand = r.get("entity", ""), {}
-        for n, sc in g.scores(r.get("source", "")).items():
+        ent, cand, word = r.get("entity", ""), {}, {}
+        src = r.get("source", "")
+        for n, sc in g.scores(src).items():
             t = N.topic_of(n, alias)
-            cand[t] = max(cand.get(t, 0), sc)
+            if sc > cand.get(t, -1):
+                cand[t], word[t] = sc, pats[n].search(src).group(0)
         sug = [t for t, _ in sorted(cand.items(), key=lambda kv: -kv[1]) if t != ent][:4]
+        why = {t: {"why": "named in the text", "word": word[t]} for t in sug}
         if ent and N.topic_of(ent, alias) not in hub:
             for m in difflib.get_close_matches(N._plain(ent), list(by_plain), n=3, cutoff=0.7):
                 if by_plain[m] != ent and by_plain[m] not in sug:
                     sug.insert(0, by_plain[m])
-        out["rows"][r["id"]] = {"sug": [{"t": t, "hub": hub.get(t, "-")} for t in sug[:5]], "errs": []}
+                    why[by_plain[m]] = {"why": f"close spelling of {ent}", "word": ""}
+        te = N.topic_of(ent, alias) if ent else ent
+        cur = {"why": "named in the text", "word": word[te]} if te in word else {"why": "from the section heading or the bullets around it, not named in the text", "word": ""}
+        out["rows"][r["id"]] = {"sug": [{"t": t, "hub": hub.get(t, "-"), **why[t]} for t in sug[:5]], "cur": cur, "errs": []}
     for name in sorted({r["entity"] for r in rows if r.get("entity") and r["entity"] != "TODO" and N.topic_of(r["entity"], alias) not in hub}):
         mine = [r for r in rows if r["entity"] == name]
         out["names"][name] = [w for w in N.topic_name_warnings(mine, known) if not w.startswith("A topic should be")]
@@ -201,6 +208,60 @@ def ingest(body):
             if os.path.exists(f):
                 os.remove(f)
     return b
+
+
+def raw_for(version, source):
+    """The release note as written: the section holding the bullet, untouched, with the bullet's own lines marked."""
+    rel = next((r for r in N.parse_notes() if r["version"] == version), None)
+    if not rel:
+        return {"found": False}
+    want = " ".join(source.split())
+    secs, cur, head = [], None, None
+    for line in rel["body"].split("## What's Changed")[0].split("\n"):
+        if re.match(r"^#{2,3} ", line):
+            head, cur = line, {"head": line, "lines": []}
+            secs.append(cur)
+        elif cur is not None:
+            cur["lines"].append(line)
+    for sec in secs:
+        ls, k = sec["lines"], 0
+        while k < len(ls):
+            if re.match(r"^\s*[-*] ", ls[k]):
+                e = k + 1
+                while e < len(ls) and ls[e].startswith("  ") and ls[e].strip():
+                    e += 1
+                if " ".join(N.clean(" ".join(re.sub(r"^\s*[-*] ", "", ls[k]).split() + [x.strip() for x in ls[k + 1:e]])).split()) == want:
+                    return {"found": True, "head": sec["head"], "lines": [{"t": x, "hit": k <= j < e} for j, x in enumerate(ls)]}
+                k = e
+            else:
+                k += 1
+    return {"found": False}
+
+
+def add_system(name):
+    """Add a game system to the taxonomy, editing the text in place so the file keeps its layout."""
+    name = " ".join(name.split())
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9 &'-]{0,23}", name):
+        return {"ok": False, "out": "Use 1 to 24 letters, digits, spaces, & or -, starting with a letter."}
+    text = open(N.TAX, encoding="utf-8-sig", newline="").read()
+    have = json.loads(text)["systems"]
+    dup = next((x for x in have if x.lower() == name.lower()), None)
+    if dup:
+        return {"ok": True, "name": dup, "systems": have}
+    m = re.search(r'("systems"\s*:\s*\[)(.*?)(\s*\])', text, re.S)
+    nl = "\r\n" if "\r\n" in text else "\n"
+    ent = list(re.finditer(r'[ \t]*"[^"]*"', m.group(2)))
+    pad = re.match(r"[ \t]*", ent[-1].group(0)).group(0)
+    at = next((e.start() for e in ent if e.group(0).strip() == '"Other"'), None)
+    if at is not None:
+        body = m.group(2)[:at] + pad + json.dumps(name) + "," + nl + m.group(2)[at:]
+    else:
+        body = m.group(2) + "," + nl + pad + json.dumps(name)
+    out = text[:m.start(2)] + body + text[m.end(2):]
+    systems = json.loads(out)["systems"]
+    with open(N.TAX, "w", encoding="utf-8-sig", newline="") as f:
+        f.write(out)
+    return {"ok": True, "name": name, "systems": systems}
 
 
 def change_lines(topic):
@@ -367,6 +428,15 @@ class H(BaseHTTPRequestHandler):
                     return self.send({"ok": bool(r), "row": r})
                 if self.path == "/api/ingest":
                     return self.send(ingest(body))
+                if self.path == "/api/topic":
+                    t = body["topic"]
+                    hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
+                    ch = change_lines(t)
+                    return self.send({"topic": t, "hub": hub.get(t), "n": len(ch), "desc": (N.descriptions().get(t) or [""])[0], "recent": ch[-3:][::-1]})
+                if self.path == "/api/system":
+                    return self.send(add_system(body.get("name", "")))
+                if self.path == "/api/raw":
+                    return self.send(raw_for(body["version"], body["text"]))
                 if self.path == "/api/prompt":
                     return self.send({"prompt": prompt_for(body["topic"])})
                 if self.path == "/api/prompt_all":
