@@ -40,8 +40,8 @@ for r in rows:
         o = o.replace('**', '').replace('`', '')
         if n and n.lower()[:25] in o.lower(): n = ''   # the bullet already says it
         s = o
-    out.append(dict(id=r['id'], v=r['version'], d=r['date'], s=r['system'], e=e, t=r['change_type'],
-                    r=r['direction'], x=s, g=r['tags'], n=n))
+    out.append(dict(id=r['id'], v=r['version'], d=r['date'], e=e, t=r['change_type'],
+                    x=s, g=r['tags'], n=n))
 nrows = Counter(r['version'] for r in rows)
 # per release: u = Update name, t = title, k = kind (release, likely-hotfix, bulk-import), c = recorded changes, tier only when set
 rels = {}
@@ -66,13 +66,12 @@ def js(o): return json.dumps(o, ensure_ascii=False, separators=(',', ':'))
 def gz(o): return len(gzip.compress(js(o).encode('utf-8')))
 
 
-# topic stats for the core file: [changes, last patch, first patch]; system counts
-tstat, systems = {}, Counter()
+# topic stats for the core file: [changes, last patch, first patch]
+tstat = {}
 for r in out:
     c, last, first = tstat.get(r['e'], [0, '', ''])
     tstat[r['e']] = [c + 1, r['v'] if not last or vkey(r['v']) > vkey(last) else last,
                      r['v'] if not first or vkey(r['v']) < vkey(first) else first]
-    systems[r['s']] += 1
 
 # shards: one per month of the release date; a month over the limit is split in two by patch, and so on
 by_month = {}
@@ -129,7 +128,7 @@ cands = sorted(t for t, r in last_row.items() if r['t'] == 'Removal' and t not i
 if cands:
     print('  Legacy candidates (the latest change is a Removal; a person decides, add real ones to data/legacy.csv):', ', '.join(cands))
 
-core = dict(hubs=hub, releases=rels, desc=desc, tstat=tstat, systems=dict(systems), shards=shards, shardOf=shard_of,
+core = dict(hubs=hub, releases=rels, desc=desc, tstat=tstat, shards=shards, shardOf=shard_of,
             alias={o: n for o, n in alias.items() if n in tstat}, aka=aka, legacy=legacy,
             totals=dict(rows=len(out), topics=len(tstat), versions=sum(1 for v in nrows if nrows[v])))
 write('web/data.js', 'window.DATA=' + js(core) + ';\n')

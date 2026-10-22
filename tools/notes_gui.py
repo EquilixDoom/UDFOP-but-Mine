@@ -46,11 +46,7 @@ def state():
     rows = N.read_jsonl(N.ALL)
     alias = N.merge_alias()
     hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
-    by, cnt = N.defaultdict(set), N.Counter()
-    for r in rows:
-        t = N.topic_of(r["entity"], alias)
-        by[t].add(r["system"])
-        cnt[t] += 1
+    cnt = N.Counter(N.topic_of(r["entity"], alias) for r in rows)
     pend = sorted(N.pending_releases(), key=lambda r: N.vkey(r["version"])) if os.path.exists(N.NOTES) else []
     behind = N.notes_behind() if os.path.exists(N.NOTES) else None
     draft = N.read_jsonl(DRAFT)
@@ -58,7 +54,7 @@ def state():
     stale, _, _ = N.stale_topics()
     return {
         "tax": json.load(open(N.TAX, encoding="utf-8-sig")),
-        "topics": [{"name": t, "hub": hub.get(t, "-"), "systems": sorted(by[t]), "n": cnt[t]} for t in sorted(by)],
+        "topics": [{"name": t, "hub": hub.get(t, "-"), "n": cnt[t]} for t in sorted(cnt)],
         "pending": [{"version": r["version"], "date": r["date"], "prs": len(r["prs"]), "body": r["has_body_notes"]} for r in pend],
         "behind": behind, "rows_total": len(rows), "last_version": max((r["version"] for r in rows), key=N.vkey, default=""),
         "have_notes": os.path.exists(N.NOTES),
@@ -238,32 +234,6 @@ def raw_for(version, source):
     return {"found": False}
 
 
-def add_system(name):
-    """Add a game system to the taxonomy, editing the text in place so the file keeps its layout."""
-    name = " ".join(name.split())
-    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9 &'-]{0,23}", name):
-        return {"ok": False, "out": "Use 1 to 24 letters, digits, spaces, & or -, starting with a letter."}
-    text = open(N.TAX, encoding="utf-8-sig", newline="").read()
-    have = json.loads(text)["systems"]
-    dup = next((x for x in have if x.lower() == name.lower()), None)
-    if dup:
-        return {"ok": True, "name": dup, "systems": have}
-    m = re.search(r'("systems"\s*:\s*\[)(.*?)(\s*\])', text, re.S)
-    nl = "\r\n" if "\r\n" in text else "\n"
-    ent = list(re.finditer(r'[ \t]*"[^"]*"', m.group(2)))
-    pad = re.match(r"[ \t]*", ent[-1].group(0)).group(0)
-    at = next((e.start() for e in ent if e.group(0).strip() == '"Other"'), None)
-    if at is not None:
-        body = m.group(2)[:at] + pad + json.dumps(name) + "," + nl + m.group(2)[at:]
-    else:
-        body = m.group(2) + "," + nl + pad + json.dumps(name)
-    out = text[:m.start(2)] + body + text[m.end(2):]
-    systems = json.loads(out)["systems"]
-    with open(N.TAX, "w", encoding="utf-8-sig", newline="") as f:
-        f.write(out)
-    return {"ok": True, "name": name, "systems": systems}
-
-
 def change_lines(topic):
     return describe_changes({topic})[topic]
 
@@ -276,7 +246,7 @@ def describe_changes(topics):
         t = N.topic_of(r["entity"], alias)
         if t in by:
             by[t].append(r)
-    return {t: [{"version": r["version"], "type": r["change_type"], "direction": r["direction"], "text": src.get(r["id"], r["summary"])}
+    return {t: [{"version": r["version"], "type": r["change_type"], "text": src.get(r["id"], r["summary"])}
                 for r in sorted(rs, key=lambda r: (N.vkey(r["version"]), r["id"]))] for t, rs in by.items()}
 
 
@@ -303,7 +273,7 @@ def topic_lines(d):
         lines += ["Current description (update it rather than starting over):", d["current"], ""]
     lines.append("Changes, oldest first:")
     for c in d["changes"]:
-        lines.append(f"- {c['version']} {c['type']}{'' if c['direction'] == 'n/a' else c['direction']}: {c['text']}")
+        lines.append(f"- {c['version']} {c['type']}: {c['text']}")
     return lines
 
 
@@ -433,8 +403,6 @@ class H(BaseHTTPRequestHandler):
                     hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
                     ch = change_lines(t)
                     return self.send({"topic": t, "hub": hub.get(t), "n": len(ch), "desc": (N.descriptions().get(t) or [""])[0], "recent": ch[-3:][::-1]})
-                if self.path == "/api/system":
-                    return self.send(add_system(body.get("name", "")))
                 if self.path == "/api/raw":
                     return self.send(raw_for(body["version"], body["text"]))
                 if self.path == "/api/prompt":

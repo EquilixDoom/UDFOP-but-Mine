@@ -90,11 +90,10 @@
      descriptions and a count and last patch for each topic, so lists of topics, categories and patches need no rows; a page that does need them
      loads the shards first (shardsNeeded). Whatever is built from the rows is rebuilt each time a shard arrives. */
   var loadedShards = {}, shardLoads = {};
-  var byTopic = {}, bySystem = {}, byVersion = {}, tagIndex = {};
+  var byTopic = {}, byVersion = {}, tagIndex = {};
   var topics = Object.keys(D.tstat).sort(function (a, b) { return a.localeCompare(b); });
   var versions = Object.keys(D.releases).filter(function (v) { return D.releases[v].c; }).sort(vcmp).reverse();   /* releases with recorded changes */
   var allVersions = Object.keys(D.releases).sort(vcmp).reverse();   /* every release, including those with no recorded changes */
-  var systems = Object.keys(D.systems).sort();
   var hubs = {}, hubsLegacy = {};   /* legacy topics (removed content, listed in data/legacy.csv) stay out of the default lists and categories */
   var liveTopics = topics.filter(function (t) { return !D.legacy[t]; });
   topics.forEach(function (t) { var h = D.hubs[t] || "Uncategorised"; var set = D.legacy[t] ? hubsLegacy : hubs; (set[h] = set[h] || []).push(t); });
@@ -103,7 +102,7 @@
   });
   function dateOf(v) { var r = D.releases[v]; return r ? r.date : ""; }
   function reindex() {
-    byTopic = group(rows, "e"); bySystem = group(rows, "s"); byVersion = group(rows, "v"); tagIndex = {};
+    byTopic = group(rows, "e"); byVersion = group(rows, "v"); tagIndex = {};
     topics.forEach(function (t) {
       var m = {}; (byTopic[t] || []).forEach(function (r) { (r.g || []).forEach(function (g) { m[g] = (m[g] || 0) + 1; }); });
       tagIndex[t] = m;
@@ -131,11 +130,11 @@
   function shardsNeeded(name, arg) {
     if (name === "patch") { var k = D.shardOf[arg]; return k ? [k] : []; }
     var all = Object.keys(D.shards);
-    if (["topic", "hub", "system", "search"].indexOf(name) >= 0) {   /* these take a date range: only the shards whose dates touch it */
+    if (["topic", "hub", "search"].indexOf(name) >= 0) {   /* these take a date range: only the shards whose dates touch it */
       var rg = getRange();
       return !rg.active ? all : all.filter(function (k) { var d = D.shards[k].d; return (!rg.to || d[0] <= rg.to) && (!rg.from || d[1] >= rg.from); });
     }
-    if (["patchnotes", "recent", "systems"].indexOf(name) >= 0) return all;
+    if (["patchnotes", "recent"].indexOf(name) >= 0) return all;
     return [];
   }
 
@@ -184,14 +183,9 @@
   /* ---------- fragments ---------- */
   function tlink(t) { return '<a href="#/topic/' + enc(t) + '">' + esc(t) + "</a>"; }
   function vlink(v) { return '<a href="#/patch/' + enc(v) + '">' + esc(v) + "</a>"; }
-  /* the system the data calls "UI" is shown as "Interface", the same word as its category; the address keeps the data's name */
-  function sysName(s) { return s === "UI" ? "Interface" : s; }
-  function slink(s) { return '<a href="#/system/' + enc(s) + '">' + esc(sysName(s)) + "</a>"; }
   function hlink(h) { return '<a href="#/hub/' + enc(h) + '">' + esc(h) + "</a>"; }
   /* "Other" means the change has not been sorted into a more specific type, so say so where a reader meets it */
   function typeTag(r) { return '<span class="tp" data-type="' + esc(r.t) + '"' + (r.t === "Other" ? ' title="Not sorted into a more specific type"' : "") + ">" + esc(r.t) + "</span>"; }
-  var DIR_TITLE = { "+": "Increased", "\u2212": "Decreased", "~": "Changed, neither clearly up nor down" };
-  function dir(r) { return r.r === "+" ? " (increase)" : r.r === "−" ? " (decrease)" : ""; }
   function text(r) { return esc(r.x) + (r.n ? '<span class="dev">Developer note: ' + esc(r.n) + "</span>" : ""); }
 
   var HOME_HAT = '<a href="#/">Main Page</a>';   /* every breadcrumb starts at the Main Page */
@@ -218,9 +212,7 @@
           case "Date": return '<td class="nowrap">' + esc(r.d) + "</td>";
           case "Source": return '<td class="nowrap"><a href="' + RELEASES_URL + "/tag/app-v" + enc(r.v) + '" rel="noopener" title="The developers&rsquo; original release notes for patch ' + esc(r.v) + ', on GitHub">Dev notes ↗</a></td>';
           case "Topic": return "<td>" + tlink(r.e) + "</td>";
-          case "System": return "<td>" + slink(r.s) + "</td>";
           case "Type": return "<td>" + typeTag(r) + "</td>";
-          case "Direction": return '<td data-dir="' + esc(r.r) + '"' + (DIR_TITLE[r.r] ? ' title="' + DIR_TITLE[r.r] + '"' : "") + ">" + (r.r === "n/a" ? "" : esc(r.r)) + "</td>";
           default: return "<td>" + text(r) + "</td>";
         }
       }).join("") + "</tr>";
@@ -370,7 +362,7 @@
     var h = '<p>The patch notes record what has changed in DFO Online, patch by patch and topic by topic. They cover <b>' +
       rows.length.toLocaleString() + "</b> recorded changes to <b>" + topics.length + '</b> topics across <b>' + allVersions.length + "</b> patches, from version " +
       esc(versions[versions.length - 1]) + " (" + esc(dateOf(versions[versions.length - 1])) + ") to " + esc(latest) + " (" + esc(dateOf(latest)) + ").</p>";
-    h += '<p class="browse"><b>Browse:</b> <a href="#/recent">Recent changes</a> · <a href="#/topics">All topics</a> · <a href="#/hubs">Areas</a> · <a href="#/systems">Game systems</a> · <a href="#/patches">Patch index</a> · <a href="#/random">Random topic</a></p>';
+    h += '<p class="browse"><b>Browse:</b> <a href="#/recent">Recent changes</a> · <a href="#/topics">All topics</a> · <a href="#/hubs">Areas</a> · <a href="#/patches">Patch index</a> · <a href="#/random">Random topic</a></p>';
     h += '<div class="portals">' + recentByType();
     h += '<div class="portal"><h3>Latest patch</h3><div><p><b>' + vlink(latest) + "</b> – " + esc(dateOf(latest)) + "<br>" + plural(lrows.length, "change") + " to " +
       plural(uniq(lrows.map(function (r) { return r.e; })).length, "topic") + ".</p><ul>" +
@@ -415,7 +407,7 @@
   };
 
   views.hubs = function () {
-    var h = "<p>An area is where a topic is filed: each topic is in exactly one. For what a change touched, which can be several things, see <a href=\"#/systems\">Game systems</a>.</p>" + '<ul class="cols">' + hubNames.map(function (n) {
+    var h = "<p>An area is where a topic is filed: each topic is in exactly one.</p>" + '<ul class="cols">' + hubNames.map(function (n) {
       return "<li>" + hlink(n) + " <small>(" + plural(hubs[n].length, "topic") + ")</small></li>"; }).join("") + "</ul>";
     return { title: "Areas", html: page("Areas", h, { hat: PN_HAT + "Areas" }) };
   };
@@ -451,7 +443,7 @@
         noneInRange(esc(t), rg, ts[0], ", the latest in patch " + vlink(ts[1]) + " (" + esc(dateOf(ts[1])) + ")");
       return { title: t, html: page(esc(t), h0, { hat: hat }), toc: false, after: function () { wireRange(base); } };
     }
-    var sys = uniq(l.map(function (r) { return r.s; })).sort(), g = group(l, "t"), vs = vers(l);
+    var g = group(l, "t"), vs = vers(l);
     var order = TYPES.filter(function (x) { return g[x]; }).concat(Object.keys(g).filter(function (x) { return TYPES.indexOf(x) < 0; }));
     var top = order.slice().sort(function (a, b) { return g[b].length - g[a].length; })[0];
 
@@ -459,7 +451,6 @@
       "<tr><th>Area</th><td>" + (hub ? hlink(hub) : "Uncategorised") + "</td></tr>" +
       (D.legacy[t] ? "<tr><th>Status</th><td>Legacy</td></tr>" : "") +
       (D.aka[t] ? "<tr><th>Formerly recorded as</th><td>" + D.aka[t].map(esc).join(", ") + "</td></tr>" : "") +
-      "<tr><th>Systems</th><td>" + sys.map(slink).join(", ") + "</td></tr>" +
       "<tr><th>First recorded</th><td>" + vlink(ts[2]) + "<br><small class='muted'>" + esc(dateOf(ts[2])) + "</small></td></tr>" +
       "<tr><th>Latest change</th><td>" + vlink(ts[1]) + "<br><small class='muted'>" + esc(dateOf(ts[1])) + "</small></td></tr>" +
       "<tr><th>Changes</th><td>" + (rg.active ? l.length + " in " + plural(vs.length, "patch") + " in this range<br><small class='muted'>" + ts[0] + " in all</small>" : l.length + " in " + plural(vs.length, "patch")) + "</td></tr>" +
@@ -471,13 +462,13 @@
 
     var lead = D.desc && D.desc[t] ? "<p>" + esc(D.desc[t]).replace(esc(t), "<b>" + esc(t) + "</b>") + "</p>" :
       "<p><b>" + esc(t) + "</b> is a topic" + (hub ? " in the " + hlink(hub) + " area" : "") + ". It has " + plural(ts[0], "recorded change") +
-      (rg.active ? "" : " across " + (sys.length > 1 ? "the " + sys.map(slink).join(", ") + " systems" : "the " + slink(sys[0]) + " system")) + ", from patch " + vlink(ts[2]) +
+      ", from patch " + vlink(ts[2]) +
       (ts[2] !== ts[1] ? " to " + vlink(ts[1]) : "") + ". " +
       (!rg.active && order.length > 1 ? "Most of them are " + esc(TYPE_LABEL[top] ? TYPE_LABEL[top].toLowerCase() : top.toLowerCase()) + " (" + g[top].length + ")." : "") + "</p>";
 
     var h = ib + legacyBox(t) + lead + aiNote + rangeBox(base, rg);
     h += sec("Latest changes", "Latest changes", 2) + bullets(l.slice().sort(newest).slice(0, Math.min(5, l.length)), false);
-    h += sec("History", "History", 2) + table(l, ["Patch", "Source", "Date", "System", "Type", "Direction", "Change"], PAGE_ROWS);   /* Change stays last: the stylesheet gives the last column its width */
+    h += sec("History", "History", 2) + table(l, ["Patch", "Source", "Date", "Type", "Change"], PAGE_ROWS);   /* Change stays last: the stylesheet gives the last column its width */
     if (order.length > 1) {
       h += sec("By type", "Changes by type", 2);
       order.forEach(function (x) { h += sec("type-" + x, TYPE_LABEL[x] || x, 3) + bullets(g[x], false).replace(/<span class="tp"[^>]*>[^<]*<\/span>: /g, ""); });
@@ -486,28 +477,11 @@
     if (every.length === ts[0]) {
       var rel = relatedTopics(t);
       if (rel.length) h += sec("See also", "See also", 2) + '<ul class="cols">' + rel.map(function (o) { return "<li>" + tlink(o) + "</li>"; }).join("") + "</ul>";
-      h += cats((hub ? [hlink(hub)] : []).concat(sys.map(function (s) { return slink(s) + " system"; })).concat(
+      h += cats((hub ? [hlink(hub)] : []).concat(
         Object.keys(tagIndex[t]).sort(function (a, b) { return tagIndex[t][b] - tagIndex[t][a]; }).slice(0, 4).map(function (g2) {
           return '<a href="#/search/' + enc(g2) + '">' + esc(g2) + "</a>"; })));
     }
     return { title: t, html: page(esc(t), h, { hat: hat }), toc: true, after: function () { wireRange(base); } };
-  };
-
-  views.systems = function () {
-    var h = "<p>A game system is what a change touched: a topic can touch several. Each recorded change belongs to one of " + systems.length + " game systems. To see where a topic is filed, see <a href=\"#/hubs\">Areas</a>.</p>" + '<ul class="cols">' + systems.map(function (s) {
-      return "<li>" + slink(s) + " <small>(" + plural(uniq(bySystem[s].map(function (r) { return r.e; })).length, "topic") + ", " + plural(bySystem[s].length, "change") + ")</small></li>"; }).join("") + "</ul>";
-    return { title: "Game systems", html: page("Game systems", h, { hat: PN_HAT + "Game systems" }) };
-  };
-
-  views.system = function (s) {
-    if (!D.systems[s]) return notFound(s);
-    var rg = getRange(), base = "#/system/" + enc(s), l = rg.active ? (bySystem[s] || []).filter(inRange) : bySystem[s];
-    var hatS = PN_HAT + '<a href="#/systems">Game systems</a> › ' + esc(sysName(s));
-    if (!l.length) return { title: sysName(s) + " system", html: page(esc(sysName(s)) + " system", rangeBox(base, rg) + noneInRange("the " + esc(sysName(s)) + " system", rg, D.systems[s]), { hat: hatS }), toc: false, after: function () { wireRange(base); } };
-    var tp = uniq(l.map(function (r) { return r.e; })).sort();
-    var h = "<p><b>" + esc(sysName(s)) + "</b> has " + plural(l.length, "recorded change") + (rg.active ? " " + esc(rangeText(rg)) + " (" + D.systems[s] + " in all)" : "") + " across " + plural(tp.length, "topic") + ".</p>" + rangeBox(base, rg) +
-      sec("Topics", "Topics", 2) + topicList(tp) + sec("Latest changes", "Latest changes", 2) + table(l, ["Patch", "Date", "Topic", "Type", "Direction", "Change"], 30);
-    return { title: sysName(s) + " system", html: page(esc(sysName(s)) + " system", h, { hat: hatS }), after: function () { wireRange(base); } };
   };
 
   /* a release's tags: its Update name, then a hint when its title says "fix" and a mark on the one bulk import */
@@ -637,7 +611,7 @@
       sec("Site framework", "Site framework", 3) +
       '<p>The site&rsquo;s framework was built with an AI assistant (Claude, through Claude Code): the page code and the build scripts were written with its help, and directed and reviewed by the maintainer. Bugs in any of it can be reported on <a href="#/feedback">Feedback &amp; Bugs</a>.</p>' +
       sec("Patch Notes", "Patch Notes", 3) +
-      '<p>Every change in the Patch Notes comes from the <a href="' + RELEASES_URL + '" rel="noopener">public release notes</a> of the developers&rsquo; GitHub repository, which remain the authoritative record. A script compiles them for each release. Each change shows the developers&rsquo; own wording, one bullet per change, filed under a topic, a game system and a type, and linked back to the pull requests it came from.</p>' +
+      '<p>Every change in the Patch Notes comes from the <a href="' + RELEASES_URL + '" rel="noopener">public release notes</a> of the developers&rsquo; GitHub repository, which remain the authoritative record. A script compiles them for each release. Each change shows the developers&rsquo; own wording, one bullet per change, filed under a topic and a type, and linked back to the pull requests it came from.</p>' +
       "<p>The opening paragraph of each topic was written with the help of an AI assistant (Claude) from that topic&rsquo;s change history. These paragraphs can be wrong or out of date, so the <b>History</b> table on each page is the thing to trust. Corrections are welcome.</p>" +
       sec("Site Guide and editor", "Site Guide and editor", 3) +
       '<p>The <a href="#/site">Site Guide</a> and the in-browser <a href="#/editor">guide editor</a> were also written with the help of the same AI assistant, and directed and reviewed by the maintainer.</p>';
@@ -1796,7 +1770,7 @@
       return dot > n * 0.5 ? cut.slice(0, dot + 1) : cut.replace(/\s+\S*$/, "") + "…";
     }
     function content(href) {
-      var m = /^#\/(topic|guide|site|patch|hub|system)\/(.+)$/.exec(href), arg;
+      var m = /^#\/(topic|guide|site|patch|hub)\/(.+)$/.exec(href), arg;
       if (!m) return null;
       try { arg = decodeURIComponent(m[2]); } catch (e) { arg = m[2]; }
       if (m[1] === "topic") {
@@ -1818,10 +1792,6 @@
       if (m[1] === "hub") {
         var ht = hubs[arg]; if (!ht) return null;
         return { kind: "Patch Notes area", title: arg, text: clip(ht.slice(0, 8).join(", ") + (ht.length > 8 ? ", …" : ""), 200), meta: plural(ht.length, "topic") };
-      }
-      if (m[1] === "system") {
-        if (!D.systems[arg]) return null;
-        return { kind: "Game system", title: sysName(arg), text: "Changes to the " + sysName(arg) + " system.", meta: plural(D.systems[arg], "change") };
       }
       if (m[1] === "site") {
         var sg = siteBySlug[arg.toLowerCase()] || siteByTitle[arg.toLowerCase()];
@@ -1881,7 +1851,7 @@
     var sub = document.getElementById("pn-sub");
     if (sub) {
       sub.hidden = pick !== "patchnotes";
-      var path = location.hash.split("?")[0], map = { "#/hub": "#/hubs", "#/system": "#/systems", "#/patch": "#/patches" };
+      var path = location.hash.split("?")[0], map = { "#/hub": "#/hubs", "#/patch": "#/patches" };
       Array.prototype.forEach.call(sub.querySelectorAll("a"), function (a) {
         var h = a.getAttribute("href"), hit = path === h || Object.keys(map).some(function (k) { return map[k] === h && (path === k || path.indexOf(k + "/") === 0); });
         a.classList.toggle("on", hit);
@@ -2032,6 +2002,7 @@
     if (qi >= 0) { path.slice(qi + 1).split("&").forEach(function (kv) { var e = kv.indexOf("="); if (kv) routeQuery[decodeURIComponent(kv.slice(0, e < 0 ? kv.length : e))] = e < 0 ? "" : decodeURIComponent(kv.slice(e + 1)); }); path = path.slice(0, qi); }
     var parts = path.replace(/^#\/?/, "").split("/"), name = parts[0] || "home", arg = parts.slice(1).join("/");
     if (name !== "search") { try { arg = decodeURIComponent(arg); } catch (e) {} }
+    if (name === "systems" || name === "system") { location.replace("#/hubs"); return; }   /* game systems were folded into areas */
     if (name === "settings") { location.replace("#/"); settingsPanel.open(); return; }
     if (name === "topic" && !D.tstat[arg] && D.alias[arg]) { location.replace("#/topic/" + enc(D.alias[arg]) + qs); return; }   /* a merged topic's old name leads to the topic it became */
     var need = shardsNeeded(name, arg).filter(function (k) { return !loadedShards[k]; });
@@ -2049,7 +2020,7 @@
     if (name !== "feedback") feedbackPage = location.href;
     var fr = document.getElementById("foot-report");
     if (fr) { fr.href = "#/feedback"; }
-    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", systems: "patchnotes", system: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about", credits: "credits", editor: "editor" }[name];
+    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about", credits: "credits", editor: "editor" }[name];
     var keys = [nav];
     if (name === "guide") {
       if (arg.indexOf("category/") === 0) keys = ["guide"];

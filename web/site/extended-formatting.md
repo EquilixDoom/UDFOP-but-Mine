@@ -72,7 +72,7 @@ A normal Markdown link can point at any page of the site, so you can send reader
 
 ### Link previews
 
-On a computer, pointing at a link to a guide page, a topic, a patch, a category or a system shows a short preview of what is there. You do not write anything for this. Point at any link in the Result columns on this page to see it. Readers can turn previews off in the settings panel.
+On a computer, pointing at a link to a guide page, a topic, a patch or a category shows a short preview of what is there. You do not write anything for this. Point at any link in the Result columns on this page to see it. Readers can turn previews off in the settings panel.
 
 ### The References section
 

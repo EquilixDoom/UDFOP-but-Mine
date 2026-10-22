@@ -256,9 +256,8 @@ function topicInfo(t) {
   if (!(t in TC)) { TC[t] = null; api("/api/topic", { topic: t }).catch(function () { return { error: "request failed" }; }).then(function (x) { TC[t] = x.recent ? x : { bad: x.out || x.error || "no response", recent: [] }; paintDetail(); }); }
   return TC[t];
 }
-var FQ = { entity: "Which topic is this about?", change_type: "What kind of change is it?", system: "Which game system?", direction: "Does it make something stronger or weaker?", tags: "Tags (up to 3)", platforms: "Which platforms does it apply to?", split: "Does this bullet hold two changes?" };
-var FWHY = { entity: "weak guess", change_type: "unsure", system: "unsure", direction: "text mentions amounts", platforms: "text names a platform", split: "long bullet" };
-var DIRL = { "n/a": "neither", "+": "+ stronger / more", "−": "− weaker / less", "~": "~ mixed" };
+var FQ = { entity: "Which topic is this about?", change_type: "What kind of change is it?", tags: "Tags (up to 3)", platforms: "Which platforms does it apply to?", split: "Does this bullet hold two changes?" };
+var FWHY = { entity: "weak guess", change_type: "unsure", platforms: "text names a platform", split: "long bullet" };
 function seg(i, f, opts, lab) {
   var r = rows[i];
   return '<div class="seg">' + opts.map(function (o) { return '<button class="b' + (r[f] === o ? " on" : "") + '" data-a="set" data-i="' + i + '" data-f="' + f + '" data-v="' + esc(o) + '">' + esc(lab ? lab[o] : o) + "</button>"; }).join("") + "</div>";
@@ -275,13 +274,13 @@ function evidence(r, i) {
   if (x && x.recent.length) h += "<ul>" + x.recent.map(function (c) { return '<li><span class="mut">' + esc(c.version + " " + c.type) + ":</span> " + esc(c.text.length > 160 ? c.text.slice(0, 160) + "…" : c.text) + "</li>"; }).join("") + "</ul>";
   return h + "</div>";
 }
-var CLS = [["change_type", "Type"], ["system", "System"], ["direction", "Direction"]];
+var CLS = [["change_type", "Type"]];
 function selCell(r, i, f, need) {
-  var opts = f === "direction" ? ["n/a", "+", "−", "~"] : S.tax[f === "system" ? "systems" : "change_types"];
-  var lab = f === "direction" ? DIRL : null, why = need && !r._confirmed ? ' <span class="why">' + FWHY[f] + "</span>" : "";
+  var opts = S.tax.change_types;
+  var lab = null, why = need && !r._confirmed ? ' <span class="why">' + FWHY[f] + "</span>" : "";
   return '<label class="cell' + (need ? " need" : "") + '">' + CLS.filter(function (c) { return c[0] === f; })[0][1] + why +
     '<select data-i="' + i + '" data-f="' + f + '">' + opts.map(function (o) { return "<option value=\"" + esc(o) + '"' + (r[f] === o ? " selected" : "") + ">" + esc(lab ? lab[o] : o) + "</option>"; }).join("") +
-    (f === "system" ? '<option value="__new">+ New system…</option>' : "") + "</select>" +
+    "</select>" +
     (f === "change_type" ? '<span class="mut2">Appears under ' + esc(TG[gOf(r)][0]) + "</span>" : "") + "</label>";
 }
 function fieldBlock(r, i, f, need) {
@@ -308,12 +307,12 @@ function fieldBlock(r, i, f, need) {
 function needOf(r) {
   var fl = flagsOf(r), n = [];
   if (!hasTopic(r) || isNew(r.entity) || fl.indexOf("entity") >= 0) n.push("entity");
-  ["change_type", "system", "direction", "platforms"].forEach(function (f) { if (fl.indexOf(f) >= 0) n.push(f); });
+  ["change_type", "platforms"].forEach(function (f) { if (fl.indexOf(f) >= 0) n.push(f); });
   if (fl.some(function (f) { return f.indexOf("split") === 0; })) n.push("split");
   return n;
 }
 function summaryLine(r, skip) {
-  var p = [["entity", "Topic", r.entity || "(none)"], ["change_type", "Type", r.change_type], ["system", "System", r.system], ["direction", "Direction", DIRL[r.direction] || r.direction], ["tags", "Tags", r.tags.join(", ") || "none"], ["platforms", "Platforms", r.platforms.join(", ")]];
+  var p = [["entity", "Topic", r.entity || "(none)"], ["change_type", "Type", r.change_type], ["tags", "Tags", r.tags.join(", ") || "none"], ["platforms", "Platforms", r.platforms.join(", ")]];
   return p.filter(function (x) { return skip.indexOf(x[0]) < 0; }).map(function (x) { return '<span class="pill"><span class="mut">' + x[1] + "</span> " + esc(x[2]) + "</span>"; }).join(" ");
 }
 function railHtml(list) {
@@ -329,7 +328,7 @@ function detailHtml() {
   var i = cur, r = rows[i];
   if (!r) return patchDone() ? "Every row of this patch is confirmed." + (versions().length > 1 ? ' <button class="b pri" data-a="nextpatch">Next patch →</button>' : "") : "Select a row.";
   var all = patchRows(), pos = all.indexOf(i) + 1, need = r._confirmed ? [] : needOf(r), open = !!r._open;
-  var fields = open ? ["entity", "change_type", "system", "direction", "tags", "platforms"] : need;
+  var fields = open ? ["entity", "change_type", "tags", "platforms"] : need;
   var okTag = '<span class="tag" style="background:var(--ok);border-color:var(--okline)">';
   var h = '<div class="row-h"><span class="mut">Row ' + pos + " of " + all.length + " · " + esc(r.id) + "</span><span>" + (r._confirmed ? okTag + "confirmed</span>" : need.length ? '<span class="tag">' + need.length + " to decide</span>" : okTag + "nothing flagged</span>") + "</span></div>" +
     rawHtml(r);
@@ -389,12 +388,7 @@ function reviewView() {
   return h + logBox();
 }
 function setField(i, f, val) {
-  var r = rows[i], old = r[f]; r[f] = val.trim(); r._confirmed = false;
-  if (f === "entity") { var k = S.topics.filter(function (x) { return x.name === r.entity; })[0]; if (k && k.systems.length === 1) r.system = k.systems[0]; }
-  if (f === "change_type") {
-    if (r.change_type === "Buff") r.direction = "+"; else if (r.change_type === "Nerf") r.direction = "−";
-    else if (old === "Buff" || old === "Nerf") r.direction = "n/a";
-  }
+  var r = rows[i]; r[f] = val.trim(); r._confirmed = false;
   save(); setCur(i);
 }
 function refreshNotes() { if (tab === "rows") { paintDetail(); bar(); } }
@@ -535,14 +529,6 @@ document.addEventListener("change", function (e) {
   var t = e.target;
   if (t.id === "ph") { pickH = t.value; $("#pl").innerHTML = pickList(+$("#pl").dataset.i); return; }
   if (t.id === "hide") { hide = t.checked; return render(); }
-  if (t.dataset.f === "system" && t.value === "__new") {
-    var ri = +t.dataset.i, nm = prompt("Name of the new game system (letters, digits, spaces, & or -; up to 24 characters):");
-    if (!nm || !nm.trim()) return setCur(ri);
-    return api("/api/system", { name: nm }).then(function (x) {
-      if (!x.ok) { alert(x.out); return setCur(ri); }
-      S.tax.systems = x.systems; setField(ri, "system", x.name);
-    });
-  }
   if (t.dataset.h !== undefined) { HUBS[t.dataset.h] = t.value; return save(); }
   if (t.dataset.f) setField(+t.dataset.i, t.dataset.f, t.value);
 });

@@ -1,18 +1,4 @@
 ﻿{
-    "systems":  [
-                    "World",
-                    "Graphics",
-                    "Combat",
-                    "Character",
-                    "Items",
-                    "UI",
-                    "Controls",
-                    "Online",
-                    "Mods",
-                    "Platform",
-                    "Engine",
-                    "Other"
-                ],
     "change_types":  [
                          "New",
                          "Buff",
@@ -26,12 +12,6 @@
                          "Economy",
                          "Other"
                      ],
-    "direction":  [
-                      "+",
-                      "-",
-                      "~",
-                      "n/a"
-                  ],
     "platform_values":  [
                             "all",
                             "android",

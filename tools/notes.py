@@ -205,8 +205,8 @@ def cmd_prepare(a):
     tax = json.load(open(TAX, encoding="utf-8-sig"))
     lines = [f"# Pending releases ({len(pend)})", "",
              "Turn each release below into rows in data/inbox/rows.jsonl, following the add-release-notes skill / README.md.",
-             "Allowed values:", f"- system: {', '.join(tax['systems'])}", f"- change_type: {', '.join(tax['change_types'])}",
-             f"- direction: + {MINUS} ~ n/a", f"- platforms: {', '.join(tax['platform_values'])}",
+             "Allowed values:", f"- change_type: {', '.join(tax['change_types'])}",
+             f"- platforms: {', '.join(tax['platform_values'])}",
              f"- tags: {', '.join(tax['tags'])}", "", "Body rules already agreed:"] + [f"- {r}" for r in tax["body_rules"]] + [""]
     for r in pend:
         lines += [f"---", f"## {r['version']}  (tag {r['tag']}, {r['date']})", f"ids start at {r['version']}-001", ""]
@@ -217,13 +217,10 @@ def cmd_prepare(a):
     rows = read_jsonl(ALL)
     alias = merge_alias()
     hub = {h["topic"]: h["primary_hub"] for h in csv.DictReader(open(HUBS, encoding="utf-8"))}
-    by = defaultdict(set)
-    for r in rows:
-        by[topic_of(r["entity"], alias)].add(r["system"])
     cnt = Counter(topic_of(r["entity"], alias) for r in rows)
-    topics = [f"{t} | {hub.get(t, '-')} | {', '.join(sorted(by[t]))} | {cnt[t]}" for t in sorted(by)]
+    topics = [f"{t} | {hub.get(t, '-')} | {cnt[t]}" for t in sorted(cnt)]
     open(f"{INBOX}/topics.txt", "w", encoding="utf-8").write(
-        "# existing topic | hub | systems | changes. Reuse these names exactly for entity; a new name creates a new topic.\n" + "\n".join(topics))
+        "# existing topic | hub | changes. Reuse these names exactly for entity; a new name creates a new topic.\n" + "\n".join(topics))
     g = Guesser(rows)
     draft, skip = [], []
     for r in pend:
@@ -243,10 +240,6 @@ def cmd_prepare(a):
 SKIP_SECTION = re.compile(r"rollout|credits|for developers|for the team|deploy|what's changed|changelog|thanks|acknowledg", re.I)
 SKIP_TEXT = re.compile(r"\b(unchanged|exactly as before|as before\.?$|(is|are) not affected|no gameplay changes|nothing else changed|"
                        r"keeps? (working )?as before|can still pick|still (works?|sails?|plays?) as)\b", re.I)
-HEAD_SYSTEM = [("online", "Online"), ("combat", "Combat"), ("graphic", "Graphics"), ("visual", "Graphics"), ("render", "Graphics"),
-               ("ui", "UI"), ("interface", "UI"), ("hud", "UI"), ("menu", "UI"), ("control", "Controls"), ("mod", "Mods"),
-               ("item", "Items"), ("character", "Character"), ("platform", "Platform"), ("engine", "Engine"), ("under the hood", "Engine"),
-               ("world", "World"), ("overworld", "World"), ("quest", "World")]
 STOP_ENTITY = {"Game", "Table", "Page", "Hold", "Floor", "Input", "Social", "Economy", "Interface", "Settings", "Messages", "Card",
                "Sky", "Sea", "Server", "Moon", "Body", "Bodies", "Arms", "Rain", "Wind", "Crouch", "Escape", "Music", "Weather",
                "Crime", "Death", "Watch", "Shield", "Spells", "Smith", "Ghost", "Glare", "Gore", "Swing", "Thrust", "Pointer"}
@@ -286,10 +279,8 @@ def bullets_of(rel):
 class Guesser:
     def __init__(self, rows):
         self.names = Counter(r["entity"] for r in rows)
-        self.sys = defaultdict(Counter)
         self.tags = defaultdict(Counter)
         for r in rows:
-            self.sys[r["entity"]][r["system"]] += 1
             for t in r["tags"]:
                 self.tags[r["entity"]][t] += 1
         self.lower = {n.lower(): n for n in self.names}
@@ -324,20 +315,6 @@ class Guesser:
             return self.lower[section.lower()], "heading"
         generic = {"changes", "fixes", "fixed", "new", "other", "general", "what's new", "changed"}
         return (section.title() if section and section.lower() not in generic else "TODO"), "none"
-
-    def system(self, entity, section, text):
-        """-> (system, confident). Confident only when the heading and the topic's own history agree."""
-        heads = [s for k, s in HEAD_SYSTEM if section and k in section.lower()]
-        known = self.sys.get(entity)
-        if heads and known and heads[0] in known:
-            return heads[0], True
-        if known and len(known) == 1:
-            return next(iter(known)), True
-        if heads:
-            return heads[0], False
-        if known:
-            return known.most_common(1)[0][0], False
-        return "World", False
 
     def type(self, text, section):
         t, s = text.lower(), (section or "").lower()
@@ -377,7 +354,6 @@ def draft_for(rel, g):
     for i, b in enumerate(bl, 1):
         text = b["text"]
         ent, how = g.entity(text, b["section"], votes.get(b["section"]))
-        system, sys_ok = g.system(ent, b["section"], text)
         typ, typ_ok = g.type(text, b["section"])
         first = text.split(" ", 1)[0]
         low = text if (first.isupper() and len(first) > 1) or re.search(r"\d", first) or first in ent.split() else text[0].lower() + text[1:]
@@ -385,19 +361,15 @@ def draft_for(rel, g):
         review = ["summary"]
         if how != "strong":
             review.append("entity")
-        if not sys_ok:
-            review.append("system")
         if not typ_ok:
             review.append("change_type")
-        if re.search(r"\b(more|less|faster|slower|twice|half|cheaper|damage|%|longer|shorter)\b", text, re.I):
-            review.append("direction")
         plat = ["all"]
         for k in ("phone", "touch", "android", "linux", "windows", "desktop"):
             if re.search(r"\b" + k + r"\b", text, re.I):
                 plat, review = [k], review + ["platforms"]
                 break
-        rows.append({"id": f"{rel['version']}-{i:03d}", "version": rel["version"], "date": rel["date"], "system": system, "entity": ent,
-                     "change_type": typ, "direction": "n/a", "summary": f"{ent}: {sent}", "tags": g.tags_for(ent, text),
+        rows.append({"id": f"{rel['version']}-{i:03d}", "version": rel["version"], "date": rel["date"], "entity": ent,
+                     "change_type": typ, "summary": f"{ent}: {sent}", "tags": g.tags_for(ent, text),
                      "platforms": plat, "dev_note": None, "source": text, "_review": review})
     return rows, skipped
 
@@ -549,7 +521,7 @@ def cmd_backtest(a):
             if not t:
                 continue
             tot["matched"] += 1
-            for f in ("entity", "system", "change_type"):
+            for f in ("entity", "change_type"):
                 key = (f, f in r["_review"])
                 tot[key] += 1
                 ok[key] += r[f] == t[f]
@@ -557,7 +529,7 @@ def cmd_backtest(a):
             ok["tags"] += bool(set(r["tags"]) & set(t["tags"])) or not t["tags"]
     print(f"{len(rels)} releases, {tot['truth']} real rows, {tot['matched']} matched to a drafted bullet ({100 * tot['matched'] // max(tot['truth'], 1)}% coverage)")
     print("accuracy of each guessed field, split by whether the draft flagged it for review:")
-    for f in ("entity", "system", "change_type"):
+    for f in ("entity", "change_type"):
         u, fl = (f, False), (f, True)
         allc = (ok[u] + ok[fl]) * 100 // max(tot[u] + tot[fl], 1)
         print(f"  {f:12} overall {allc:3}% | unflagged {100 * ok[u] // max(tot[u], 1):3}% right ({tot[u]} rows) | flagged {100 * ok[fl] // max(tot[fl], 1):3}% right ({tot[fl]} rows)")
@@ -640,7 +612,7 @@ def cmd_selftest(a):
 
         good = read_jsonl(t(f"{INBOX}/rows.jsonl"))
         bad = [dict(r) for r in good]
-        bad[0]["system"] = "Nonsense"
+        bad[0]["change_type"] = "Nonsense"
         bad[-1]["id"] = "0.1.9999-001"
         write_jsonl(t(f"{INBOX}/rows.jsonl"), bad)
         h = _hash(t(ALL))
@@ -670,7 +642,7 @@ def cmd_selftest(a):
 
 
 # ------------------------------------------------------------------ ingest
-FIELDS = ["id", "version", "date", "system", "entity", "change_type", "direction", "summary", "tags", "platforms", "dev_note", "source"]
+FIELDS = ["id", "version", "date", "entity", "change_type", "summary", "tags", "platforms", "dev_note", "source"]
 
 
 def validate(rows, pend, tax, known_entities):
@@ -683,7 +655,6 @@ def validate(rows, pend, tax, known_entities):
         if miss:
             errs.append(f"{w}: missing {miss}")
             continue
-        r["direction"] = MINUS if r["direction"] == "-" else r["direction"]
         if r["version"] not in pv:
             errs.append(f"{w}: version {r['version']} is not a pending release")
         elif r["date"] != pv[r["version"]]["date"]:
@@ -694,12 +665,8 @@ def validate(rows, pend, tax, known_entities):
             errs.append(f"{w}: duplicate id")
         seen.add(r["id"])
         per[r["version"]].append(r["id"])
-        if r["system"] not in tax["systems"]:
-            errs.append(f"{w}: system {r['system']!r} not in taxonomy")
         if r["change_type"] not in tax["change_types"]:
             errs.append(f"{w}: change_type {r['change_type']!r} not in taxonomy")
-        if r["direction"] not in ("+", MINUS, "~", "n/a"):
-            errs.append(f"{w}: direction {r['direction']!r}")
         for t in r["tags"]:
             if t not in tax["tags"]:
                 warns.append(f"{w}: tag {t!r} is not in taxonomy (kept; add it to taxonomy.json)")
@@ -770,7 +737,7 @@ def cmd_ingest(a):
             w = csv.writer(f, lineterminator="\n")
             for t, rs in sorted(newt.items()):
                 h = guess_hub(rs, existing, hub)
-                w.writerow([t, h, "", len(rs), "; ".join(sorted({r["system"] for r in rs})), "yes" if len(rs) <= 2 else ""])
+                w.writerow([t, h, "", len(rs), "yes" if len(rs) <= 2 else ""])
                 print(f"new topic {t!r} -> hub {h!r} (edit {HUBS} to change)")
         arch = f"{INBOX}/done"
         os.makedirs(arch, exist_ok=True)
@@ -815,12 +782,8 @@ def cmd_validate(a):
             errs.append(f"{w}: duplicate id")
         seen.add(r["id"])
         per[r["version"]].append(r["id"])
-        if r["system"] not in tax["systems"]:
-            errs.append(f"{w}: system {r['system']!r} not in taxonomy")
         if r["change_type"] not in tax["change_types"]:
             errs.append(f"{w}: change_type {r['change_type']!r} not in taxonomy")
-        if r["direction"] not in ("+", MINUS, "~", "n/a"):
-            errs.append(f"{w}: direction {r['direction']!r}")
         tags_bad |= {t for t in r["tags"] if t not in tax["tags"]}
         for p in r["platforms"]:
             if p not in tax["platform_values"]:
@@ -925,9 +888,8 @@ def cmd_describe(a):
         if t in desc:
             out.append(f"CURRENT: {desc[t][0]}")
         for r in l:
-            d = "" if r["direction"] == "n/a" else r["direction"]
             n = f" (dev: {r['dev_note']})" if r["dev_note"] else ""
-            out.append(f"{r['version'].replace('0.1.', '')} {r['change_type']}{d}: {r['summary'].split(': ', 1)[-1]}{n}")
+            out.append(f"{r['version'].replace('0.1.', '')} {r['change_type']}: {r['summary'].split(': ', 1)[-1]}{n}")
         out.append("")
     os.makedirs(INBOX, exist_ok=True)
     open(f"{INBOX}/describe.md", "w", encoding="utf-8").write("\n".join(out))

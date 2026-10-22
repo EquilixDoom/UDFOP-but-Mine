@@ -259,7 +259,6 @@ ul.cols small { color: var(--muted); }
 .tp[data-type=New] { color: var(--new); } .tp[data-type=Rework] { color: var(--rework); } .tp[data-type=Fix] { color: var(--fix); }
 .tp[data-type=Other] { color: var(--other); } .tp[data-type=Performance] { color: var(--perf); } .tp[data-type=Economy] { color: var(--econ); }
 .tp[data-type=UI] { color: var(--ui); } .tp[data-type=QoL] { color: var(--qol); }
-td[data-dir="+"] { color: var(--buff); font-weight: 700; } td[data-dir="\2212"] { color: var(--nerf); font-weight: 700; }
 .dev { display: block; font-size: .82rem; color: var(--muted); margin-top: 2px; }
 sup.ref, .ref { font-size: .75rem; }
 
