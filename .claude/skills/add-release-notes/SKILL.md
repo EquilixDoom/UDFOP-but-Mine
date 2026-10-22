@@ -51,6 +51,8 @@ Ingest also records four fields for each new release in `data/normalized/release
 ## 4. Descriptions
 Read `data/inbox/describe.md`. For each topic listed, write one line `Topic ||| description` into `data/descriptions/patch-<latest version>.txt`. A description is 1 to 4 sentences saying what the topic is and how it works as of its latest change. Later changes override earlier ones, so describe the current behaviour and mention what changed only when it explains the current state. Never invent anything the changes do not say. Where a CURRENT description is shown, update it rather than starting over. A topic with a single vague change gets one honest sentence.
 
+A topic stays "stale" (listed here and by `status`) until a person saves or keeps its description in the notes tool's Descriptions tab, which records it in `data/descriptions/.reviewed.json`; a new change makes it stale again. Text written by Claude does not count as reviewed, and `build` does not mark it current.
+
 ## 5. Build and check
 `python tools/notes.py build` rebuilds the site's data: `web/data.js` (the core file: hubs, every release, descriptions, a count and last patch per topic) and `web/shards/<period>.js` (the change rows, one file per month, split when a month would be over 500 KB gzipped). It then reports topics with no description, descriptions for unknown topics, stale ones, and **Legacy candidates**: topics whose latest change is a Removal. Never add a topic to `data/legacy.csv` yourself; a removal is sometimes only part of a feature that still exists. Give the user the candidates that are new since last time and let them decide.
 

@@ -31,6 +31,7 @@ HUBS = f"{D}/hub_assignment.csv"
 INBOX = f"{D}/inbox"
 DESC = f"{D}/descriptions"
 STATE = f"{DESC}/.state.json"
+REVIEWED = f"{DESC}/.reviewed.json"
 MINUS = "−"
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -880,7 +881,21 @@ def stale_topics():
         state = {t: c2[t] for t in descriptions() if t in c2}
         os.makedirs(DESC, exist_ok=True)
         json.dump(state, open(STATE, "w", encoding="utf-8"), indent=0, ensure_ascii=False)
-    return sorted(t for t in c2 if state.get(t) != c2[t]), c2, state
+    reviewed = load_reviewed()
+    return sorted(t for t in c2 if reviewed.get(t) != c2[t]), c2, state
+
+
+def load_reviewed():
+    """topic -> change count at the time a person last saved or kept its description in the notes tool.
+    A topic is stale until then, whoever wrote the text, and again after any new change."""
+    return json.load(open(REVIEWED, encoding="utf-8")) if os.path.exists(REVIEWED) else {}
+
+
+def mark_reviewed(topic, count):
+    r = load_reviewed()
+    r[topic] = count
+    os.makedirs(DESC, exist_ok=True)
+    json.dump(r, open(REVIEWED, "w", encoding="utf-8", newline="\n"), indent=0, ensure_ascii=False, sort_keys=True)
 
 
 def cmd_describe(a):

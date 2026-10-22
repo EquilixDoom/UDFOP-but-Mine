@@ -58,7 +58,7 @@ textarea{width:100%;min-height:80px}
 <div id="foot"></div>
 <script>
 "use strict";
-var S = null, rows = [], skipped = [], tab = "home", filter = "unconf", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [];
+var S = null, rows = [], skipped = [], tab = "home", filter = "unconf", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [], dshow = 25;
 var $ = function (s) { return document.querySelector(s); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function api(path, body) {
@@ -275,7 +275,7 @@ function reviewView() {
   return h + logBox();
 }
 function descCard(d, i) {
-  return '<div class="card' + (d.saved ? " ok" : "") + '" data-d="' + i + '"><div class="row-h"><b>' + esc(d.topic) + '</b><span class="mut">' + esc(d.hub) + " · " + d.n + " changes" + (d.new ? " · new" : " · was " + d.was) + "</span></div>" +
+  return '<div class="card' + (d.saved ? " ok" : "") + '" data-d="' + i + '"><div class="row-h"><b>' + esc(d.topic) + '</b><span class="mut">' + esc(d.hub) + " · " + d.n + " changes" + (d.new ? " · new" : d.was ? " · reviewed at " + d.was : " · not reviewed") + "</span></div>" +
     (d.current ? '<div class="src"><span class="mut">Current:</span> ' + esc(d.current) + "</div>" : "") +
     '<details><summary>' + d.changes.length + " changes</summary><ul>" + d.changes.map(function (c) { return "<li><span class=\"mut\">" + esc(c.version + " " + c.type) + ":</span> " + esc(c.text) + "</li>"; }).join("") + "</ul></details>" +
     '<textarea data-d="' + i + '" placeholder="Description">' + esc(d.draft != null ? d.draft : d.current) + '</textarea>' +
@@ -283,16 +283,22 @@ function descCard(d, i) {
     (d.current ? '<button class="b" data-a="dkeep" data-d="' + i + '" title="The latest changes do not alter the description: save it as it is">Keep current</button>' : "") +
     '<button class="b pri" data-a="dsave" data-d="' + i + '">Save</button><span class="mut" id="dm' + i + '">' + (d.saved ? "Saved." : "") + "</span></div></div>";
 }
+function descShown() {
+  var k = 0, out = [];
+  D.forEach(function (d, i) { if (d.saved) out.push(i); else if (k++ < dshow) out.push(i); });
+  return out;
+}
 function descView() {
   if (!D) return '<div class="card">Loading…</div>';
-  if (!D.length) return '<div class="card">Every description is current.</div>' + logBox();
-  var left = D.filter(function (d) { return !d.saved; }).length;
-  var h = logBox() + '<p>Descriptions are written by a person. For a draft, copy a prompt into an LLM and paste the answer here, then edit it. The site labels descriptions as AI-assisted.</p>' +
+  if (!D.length) return '<div class="card">Every description is reviewed.</div>' + logBox();
+  var left = D.filter(function (d) { return !d.saved; }).length, sh = descShown(), shu = sh.filter(function (i) { return !D[i].saved; }).length;
+  var h = logBox() + '<p>Every description counts as not reviewed until you save or keep it here. ' + left + " of " + D.length + " left. For a draft, copy a prompt into an LLM and paste the answer here, then edit it. The site labels descriptions as AI-assisted.</p>" +
     '<div id="dall" class="card ok" style="display:' + (left ? "none" : "block") + '">All saved. <button class="b pri" data-a="tab" data-t="fin">Go to Build →</button></div>' +
-    '<div class="card"><div class="bar"><button class="b" data-a="promptall">Copy one prompt for all ' + D.length + ' topics</button><span class="mut" id="pam"></span></div>' +
+    '<div class="card"><div class="bar"><button class="b" data-a="promptall">Copy one prompt for the ' + shu + ' shown</button><span class="mut" id="pam"></span></div>' +
     '<textarea id="paste" placeholder="Paste the reply here, one line per topic: Topic ||| description"></textarea>' +
     '<div class="bar" style="margin:6px 0 0"><button class="b" data-a="paste">Fill the boxes from the paste</button><span class="mut" id="psm"></span></div></div>';
-  D.forEach(function (d, i) { h += descCard(d, i); });
+  sh.forEach(function (i) { h += descCard(D[i], i); });
+  if (left > shu) h += '<div class="bar"><button class="b" data-a="dmore">Show ' + Math.min(25, left - shu) + " more (" + (left - shu) + " not shown)</button></div>";
   return h;
 }
 function saveDesc(j, txt) {
@@ -311,7 +317,8 @@ function pasteFill() {
   $("#paste").value.split(/\r?\n/).forEach(function (line) {
     var k = line.indexOf("|||"); if (k < 0) return;
     var name = line.slice(0, k).replace(/^[\s\-*#"`]+|[\s"`]+$/g, "").toLowerCase(), txt = line.slice(k + 3).trim();
-    var j = D.findIndex(function (d) { return d.topic.toLowerCase() === name; });
+    var sh = descShown(), j = sh.filter(function (i) { return D[i].topic.toLowerCase() === name; })[0];
+    if (j === undefined) j = -1;
     if (j < 0 || !txt) return bad.push(line.slice(0, k).trim());
     D[j].draft = txt; D[j].saved = false; n++;
     var ta = document.querySelector('textarea[data-d="' + j + '"]'); if (ta) ta.value = txt;
@@ -397,7 +404,8 @@ document.addEventListener("click", function (e) {
       return load().then(function () { if (x.ok) { tab = "desc"; render(); } });
     });
   }
-  if (a === "promptall") return api("/api/prompt_all", { topics: D.map(function (d) { return d.topic; }) }).then(function (x) { copy(x.prompt); $("#pam").textContent = "Prompt copied."; });
+  if (a === "dmore") { dshow += 25; return render(); }
+  if (a === "promptall") return api("/api/prompt_all", { topics: descShown().filter(function (i) { return !D[i].saved; }).map(function (i) { return D[i].topic; }) }).then(function (x) { copy(x.prompt); $("#pam").textContent = "Prompt copied."; });
   if (a === "paste") return pasteFill();
   if (a === "dkeep") { var q = +t.dataset.d; return saveDesc(q, D[q].current); }
   if (a === "prompt") { var d = D[+t.dataset.d]; return api("/api/prompt", { topic: d.topic }).then(function (x) { copy(x.prompt); $("#dm" + t.dataset.d).textContent = "Prompt copied."; }); }

@@ -204,19 +204,31 @@ def ingest(body):
 
 
 def change_lines(topic):
+    return describe_changes({topic})[topic]
+
+
+def describe_changes(topics):
     alias = N.merge_alias()
     src = {d["id"]: d["source"] for d in N.read_jsonl(N.SOURCES)}
-    rs = sorted((r for r in N.read_jsonl(N.ALL) if N.topic_of(r["entity"], alias) == topic), key=lambda r: (N.vkey(r["version"]), r["id"]))
-    return [{"version": r["version"], "type": r["change_type"], "direction": r["direction"], "text": src.get(r["id"], r["summary"])} for r in rs]
+    by = {t: [] for t in topics}
+    for r in N.read_jsonl(N.ALL):
+        t = N.topic_of(r["entity"], alias)
+        if t in by:
+            by[t].append(r)
+    return {t: [{"version": r["version"], "type": r["change_type"], "direction": r["direction"], "text": src.get(r["id"], r["summary"])}
+                for r in sorted(rs, key=lambda r: (N.vkey(r["version"]), r["id"]))] for t, rs in by.items()}
 
 
-def describe():
-    alias = N.merge_alias()
+def describe(only=None):
+    """Topics whose description a person has not reviewed since their last change (all of them until reviewed)."""
     desc = N.descriptions()
     hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
-    stale, cnt, state_ = N.stale_topics()
-    return [{"topic": t, "hub": hub.get(t, "-"), "n": cnt[t], "new": t not in desc, "was": state_.get(t),
-             "current": desc[t][0] if t in desc else "", "changes": change_lines(t)} for t in stale]
+    stale, cnt, _ = N.stale_topics()
+    reviewed = N.load_reviewed()
+    stale = [t for t in stale if only is None or t in only]
+    ch = describe_changes(stale)
+    return [{"topic": t, "hub": hub.get(t, "-"), "n": cnt[t], "new": t not in desc, "was": reviewed.get(t),
+             "current": desc[t][0] if t in desc else "", "changes": ch[t]} for t in stale]
 
 
 DESC_RULES = ("Rules: 1 to 4 plain sentences saying what the topic is and how it works as of its latest change. Later changes override earlier ones, "
@@ -235,13 +247,13 @@ def topic_lines(d):
 
 
 def prompt_for(topic):
-    d = next((x for x in describe() if x["topic"] == topic), None) or {"topic": topic, "current": "", "changes": change_lines(topic)}
+    d = next(iter(describe({topic})), None) or {"topic": topic, "current": "", "changes": change_lines(topic)}
     return "\n".join([f"Write the description for the topic \"{d['topic']}\" of a Daggerfall Online patch notes wiki.", DESC_RULES + " Reply with the description only.", ""] + topic_lines(d))
 
 
 def prompt_all(topics):
     """One prompt for several topics; the reply is one `Topic ||| description` line per topic, which the page can split back out."""
-    ds = [d for d in describe() if d["topic"] in topics]
+    ds = describe(set(topics))
     lines = ["Write a description for each topic below, for a Daggerfall Online patch notes wiki.", DESC_RULES,
              "Reply with exactly one line per topic in the form `Topic ||| description`, using the topic name exactly as given, and nothing else.", ""]
     for d in ds:
@@ -287,12 +299,16 @@ def save_description(topic, text):
     text = " ".join(text.split())
     if not text or " ||| " in text:
         return {"ok": False, "out": "Empty description."}
+    if N.descriptions().get(topic, ("",))[0] == text:  # kept as it is: only record the review
+        N.mark_reviewed(topic, N.stale_topics()[1][topic])
+        return {"ok": True, "out": "kept as it is"}
     ver = max((r["version"] for r in N.read_jsonl(N.ALL)), key=N.vkey)
     path = f"{N.DESC}/patch-{ver}.txt"
     lines = [l for l in (open(path, encoding="utf-8").read().splitlines() if os.path.exists(path) else []) if not l.startswith(topic + " ||| ")]
     lines.append(f"{topic} ||| {text}")
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines) + "\n")
+    N.mark_reviewed(topic, N.stale_topics()[1][topic])
     return {"ok": True, "out": f"saved to {path}"}
 
 
