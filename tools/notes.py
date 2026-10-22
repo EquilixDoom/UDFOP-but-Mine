@@ -611,7 +611,13 @@ def cmd_selftest(a):
         withbody = sorted({r["version"] for r in rows}, key=vkey)[-3:]
         keep = [r for r in rows if r["version"] not in withbody]
         write_jsonl(t(ALL), keep)
+        stored = {r["version"] for r in read_jsonl(t(RELS))}
         write_jsonl(t(RELS), [r for r in read_jsonl(t(RELS)) if r["version"] not in withbody])
+        # releases newer than the stored ones are real pending work, not part of the simulation
+        blocks = re.split(r"(?m)^(?=## .*\[app-v[^\]]+\]\n)", open(t(NOTES), encoding="utf-8-sig").read())
+        keep_blocks = [b for b in blocks if not re.match(r"## .*\[app-v([^\]]+)\]", b) or re.match(r"## .*\[app-v([^\]]+)\]", b).group(1) in stored]
+        with open(t(NOTES), "w", encoding="utf-8", newline="") as f:
+            f.write("".join(keep_blocks))
         print(f"sandbox: {tmp}\nsimulating {len(withbody)} new release(s): {', '.join(withbody)}")
 
         rc, out = run("status")
