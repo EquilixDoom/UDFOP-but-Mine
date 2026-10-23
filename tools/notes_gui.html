@@ -77,7 +77,7 @@ textarea{width:100%;min-height:80px}
 <div id="foot"></div>
 <script>
 "use strict";
-var S = null, rows = [], skipped = [], tab = "home", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [], dshow = 25;
+var S = null, rows = [], skipped = [], tab = "home", logTxt = "", busy = false, saveT = null, D = null, cur = -1, CHK = null, HUBS = {}, seq = 0, UNDO = null, SUM = null, CH = [], dshow = 25, mode = "draft", DR = null, ST = null, stv = "", stOnly = false, buildDue = false, sbusy = 0;
 var $ = function (s) { return document.querySelector(s); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function api(path, body) {
@@ -85,10 +85,14 @@ function api(path, body) {
 }
 function load() {
   return api("/api/state").then(function (s) {
-    S = s; CHK = s.check; HUBS = s.hubs || {}; rows = s.draft.map(function (r) { r._confirmed = !!s.confirmed[r.id]; return r; }); skipped = s.skipped; render();
+    var dr = s.draft.map(function (r) { r._confirmed = !!s.confirmed[r.id]; return r; });
+    S = s; HUBS = s.hubs || HUBS;
+    if (mode === "stored") { DR = { rows: dr, skipped: s.skipped, check: s.check }; } else { CHK = s.check; rows = dr; skipped = s.skipped; }
+    render();
   });
 }
 function save() {
+  if (mode === "stored") return saveStoredSoon();
   clearTimeout(saveT);
   saveT = setTimeout(function () {
     var n = ++seq;
@@ -99,7 +103,7 @@ function run(cmd) {
   busy = true; logTxt = "Running " + cmd + "…"; render();
   return api("/api/run", { cmd: cmd }).then(function (r) {
     logTxt = r.out; busy = false;
-    return load().then(function () { if (cmd === "prepare" && rows.length) { tab = "rows"; render(); } });
+    return load().then(function () { if (cmd === "prepare") return leaveStored().then(function () { if (rows.length) { tab = "rows"; render(); } }); });
   });
 }
 function staleBanner() {
@@ -117,10 +121,50 @@ function fetchPrepare() {
       logTxt += "\n\nPreparing…"; render();
       return api("/api/run", { cmd: "prepare" }).then(function (p) {
         logTxt += "\n" + p.out;
-        return load().then(function () { if (rows.length) tab = "rows"; });
+        return load().then(leaveStored).then(function () { if (rows.length) tab = "rows"; });
       });
     });
   }).then(function () { busy = false; render(); });
+}
+/* ---------- stored patches: review of rows already in the wiki's data ---------- */
+var stT = null;
+function saveStoredSoon() { clearTimeout(stT); stT = setTimeout(flushStored, 600); }
+function flushStored() {
+  clearTimeout(stT); stT = null;
+  if (mode !== "stored" || !rows.length) return Promise.resolve();
+  var payload = { rows: rows.map(function (r) { return { id: r.id, entity: r.entity, change_type: r.change_type, tags: r.tags, platforms: r.platforms, _confirmed: !!r._confirmed }; }), hubs: HUBS, version: pv }, n = ++seq, v0 = pv;
+  return api("/api/stored/save", payload).then(function (x) {
+    if (!x.ok) { logTxt = x.out; alert(x.out); return; }
+    if (x.changed) buildDue = true;
+    ST = x.index; S.topics = x.topics;
+    if (mode === "stored" && n === seq && pv === v0) { CHK = x.check; refreshNotes(); }
+    stat(); bar();
+  });
+}
+function enterStored() {
+  if (mode === "stored") return;
+  DR = { rows: rows, skipped: skipped, check: CHK, cur: cur, pv: pv };
+  mode = "stored"; rows = []; skipped = []; cur = -1; render();
+  api("/api/stored").then(function (x) {
+    ST = x;
+    var first = x.versions.filter(function (v) { return v.done < v.n; })[0] || x.versions[x.versions.length - 1];
+    if (first) loadStored(first.version);
+  });
+}
+function leaveStored() {
+  if (mode !== "stored") return Promise.resolve();
+  return flushStored().then(function () {
+    mode = "draft"; rows = DR.rows; skipped = DR.skipped; CHK = DR.check; cur = -1; pv = DR.pv || ""; DR = null; render();
+  });
+}
+function loadStored(v) {
+  return flushStored().then(function () { return api("/api/stored/rows", { version: v }); }).then(function (x) {
+    stv = pv = v; rows = x.rows; CHK = x.check; cur = -1; render(); window.scrollTo(0, 0);
+  });
+}
+function storedDone() {
+  if (!ST) return 0;
+  return ST.versions.reduce(function (a, v) { return a + (v.version === pv ? rows.filter(function (r) { return r._confirmed; }).length : v.done); }, 0);
 }
 /* ---------- undo (one level) ---------- */
 function snap(label) { UNDO = { label: label, data: JSON.stringify({ rows: rows, skipped: skipped }) }; }
@@ -133,6 +177,7 @@ function isNew(t) { return !S.topics.some(function (x) { return x.name === t; })
 function flagged(r, f) { return (r._review || []).indexOf(f) >= 0; }
 function isLong(r) { return r.source.length > 300 || (r.source.match(/[.!?] [A-Z]/g) || []).length >= 3; }
 function flagsOf(r) {
+  if (mode === "stored") return [];
   var fl = (r._review || []).filter(function (f) { return f !== "summary"; });
   if (isLong(r) && fl.indexOf("split") < 0) fl.push("split?");
   return fl;
@@ -145,9 +190,16 @@ var TG = [["Additions", ["New"]], ["Reworks", ["Rework"]], ["Fixes", ["Fix"]], [
   ["Interface and quality of life", ["UI", "QoL"]], ["Balance (buffs and nerfs)", ["Buff", "Nerf"]], ["Removals", ["Removal"]], ["Other changes", ["Other"]]];
 var pv = "";
 function gOf(r) { for (var k = 0; k < TG.length; k++) if (TG[k][1].indexOf(r.change_type) >= 0) return k; return TG.length - 1; }
-function versions() { var v = []; rows.forEach(function (r) { if (v.indexOf(r.version) < 0) v.push(r.version); }); return v; }
-function verDone(v) { return rows.every(function (r) { return r.version !== v || r._confirmed; }); }
+function versions() {
+  if (mode === "stored") return ST ? ST.versions.map(function (v) { return v.version; }) : [];
+  var v = []; rows.forEach(function (r) { if (v.indexOf(r.version) < 0) v.push(r.version); }); return v;
+}
+function verDone(v) {
+  if (mode === "stored") { if (v === pv) return rows.length > 0 && rows.every(function (r) { return r._confirmed; }); var e = ST && ST.versions.filter(function (x) { return x.version === v; })[0]; return !!e && e.done >= e.n; }
+  return rows.every(function (r) { return r.version !== v || r._confirmed; });
+}
 function curVer() {
+  if (mode === "stored") return pv;
   var vs = versions();
   if (vs.indexOf(pv) < 0) pv = vs.filter(function (v) { return !verDone(v); })[0] || vs[0] || "";
   return pv;
@@ -157,8 +209,10 @@ function patchRows() {
   rows.forEach(function (r, i) { if (r.version === v) o.push(i); });
   return o.sort(function (a, b) { return gOf(rows[a]) - gOf(rows[b]) || a - b; });
 }
+/* the first row not yet confirmed (index 0 counts), else the first row, else -1 */
+function firstOpen(l) { var o = l.filter(function (j) { return !rows[j]._confirmed; }); return o.length ? o[0] : l.length ? l[0] : -1; }
 function patchDone() { return verDone(curVer()); }
-function gotoPatch(v) { pv = v; cur = -1; render(); window.scrollTo(0, 0); }
+function gotoPatch(v) { if (mode === "stored") return loadStored(v); pv = v; cur = -1; render(); window.scrollTo(0, 0); }
 function nextPatch() {
   var vs = versions(), at = vs.indexOf(curVer()), rest = vs.slice(at + 1).concat(vs.slice(0, at));
   var nx = rest.filter(function (v) { return !verDone(v); })[0] || vs[at + 1];
@@ -167,12 +221,22 @@ function nextPatch() {
 function shown(r) { return r.source.replace(/\*\*/g, "").replace(/`/g, ""); }  /* the site drops these marks (tools/update_data.py) */
 /* ---------- views ---------- */
 function stat() {
+  if (mode === "stored" && ST) { $("#stat").textContent = "Stored patches: " + storedDone() + " of " + ST.total + " rows confirmed" + (buildDue ? " · stored data changed, run Build" : ""); return; }
   var un = rows.filter(function (r) { return !r._confirmed; }).length;
   $("#stat").textContent = S ? S.rows_total + " rows stored, newest " + S.last_version + " · " + S.pending.length + " pending · " + (rows.length ? un + " of " + rows.length + " draft rows unconfirmed" : "no draft") : "";
 }
 function bar() {
   var f = $("#foot");
   if (tab !== "rows" || !rows.length) { f.style.display = "none"; return; }
+  if (mode === "stored") {
+    var sd = storedDone(), left = rows.filter(function (r) { return !r._confirmed; }).length;
+    f.style.display = "flex";
+    f.innerHTML = '<div class="prog"><i style="width:' + Math.round(100 * sd / ST.total) + '%"></i></div><span>' + sd + " / " + ST.total + " confirmed</span>" +
+      (buildDue ? '<span class="tag new">stored data changed: run Build</span>' : "") +
+      '<button class="b" data-a="nextpatch">Next patch →</button>' +
+      '<button class="b pri" data-a="confall"' + (left ? "" : " disabled") + '>Confirm the ' + left + " left in this patch</button>";
+    return;
+  }
   var un = rows.filter(function (r) { return !r._confirmed; }).length, n = patchRows().filter(function (j) { return safe(rows[j]); }).length, done = rows.length - un, er = rows.filter(function (r) { return errsOf(r).length; }).length;
   f.style.display = "flex";
   f.innerHTML = '<div class="prog"><i style="width:' + Math.round(100 * done / rows.length) + '%"></i></div><span>' + done + " / " + rows.length + " confirmed</span>" + (er ? '<span class="tag new">' + er + " with errors</span>" : "") +
@@ -326,6 +390,7 @@ function detailHtml() {
   if (!r) return patchDone() ? "Every row of this patch is confirmed." + (versions().length > 1 ? ' <button class="b pri" data-a="nextpatch">Next patch →</button>' : "") : "Select a row.";
   var all = patchRows(), pos = all.indexOf(i) + 1, need = r._confirmed ? [] : needOf(r), open = !!r._open;
   var fields = open ? ["entity", "change_type", "tags", "platforms"] : need;
+  if (mode === "stored" && !r._confirmed && !open && !need.length) fields = [];
   var okTag = '<span class="tag" style="background:var(--ok);border-color:var(--okline)">';
   var h = '<div class="row-h"><span class="mut">Row ' + pos + " of " + all.length + " · " + esc(r.id) + "</span><span>" + (r._confirmed ? okTag + "confirmed</span>" : need.length ? '<span class="tag">' + need.length + " to decide</span>" : okTag + "nothing flagged</span>") + "</span></div>" +
     rawHtml(r);
@@ -335,11 +400,11 @@ function detailHtml() {
   var cl = fields.filter(function (f) { return CLS.some(function (c) { return c[0] === f; }); });
   fields.forEach(function (f) { if (cl.indexOf(f) < 0) h += fieldBlock(r, i, f, need.indexOf(f) >= 0); });
   if (cl.length) h += '<div class="cls">' + cl.map(function (f) { return selCell(r, i, f, need.indexOf(f) >= 0); }).join("") + "</div>";
-  if (!open) h += '<div class="fine"><span class="mut">' + (need.length ? "Taken as guessed:" : "Fields:") + "</span> " + summaryLine(r, fields) + "</div>";
+  if (!open) h += '<div class="fine"><span class="mut">' + (mode === "stored" ? "As stored:" : need.length ? "Taken as guessed:" : "Fields:") + "</span> " + summaryLine(r, fields) + "</div>";
   return h + '<div class="acts big">' + (r._confirmed ? '<button class="b" data-a="conf" data-i="' + i + '">Unconfirm</button>' : '<button class="b pri" data-a="conf" data-i="' + i + '">' + (need.length ? "Decided, confirm" : "Confirm") + " &amp; next <kbd>Enter</kbd></button>") +
     '<button class="b" data-a="open" data-i="' + i + '">' + (open ? "Done editing" : "Edit all fields") + "</button>" +
-    (need.indexOf("split") < 0 ? '<button class="b" data-a="split" data-i="' + i + '" title="The bullet becomes a second row. Both rows keep the whole bullet as their text, so the patch page shows it under each">Split</button>' : "") +
-    '<button class="b" data-a="del" data-i="' + i + '" title="Not a change; moves the bullet to Left out">Leave out</button></div>';
+    (mode === "stored" ? "" : need.indexOf("split") < 0 ? '<button class="b" data-a="split" data-i="' + i + '" title="The bullet becomes a second row. Both rows keep the whole bullet as their text, so the patch page shows it under each">Split</button>' : "") +
+    (mode === "stored" ? "" : '<button class="b" data-a="del" data-i="' + i + '" title="Not a change; moves the bullet to Left out">Leave out</button>') + "</div>";
 }
 function paintDetail() {
   var el = $("#dt"), a = document.activeElement;
@@ -363,12 +428,36 @@ function confirmRow(i) {
   setCur(r._confirmed ? nextOpen(i) : i);
 }
 function vis() { return patchRows().filter(function (i) { return !(hide && rows[i]._confirmed) || i === cur; }); }
+function modeBar() {
+  return '<div class="seg" style="margin:0 0 12px"><button class="b' + (mode === "draft" ? " on" : "") + '" data-a="mode" data-m="draft">New patches (draft)</button>' +
+    '<button class="b' + (mode === "stored" ? " on" : "") + '" data-a="mode" data-m="stored">Stored patches (all ingested)</button></div>';
+}
+function storedStrip() {
+  if (!ST) return '<div class="card">Loading…</div>';
+  var vs = ST.versions.filter(function (v) { return !stOnly || v.done < v.n || v.version === pv; });
+  var at = vs.map(function (v) { return v.version; }).indexOf(pv);
+  return '<div class="bar"><button class="b" data-a="prevpatch"' + (at > 0 ? "" : " disabled") + '>← Older</button>' +
+    '<select id="stsel">' + vs.map(function (v) { return '<option value="' + esc(v.version) + '"' + (v.version === pv ? " selected" : "") + ">" + (v.done >= v.n ? "✓ " : "") + esc(v.version) + " · " + esc(v.date) + " · " + (v.version === pv ? rows.filter(function (r) { return r._confirmed; }).length : v.done) + "/" + v.n + "</option>"; }).join("") + "</select>" +
+    '<button class="b" data-a="nextold"' + (at >= 0 && at < vs.length - 1 ? "" : " disabled") + '>Newer →</button>' +
+    '<label class="chk" style="margin:0"><input type="checkbox" id="stonly"' + (stOnly ? " checked" : "") + '> Only patches with rows left</label></div>' +
+    '<div class="warn soft">These rows are already in the wiki. Changes to topic, type, tags or platforms are written to data/normalized/all.jsonl as you make them (a snapshot goes to _backups first), then run Build to update the site.</div>';
+}
 function reviewView() {
-  if (!rows.length && !skipped.length) return '<div class="card">No draft. Go to step 1 and press Fetch &amp; prepare.</div>' + logBox();
-  var v = curVer(), all = patchRows(); if (all.indexOf(cur) < 0) cur = all.filter(function (j) { return !rows[j]._confirmed; })[0] || all[0] || -1;
+  if (mode === "stored") {
+    var vv = curVer(), allr = patchRows(), nc = allr.filter(function (i) { return rows[i]._confirmed; }).length;
+    var hh = '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>" + modeBar() + storedStrip();
+    if (!rows.length) return hh + (ST ? '<div class="card">This patch has no rows.</div>' : "");
+    if (allr.indexOf(cur) < 0) cur = firstOpen(allr);
+    var ls = vis();
+    hh += '<div class="bar"><h2 class="ph">Patch ' + esc(vv) + '</h2><span class="mut">' + esc(rows[0].date) + " · " + nc + " of " + allr.length + " confirmed</span></div>";
+    hh += '<div class="rv"><div><label class="chk"><input type="checkbox" id="hide"' + (hide ? " checked" : "") + "> Hide confirmed rows</label><div id=\"rail\">" + railHtml(ls) + '</div></div><div class="card" id="dt">' + detailHtml() + "</div></div>";
+    return hh + '<p class="mut keys"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> edit all · <kbd>T</kbd> topic · <kbd>U</kbd> unconfirm · <kbd>[</kbd>/<kbd>]</kbd> patch</p>' + logBox();
+  }
+  if (!rows.length && !skipped.length) return modeBar() +  '<div class="card">No draft. Go to step 1 and press Fetch &amp; prepare, or review the stored patches.</div>' + logBox();
+  var v = curVer(), all = patchRows(); if (all.indexOf(cur) < 0) cur = firstOpen(all);
   var list = vis(), nconf = all.filter(function (i) { return rows[i]._confirmed; }).length;
   var rel = S.pending.filter(function (p) { return p.version === v; })[0], date = all.length ? rows[all[0]].date : (rel ? rel.date : "");
-  var h = staleBanner() + '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
+  var h = modeBar() + staleBanner() + '<datalist id="topics">' + S.topics.map(function (t) { return "<option value=\"" + esc(t.name) + '">' + esc(t.hub + " · " + t.n); }).join("") + "</datalist>";
   h += '<div class="strip">' + versions().map(function (x) {
     var a = rows.filter(function (r) { return r.version === x; }), c = a.filter(function (r) { return r._confirmed; }).length;
     return '<button class="b' + (x === v ? " pri" : "") + '" data-a="patch" data-v="' + esc(x) + '" title="' + c + " of " + a.length + ' confirmed">' + (c === a.length ? "✓ " : "") + esc(x) + ' <span class="mut2">' + c + "/" + a.length + "</span></button>";
@@ -464,7 +553,7 @@ function finView() {
 }
 function loadSum() { api("/api/summary").then(function (x) { SUM = x; if (tab === "fin") render(); }); }
 function runChecks() {
-  busy = true; CH = []; logTxt = ""; render();
+  buildDue = false; busy = true; CH = []; logTxt = ""; render();
   var seq_ = ["build", "validate", "selftest"];
   (function next(k) {
     if (k >= seq_.length) { busy = false; return load().then(loadSum); }
@@ -500,10 +589,17 @@ document.addEventListener("click", function (e) {
   if (a === "set") return setField(i, t.dataset.f, t.dataset.v);
   if (a === "open") { r._open = !r._open; return setCur(i); }
   if (a === "undo") return undo();
+  if (a === "mode") return t.dataset.m === "stored" ? enterStored() : leaveStored();
+  if (a === "prevpatch" || a === "nextold") {
+    var vl = ST.versions.filter(function (v) { return !stOnly || v.done < v.n || v.version === pv; }).map(function (v) { return v.version; }), q2 = vl.indexOf(pv) + (a === "prevpatch" ? -1 : 1);
+    if (vl[q2]) loadStored(vl[q2]); return;
+  }
+  if (a === "confall") { if (!confirm("Confirm all " + rows.filter(function (x) { return !x._confirmed; }).length + " remaining rows of this patch as they are?")) return; rows.forEach(function (x) { x._confirmed = true; }); cur = -1; save(); return render(); }
   if (a === "discard") { if (!confirm("Discard the draft of " + rows.length + " rows and its confirmations?")) return; return api("/api/discard", {}).then(function (x) { logTxt = x.out; cur = -1; pv = ""; return load(); }); }
   if (a === "patch") return gotoPatch(t.dataset.v);
   if (a === "nextpatch") return nextPatch();
   if (a === "confsafe") { snap("batch confirm"); patchRows().forEach(function (j) { if (safe(rows[j])) rows[j]._confirmed = true; }); cur = -1; save(); return render(); }
+  if (mode === "stored" && (a === "split" || a === "del")) return;
   if (a === "split") { snap("split"); var c2 = JSON.parse(JSON.stringify(r)); c2._confirmed = false; c2._open = true; r._confirmed = false; rows.splice(i + 1, 0, c2); renum(); cur = i + 1; save(); return render(); }
   if (a === "del") { snap("leave out"); skipped.push({ version: r.version, section: null, text: r.source }); rows.splice(i, 1); renum(); cur = Math.min(i, rows.length - 1); save(); return render(); }
   if (a === "restore") {
@@ -532,6 +628,8 @@ document.addEventListener("change", function (e) {
   var t = e.target;
   if (t.id === "ph") { pickH = t.value; $("#pl").innerHTML = pickList(+$("#pl").dataset.i); return; }
   if (t.id === "hide") { hide = t.checked; return render(); }
+  if (t.id === "stsel") return loadStored(t.value);
+  if (t.id === "stonly") { stOnly = t.checked; return render(); }
   if (t.dataset.h !== undefined) { HUBS[t.dataset.h] = t.value; return save(); }
   if (t.dataset.f) setField(+t.dataset.i, t.dataset.f, t.value);
 });
@@ -544,15 +642,15 @@ document.addEventListener("keydown", function (e) {
   if (k === "j" || k === "arrowdown") { if (list[p + 1] !== undefined) setCur(list[p + 1]); }
   else if (k === "k" || k === "arrowup") { if (p > 0) setCur(list[p - 1]); }
   else if (k === "enter" || k === " ") confirmRow(cur);
-  else if (k === "z") undo();
+  else if (k === "z") { if (mode !== "stored") undo(); }
   else if (k === "]") nextPatch();
   else if (k === "[") { var vs = versions(), at = vs.indexOf(curVer()); if (at > 0) gotoPatch(vs[at - 1]); }
   else if (k === "u") { if (r._confirmed) confirmRow(cur); }
   else if (k === "e") { r._open = !r._open; setCur(cur); }
   else if (k === "escape") { if (r._open) { r._open = false; setCur(cur); } }
   else if (k === "t") { r._open = true; setCur(cur); var inp = $('#dt input[data-f="entity"]'); if (inp) { inp.focus(); inp.select(); } }
-  else if (k === "s") $('#dt [data-a="split"]').click();
-  else if (k === "x") $('#dt [data-a="del"]').click();
+  else if (k === "s") { if (mode !== "stored") $('#dt [data-a="split"]').click(); }
+  else if (k === "x") { if (mode !== "stored") $('#dt [data-a="del"]').click(); }
   else ok = false;
   if (ok) e.preventDefault();
 });

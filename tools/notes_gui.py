@@ -20,6 +20,7 @@ PORT = int(os.environ.get("NOTES_GUI_PORT", "8765"))
 DRAFT, SKIPPED, REVIEW = f"{N.INBOX}/rows.draft.jsonl", f"{N.INBOX}/skipped.txt", f"{N.INBOX}/review.json"
 RUNNABLE = {"fetch", "prepare", "build", "validate", "selftest", "status", "backup"}
 LOCK = threading.Lock()
+ROWREV = f"{N.D}/normalized/row_review.json"   # id -> true for stored rows a person has confirmed
 
 
 def run(*args):
@@ -74,7 +75,7 @@ def summary_for(r):
     return f"{r['entity']}: {r['source']}"
 
 
-def check(rows):
+def check(rows, stored=False):
     """Per-row help for the review page: topic suggestions, errors ingest would raise, name warnings for new topics,
     and a guessed hub for each new topic."""
     alias = N.merge_alias()
@@ -115,6 +116,8 @@ def check(rows):
                 c["summary"] = summary_for(c)
             tmp.append(c)
         errs, _ = N.validate(tmp, N.pending_releases(), tax, known)
+        if stored:  # stored rows are not pending releases
+            errs = [e for e in errs if "is not a pending release" not in e]
     except Exception as e:
         errs = [f"row 0 (?): could not check ({type(e).__name__}: {e})"]
     for e in errs:
@@ -161,6 +164,105 @@ def save_draft(body):
         f.write("".join(f"{s['version']} [{s['section']}] {s['text']}\n" for s in body.get("skipped", [])))
     json.dump({"confirmed": conf, "hubs": body.get("hubs", {})}, open(REVIEW, "w", encoding="utf-8"))
     return rows
+
+
+def topics_list():
+    alias = N.merge_alias()
+    hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
+    cnt = N.Counter(N.topic_of(r["entity"], alias) for r in N.read_jsonl(N.ALL))
+    return [{"name": t, "hub": hub.get(t, "-"), "n": cnt[t]} for t in sorted(cnt)]
+
+
+def row_review():
+    return json.load(open(ROWREV, encoding="utf-8")) if os.path.exists(ROWREV) else {}
+
+
+def stored_index():
+    """Every stored version that has rows, oldest first, with how many of its rows a person has confirmed."""
+    done = row_review()
+    by = {}
+    for r in N.read_jsonl(N.ALL):
+        v = by.setdefault(r["version"], {"version": r["version"], "date": r["date"], "n": 0, "done": 0})
+        v["n"] += 1
+        v["done"] += 1 if done.get(r["id"]) else 0
+    vs = sorted(by.values(), key=lambda v: N.vkey(v["version"]))
+    return {"versions": vs, "total": sum(v["n"] for v in vs), "done": sum(v["done"] for v in vs)}
+
+
+def stored_rows(version):
+    src = {d["id"]: d["source"] for d in N.read_jsonl(N.SOURCES)}
+    done = row_review()
+    rows = []
+    for r in N.read_jsonl(N.ALL):
+        if r["version"] == version:
+            rows.append(dict(r, source=src.get(r["id"], r["summary"].split(": ", 1)[-1]), _confirmed=bool(done.get(r["id"]))))
+    return {"rows": rows, "check": check(rows, stored=True)}
+
+
+_BACKED_UP = []
+
+
+def save_stored(body):
+    """Write edits to rows already in data/normalized/all.jsonl (ids stay), keep each edited row's summary prefix in step with its
+    topic, give a new topic a hub, and record which rows a person has confirmed. A snapshot is taken before the first change."""
+    tax = json.load(open(N.TAX, encoding="utf-8-sig"))
+    allrows = N.read_jsonl(N.ALL)
+    by = {r["id"]: r for r in allrows}
+    new, errs = [], []
+    for r in body["rows"]:
+        o = by.get(r["id"])
+        ent = " ".join(str(r.get("entity", "")).split())
+        if o is None:
+            errs.append(f"{r.get('id')}: not a stored row")
+        elif not ent or ent == "TODO":
+            errs.append(f"{r['id']}: set a topic")
+        elif r["change_type"] not in tax["change_types"]:
+            errs.append(f"{r['id']}: change type {r['change_type']!r} is not in the taxonomy")
+        elif len(r["tags"]) > 3:
+            errs.append(f"{r['id']}: at most 3 tags")
+        elif any(p not in tax["platform_values"] for p in r["platforms"]) or not r["platforms"]:
+            errs.append(f"{r['id']}: platforms must be listed in the taxonomy")
+        else:
+            new.append((o, dict(r, entity=ent)))
+    if errs:
+        return {"ok": False, "out": "; ".join(errs[:3]) + ". Nothing was saved."}
+    changed = 0
+    for o, r in new:
+        before = (o["entity"], o["change_type"], o["tags"], o["platforms"])
+        after = (r["entity"], r["change_type"], r["tags"], r["platforms"])
+        if before == after:
+            continue
+        if not _BACKED_UP:
+            b = run("backup")
+            if not b["ok"]:
+                return {"ok": False, "out": "Could not take the snapshot first: " + b["out"]}
+            _BACKED_UP.append(b["out"])
+        if o["summary"].startswith(o["entity"] + ": "):
+            o["summary"] = r["entity"] + ": " + o["summary"][len(o["entity"]) + 2:]
+        o["entity"], o["change_type"], o["tags"], o["platforms"] = after
+        changed += 1
+    if changed:
+        N.write_jsonl(N.ALL, allrows)
+        alias = N.merge_alias()
+        hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
+        add = sorted({N.topic_of(r["entity"], alias) for _, r in new} - set(hub))
+        if add:
+            with open(N.HUBS, "a", encoding="utf-8", newline="") as f:
+                w = csv.writer(f, lineterminator="\n")
+                for t in add:
+                    mine = [x for x in allrows if N.topic_of(x["entity"], alias) == t]
+                    h = (body.get("hubs") or {}).get(t) or N.guess_hub(mine, [x for x in allrows if x not in mine], hub)
+                    w.writerow([t, h, "", len(mine), "yes" if len(mine) <= 2 else ""])
+    done = row_review()
+    for _, r in new:
+        if r.get("_confirmed"):
+            done[r["id"]] = True
+        else:
+            done.pop(r["id"], None)
+    with open(ROWREV, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(done, f, indent=0, sort_keys=True)
+    return {"ok": True, "changed": changed, "index": stored_index(), "topics": topics_list(),
+            "check": stored_rows(body["version"])["check"], "backup": _BACKED_UP[0] if _BACKED_UP else None}
 
 
 def discard_draft():
@@ -374,6 +476,9 @@ class H(BaseHTTPRequestHandler):
         if self.path == "/api/describe":
             with LOCK:
                 return self.send(describe(changes=False))
+        if self.path == "/api/stored":
+            with LOCK:
+                return self.send(stored_index())
         if self.path == "/api/summary":
             with LOCK:
                 return self.send(last_ingest())
@@ -407,6 +512,10 @@ class H(BaseHTTPRequestHandler):
                     hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
                     ch = change_lines(t)
                     return self.send({"topic": t, "hub": hub.get(t), "n": len(ch), "desc": (N.descriptions().get(t) or [""])[0], "recent": ch[-3:][::-1]})
+                if self.path == "/api/stored/rows":
+                    return self.send(stored_rows(body["version"]))
+                if self.path == "/api/stored/save":
+                    return self.send(save_stored(body))
                 if self.path == "/api/changes":
                     return self.send({"changes": change_lines(body["topic"])})
                 if self.path == "/api/discard":
