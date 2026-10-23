@@ -6725,3 +6725,116 @@
 {"id":"0.1.10555-002","source":"An amber coin over merchants: shopkeepers, bankers and innkeepers."}
 {"id":"0.1.10555-003","source":"A blue gem over guild trainers, spell sellers and quest givers, the witches' coven, and the arena's officers."}
 {"id":"0.1.10555-004","source":"Walls hide the markers, and they fade out beyond about 30 metres. Classic sprites don't get one, because their picture already tells you who they are. Turn them off with **Morrowind People Marks** on the Features page."}
+{"id":"0.1.10564-001","source":"Walking under certain hanging decorations no longer teleports you. In Edworyan Laboratory (Daggerfall) the hanging roots sent you back to the entrance whenever you walked beneath one; it only looked like the Teleport spell. These decorations now work only when you click or strike them, as in Daggerfall. In all, 27 such objects across Daggerfall's dungeons fired when walked into: teleports and door switches."}
+{"id":"0.1.10564-002","source":"\"The Lost Artifact\" (the Knights' lich quest) now finishes about two minutes after you report back to the knight, instead of waiting weeks of in-game time. You can choose your gear reward and the Order offers you work again. Any other quest that closes the same way is fixed too, and a quest already stuck finishes shortly after you load."}
+{"id":"0.1.10564-003","source":"Serving a prison sentence now counts like paying a fine: once your days are served, it improves your standing with the region's law by 5, and your reputation with its people too, up to the point where the watch stops knowing your face. It mends the name you had before the arrest, not the mark the crime itself leaves, and it counts once a day. You are told when it happens. If your name was already bad before the arrest (for example, refusing the guards in \"The Escort\" costs 20), two sentences, two fines or two penances now clear it."}
+{"id":"0.1.10564-004","source":"Road patrols now leave you alone for a day after you are released, as the town watch already did."}
+{"id":"0.1.10564-005","source":"In a town under Curfew, a sentence now gives back the whole doubled charge instead of keeping part of it each time. Curfew also doubles only the crimes the town's watch charges you with: a crime reported on the road, or a loan you defaulted on, is no longer doubled because you happen to be standing in a Curfew town."}
+{"id":"0.1.10564-006","source":"Online, how townspeople feel about you no longer fades while you are logged out. It fades only over days you actually play (half a point a day apart), so friendships you build in an evening are still there the next time. Saves made before this get their earlier friendships back; old grudges stay as faded as they had become."}
+{"id":"0.1.10564-007","source":"You are told when someone comes to count you a friend - once your conversation with them ends, or when something you did for them wins them over - and whether you can court them."}
+{"id":"0.1.10564-008","source":"The talk window's regard badge and the Family tab now explain who can be courted and how regard grows and fades."}
+{"id":"0.1.10564-009","source":"You can no longer steer a ship you booked passage on while she is under way: the ship's master sails her. If the voyage stops (an enemy nearby, or she runs aground), you can handle her yourself until her master takes her up again. Her helm panel shows where she is bound, with the time dial and Leave the helm on it, and a controller's prompts say the same."}
+{"id":"0.1.10564-010","source":"Booked ships no longer try to sail onto land near docks, including the stretches of sea chart near Daggerfall that are really dry land, and they now finish the last stretch into port instead of stalling just outside the harbour."}
+{"id":"0.1.10564-011","source":"The ship's hull, sails and guns panel no longer covers the Overworld's travel controls, so you can see the travel speed again, and why it is slowed (for example, pirates near a harbour)."}
+{"id":"0.1.10568-001","source":"Settings → Repair active quests now puts back a quest's townsperson who went missing from their home - such as the person you deliver The Courier's or The Delivery Boy's package to - so people can tell you where they live and you'll find them at home again."}
+{"id":"0.1.10620-001","source":"The Work tab on every Notice Board now posts three crafting writs a day for your account: a potion, a dish, and a Repair Kit (or a second potion, if none of your characters smiths)."}
+{"id":"0.1.10620-002","source":"The Mages Guild, the Fighters Guild, and the Temples of Stendarr and Mara ask for them, each wanting the work that suits it."}
+{"id":"0.1.10620-003","source":"Fill a writ with potions you brewed yourself, or dishes and kits you made yourself. Found or bought potions don't count, and neither do pieces you bought or sold."}
+{"id":"0.1.10620-004","source":"Any of your characters can fill a writ with their own goods. The writs are drawn at your best crafter's rank."}
+{"id":"0.1.10620-005","source":"Each writ pays silver, crafting experience, Renown and standing with the guild that asked."}
+{"id":"0.1.10620-006","source":"The card shows what you hold toward each writ, and why Deliver is waiting when it is."}
+{"id":"0.1.10620-007","source":"A Novice's brew now makes two potions instead of one."}
+{"id":"0.1.10620-008","source":"The alchemist's station fee is halved, to 25 gold a brew or transmutation."}
+{"id":"0.1.10620-009","source":"Enemies and loot piles drop Potions of Healing and Restore Power less than half as often as before: about 9 potions in 100 looting foes at Renown 20, down from 19. Brewing is now the steady supply, and a drop is a windfall."}
+{"id":"0.1.10620-010","source":"Raw meat and raw fish now weigh 1 kg (was 2). Cooked meat and cooked fish weigh 0.5 kg."}
+{"id":"0.1.10620-011","source":"Hunter's Stew and the Fisherman's Supper weigh 0.5 kg, and the Feast of the Hearth 2 kg (was 8)."}
+{"id":"0.1.10620-012","source":"Max travelling speed via Travel view was reduced to x10. A fed horse can increase it to ×20."}
+{"id":"0.1.10620-013","source":"Random dungeons in the online wilderness are a quarter fewer. A dungeon that is still there is the same place it was."}
+{"id":"0.1.10620-014","source":"Now you can mark anything you are looking at for your teammates by pressing the MMB (pressing the scrollwheel). The mark lasts 5 seconds and fades in and out. It works in a dungeon, in a house, outdoors, and in the travel view. A teammate can lay a dotted route to your mark by MMB the pin (same default bind)."}
+{"id":"0.1.10620-015","source":"Auto-run, which used to be the middle button, is now F3."}
+{"id":"0.1.10654-001","source":"Crafted, Goods, Auctions and Orders now have pages: everything listed can be reached, not only the first 100."}
+{"id":"0.1.10654-002","source":"Search Crafted pieces and Auctions by the name on the listing, in your own language too."}
+{"id":"0.1.10654-003","source":"Filter Crafted by minimum quality."}
+{"id":"0.1.10654-004","source":"Sort by cheapest, dearest, newest, best quality or ending soonest."}
+{"id":"0.1.10654-005","source":"A new filter bar: pick a kind of work; search by material, guild, seat or name; tick \"Only what I can fill\"; sort by ending soonest, most silver or A to Z."}
+{"id":"0.1.10654-006","source":"40 cards show at a time (\"Show 40 more\"), and your choices are kept until you log out."}
+{"id":"0.1.10654-007","source":"The region's chapter panels now sit below the writs instead of above them."}
+{"id":"0.1.10654-008","source":"The Overworld's ×10 / ×20 speed limit is removed. Its speed dial reaches ×100 on a road and ×60 off it again, whether on foot or mounted, fed or hungry."}
+{"id":"0.1.10654-009","source":"A one-handed Dwemer flintlock that fires the Thunderlock's Dwemer Pellets. It deals 4-15 damage, uses Archery, weighs 2.5 kg and is worth 260 gold."}
+{"id":"0.1.10654-010","source":"Carry two. With a Pistolet in each hand the pistols fire in turn. Each hand reloads on its own, and if one pistol is still reloading, your shot comes from the loaded one. The off-hand shot follows the usual off-hand rules: it hits a little softer and leans on Agility."}
+{"id":"0.1.10654-011","source":"It has its own look in first person, on the paper doll (held in the fist, barrel down), in every inventory list, and as a fully modelled and textured 3D gun on Morrowind models."}
+{"id":"0.1.10654-012","source":"On Morrowind bodies it gets its own stance: held low with the muzzle down at rest, and the arm out on the eye line when aiming. With a pair, each arm is held straight out from its own shoulder."}
+{"id":"0.1.10654-013","source":"Weapon elements and socketed gems glow on it like any weapon, and each pistol of a pair glows on its own."}
+{"id":"0.1.10654-014","source":"The Pistolet is found the way the Thunderlock is, from tier 4 sources and up, with 6-18 Pellets. It is never sold in shops."}
+{"id":"0.1.10654-015","source":"The two guns now share a single find, so each turns up half as often as the Thunderlock did on its own."}
+{"id":"0.1.10654-016","source":"The sea serpent's Gilded weapon is a gold-leaf Dwarven Pistolet instead of an Ebony Saber. It keeps its damage, Agility, life leech and Undertow, which now also charges on shots that land. Its skill is Archery."}
+{"id":"0.1.10654-017","source":"A Sovereign saber you already own stays exactly as it is and stays legal to trade, sell and carry into sieges."}
+{"id":"0.1.10654-018","source":"Gilded items are now marked in crimson instead of gold, so they no longer look like Rares. The gold item art is unchanged."}
+{"id":"0.1.10654-019","source":"In place of the two stars, Gilded items show a small gold crown with red jewels on the inventory tile, the item card and the loot banner."}
+{"id":"0.1.10654-020","source":"On the DFO Grimoire page, Gilded names are written in a deep crimson ink."}
+{"id":"0.1.10654-021","source":"Magic and Rare guns no longer repeat their metal: \"Dwarven Warrior's Dwarven Pistolet of the Sage\" now reads \"Warrior's Dwarven Pistolet of the Sage\". The Thunderlock had the same bug."}
+{"id":"0.1.10654-022","source":"A Legendary Pistolet now rolls as The Last Lock, the gun Legendary, instead of a dragon-hunting sword."}
+{"id":"0.1.10654-023","source":"The gilded Pistolet's muzzle flash stays a flash instead of turning gold."}
+{"id":"0.1.10667-001","source":"Holdings > Collections is now open to every player, in six parts: Titles, Auras, Icons, Glyphs, Codex and Cards."}
+{"id":"0.1.10667-002","source":"Every title, aura, profile icon and glyph in the game is listed, whether you hold it or not. They are grouped by where they come from: the Elite Breach, the Abyss Dungeons, the Sea Serpent, the Sigil Broker, questlines, the Witches' Festival, guild seats, the Arena and the card tables, and more."}
+{"id":"0.1.10667-003","source":"Each part's tile shows how many you hold out of the total, with a meter."}
+{"id":"0.1.10667-004","source":"Every row says whether it can be had right now: Obtainable, By chance, Ranked, Seasonal, Patron reward, Not yet available, Automatic, Staff only, Bestowed, Closed, or No longer obtainable."}
+{"id":"0.1.10667-005","source":"Open a row to read how to get it and whether it can be had now. Anything that comes with it (an aura with its title, a glyph with its tier) is a button that takes you to it."}
+{"id":"0.1.10667-006","source":"Filter by All, Held, Not held or Obtainable."}
+{"id":"0.1.10667-007","source":"Wear, take off, show or hide anything you hold straight from the page."}
+{"id":"0.1.10667-008","source":"Titles are written in their own colours, auras are drawn as a ring in theirs, and icons and glyphs show their pictures."}
+{"id":"0.1.10667-009","source":"Readable on every theme, including Stone and the DFO Grimoire page, and usable with a keyboard or a gamepad."}
+{"id":"0.1.10667-010","source":"Wearing a profile icon, or showing or hiding a glyph, no longer makes your Arena, Iliac Hand, King's Gambit or Spire champion titles vanish until you reload. The Arena Champion's laurel can be hidden again."}
+{"id":"0.1.10667-011","source":"After wearing a title, your profile card says its name (\"Wearing Gatebreaker.\") instead of its internal key."}
+{"id":"0.1.10667-012","source":"The Codex section of Collections is translated now."}
+{"id":"0.1.10686-001","source":"Online, everywhere past Veilhaven's peace is now open PvP: the Veil, the water within about 10 km of Veilhaven and the way home east of her to the Veil stay safe; every other isle, freeport, ruin and stretch of open water does not."}
+{"id":"0.1.10686-002","source":"The sea's depth bands are the zone's tiers, as the Wrothgarian Mountains' rings are: the Shallows +25% loot, the Reaches +50%, the Deep Aether +75%, the Abyss double. Crossing a band says so, and the zone tile on your HUD names it."}
+{"id":"0.1.10686-003","source":"Your party gets the mountains' PvP warning before a party walk onto the open sea."}
+{"id":"0.1.10686-004","source":"Foes on the isles and in their ruins are four times as strong, plus the band's share, and drop loot to match. Overworld packs past the peace are four times the size."}
+{"id":"0.1.10686-005","source":"The mountains' rules apply: other players may attack you (never your party or guild), a death drops your bag and half your purse where you fell for twelve minutes, your killer may claim one worn piece, the dead wait two minutes, strangers are hidden on the map and marked red near you, a wagon parked on an isle is with you when you die, only one revenant may walk at your side, /unstuck doesn't work outdoors on the open sea, and no teleport works into, out of or around the open sea. That includes the bank's linked ship cabin."}
+{"id":"0.1.10686-006","source":"If you die at sea, you rise at the nearest freeport, however far it is. Your ship's hold is not dropped."}
+{"id":"0.1.10686-007","source":"Unlike the mountains, sea travel has no speed cap, and crew ashore can still be sent back aboard."}
+{"id":"0.1.10686-008","source":"Online, the crossing's question now warns you before you sail out."}
+{"id":"0.1.10686-009","source":"No private instances on the open sea: an isle's ruin is always the shared one, as in the mountains."}
+{"id":"0.1.10686-010","source":"The captain's chart draws Veilhaven's peace as a green ring, with a key entry."}
+{"id":"0.1.10686-011","source":"A new Aetheric set found only in the Deep Aether and the Abyss: nine Adamantium pieces."}
+{"id":"0.1.10686-012","source":"2 pieces (Stormwrack): shock resistance and Speed. 4 pieces (Undertow): extra damage on your blows, in full on the open sea past Veilhaven's peace and half elsewhere. 6 pieces (The Captain's Due): your ship's guns hit harder and her hull takes less damage."}
+{"id":"0.1.10686-013","source":"Where it drops: the Deep Aether's legendary ships one time in four, the Abyss's legends every time; the treasure piles of ruins in those bands; the daily vaults of the deep; the treasure fleet's flagship; and the Aether Storm's wrack."}
+{"id":"0.1.10686-014","source":"Every day, four ruin isles of the Deep Aether and three of the Abyss are vaults: elite dungeons that work like the Wrothgarian Mountains' daily halls."}
+{"id":"0.1.10686-015","source":"A vault's foes are the band's toughest. Leaving locks you out for an hour, unless your own remains still lie inside. An empty vault resets after twenty minutes and its chests fill again. Crows gather over a vault where someone has fallen, and everyone on the open sea past Veilhaven's peace hears of it."}
+{"id":"0.1.10686-016","source":"The captain's chart marks each day's vaults, with your lock and the crows."}
+{"id":"0.1.10686-017","source":"Vault treasure piles have a better chance at a Tidemail piece: a quarter in the Deep Aether, half in the Abyss."}
+{"id":"0.1.10686-018","source":"Every two hours an Aether storm blows for fifty minutes somewhere in the Deep Aether or the edge of the Abyss. Everyone sees the same storm in the same place; the captain's chart shows it."}
+{"id":"0.1.10686-019","source":"Inside it: thunder, rain and wind. Lightning can strike your ship, damaging her hull and sails and sometimes setting her on fire. A strike alone never sinks her, but a fire it starts burns like any other."}
+{"id":"0.1.10686-020","source":"Every 90 seconds the storm throws up a cask of wrack alongside: Eltheric goods, and now and then a Tidemail piece. Each cask can be hauled once."}
+{"id":"0.1.10686-021","source":"Every three hours a treasure fleet sails for ninety minutes: a laden merchant carrack and two or three corsair escorts, heading east through the Deep Aether or the Abyss. The chart shows where it is, and a freeport's harbourmaster tells you when the next one sails."}
+{"id":"0.1.10686-022","source":"Sink or take the flagship for her strongroom (6,000 gold in the Deep Aether, 12,000 in the Abyss) and a Tidemail piece, once per sailing. Every captain whose guns were on her in her last twenty seconds gets both."}
+{"id":"0.1.10686-023","source":"Online, once a flagship goes down the fleet is scattered for everyone until the next sailing. A reload doesn't bring her back."}
+{"id":"0.1.10686-024","source":"A freeport's harbourmaster now keeps a Wanted board: every player who has killed another player at sea in the last 14 days, and anyone with a bounty on their head."}
+{"id":"0.1.10686-025","source":"Post 500, 2,000 or 10,000 gold of your own on a wanted captain. Bounties add up, and they stay until that captain dies at sea at another player's hand or their ship is wrecked by another player's guns."}
+{"id":"0.1.10686-026","source":"Whoever ends them at sea is owed the whole bounty. Collect it at any freeport's harbourmaster, straight into your bank account."}
+{"id":"0.1.10686-027","source":"If a wanted captain's character is deleted, or stays dead for two hours, your bounty comes back to you: collect it at a freeport."}
+{"id":"0.1.10686-028","source":"A character with bounties, plunder or hold goods waiting at a freeport can't be deleted until they're collected."}
+{"id":"0.1.10686-029","source":"You cannot post on your own head, or on another character of your own account. Only kills at sea count, not the Wrothgarian Mountains or the Iliac Bay."}
+{"id":"0.1.10686-030","source":"Online realm characters only."}
+{"id":"0.1.10686-031","source":"A freeport's harbourmaster now shows two seasonal boards for the whole realm: the deepest voyages past the Veil, and the most legends sunk or taken."}
+{"id":"0.1.10686-032","source":"Seasons are the realm's eight-week seasons, the same as the arena's. Each board lists the top ten, says where you stand, and names last season's leaders."}
+{"id":"0.1.10686-033","source":"Your figures reach the boards with your character's saves. A character held for an impossible save doesn't appear while the hold stands."}
+{"id":"0.1.10686-034","source":"Online realm characters only. Voyages made offline, or in a copy brought online, don't count."}
+{"id":"0.1.10686-035","source":"Past Veilhaven's peace, your broadsides now hit other players' ships, and theirs hit yours. Your party and your guild are never targets."}
+{"id":"0.1.10686-036","source":"The servers referee every shot: how often a ship can fire, how much damage she can deal and how far she can reach. Her hull sets how hard she hits; reach and rate of fire are the same for every ship."}
+{"id":"0.1.10686-037","source":"Leaving your helm, sailing out of the zone, logging out or crossing into the next stretch of sea doesn't repair your ship. She's whole again after two minutes nobody hits her."}
+{"id":"0.1.10686-038","source":"You can't go below to your cabin while another captain's ship is within 700 m."}
+{"id":"0.1.10686-039","source":"A player's ship that is battered to nothing is wrecked and lies crippled, as a pirate's guns would leave her. She doesn't sink."}
+{"id":"0.1.10686-040","source":"Come alongside a wreck you made within three minutes to board her and take a share of her hold: her most valuable piece, then more of her best goods up to a third of what she carries. Locked, bound, classic and quest items, summoned items, ship deeds and parts, and bags are never taken."}
+{"id":"0.1.10686-041","source":"While a wreck can still be boarded, her hold is shut to her captain."}
+{"id":"0.1.10686-042","source":"Logging out or sailing off doesn't save a wrecked ship: she can still be boarded where she lies."}
+{"id":"0.1.10686-043","source":"Your plunder goes straight into your pack. If it can't, a freeport's harbourmaster holds it for you under \"Prizes taken at sea\"."}
+{"id":"0.1.10686-044","source":"If the captain who boarded you never collects your goods within three days, you can reclaim them at a freeport."}
+{"id":"0.1.10686-045","source":"Wrecking a player's ship counts as a kill at sea for the bounty board."}
+{"id":"0.1.10686-046","source":"/unstuck past the Veil (where it works: in Veilhaven's peace, or offline) now takes you to the nearest freeport. It used to send you to a town in the Iliac Bay, across the Veil."}
+{"id":"0.1.10692-001","source":"Loot you leave on the floor after a boss (Oblivion Gate, Abyss Dungeon, Elite Breach Redoubts) now waits for you in your mailbox instead of being stuffed into your pack. Each item arrives from the Lost and Found; claim it into the character you're playing. Gold still goes straight to your purse."}
+{"id":"0.1.10692-002","source":"The mailbox has a Claim all button when two or more items are waiting."}
+{"id":"0.1.10692-003","source":"In an Elite Breach, leaving one Redoubt's loot behind and taking the next could make the first Redoubt's leftovers vanish until you restarted."}
+{"id":"0.1.10695-001","source":"Holding a spell while climbing no longer shows a second pair of arms. Your casting hands step aside while you're on the wall and come back when you let go; the spell stays ready."}
+{"id":"0.1.10695-002","source":"Casting while climbing shows your casting hands alone, then your hands go back onto the wall."}
