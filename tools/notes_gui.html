@@ -218,6 +218,8 @@ function nextPatch() {
   var nx = rest.filter(function (v) { return !verDone(v); })[0] || vs[at + 1];
   if (nx) gotoPatch(nx);
 }
+/* every release is the tag app-v plus its version (as on the site) */
+function relLink(v) { return '<a href="https://github.com/Lattymoy/daggerfall-js-source/releases/tag/app-v' + encodeURIComponent(v) + '" target="_blank" rel="noopener" title="The developers\' original release notes for patch ' + esc(v) + ', on GitHub">Open the release on GitHub ↗</a>'; }
 function shown(r) { return r.source.replace(/\*\*/g, "").replace(/`/g, ""); }  /* the site drops these marks (tools/update_data.py) */
 /* ---------- views ---------- */
 function stat() {
@@ -392,7 +394,7 @@ function detailHtml() {
   var fields = open ? ["entity", "change_type", "tags", "platforms"] : need;
   if (mode === "stored" && !r._confirmed && !open && !need.length) fields = [];
   var okTag = '<span class="tag" style="background:var(--ok);border-color:var(--okline)">';
-  var h = '<div class="row-h"><span class="mut">Row ' + pos + " of " + all.length + " · " + esc(r.id) + "</span><span>" + (r._confirmed ? okTag + "confirmed</span>" : need.length ? '<span class="tag">' + need.length + " to decide</span>" : okTag + "nothing flagged</span>") + "</span></div>" +
+  var h = '<div class="row-h"><span class="mut">Row ' + pos + " of " + all.length + " · " + esc(r.id) + " · " + relLink(r.version) + "</span><span>" + (r._confirmed ? okTag + "confirmed</span>" : need.length ? '<span class="tag">' + need.length + " to decide</span>" : okTag + "nothing flagged</span>") + "</span></div>" +
     rawHtml(r);
   if (hasTopic(r)) h += '<div class="out"><span class="mut">The patch page shows the developers\' bullet as written, under ' + esc(TG[gOf(r)][0]) + ", with the topic <b>" + esc(r.entity) + "</b>:</span><br>" + esc(shown(r)) + "</div>";
   errsOf(r).forEach(function (e) { h += '<div class="warn">' + esc(e) + "</div>"; });
@@ -449,7 +451,7 @@ function reviewView() {
     if (!rows.length) return hh + (ST ? '<div class="card">This patch has no rows.</div>' : "");
     if (allr.indexOf(cur) < 0) cur = firstOpen(allr);
     var ls = vis();
-    hh += '<div class="bar"><h2 class="ph">Patch ' + esc(vv) + '</h2><span class="mut">' + esc(rows[0].date) + " · " + nc + " of " + allr.length + " confirmed</span></div>";
+    hh += '<div class="bar"><h2 class="ph">Patch ' + esc(vv) + '</h2><span class="mut">' + esc(rows[0].date) + " · " + nc + " of " + allr.length + " confirmed</span><span>" + relLink(vv) + "</span></div>";
     hh += '<div class="rv"><div><label class="chk"><input type="checkbox" id="hide"' + (hide ? " checked" : "") + "> Hide confirmed rows</label><div id=\"rail\">" + railHtml(ls) + '</div></div><div class="card" id="dt">' + detailHtml() + "</div></div>";
     return hh + '<p class="mut keys"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> edit all · <kbd>T</kbd> topic · <kbd>U</kbd> unconfirm · <kbd>[</kbd>/<kbd>]</kbd> patch</p>' + logBox();
   }
@@ -462,7 +464,7 @@ function reviewView() {
     var a = rows.filter(function (r) { return r.version === x; }), c = a.filter(function (r) { return r._confirmed; }).length;
     return '<button class="b' + (x === v ? " pri" : "") + '" data-a="patch" data-v="' + esc(x) + '" title="' + c + " of " + a.length + ' confirmed">' + (c === a.length ? "✓ " : "") + esc(x) + ' <span class="mut2">' + c + "/" + a.length + "</span></button>";
   }).join("") + "</div>";
-  h += '<div class="bar"><h2 class="ph">Patch ' + esc(v) + '</h2><span class="mut">' + esc(date) + " · " + nconf + " of " + all.length + " confirmed</span></div>";
+  h += '<div class="bar"><h2 class="ph">Patch ' + esc(v) + '</h2><span class="mut">' + esc(date) + " · " + nconf + " of " + all.length + " confirmed</span><span>" + relLink(v) + "</span></div>";
   h += '<div class="rv"><div><label class="chk"><input type="checkbox" id="hide"' + (hide ? " checked" : "") + "> Hide confirmed rows</label><div id=\"rail\">" + railHtml(list) + '</div></div><div class="card" id="dt">' + detailHtml() + "</div></div>";
   h += '<p class="mut keys"><kbd>Enter</kbd> confirm and next · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> edit all · <kbd>T</kbd> topic · <kbd>S</kbd> split · <kbd>X</kbd> leave out · <kbd>U</kbd> unconfirm · <kbd>Z</kbd> undo · <kbd>[</kbd>/<kbd>]</kbd> patch</p>';
   var sk = skipped.map(function (s, j) { return [s, j]; }).filter(function (x) { return x[0].version === v; });
