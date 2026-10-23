@@ -13,6 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import notes as N
+import notes_manage as M
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
@@ -56,6 +57,7 @@ def state():
         "have_notes": os.path.exists(N.NOTES),
         "draft": draft, "skipped": read_skipped(), "confirmed": review.get("confirmed", {}), "stale": stale,
         "hubs": review.get("hubs", {}), "check": check(draft) if draft else None,
+        "tag_counts": dict(N.Counter(t for r in rows for t in r["tags"])),
         "draft_stale": bool(draft) and not any(r["version"] in pv for r in draft),
     }
 
@@ -102,7 +104,8 @@ def check(rows, stored=False):
                     why[by_plain[m]] = {"why": f"close spelling of {ent}", "word": ""}
         te = N.topic_of(ent, alias) if ent else ent
         cur = {"why": "named in the text", "word": word[te]} if te in word else {"why": "from the section heading or the bullets around it, not named in the text", "word": ""}
-        out["rows"][r["id"]] = {"sug": [{"t": t, "hub": hub.get(t, "-"), **why[t]} for t in sug[:5]], "cur": cur, "errs": []}
+        tagsug = [t for t in g.tags_for(ent, src) if t not in r.get("tags", [])][:4]
+        out["rows"][r["id"]] = {"sug": [{"t": t, "hub": hub.get(t, "-"), **why[t]} for t in sug[:5]], "cur": cur, "errs": [], "tagsug": tagsug}
     for name in sorted({r["entity"] for r in rows if r.get("entity") and r["entity"] != "TODO" and N.topic_of(r["entity"], alias) not in hub}):
         mine = [r for r in rows if r["entity"] == name]
         out["names"][name] = [w for w in N.topic_name_warnings(mine, known) if not w.startswith("A topic should be")]
@@ -203,66 +206,27 @@ _BACKED_UP = []
 
 
 def save_stored(body):
-    """Write edits to rows already in data/normalized/all.jsonl (ids stay), keep each edited row's summary prefix in step with its
-    topic, give a new topic a hub, and record which rows a person has confirmed. A snapshot is taken before the first change."""
-    tax = json.load(open(N.TAX, encoding="utf-8-sig"))
-    allrows = N.read_jsonl(N.ALL)
-    by = {r["id"]: r for r in allrows}
-    new, errs = [], []
-    for r in body["rows"]:
-        o = by.get(r["id"])
-        ent = " ".join(str(r.get("entity", "")).split())
-        if o is None:
-            errs.append(f"{r.get('id')}: not a stored row")
-        elif not ent or ent == "TODO":
-            errs.append(f"{r['id']}: set a topic")
-        elif r["change_type"] not in tax["change_types"]:
-            errs.append(f"{r['id']}: change type {r['change_type']!r} is not in the taxonomy")
-        elif len(r["tags"]) > 3:
-            errs.append(f"{r['id']}: at most 3 tags")
-        elif any(p not in tax["platform_values"] for p in r["platforms"]) or not r["platforms"]:
-            errs.append(f"{r['id']}: platforms must be listed in the taxonomy")
-        else:
-            new.append((o, dict(r, entity=ent)))
-    if errs:
-        return {"ok": False, "out": "; ".join(errs[:3]) + ". Nothing was saved."}
-    changed = 0
-    for o, r in new:
-        before = (o["entity"], o["change_type"], o["tags"], o["platforms"])
-        after = (r["entity"], r["change_type"], r["tags"], r["platforms"])
-        if before == after:
-            continue
-        if not _BACKED_UP:
-            b = run("backup")
-            if not b["ok"]:
-                return {"ok": False, "out": "Could not take the snapshot first: " + b["out"]}
-            _BACKED_UP.append(b["out"])
-        if o["summary"].startswith(o["entity"] + ": "):
-            o["summary"] = r["entity"] + ": " + o["summary"][len(o["entity"]) + 2:]
-        o["entity"], o["change_type"], o["tags"], o["platforms"] = after
-        changed += 1
-    if changed:
-        N.write_jsonl(N.ALL, allrows)
-        alias = N.merge_alias()
-        hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
-        add = sorted({N.topic_of(r["entity"], alias) for _, r in new} - set(hub))
-        if add:
-            with open(N.HUBS, "a", encoding="utf-8", newline="") as f:
-                w = csv.writer(f, lineterminator="\n")
-                for t in add:
-                    mine = [x for x in allrows if N.topic_of(x["entity"], alias) == t]
-                    h = (body.get("hubs") or {}).get(t) or N.guess_hub(mine, [x for x in allrows if x not in mine], hub)
-                    w.writerow([t, h, "", len(mine), "yes" if len(mine) <= 2 else ""])
-    done = row_review()
-    for _, r in new:
-        if r.get("_confirmed"):
-            done[r["id"]] = True
-        else:
-            done.pop(r["id"], None)
-    with open(ROWREV, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(done, f, indent=0, sort_keys=True)
-    return {"ok": True, "changed": changed, "index": stored_index(), "topics": topics_list(),
-            "check": stored_rows(body["version"])["check"], "backup": _BACKED_UP[0] if _BACKED_UP else None}
+    """Edits to rows already in data/normalized/all.jsonl, from the review screen (the rows of a patch or of a result list)."""
+    ids = [r["id"] for r in body["rows"]]
+    changes = {r["id"]: {k: r[k] for k in M.EDITABLE if k in r} for r in body["rows"]}
+    res = M.apply_edits(changes, {r["id"]: bool(r.get("_confirmed")) for r in body["rows"]}, body.get("hubs"))
+    if not res["ok"]:
+        return res
+    res.update(index=stored_index(), topics=topics_list(), check=M.by_ids(ids)["check"])
+    return res
+
+
+def add_tag(tag):
+    """Add a tag to the taxonomy's list, keeping the list sorted and the rest of the file byte for byte as it was."""
+    tag = tag.strip().lower().replace(" ", "-")
+    if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", tag) or not 2 <= len(tag) <= 30:
+        return {"ok": False, "out": "A tag is 2 to 30 letters, digits or hyphens, such as 'fast-travel'."}
+    tags = json.load(open(N.TAX, encoding="utf-8-sig"))["tags"]
+    if tag in tags:
+        return {"ok": True, "tags": tags, "tag": tag, "out": "Already in the list."}
+    if not M.write_tags(tags + [tag]):
+        return {"ok": False, "out": "Could not find the tags list in taxonomy.json."}
+    return {"ok": True, "tags": sorted(tags + [tag]), "tag": tag, "out": f"Added {tag!r} to the taxonomy."}
 
 
 def discard_draft():
@@ -482,6 +446,15 @@ class H(BaseHTTPRequestHandler):
         if self.path == "/api/summary":
             with LOCK:
                 return self.send(last_ingest())
+        if self.path.startswith("/api/manage/"):
+            with LOCK:
+                try:
+                    r = M.route_get(self.path)
+                except Exception as e:
+                    r = {"ok": False, "out": f"{type(e).__name__}: {e}"}
+            return self.send(r) if r is not None else self.send({"error": "not found"}, 404)
+        if self.path == "/manage.js":
+            return self.send(open("tools/notes_manage.js", "rb").read(), ctype="text/javascript")
         if self.path == "/site":
             self.send_response(301)
             self.send_header("Location", "/site/")
@@ -499,7 +472,14 @@ class H(BaseHTTPRequestHandler):
         with LOCK:
             try:
                 if self.path == "/api/run" and body.get("cmd") in RUNNABLE:
-                    return self.send(run(body["cmd"]))
+                    r = run(body["cmd"])
+                    if body["cmd"] == "build" and r["ok"]:
+                        M.mark_built()
+                    return self.send(r)
+                if self.path.startswith(("/api/manage/", "/api/stored/")) and self.path not in ("/api/stored/rows", "/api/stored/save"):
+                    r = M.route_post(self.path, body)
+                    if r is not None:
+                        return self.send(r)
                 if self.path == "/api/save":
                     return self.send({"ok": True, "check": check(save_draft(body))})
                 if self.path == "/api/restore":
@@ -512,6 +492,8 @@ class H(BaseHTTPRequestHandler):
                     hub = {h["topic"]: h["primary_hub"] for h in N.csv.DictReader(open(N.HUBS, encoding="utf-8"))}
                     ch = change_lines(t)
                     return self.send({"topic": t, "hub": hub.get(t), "n": len(ch), "desc": (N.descriptions().get(t) or [""])[0], "recent": ch[-3:][::-1]})
+                if self.path == "/api/tag":
+                    return self.send(add_tag(body["tag"]))
                 if self.path == "/api/stored/rows":
                     return self.send(stored_rows(body["version"]))
                 if self.path == "/api/stored/save":
@@ -537,6 +519,8 @@ def main():
     srv = ThreadingHTTPServer(("127.0.0.1", PORT), H)
     url = f"http://127.0.0.1:{PORT}/"
     print(f"Release notes tool at {url}  (Ctrl+C to stop)")
+    M.bind(sys.modules[__name__])
+    threading.Thread(target=M.flags_index, daemon=True).start()   # index which stored rows deserve a second look
     if "--no-browser" not in sys.argv:
         threading.Timer(0.5, lambda: webbrowser.open(url)).start()
     try:

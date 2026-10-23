@@ -1,5 +1,5 @@
 {"id":"0.1.0-001","version":"0.1.0","date":"2026-08-31","entity":"Windmill","change_type":"New","summary":"Windmill: windmills turn.","tags":["windmill"],"platforms":["all"],"dev_note":null}
-{"id":"0.1.0-002","version":"0.1.0","date":"2026-08-31","entity":"Road System","change_type":"Other","summary":"Road System: re-audit (RF1).","tags":["roads","audit"],"platforms":["all"],"dev_note":null}
+{"id":"0.1.0-002","version":"0.1.0","date":"2026-08-31","entity":"Road System","change_type":"Other","summary":"Road System: re-audit (RF1).","tags":["roads","audit","windmill"],"platforms":["all"],"dev_note":null}
 {"id":"0.1.0-003","version":"0.1.0","date":"2026-08-31","entity":"Windmill","change_type":"New","summary":"Windmill: mills are placed.","tags":["windmill"],"platforms":["all"],"dev_note":"because Daggerfall places none"}
 {"id":"0.1.0-004","version":"0.1.0","date":"2026-08-31","entity":"Road System","change_type":"Removal","summary":"Road System: removed whole.","tags":["roads"],"platforms":["all"],"dev_note":null}
 {"id":"0.1.0-005","version":"0.1.0","date":"2026-08-31","entity":"Windmill","change_type":"Fix","summary":"Windmill: the handedness; one root cause under both faults.","tags":["windmill"],"platforms":["all"],"dev_note":"one root cause under both faults"}
