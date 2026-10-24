@@ -253,6 +253,52 @@ ul.cols small { color: var(--muted); }
 .wikitable td { background: var(--paper); }
 .wikitable td:last-child { min-width: 260px; }
 .wrap { overflow-x: auto; }
+/* guide tables (web/tables.js): a filter box and sort headings above a table, a scroll box for long ones with the heading row fixed in it, a shadow at the side a wide table still scrolls to */
+.gtable { margin: .5em 0 1em; }
+.gtable .wikitable { margin: 0; }
+.tbar { display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap; font-size: .85rem; }
+.tbar input.filter { width: 14em; max-width: 100%; margin: 0 0 .4em; padding: 3px 8px; font-size: .85rem; }
+.tfw { position: relative; display: inline-block; max-width: 100%; }
+.tfw input.filter { padding-right: 24px; }
+.tfw input.filter::-webkit-search-cancel-button { display: none; }   /* the clear button below is the same in every browser */
+.tclear { position: absolute; right: 2px; top: 0; bottom: .4em; width: 22px; padding: 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: 1.1rem; line-height: 1; cursor: pointer; }
+.tclear:hover { color: var(--fg); }
+.tclear:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+.tcount { color: var(--muted); font-size: .85rem; margin-top: .3em; }
+.tcount:empty { display: none; }
+.tcopy { display: flex; gap: 6px; margin-left: auto; }
+.treset, .tbtn { margin: 0 0 .4em; padding: 2px 9px; border: 1px solid var(--line); border-radius: 3px; background: var(--softer); color: var(--fg); font: inherit; font-size: .8rem; cursor: pointer; }
+.tbtn { box-sizing: border-box; width: 6.5em; padding-left: 0; padding-right: 0; text-align: center; }   /* one width for the label and for what replaces it after a click, so nothing moves */
+.treset:hover, .tbtn:hover { background: color-mix(in srgb, var(--accent) 22%, var(--soft)); border-color: var(--accent); }
+.treset:focus-visible, .tbtn:focus-visible, .sortbtn:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+.tstat { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sortbtn { display: flex; width: 100%; align-items: baseline; gap: 4px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: inherit; cursor: pointer; }
+.sortlbl { flex: 1 1 auto; }   /* the label takes the room, so the mark sits at the right edge of the heading cell whatever the column's alignment */
+.sortbtn:hover .sortlbl { text-decoration: underline; }
+.sortmark { min-width: .9em; font-size: .7em; color: var(--accent); white-space: nowrap; }
+.sortmark:empty::before { content: "⇅"; color: var(--muted); opacity: .55; }
+.gscroll { position: relative; }
+.gscroll::before, .gscroll::after { content: ""; position: absolute; top: 0; bottom: 0; width: 14px; z-index: 3; pointer-events: none; opacity: 0; transition: opacity .15s; }
+.gscroll::before { left: 0; background: linear-gradient(to right, rgba(0, 0, 0, .28), transparent); }
+.gscroll::after { right: 0; background: linear-gradient(to left, rgba(0, 0, 0, .28), transparent); }
+.gscroll.sl::before, .gscroll.sr::after { opacity: 1; }
+.gscroll:has(.gt.lc)::before { display: none; }   /* a row-label column is the left edge: it casts the shadow itself, so the box's own left shadow would only darken it */
+.gscroll.sl .gt.lc tbody th[scope=row], .gscroll.sl .gt.lc thead th:first-child { box-shadow: 5px 0 6px -4px rgba(0, 0, 0, .35); }
+.wrap.tall { overflow-y: auto; overscroll-behavior: contain; }   /* more rows than the limit in tables.js: the table scrolls inside its box (a box that scrolls sideways only still lets the page scroll) */
+.wrap.tall .gt.wikitable thead th { position: sticky; top: 0; z-index: 2; }
+/* a sticky cell drags only its own borders along, and in a collapsed table the borders belong to the table: so these tables keep a border on each cell (right and bottom, plus top on the heading row and left on the first column) */
+.gtable .gt.wikitable { border-collapse: separate; border-spacing: 0; border: 0; }
+.gtable .gt.wikitable th, .gtable .gt.wikitable td { border-width: 0 1px 1px 0; }
+.gtable .gt.wikitable thead th { border-top-width: 1px; border-bottom-width: 2px; }
+.gtable .gt.wikitable tr > :first-child { border-left-width: 1px; }
+.gtable .wrap:has(.gt.lc) { border-left: 1px solid var(--j-cell, var(--line)); }   /* a row-label column sticks to the edge of the box, so the box carries the left border: no scrolled content can show beside it */
+.gtable .gt.lc.wikitable tr > :first-child { border-left-width: 0; }
+.wikitable.lc tbody th[scope=row] { text-align: left; font-weight: 600; background: var(--soft); position: sticky; left: 0; z-index: 1; }
+.wikitable.lc thead th:first-child, .wrap.tall .gt.wikitable.lc thead th:first-child { position: sticky; left: 0; z-index: 3; }   /* the corner cell stays with its column, and above the heading row when that sticks too */
+.wikitable.kv th[scope=row] { text-align: left; width: 32%; font-weight: 600; color: var(--muted); background: var(--soft); }
+/* striping and a row under the pointer (rows hidden by the filter would upset :nth-child, so the script marks the shown rows alt while a filter is on) */
+.gt:not(.filtered) tbody tr:nth-child(even) td, .gt tbody tr.alt td { background: color-mix(in srgb, var(--soft) 40%, var(--paper)); }
+.gt:not(.filtered) tbody tr:hover td, .gt.filtered tbody tr:hover td { background: color-mix(in srgb, var(--accent) 12%, var(--paper)); }
 .nowrap { white-space: nowrap; }
 .tp { font-weight: 600; white-space: nowrap; }
 .tp[data-type=Buff] { color: var(--buff); } .tp[data-type=Nerf], .tp[data-type=Removal] { color: var(--nerf); }
@@ -508,7 +554,7 @@ figure.fig-center figcaption { text-align: center; }
 h2.sec, h3.sec { display: flow-root; }
 #gp h2.cl, #gp h3.cl { clear: both; }
 /* tables and code boxes sit beside the Contents box, and only step below a right-hand picture */
-#gp figure.fig-right ~ .wrap, #gp figure.fig-right ~ .codebox { clear: right; }
+#gp figure.fig-right ~ .wrap, #gp figure.fig-right ~ .gtable, #gp figure.fig-right ~ .codebox { clear: right; }
 @media (max-width: 600px) {
   figure.fig-left, figure.fig-right { float: none; width: auto !important; margin-left: 0; margin-right: 0; }
 }
@@ -812,6 +858,9 @@ html[data-skin="crier"] .infobox caption, html[data-skin="crier"] .infobox .ibt,
 html[data-skin="crier"] .wikitable { border: 0; border-top: 3px double var(--fg); border-bottom: 1px solid var(--fg); background: transparent; }
 html[data-skin="crier"] .wikitable th, html[data-skin="crier"] .wikitable td { border: 0; border-bottom: 1px solid var(--line); }
 html[data-skin="crier"] .wikitable td { background: transparent; }
+html[data-skin="crier"] .gtable .gt.wikitable thead th { border-top: 3px double var(--fg); background: var(--paper); }   /* the table's own rules go on its cells (see "a sticky cell" above), and a heading that sticks needs a background */
+html[data-skin="crier"] .gtable .wrap:has(.gt.lc) { border-left: 0; }
+html[data-skin="crier"] .gtable .gt.wikitable tbody tr:last-child > * { border-bottom: 1px solid var(--fg); }
 html[data-skin="crier"] .wikitable thead th { background: transparent; font-variant: small-caps; letter-spacing: .05em; border-bottom: 2px solid var(--fg); }
 html[data-skin="crier"] .tp { font-variant: small-caps; letter-spacing: .03em; font-weight: 700; }
 html[data-skin="crier"] .portal, html[data-skin="crier"] .cats, html[data-skin="crier"] .alpha, html[data-skin="crier"] form.rangebar, html[data-skin="crier"] .mbox { border-color: var(--fg); }

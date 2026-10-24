@@ -139,6 +139,12 @@
         if (/^\d+(px)?$/.test(tok)) { var w = parseInt(tok, 10); if (w < 40 || w > 1200) add("warn", i, 0, l.length, "Picture width " + tok + " is outside 40 to 1200 pixels."); return; }
         add("warn", i, 0, l.length, "Unknown picture option \"" + tok + "\" in braces (use left, right, center and a width in pixels).");
       });
+      if (/^\s*\|[\s|:\-{}a-z,]*$/.test(l) && /-{2,}\{/.test(l)) l.replace(/\{([^}]*)\}/g, function (m, words, at) {   /* a table's divider row: {tags} name a column type, or label */
+        words.trim().toLowerCase().split(/[\s,]+/).filter(Boolean).forEach(function (tok) {
+          if (["num", "pct", "dur", "date", "bool", "text", "label"].indexOf(tok) < 0) add("warn", i, at, m.length, "Unknown column tag \"" + tok + "\" in braces (use num, pct, dur, date, bool, text, or label for the first column).");
+        });
+        return m;
+      });
       if (/^\s*\|/.test(l)) scan = scan.replace(/\\\|/g, " |");   /* in a table row \| is a pipe inside a cell: [[Page\|label]] */
       var w, re = /\[\[([^\]|]+)/g;
       while ((w = re.exec(scan))) {

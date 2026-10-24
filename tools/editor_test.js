@@ -1010,5 +1010,27 @@ test("a picture is given a width, keeping its side", () => {
   assert.strictEqual(V.setFigWidth("![x](p.png){left 240}", 1, 100), "![x](p.png){left 100}");
   assert.strictEqual(V.setFigWidth("![x](p.png){right 240px}", 1, 5000), "![x](p.png){right 1200}");
 });
+test("a table's divider row keeps its {tags} when the table is set out", () => {
+  const F = P.fmt, v = "| Item | Level |\n|:---{label}|---:{num}|\n| Sword | 5 |\n";
+  const plan = F.alignTable(v, 2);
+  assert.strictEqual(plan.text, ["| Item       | Level    |", "| :--{label} | --:{num} |", "| Sword      | 5        |"].join("\n"));
+});
+test("a column's type is set, changed and cleared in the divider row", () => {
+  const F = P.fmt, v = "| Item | Level |\n| --- | --- |\n| Sword | 5 |";
+  const pos = v.indexOf("5");
+  let plan = F.columnTag(v, pos, "num");
+  assert(/---\{num\}/.test(plan.text), plan.text);
+  plan = F.columnTag(plan.text, plan.text.indexOf("5"), "pct");
+  assert(/\{pct\}/.test(plan.text) && !/num/.test(plan.text), plan.text);
+  plan = F.columnTag(plan.text, plan.text.indexOf("5"), "auto");
+  assert(!/\{/.test(plan.text), plan.text);
+  assert.strictEqual(F.columnTag(v, pos, "label"), null);   // only the first column is the label column
+  const lab = F.columnTag(v, v.indexOf("Sword"), "label");
+  assert(/\{label\}/.test(lab.text), lab.text);
+});
+test("an unknown divider tag is a problem; known ones are not", () => {
+  assert(has("| A | B |\n| --- | ---{nmu} |\n| 1 | 2 |", /Unknown column tag "nmu"/));
+  assert(!has("| A | B |\n| ---{label} | ---:{num} |\n| 1 | 2 |", /Unknown column tag/));
+});
 console.log(failed ? `${failed} failed, ${passed} passed` : `editor tests OK (${passed})`);
 process.exit(failed ? 1 : 0);

@@ -44,8 +44,9 @@
       ["Heading", [["Heading 2", "Ctrl+2", "format.h.2"], ["Heading 3", "Ctrl+3", "format.h.3"], ["Heading 4", "Ctrl+4", "format.h.4"], ["Heading 5", "Ctrl+5", "format.h.5"], ["Heading 6", "Ctrl+6", "format.h.6"], SEP, ["Paragraph", null, "format.p"]]],
       ["Bullet List", null, "format.ul"], ["Numbered List", null, "format.ol"], ["Quote", null, "format.quote"],
       ["Callout", [["Note", null, "format.callout.note"], ["Tip", null, "format.callout.tip"], ["Important", null, "format.callout.important"], ["Warning", null, "format.callout.warning"], ["Caution", null, "format.callout.caution"], SEP, ["Remove Callout", null, "format.callout.remove"]]], SEP,
-      ["Code Block", [["Plain Text", null, "format.codeblock"], SEP].concat(CODE_LANGS.map(function (l) { return [l[0], null, "format.codeblock." + l[1]]; }))], ["Horizontal Rule", null, "format.hr"], ["Align Table", null, "format.table.align"], ["Clear Formatting", null, "format.clear"], SEP,
-      ["Snippets", [["Table 2×2", null, "format.snip.table2"], ["Table 3×3", null, "format.snip.table3"], ["Image", null, "format.snip.image"], ["Spoiler Block", null, "format.snip.spoiler"], ["Infobox", null, "format.snip.infobox"], ["Front Matter", null, "format.snip.front"]]]]],
+      ["Code Block", [["Plain Text", null, "format.codeblock"], SEP].concat(CODE_LANGS.map(function (l) { return [l[0], null, "format.codeblock." + l[1]]; }))], ["Horizontal Rule", null, "format.hr"], ["Align Table", null, "format.table.align"],
+      ["Table Column", [["Sort as Number", null, "format.table.col.num"], ["Sort as Percent", null, "format.table.col.pct"], ["Sort as Duration", null, "format.table.col.dur"], ["Sort as Date", null, "format.table.col.date"], ["Sort as Yes/No", null, "format.table.col.bool"], ["Sort as Text", null, "format.table.col.text"], ["Sort Automatically", null, "format.table.col.auto"], SEP, ["Row Labels", null, "format.table.col.label"]]], ["Clear Formatting", null, "format.clear"], SEP,
+      ["Snippets", [["Table 2×2", null, "format.snip.table2"], ["Table 3×3", null, "format.snip.table3"], ["Key/Value Table", null, "format.snip.keyvalue"], ["Image", null, "format.snip.image"], ["Spoiler Block", null, "format.snip.spoiler"], ["Infobox", null, "format.snip.infobox"], ["Front Matter", null, "format.snip.front"]]]]],
     ["?", "help.open"]
   ];
   var uid = 0;

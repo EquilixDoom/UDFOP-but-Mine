@@ -304,6 +304,42 @@ Rendered:
 > [!WARNING]
 > A `|` that belongs inside a cell needs a backslash before it, written `\|`. Without it, the site reads it as the start of a new cell.
 
+Readers can click a column heading to sort the table, hold **Shift** while clicking to add a second column to the sort, and type in the box above the table to show only the rows that contain those words. These controls are added to every table; nothing is needed in the Markdown. **Copy MD** and **Copy HTML** above a table copy the rows currently shown, in the order shown: the first as an aligned table inside a code block (Discord keeps it lined up, up to its 2,000-character limit), the second as an HTML table that pastes into Excel or Google Sheets as cells (a program that takes only text gets tab-separated columns). A table of more than 15 rows shows 15 and scrolls inside its own box, with the heading row staying at the top of the box. Empty cells and cells holding `-`, `—`, `N/A` or `?` always sort last.
+
+A column is sorted by what its cells hold: numbers as numbers, dates as dates, anything else as text with `Item 2` before `Item 10`. To say what a column holds, put a **type tag** in braces at the end of its cell in the line of dashes. The types are `{num}` (`1,200`, `-3`, `1.5k`), `{pct}` (`85%`), `{dur}` (`1h 30m`, `45s`, `2:30`), `{date}` (`2026-10-24`, `Oct 24, 2026`), `{bool}` (`Yes`/`No`, `✓`/`✗`) and `{text}`. A column with no tag is read as the first type that fits all of its cells. Tags go after the alignment colons.
+
+```md
+| Item | Level | Hit chance | Cooldown | Added |
+|:---|---:{num}|---:{pct}|---:{dur}|---{date}|
+| Sword | 5 | 85% | 1h 30m | 2026-10-01 |
+| Dagger | 12 | 95% | 45m | 2026-09-12 |
+```
+
+Rendered:
+
+| Item | Level | Hit chance | Cooldown | Added |
+|:---|---:{num}|---:{pct}|---:{dur}|---{date}|
+| Sword | 5 | 85% | 1h 30m | 2026-10-01 |
+| Dagger | 12 | 95% | 45m | 2026-09-12 |
+
+For a list of facts about one thing, use a **key/value table**: leave the heading cells empty and put `{label}` on the first column. It is drawn without a heading row and has nothing to sort or filter. `{label}` on the first column of an ordinary table marks it as the row-label column: its cells are drawn as row headings and stay in view when a wide table is scrolled sideways.
+
+```md
+| | |
+|---{label}|---|
+| Region | Hammerfell |
+| Level range | 10 to 20 |
+```
+
+Rendered:
+
+| | |
+|---{label}|---|
+| Region | Hammerfell |
+| Level range | 10 to 20 |
+
+In the editor, **Format > Table Column** sets the tag for the column the cursor is in, and **Format > Snippets > Key/Value Table** starts a key/value table.
+
 ### Pictures
 
 An exclamation mark, the description in square brackets, and the picture's path in round brackets. How to add the picture file itself is explained in [[site:How to write a guide page|the how-to]], under **Adding pictures**.

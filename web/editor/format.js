@@ -219,6 +219,7 @@
     var sel = v.slice(s, e);
     if (name === "table2") return insertBlock(v, e, e, table(2, 2), [2, 9]);
     if (name === "table3") return insertBlock(v, e, e, table(3, 3), [2, 9]);
+    if (name === "keyvalue") return insertBlock(v, e, e, "|     |       |\n| ---{label} | ----- |\n| Key | Value |\n| Key | Value |", [34, 37]);
     if (name === "spoiler") return insertBlock(v, e, e, ">!Hidden text!<", [2, 13]);
     if (name === "infobox") return insertBlock(v, e, e, "> [!INFO] Title\n> image: images/name.png\n> ## Group\n> Key: Value\n> Key: Value", [10, 15]);
     if (name === "image") {
@@ -245,7 +246,9 @@
     }
     return spans;
   }
-  function isSeparator(cells) { return cells.length > 0 && cells.every(function (c) { return /^:?-+:?$/.test(c.text); }); }
+  var TAG = /\{[a-z ,]*\}$/;   /* a divider cell may end in {tags}: a column type (num, pct, dur, date, bool, text) and label (the row-label column) */
+  function splitTag(t) { var m = TAG.exec(t); return m ? { core: t.slice(0, m.index), tag: m[0] } : { core: t, tag: "" }; }
+  function isSeparator(cells) { return cells.length > 0 && cells.every(function (c) { return /^:?-+:?(\{[a-z ,]*\})?$/.test(c.text); }); }
   /* the rows around pos: { start, end (of the text), lines, row (index of pos's line) } or null when pos is not on a row */
   function tableAt(v, pos) {
     var b = lineBounds(v, pos), top = b[0], bottom = b[1];
@@ -258,18 +261,19 @@
   }
   /* the rows set out in columns of equal width; extra: rows (arrays of cell texts) to add after row index `after`. Returns { text, at: function (row, cell) -> [from, to] in text } */
   function setOut(lines, extra, after) {
-    var rows = lines.map(function (l) { var sp = cellSpans(l); return { cells: sp.map(function (c) { return c.text; }), sep: isSeparator(sp), al: sp.map(function (c) { return c.text.charAt(0) === ":" ? (c.text.slice(-1) === ":" ? "c" : "l") : c.text.slice(-1) === ":" ? "r" : ""; }) }; });
-    if (extra) rows.splice.apply(rows, [after + 1, 0].concat(extra.map(function (c) { return { cells: c, sep: isSeparator(c.map(function (x) { return { text: x }; })), al: [] }; })));
+    var rows = lines.map(function (l) { var sp = cellSpans(l); return { cells: sp.map(function (c) { return c.text; }), sep: isSeparator(sp), al: sp.map(function (c) { var t = splitTag(c.text).core; return t.charAt(0) === ":" ? (t.slice(-1) === ":" ? "c" : "l") : t.slice(-1) === ":" ? "r" : ""; }), tg: sp.map(function (c) { return splitTag(c.text).tag; }) }; });
+    if (extra) rows.splice.apply(rows, [after + 1, 0].concat(extra.map(function (c) { return { cells: c, sep: isSeparator(c.map(function (x) { return { text: x }; })), al: [], tg: [] }; })));
     var n = 0, w = [], i, j;
     rows.forEach(function (r) { n = Math.max(n, r.cells.length); });
     for (j = 0; j < n; j++) w[j] = 3;
+    var bar0 = rows.filter(function (r) { return r.sep; })[0] || { al: [], tg: [] }, al = bar0.al, tg = bar0.tg, offs = [];
     rows.forEach(function (r) { if (!r.sep) r.cells.forEach(function (c, k) { w[k] = Math.max(w[k], c.length); }); });
-    var al = (rows.filter(function (r) { return r.sep; })[0] || { al: [] }).al, offs = [];
+    for (j = 0; j < n; j++) w[j] = Math.max(w[j], 3 + (tg[j] || "").length);
     var out = rows.map(function (r) {
       var cells = [], at = 2, o = [];
       for (j = 0; j < n; j++) {
-        var t = r.cells[j] || "", a = al[j] || "";
-        if (r.sep) t = a === "c" ? ":" + rep("-", w[j] - 2) + ":" : a === "l" ? ":" + rep("-", w[j] - 1) : a === "r" ? rep("-", w[j] - 1) + ":" : rep("-", w[j]);
+        var t = r.cells[j] || "", a = al[j] || "", g = tg[j] || "", d = w[j] - g.length;
+        if (r.sep) t = (a === "c" ? ":" + rep("-", d - 2) + ":" : a === "l" ? ":" + rep("-", d - 1) : a === "r" ? rep("-", d - 1) + ":" : rep("-", d)) + g;
         o.push([at, at + t.length]); cells.push(t + rep(" ", w[j] - t.length)); at += w[j] + 3;
       }
       offs.push(o);
@@ -289,6 +293,23 @@
     var line = t.lines[t.row], col = s - (t.start + t.lines.slice(0, t.row).join("\n").length + (t.row ? 1 : 0)), c = cellAt(line, col), sp = cellSpans(line)[c], so = setOut(t.lines);
     var off = sp ? Math.max(0, Math.min(col, sp.to) - sp.from) : 0, pos = so.at(t.row, Math.min(c, so.cols - 1)), at = Math.min(pos[0] + off, pos[1]);
     return { start: t.start, end: t.end, text: so.text, a: t.start + at, b: t.start + at };
+  }
+  /* the column under the caret gets (or loses) a tag in the divider row: kind is a type (num, pct, dur, date, bool, text), "auto" to clear the type, or "label" to toggle the row-label column (the first column only) */
+  var COLUMN_TYPES = ["num", "pct", "dur", "date", "bool", "text"];
+  function columnTag(v, s, kind) {
+    var t = tableAt(v, s); if (!t) return null;
+    var bar = -1, i, line = t.lines[t.row], col = s - (t.start + t.lines.slice(0, t.row).join("\n").length + (t.row ? 1 : 0)), c = cellAt(line, col);
+    for (i = 0; i < t.lines.length; i++) if (isSeparator(cellSpans(t.lines[i]))) { bar = i; break; }
+    if (bar < 0) return null;
+    var sp = cellSpans(t.lines[bar])[c]; if (!sp) return null;
+    if (kind === "label" && c !== 0) return null;
+    var parts = splitTag(sp.text), words = parts.tag ? parts.tag.slice(1, -1).split(/[\s,]+/).filter(Boolean) : [];
+    if (kind === "label") { var at = words.indexOf("label"); if (at >= 0) words.splice(at, 1); else words.unshift("label"); }
+    else words = words.filter(function (x) { return COLUMN_TYPES.indexOf(x) < 0; }).concat(kind === "auto" ? [] : [kind]);
+    var text = parts.core + (words.length ? "{" + words.join(",") + "}" : ""), lines = t.lines.slice();
+    lines[bar] = t.lines[bar].slice(0, sp.from) + text + t.lines[bar].slice(sp.to);
+    var so = setOut(lines), pos = so.at(t.row, Math.min(c, so.cols - 1));
+    return { start: t.start, end: t.end, text: so.text, a: t.start + pos[0], b: t.start + pos[0] };
   }
   /* Tab (or, with back, Shift+Tab) in a table: the table is set out in columns and the next (previous) cell is selected; after the last cell a new row is added. Null where it is not a row, or before the first cell. */
   function tableTab(v, s, back) {
@@ -336,11 +357,12 @@
       return null;
     }
     if (k === "table" && q[1] === "align") return { plan: alignTable(v, s) };
+    if (k === "table" && q[1] === "col" && (q[2] === "label" || q[2] === "auto" || COLUMN_TYPES.indexOf(q[2]) >= 0)) return { plan: columnTag(v, s, q[2]) };
     if (k === "codeblock") return { plan: codeBlock(v, s, e, q[1]) };
     if (k === "hr") return { plan: insertBlock(v, e, e, "---", [3, 3]) };
     if (k === "snip") return { plan: snippet(q[1], v, s, e) };
     return null;
   }
   P.fmt = { command: command, inline: inline, SPEC: SPEC, link: link, strip: strip, clear: clear, heading: heading, paragraph: paragraph, bullet: bullet, numbered: numbered, quote: quote, callout: callout, removeCallout: removeCallout,
-    calloutSpan: calloutSpan, codeBlock: codeBlock, alignTable: alignTable, tableTab: tableTab, tableEnter: tableEnter, tableAt: tableAt, cellSpans: cellSpans, lineBounds: lineBounds, FENCE: FENCE, parse: parse, insertBlock: insertBlock, snippet: snippet, hasFrontMatter: hasFrontMatter, TYPES: TYPES };
+    calloutSpan: calloutSpan, codeBlock: codeBlock, alignTable: alignTable, columnTag: columnTag, tableTab: tableTab, tableEnter: tableEnter, tableAt: tableAt, cellSpans: cellSpans, lineBounds: lineBounds, FENCE: FENCE, parse: parse, insertBlock: insertBlock, snippet: snippet, hasFrontMatter: hasFrontMatter, TYPES: TYPES };
 })();

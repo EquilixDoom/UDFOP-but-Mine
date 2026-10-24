@@ -938,6 +938,7 @@
     return '<div class="codebox"><div class="codebar"><span class="codelang">' + esc(hl.label || "") + '</span><button type="button" class="codecopy" aria-label="Copy this code">Copy</button></div><pre><code' +
       (lang ? ' class="lang-' + esc(lang) + '"' : "") + ">" + hl.html + "</code></pre></div>";
   }
+  var TABLE_TYPES = ["num", "pct", "dur", "date", "bool", "text"];   /* the column types a table's divider row may name; web/tables.js sorts by them */
   var mdRoot = "guide/";   /* "guide/" or "site/": which section's folder the page being rendered is in */
   var mdBase = "";   /* folder of the page being rendered, so pictures resolve next to it */
   /* ln0: with a number, every block gets data-ln="first-last", its lines in the source (1-based; ln0 lines come before src). The editor reads it. Left out, nothing is added. */
@@ -978,14 +979,29 @@
         }
         emit("<blockquote>" + markdown(q.join("\n"), undefined, nested(0)) + "</blockquote>", at0, i - 1, "quote"); continue;
       }
-      if (l.indexOf("|") >= 0 && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(lines[i + 1])) {
-        var head = splitRow(l), body = [], aligns = splitRow(lines[i + 1]).map(function (c) { return /^:-+:$/.test(c) ? "center" : /^-+:$/.test(c) ? "right" : /^:-+$/.test(c) ? "left" : ""; });
-        function al(k) { return aligns[k] ? ' style="text-align:' + aligns[k] + '"' : ""; }
+      if (l.indexOf("|") >= 0 && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}:?(\{[a-z ,]*\})?\s*(\|\s*:?-{2,}:?(\{[a-z ,]*\})?\s*)*\|?\s*$/.test(lines[i + 1])) {
+        /* a divider cell is dashes with optional colons for alignment, then optional {tags}: a type (num, pct, dur, date, bool, text) for sorting, and label for the row-label column */
+        var head = splitRow(l), body = [], divs = splitRow(lines[i + 1]).map(function (c) {
+          var tm = /^(.*?)(?:\{([a-z ,]*)\})?$/.exec(c), core = tm[1], tags = (tm[2] || "").split(/[\s,]+/).filter(Boolean);
+          return { align: /^:-+:$/.test(core) ? "center" : /^-+:$/.test(core) ? "right" : /^:-+$/.test(core) ? "left" : "", label: tags.indexOf("label") >= 0, type: tags.filter(function (t) { return TABLE_TYPES.indexOf(t) >= 0; })[0] || "" };
+        });
+        function al(k) { return divs[k] && divs[k].align ? ' style="text-align:' + divs[k].align + '"' : ""; }
         i += 2;
         while (i < lines.length && lines[i].trim() && lines[i].indexOf("|") >= 0) body.push(splitRow(lines[i++]));
         function tr(cells, at) { var h = "<tr>" + cells + "</tr>"; return ln0 === undefined ? h : lnTag(h, ln0 + at + 1, ln0 + at + 1, "tr"); }
-        emit('<div class="wrap"><table class="wikitable"><thead>' + tr(head.map(function (c, k) { return "<th" + al(k) + ">" + inline(c) + "</th>"; }).join(""), at0) +
-          "</thead><tbody>" + body.map(function (r, n) { return tr(head.map(function (_, k) { return "<td" + al(k) + ">" + inline(r[k] || "") + "</td>"; }).join(""), at0 + 2 + n); }).join("") + "</tbody></table></div>", at0, i - 1, "table");
+        var kv = divs[0].label && head.every(function (c) { return !c; });   /* a label column under an empty heading row is a key/value table: no heading row, nothing to sort or filter */
+        if (kv) {
+          emit('<div class="wrap"><table class="wikitable kv"><tbody>' + body.map(function (r, n) {
+            return tr(head.map(function (_, k) { return (k ? "<td" : '<th scope="row"') + al(k) + ">" + inline(r[k] || "") + (k ? "</td>" : "</th>"); }).join(""), at0 + 2 + n); }).join("") + "</tbody></table></div>", at0, i - 1, "table");
+          continue;
+        }
+        var live = ln0 === undefined, lc = divs[0].label, types = head.map(function (_, k) { return divs[k] ? divs[k].type : ""; });   /* the sort and filter controls are for readers: the editor's preview leaves them out */
+        var th = '<table class="wikitable gt' + (lc ? " lc" : "") + '"' + (live && types.join("") ? ' data-types="' + types.join(",") + '"' : "") + "><thead>" +
+          tr(head.map(function (c, k) { return "<th" + al(k) + ">" + (live ? '<button type="button" class="sortbtn"><span class="sortlbl">' + inline(c) + '</span><span class="sortmark" aria-hidden="true"></span></button>' : inline(c)) + "</th>"; }).join(""), at0) +
+          "</thead><tbody>" + body.map(function (r, n) {
+            return tr(head.map(function (_, k) { return (k === 0 && lc ? '<th scope="row"' : "<td") + al(k) + ">" + inline(r[k] || "") + (k === 0 && lc ? "</th>" : "</td>"); }).join(""), at0 + 2 + n); }).join("") + "</tbody></table>";
+        emit(live ? '<div class="gtable"><div class="tbar"><span class="tfw"><input type="search" class="filter tfind" placeholder="Filter rows" aria-label="Filter this table\'s rows" autocomplete="off"><button type="button" class="tclear" aria-label="Clear the filter" hidden>&times;</button></span><button type="button" class="treset" hidden>Reset sort</button><span class="tcopy"><button type="button" class="tbtn" data-copy="md" title="Copy the rows shown as a Markdown table in a code block, for Discord">Copy MD</button><button type="button" class="tbtn" data-copy="html" title="Copy the rows shown as an HTML table, which pastes into Excel or Google Sheets as cells">Copy HTML</button></span></div>' +
+          '<div class="gscroll"><div class="wrap">' + th + '</div></div><div class="tcount" aria-hidden="true"></div><div class="tstat" role="status" aria-live="polite"></div></div>' : '<div class="wrap">' + th + "</div>", at0, i - 1, "table");
         continue;
       }
       if (/^\s*([-*+]|\d+[.)])\s+/.test(l)) {
