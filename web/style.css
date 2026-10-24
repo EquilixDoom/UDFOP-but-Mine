@@ -305,6 +305,8 @@ ul.cols small { color: var(--muted); }
 .tp[data-type=New] { color: var(--new); } .tp[data-type=Rework] { color: var(--rework); } .tp[data-type=Fix] { color: var(--fix); }
 .tp[data-type=Other] { color: var(--other); } .tp[data-type=Performance] { color: var(--perf); } .tp[data-type=Economy] { color: var(--econ); }
 .tp[data-type=UI] { color: var(--ui); } .tp[data-type=QoL] { color: var(--qol); }
+.wikitable.sub { width: auto; margin: .5em 0 .25em; font-size: .82rem; }
+.wikitable.sub td:last-child { min-width: 0; }
 .dev { display: block; font-size: .82rem; color: var(--muted); margin-top: 2px; }
 sup.ref, .ref { font-size: .75rem; }
 
@@ -334,6 +336,12 @@ details { margin: .4em 0; } summary { cursor: pointer; font-weight: 600; }
   table.stack tr { padding: 8px 10px; border-top: 1px solid var(--line); background: var(--paper); }
   table.stack td { display: inline-block; border: 0; padding: 0 10px 0 0; background: none; }
   table.stack td:last-child { display: block; margin-top: 4px; padding: 0; min-width: 0; }
+  table.stack table.sub { display: table; width: auto; }   /* a table inside a change keeps its own layout */
+  table.stack table.sub thead { position: static; width: auto; height: auto; overflow: visible; clip: auto; display: table-header-group; }
+  table.stack table.sub tbody { display: table-row-group; width: auto; }
+  table.stack table.sub tr { display: table-row; width: auto; padding: 0; border-top: 0; background: none; }
+  table.stack table.sub td { display: table-cell; border: 1px solid var(--line); padding: 4px 8px; background: var(--paper); }
+  table.stack table.sub td:last-child { display: table-cell; margin: 0; padding: 4px 8px; }
 }
 /* date range above a list of changes: a bordered box like .cats whose head (a small label and a button) is laid out like the Settings panel's head; flow-root keeps the box beside a floated infobox instead of under it */
 form.rangebar { display: flow-root; margin: .8em 0 1em; padding: 6px 10px 7px; border: 1px solid var(--line); background: var(--softer); font-size: .85rem; }

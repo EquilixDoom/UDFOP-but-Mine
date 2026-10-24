@@ -5,7 +5,7 @@ The site itself is plain HTML/CSS/JS in web/; this only refreshes its data files
   web/shards/<key>.js    the change rows, one file per period (a month, or part of a month when it would be too big);
                          a page loads only the shards it needs
 """
-import json, csv, glob, gzip, hashlib, os, sys
+import json, csv, glob, gzip, hashlib, os, re, sys
 from collections import Counter
 
 CHECK = '--check' in sys.argv   # write nothing; exit 1 if the committed web/ files differ from what a build would produce
@@ -29,19 +29,45 @@ alias = {m['from']: m['to'] for m in csv.DictReader(open('data/merges.csv', enco
 hub = {h['topic']: h['primary_hub'] for h in csv.DictReader(open('data/hub_assignment.csv', encoding='utf-8'))}
 # x is the developer's own bullet (sources.jsonl), unchanged apart from Markdown emphasis marks; the wiki's wording is only a fallback
 src = {d['id']: d['source'] for d in map(json.loads, open('data/normalized/sources.jsonl', encoding='utf-8'))}
+# b is a table the developers put under a bullet (data/normalized/tables.json: row id -> a list of rows, the first row the header)
+tables = json.load(open('data/normalized/tables.json', encoding='utf-8')) if os.path.exists('data/normalized/tables.json') else {}
+
+
+def split_table(o):
+    """A developer bullet that holds a Markdown table (the bullets are one line each, so its rows run together as '| a | b | |---|---| | 1 | 2 |')
+    -> (the text before the table, the table as a list of rows with the header first, the text after it), or None when it holds no well-formed table."""
+    i = o.find('|')
+    if i < 0 or not re.search(r'\|\s*:?-{3,}:?\s*\|', o[i:]): return None
+    parts = re.split(r'\|\s+\|', o[i:].strip().strip('|'))
+    cells = [[c.strip() for c in p.split('|')] for p in parts]
+    if len(cells) < 3 or not all(re.fullmatch(r':?-{3,}:?', c) for c in cells[1]): return None
+    w, post = len(cells[0]), ''
+    if len(cells[-1]) == w + 1: post = cells[-1].pop()   # the table is followed by more text: it comes after the last row's final pipe
+    t = [cells[0]] + cells[2:]
+    return (o[:i].strip(), t, post) if all(len(x) == w for x in t) else None
+
+
 out = []
+seen_table = set()   # rows split from one bullet each carry the whole bullet; its table is shown once, on the first of them
 for r in rows:
     e = alias.get(r['entity'], r['entity']); s = r['summary']
     for p in (r['entity'] + ': ', e + ': '):
         if s.startswith(p): s = s[len(p):]; break
     o = src.get(r['id'])
     n = r['dev_note']
+    tb, after = tables.get(r['id']), ''
     if o:
         o = o.replace('**', '').replace('`', '')
         if n and n.lower()[:25] in o.lower(): n = ''   # the bullet already says it
-        s = o
+        sp = split_table(o)
+        if sp:
+            first = o not in seen_table; seen_table.add(o)
+            if first: tb, after = tb or sp[1], sp[2]
+            if first and sp[0]: s = sp[0]   # the text before the table; a bullet that is only a table, and the rows after the first, keep the wiki's own wording
+        else:
+            s = o
     out.append(dict(id=r['id'], v=r['version'], d=r['date'], e=e, t=r['change_type'],
-                    x=s, g=r['tags'], n=n))
+                    x=s, g=r['tags'], n=n, **({'b': tb} if tb else {}), **({'a': after} if tb and after else {})))
 nrows = Counter(r['version'] for r in rows)
 # per release: u = Update name, t = title, k = kind (release, likely-hotfix, bulk-import), c = recorded changes, tier only when set
 rels = {}

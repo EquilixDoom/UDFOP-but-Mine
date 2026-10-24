@@ -25,6 +25,7 @@ D = "data"
 NOTES = f"{D}/release_notes.md"
 ALL = f"{D}/normalized/all.jsonl"
 RELS = f"{D}/normalized/releases.jsonl"
+TABLES = f"{D}/normalized/tables.json"   # a table the developers put under a bullet, by row id; shown in that row's Change cell
 SOURCES = f"{D}/normalized/sources.jsonl"   # the developer's bullet for each row, shown on the site
 TAX = f"{D}/normalized/taxonomy.json"
 HUBS = f"{D}/hub_assignment.csv"
@@ -810,6 +811,12 @@ def cmd_validate(a):
         errs.append(f"sources.jsonl has {len(src - seen)} id(s) that are not in all.jsonl")
     if seen - src:
         errs.append(f"{len(seen - src)} row(s) have no source in sources.jsonl (run: python tools/notes.py sources), e.g. " + ", ".join(sorted(seen - src)[:5]))
+    if os.path.exists(TABLES):
+        for tid, tb in json.load(open(TABLES, encoding="utf-8")).items():
+            if tid not in seen:
+                errs.append(f"{TABLES}: {tid} is not a row in all.jsonl")
+            elif not (isinstance(tb, list) and len(tb) >= 2 and all(isinstance(x, list) and len(x) == len(tb[0]) and all(isinstance(c, str) for c in x) for x in tb)):
+                errs.append(f"{TABLES}: {tid} must be a header row plus at least one row, every row the same width, cells all text")
     artifact = re.compile(r"\[cite\b|\b(TODO|FIXME|TBD)\b")      # leftovers from drafting; 210 "[cite: N]" markers once got in
     for f in sorted(glob.glob(f"{DESC}/*.txt")):
         for n, line in enumerate(open(f, encoding="utf-8"), 1):

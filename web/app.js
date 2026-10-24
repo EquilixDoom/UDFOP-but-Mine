@@ -186,7 +186,12 @@
   function hlink(h) { return '<a href="#/hub/' + enc(h) + '">' + esc(h) + "</a>"; }
   /* "Other" means the change has not been sorted into a more specific type, so say so where a reader meets it */
   function typeTag(r) { return '<span class="tp" data-type="' + esc(r.t) + '"' + (r.t === "Other" ? ' title="Not sorted into a more specific type"' : "") + ">" + esc(r.t) + "</span>"; }
-  function text(r) { return esc(r.x) + (r.n ? '<span class="dev">Developer note: ' + esc(r.n) + "</span>" : ""); }
+  /* r.b: a table the developers put under the bullet, the first row its header; r.a: the text that follows the table */
+  function subTable(b) {
+    return '<div class="wrap"><table class="wikitable sub"><thead><tr>' + b[0].map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      b.slice(1).map(function (row) { return "<tr>" + row.map(function (c) { return "<td>" + esc(c) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table></div>";
+  }
+  function text(r) { return esc(r.x) + (r.b ? subTable(r.b) + (r.a ? "<p>" + esc(r.a) + "</p>" : "") : "") + (r.n ? '<span class="dev">Developer note: ' + esc(r.n) + "</span>" : ""); }
 
   var HOME_HAT = '<a href="#/">Main Page</a>';   /* every breadcrumb starts at the Main Page */
   var PN_HAT = HOME_HAT + ' › <a href="#/patchnotes">Patch Notes</a> › ';   /* every patch-notes page starts its breadcrumb here */
@@ -553,7 +558,7 @@
     var renamed = topicByLower[q.trim().toLowerCase()];
     var rg = getRange(), base = "#/search/" + enc(q);
     var hit = rows.filter(function (r) {
-      var s = (r.e + " " + r.x + " " + (r.n || "") + " " + (r.g || []).join(" ")).toLowerCase();
+      var s = (r.e + " " + r.x + " " + (r.b ? r.b.join(" ").replace(/,/g, " ") + " " : "") + (r.n || "") + " " + (r.g || []).join(" ")).toLowerCase();
       if (!words.every(function (w) { return s.indexOf(w) >= 0; })) return false;
       return !rg.active || inRange(r);
     });
