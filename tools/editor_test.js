@@ -975,6 +975,23 @@ test("visual: table rows and columns", () => {
   assert.strictEqual(P.visual.tableDelCol(["| H |", "|---|"], 0), null);
   assert.deepStrictEqual(Array.from(P.visual.tableSnippet(2, 1)), ["| Heading | Heading |", "| --- | --- |", "| Text | Text |"]);
 });
+test("visual: a table's column types, row label and key/value setup", () => {
+  const V = P.visual, t = ["| Item | Level | Cost |", "|:---{label}|---:{num}|---|", "| Sword | 5 | 100 |"];
+  const o = V.parseTable(t);
+  assert.strictEqual(o.kv, false);
+  assert.deepStrictEqual(Array.from(o.cols, (c) => [c.type, c.label]), [["", true], ["num", false], ["", false]]);
+  // a type is changed and the row label dropped; alignment and the rows stay
+  assert.deepStrictEqual(Array.from(V.buildTable(t, { kv: false, label: false, types: ["", "pct", "num"] })), ["| Item | Level | Cost |", "| :--- | ---:{pct} | ---{num} |", "| Sword | 5 | 100 |"]);
+  // key/value: the heading row is emptied and the first column becomes the label
+  const kv = V.buildTable(["| A | B |", "|---|---|", "| k | v |"], { kv: true, label: false, types: ["", ""] });
+  assert.deepStrictEqual(Array.from(kv), ["|  |  |", "| ---{label} | --- |", "| k | v |"]);
+  assert.strictEqual(V.parseTable(kv).kv, true);
+  // and back: the headings are filled in again, the label stays
+  assert.deepStrictEqual(Array.from(V.buildTable(kv, { kv: false, label: true, types: ["", ""] })), ["| Heading | Heading |", "| ---{label} | --- |", "| k | v |"]);
+  assert.strictEqual(V.parseTable(["| a |", "not a divider"]), null);
+  // a column added to a key/value table keeps its heading row empty
+  assert.deepStrictEqual(Array.from(V.tableAddCol(kv, 1, true)), ["|  |  |  |", "| ---{label} | --- | --- |", "| k | v |  |"]);
+});
 test("visual: code boxes, pictures and quotes are taken apart and put back", () => {
   const c = P.visual.parseCode(["```js", "a", "b", "```"]);
   assert.strictEqual(c.lang, "js"); assert.strictEqual(c.body, "a" + NL + "b"); assert.strictEqual(c.closed, true);

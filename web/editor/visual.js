@@ -122,6 +122,7 @@
   var SNIPPETS = {
     p: ["New paragraph"], h: ["## New heading"], ul: ["- Item"], ol: ["1. Item"], code: ["```", "code", "```"], rule: ["---"],
     note: ["> [!NOTE]", "> Text"], tip: ["> [!TIP]", "> Text"], important: ["> [!IMPORTANT]", "> Text"], warning: ["> [!WARNING]", "> Text"], caution: ["> [!CAUTION]", "> Text"],
+    kv: ["|     |       |", "| ---{label} | ----- |", "| Key | Value |", "| Key | Value |"],
     info: ["> [!INFO] Title", "> Key: Value"], fig: ['![Alt text](images/name.png "Caption")'], spoiler: [">!Hidden text!<"], quote: ["> Quote"]
   };
   function tableSnippet(cols, rows) {
@@ -142,11 +143,32 @@
   }
   function tableDelRow(lines, at) { if (at < 2) return null; var out = lines.slice(); out.splice(at, 1); return out; }
   function tableAddCol(lines, col, after) {
-    return lines.map(function (l, i) { var c = rowCells(l); c.splice(col + (after ? 1 : 0), 0, i === 0 ? "Heading" : i === 1 ? "---" : ""); return rowLine(c); });
+    var kvHead = rowCells(lines[0]).every(function (h) { return !h; });   /* a key/value table's heading row stays empty */
+    return lines.map(function (l, i) { var c = rowCells(l); c.splice(col + (after ? 1 : 0), 0, i === 0 ? (kvHead ? "" : "Heading") : i === 1 ? "---" : ""); return rowLine(c); });
   }
   function tableDelCol(lines, col) {
     if (rowCells(lines[0]).length < 2) return null;
     return lines.map(function (l) { var c = rowCells(l); c.splice(col, 1); return rowLine(c); });
+  }
+  /* a table's columns, from its divider line: { head: [text], cols: [{ type, label, other }], kv }. type is a sort type from COL_TYPES (or ""), label marks the row-label column, other keeps any tag word that is neither;
+     kv is true for a key/value table (an empty heading row over a row-label column). Null when line 2 is not a divider. */
+  var COL_TYPES = ["num", "pct", "dur", "date", "bool", "text"];
+  function parseTable(lines) {
+    if (lines.length < 2 || !/^\s*\|?\s*:?-{2,}/.test(lines[1]) || /[^\s|:\-{}a-z,]/.test(lines[1])) return null;
+    var head = rowCells(lines[0]), cols = rowCells(lines[1]).map(function (c) {
+      var m = /^(.*?)(?:\{([a-z ,]*)\})?$/.exec(c), words = (m[2] || "").split(/[\s,]+/).filter(Boolean);
+      return { core: m[1], type: words.filter(function (w) { return COL_TYPES.indexOf(w) >= 0; })[0] || "", label: words.indexOf("label") >= 0, other: words.filter(function (w) { return w !== "label" && COL_TYPES.indexOf(w) < 0; }) };
+    });
+    return { head: head, cols: cols, kv: !!cols.length && cols[0].label && head.every(function (h) { return !h; }) };
+  }
+  /* the table's first two lines rewritten from o: { kv, label (first column is a row label), types: [type or "" for each column] }; the rows below are not touched */
+  function buildTable(lines, o) {
+    var t = parseTable(lines); if (!t) return null;
+    var head = t.head.map(function (h) { return o.kv ? "" : h || "Heading"; }), div = t.cols.map(function (c, k) {
+      var words = (k === 0 && (o.label || o.kv) ? ["label"] : []).concat(o.types[k] ? [o.types[k]] : [], c.other);   /* types are kept in a key/value table too, which ignores them, so turning it back into an ordinary table loses nothing */
+      return c.core + (words.length ? "{" + words.join(",") + "}" : "");
+    });
+    return [rowLine(head), rowLine(div)].concat(lines.slice(2));
   }
   /* ---- blocks with properties: code boxes, pictures, notices, infoboxes and quotes ---- */
   var PROPS = { code: 1, fig: 1, alert: 1, info: 1, quote: 1 };
@@ -210,7 +232,7 @@
   }
   P.visual = { setFigWidth: setFigWidth, setFigSide: setFigSide, replaceLines: replaceLines, parseCode: parseCode, buildCode: buildCode, parseFig: parseFig, buildFig: buildFig, parseQuote: parseQuote, buildQuote: buildQuote, moveBlockTo: moveBlockTo, headPrefix: headPrefix, rewrite: rewrite, oneLine: oneLine, cellSpans: cellSpans, convertLine: convertLine, sourceWords: sourceWords, serialize: serialize,
     diffEdit: diffEdit, deleteBlock: deleteBlock, insertAfter: insertAfter, duplicateBlock: duplicateBlock, swapBlocks: swapBlocks, SNIPPETS: SNIPPETS, tableSnippet: tableSnippet,
-    tableAddRow: tableAddRow, tableDelRow: tableDelRow, tableAddCol: tableAddCol, tableDelCol: tableDelCol };
+    tableAddRow: tableAddRow, tableDelRow: tableDelRow, tableAddCol: tableAddCol, tableDelCol: tableDelCol, parseTable: parseTable, buildTable: buildTable, COL_TYPES: COL_TYPES };
 
   /* ---- in the page ---- */
   /* ctx: { ta, prev (the preview's article), btn (the Edit button), H (the renderer), say(text), toggle(), off(), render(), opts() (the options the preview is drawn with), dlg (the dialog) }.
@@ -419,7 +441,7 @@
         ta.closest(".edw").appendChild(handle);
       }
       hEl = el; hideMenu();
-      handle.querySelector('[data-s="props"]').hidden = !PROPS[el.getAttribute("data-bk")];
+      handle.querySelector('[data-s="props"]').hidden = !(PROPS[el.getAttribute("data-bk")] || el.getAttribute("data-bk") === "table");
       var i = tops().indexOf(el);
       handle.querySelector('[data-s="up"]').disabled = i <= 0; handle.querySelector('[data-s="down"]').disabled = i < 0 || i >= tops().length - 1;
       handle.hidden = false;
@@ -581,7 +603,7 @@
       if (!menu) {
         menu = document.createElement("div");
         menu.className = "edw-vbar edw-vmenu"; menu.setAttribute("role", "menu");
-        var items = [["p", "Paragraph"], ["h", "Heading"], ["ul", "Bullet list"], ["ol", "Numbered list"], ["table", "Table…"], ["code", "Code block"], ["note", "Note"], ["tip", "Tip"], ["important", "Important"], ["warning", "Warning"], ["caution", "Caution"], ["info", "Infobox"], ["fig", "Picture with caption"], ["quote", "Quote"], ["spoiler", "Spoiler"], ["rule", "Rule"]];
+        var items = [["p", "Paragraph"], ["h", "Heading"], ["ul", "Bullet list"], ["ol", "Numbered list"], ["table", "Table…"], ["kv", "Key/value table"], ["code", "Code block"], ["note", "Note"], ["tip", "Tip"], ["important", "Important"], ["warning", "Warning"], ["caution", "Caution"], ["info", "Infobox"], ["fig", "Picture with caption"], ["quote", "Quote"], ["spoiler", "Spoiler"], ["rule", "Rule"]];
         menu.innerHTML = items.map(function (it) { return '<button type="button" role="menuitem" data-n="' + it[0] + '">' + it[1] + "</button>"; }).join("");
         menu.addEventListener("mousedown", function (e) { e.preventDefault(); });
         menu.addEventListener("mouseenter", function () { clearTimeout(hideT); });
@@ -628,6 +650,19 @@
         o = parseFig(lines[0]); if (!o) return;
         title = "Picture"; html = field("Picture file or address", "ed-p-src", o.src) + field("Description (alt text, for screen readers)", "ed-p-alt", o.alt) + field("Caption (empty for none)", "ed-p-cap", o.caption) + field("Options (for example right 240 or left or center)", "ed-p-opt", o.opts);
         build = function () { o.src = val("ed-p-src").trim(); o.alt = val("ed-p-alt"); o.caption = val("ed-p-cap"); o.opts = val("ed-p-opt").trim(); return o.src ? [buildFig(o)] : null; };
+      } else if (kind === "table") {
+        o = parseTable(lines); if (!o) { ctx.say("This table has no divider line under its headings, so it cannot be set up here"); return; }
+        var names = o.head.map(function (h, k) { return h ? ctx.H.plainText(h) : "Column " + (k + 1); });
+        title = "Table";
+        html = '<p><label><input type="checkbox" id="ed-p-kv"' + (o.kv ? " checked" : "") + '> Key/value table (no heading row; the first column holds the names. Clears the heading texts.)</label></p>' +
+          '<p><label><input type="checkbox" id="ed-p-label"' + (o.cols[0] && o.cols[0].label ? " checked" : "") + '> First column is a row label (stays in view when the table scrolls sideways)</label></p>' +
+          '<p>Sort each column as</p><div style="display:grid;grid-template-columns:max-content minmax(0,12em);gap:6px 12px;align-items:center;max-height:min(45vh,20rem);overflow-y:auto;padding:2px 6px 2px 0">' + o.cols.map(function (c, k) {
+            return '<label for="ed-p-t' + k + '" style="overflow-wrap:anywhere">' + esc(names[k]) + '</label><select id="ed-p-t' + k + '" class="edw-fin" style="max-width:none;width:100%;box-sizing:border-box">' + [["", "Automatic"], ["num", "Number"], ["pct", "Percent"], ["dur", "Duration"], ["date", "Date"], ["bool", "Yes/No"], ["text", "Text"]].map(function (t) {
+              return '<option value="' + t[0] + '"' + (t[0] === c.type ? " selected" : "") + ">" + t[1] + "</option>"; }).join("") + "</select>"; }).join("") + "</div>";
+        build = function () {
+          var kv = !!(document.getElementById("ed-p-kv") || {}).checked, out = buildTable(lines, { kv: kv, label: !!(document.getElementById("ed-p-label") || {}).checked, types: o.cols.map(function (_, k) { return val("ed-p-t" + k); }) });
+          return out;
+        };
       } else if (PROPS[kind]) {
         o = parseQuote(lines);
         title = "Notice, infobox or quote";
@@ -781,7 +816,7 @@
         bar.innerHTML = '<button type="button" data-a="b" title="Bold (Ctrl+B)"><b>B</b></button><button type="button" data-a="i" title="Italic (Ctrl+I)"><i>I</i></button>' +
           '<button type="button" data-a="c" title="Inline code">&lt;/&gt;</button><button type="button" data-a="a" title="Link (Ctrl+K)">Link</button>' +
           '<span class="edw-vtab"><button type="button" data-a="rowa" title="Add a row above">+Row&uarr;</button><button type="button" data-a="rowb" title="Add a row below">+Row&darr;</button><button type="button" data-a="rowd" title="Delete this row">&minus;Row</button>' +
-          '<button type="button" data-a="cola" title="Add a column to the left">+Col&larr;</button><button type="button" data-a="colb" title="Add a column to the right">+Col&rarr;</button><button type="button" data-a="cold" title="Delete this column">&minus;Col</button></span>' +
+          '<button type="button" data-a="cola" title="Add a column to the left">+Col&larr;</button><button type="button" data-a="colb" title="Add a column to the right">+Col&rarr;</button><button type="button" data-a="cold" title="Delete this column">&minus;Col</button><button type="button" data-a="tprops" title="Sort type of each column, row labels, key/value table">Table&hellip;</button></span>' +
           '<select data-a="block" aria-label="Block type"><option value="p">Paragraph</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="h4">Heading 4</option><option value="h5">Heading 5</option><option value="h6">Heading 6</option><option value="li">Bullet item</option><option value="quote">Quote</option></select>';
         bar.addEventListener("mousedown", function (e) { if (e.target.tagName !== "SELECT") e.preventDefault(); });   /* the caret and selection in the block stay */
         bar.addEventListener("click", function (e) { var b = e.target.closest("button[data-a]"); if (b) act(b.getAttribute("data-a")); });
@@ -817,6 +852,7 @@
       else if (a === "c") toggleCode();
       else if (a === "a") { link(); return; }
       else if (/^(row|col)[abd]$/.test(a)) { tableOp(a); return; }
+      else if (a === "tprops") { var tb = el.closest('[data-bk="table"]'), ti = tb ? tops().indexOf(tb) : -1; end(); el.blur(); if (ti >= 0 && tops()[ti]) openProps(tops()[ti]); return; }
       el.focus(); syncBar();
     }
     function toggleCode() {
