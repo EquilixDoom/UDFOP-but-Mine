@@ -631,6 +631,26 @@
     return { title: "About & Credits", html: page("About &amp; Credits", h, { hat: HOME_HAT + " › About &amp; Credits" }) };
   };
 
+  /* Community Tools: outside projects (calculators, planners) made by players. The list is web/tools.json, edited by hand (it is committed, not generated) */
+  var toolList = null;
+  /* a tool's description is a list of paragraphs, or one string where a blank line starts a new paragraph */
+  function paras(d) { return Array.isArray(d) ? d : String(d || "").split(/\n\s*\n/).map(function (s) { return s.trim(); }).filter(Boolean); }
+  views.tools = function () {
+    var h = "<p>These tools are made by members of the DFO Online community for anyone to use. Each one is its creator&rsquo;s own project, hosted and maintained by them.</p>";
+    if (toolList === null) h += "<p>Loading…</p>";
+    else if (!toolList.length) h += "<p>No tools are listed yet.</p>";
+    else h += toolList.map(function (t) {
+      var by = /^https?:\/\//.test(t.creatorUrl || "") ? '<a href="' + esc(t.creatorUrl) + '" rel="noopener">' + esc(t.creator) + "</a>" : esc(t.creator);
+      return '<div class="portal tool"><h3><a href="' + esc(t.url) + '" rel="noopener">' + esc(t.name) + "</a><small class=\"muted\">by " + by + "</small>" + (t.tags || []).map(function (g) { return '<span class="tag">' + esc(g) + "</span>"; }).join("") + "</h3><div>" +
+        '<p class="lede">' + esc(t.summary) + "</p>" +
+        paras(t.description).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") +
+                ((t.features || []).length ? '<details class="legacy"><summary>Features (' + t.features.length + ')</summary><ul class="bul">' + t.features.map(function (f) { return "<li>" + (f.name ? "<b>" + esc(f.name) + ":</b> " + esc(f.text) : esc(f)) + "</li>"; }).join("") + "</ul></details>" : "") +
+        "</div></div>";
+    }).join("");
+    h += sec("Add your tool", "Add your tool", 2) + '<p>Made a tool for the game? <a href="' + REPO + '/issues/new" rel="noopener">Open an issue</a> with its address, your name, a one-line summary and a list of features, or add an entry to <code>web/tools.json</code> in a pull request. Tools featured here are only listed with their creator&rsquo;s agreement.</p>';
+    return { title: "Community Tools", html: page("Community Tools", h, { hat: HOME_HAT + " › Community Tools" }) };
+  };
+
   /* ---------- Game Guide: Markdown pages in web/guide/, listed by guide/index.json ---------- */
   var REPO = "https://github.com/tau-samsara/udfop";
   /* the contributor instructions: the one place their address is written (the menu in index.html has it too). A moved page can keep its old address working by adding it to MOVED */
@@ -1668,7 +1688,10 @@
     .then(function () {
       return fetch("credits.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (j) { credits = j; }).catch(function () { credits = { groups: [] }; });
     })
-    .then(function () { if (/^#\/(guide|site|search|about)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
+    .then(function () {
+      return fetch("tools.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (j) { toolList = j; }).catch(function () { toolList = []; });
+    })
+    .then(function () { if (/^#\/(guide|site|search|about|tools)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
   document.getElementById("foot-stats").textContent = D.totals.rows.toLocaleString() + " changes · " + topics.length + " topics · " + allVersions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
 
   /* search box with suggestions */
@@ -2036,7 +2059,7 @@
     if (name !== "feedback") feedbackPage = location.href;
     var fr = document.getElementById("foot-report");
     if (fr) { fr.href = "#/feedback"; }
-    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", about: "about", credits: "credits", editor: "editor" }[name];
+    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", tools: "tools", about: "about", credits: "credits", editor: "editor" }[name];
     var keys = [nav];
     if (name === "guide") {
       if (arg.indexOf("category/") === 0) keys = ["guide"];

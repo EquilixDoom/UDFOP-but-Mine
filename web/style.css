@@ -868,6 +868,12 @@ html[data-skin="crier"] .portal > h3 { background: transparent; font-variant: sm
 html[data-skin="crier"] #foot { border-top: 3px double var(--fg); }
 .dot.news { width: 20px; height: 22px; border-radius: 1px; border: 1px solid #141414; background: linear-gradient(#141414, #141414) 3px 3px / calc(100% - 6px) 4px no-repeat, repeating-linear-gradient(#141414 0 1px, transparent 1px 3px) 3px 10px / calc(100% - 6px) 9px no-repeat, #efe9da; }   /* a broadsheet: masthead bar over columns of text lines */
 
+/* the Community Tools page: one portal box per tool */
+.tool { margin: 0 0 12px; }
+.tool > h3 small { margin-left: 8px; font-weight: 400; font-size: .75rem; }
+.tool .lede { font-weight: 700; }
+.tool details ul.bul { margin-top: .4em; margin-bottom: .6em; }
+
 /* the Credits page: people in a portal box */
 .ppl { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 4px 16px; }
 .who { display: flex; align-items: center; gap: 10px; padding: 4px 0; min-width: 0; }

@@ -1,0 +1,68 @@
+[
+  {
+    "name": "DruidHUD: Hidden Ladders",
+    "url": "https://psychicartifacts.github.io/DFO-DruidHUD/",
+    "creator": "Dryw",
+    "creatorUrl": "https://github.com/psychicartifacts",
+    "tags": ["Calculator", "Field Guide"],
+    "summary": "A field guide to the numbers Daggerfall Online doesn't show you",
+    "description": [
+      "The game doesn't tell you a shop is quality 19 or a dungeon ranks 21. It gives you hints instead: a shop that greets you with incense and soft music, a dungeon called a Coven on the travel map.",
+      "This guide turns those hints into numbers you can use. Set your Luck, level and Renown in the character panel, and every section below updates to match your character."
+    ],
+    "features": [
+      {
+        "name": "Character Panel",
+        "text": "Set your Luck, character level and Renown once, and every section updates to match. These are saved in your browser"
+      },
+      {
+        "name": "Shops",
+        "text": "Shop quality, pricing and rare-ingredient stock by tier."
+      },
+      {
+        "name": "Town Economy",
+        "text": "Town economy scores, and how certain activities moves them."
+      },
+      {
+        "name": "Dungeons",
+        "text": "Dungeon types with their metal and magic drop rankings."
+      },
+      {
+        "name": "Weapon Metals",
+        "text": "Metal requirements, damage penalties and special foe weaknesses."
+      },
+      {
+        "name": "Loot",
+        "text": "Loot rarity odds, bad-luck protection and Gilded boss drops."
+      },
+      {
+        "name": "Gems",
+        "text": "Gem grades, socket rules and gem caps."
+      },
+      {
+        "name": "Guilds",
+        "text": "Guild rank promotion and benefits."
+      },
+      {
+        "name": "Crafting Writs",
+        "text": "Daily crafting writs, their pay and the potions they accept."
+      },
+      {
+        "name": "Enchanting",
+        "text": "Enchanting costs, soul trade-offs and enchantment room."
+      },
+      {
+        "name": "Level and Renown",
+        "text": "How your level and Renown affect spawns, Abyss events and rewards."
+      },
+      {
+        "name": "Calendar & Holidays",
+        "text": "Holidays and the order of the months."
+      },
+      {
+        "name": "Quiz",
+        "text": "General knowledge quiz to make sure you know what your doing."
+      }
+    ]
+  }
+]
