@@ -260,6 +260,16 @@ def check_alerts(pages, problems):
                 problems.append(('warn', p['_where'], 'the notice box type "[!%s]" is not one the site knows, so it will show as an ordinary quote (use NOTE, TIP, IMPORTANT, WARNING or CAUTION, or INFO for a fact panel)' % name))
 
 
+PIC_IN_LINK = re.compile(r'\[!\[[^\]]*\]\([^()\s]*(?:\s+"[^"]*")?\)(?:\{[^}]*\})?[^\]]*\]\([^()\s]*\)')
+
+
+def check_picture_links(pages, problems):
+    """A picture inside a link, [![alt](pic)](url), is not supported: the site shows it as plain text."""
+    for p in pages:
+        for m in PIC_IN_LINK.finditer(strip_code(p['_body'])):
+            problems.append(('error', p['_where'], 'a picture cannot be inside a link, so "%s" is shown as plain text (put the picture and the link on separate lines)' % m.group(0)))
+
+
 def check_headings(pages, problems):
     """A heading needs a space after its hashes: "##Title" is shown as plain text, not as a heading."""
     for p in pages:
@@ -351,6 +361,7 @@ def main():
         check_images(by_area[area], problems, root, prefix)
     check_code_languages(pages, problems)
     check_alerts(pages, problems)
+    check_picture_links(pages, problems)
     check_headings(pages, problems)
     check_infoboxes(pages, problems)
     topics = topic_names()

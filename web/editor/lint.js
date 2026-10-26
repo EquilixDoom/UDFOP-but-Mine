@@ -9,6 +9,7 @@
   var FENCE = /^(`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$/, FENCE_END = /^(`{3,}|~{3,})\s*$/;
   var NOTICES = /^(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO)$/i, INFO_START = /^>\s*\[!INFO\]/i;
   var IMAGE = /!\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)(?:\{[^}]*\})?/g, FIGURE = /^!\[[^\]]*\]\([^)\s]+(?:\s+"[^"]*")?\)\{([^}]*)\}\s*$/;
+  var PIC_LINK = /\[!\[[^\]]*\]\([^()\s]*(?:\s+"[^"]*")?\)(?:\{[^}]*\})?[^\]]*\]\([^()\s]*\)/g;
   var HTMLISH = /<\s*\/?\s*(script|iframe|object|embed|style|img|a)\b|javascript:|\bon[a-z]+\s*=|[\x00-\x08\x0b\x0c\x0e-\x1f]/i;
   function pad(n) { return new Array(n + 1).join(" "); }
   /* inline code is blanked the way the renderer reads it: a run of backticks closed by a run of the same length */
@@ -126,6 +127,8 @@
         if (r && !r[2].trim()) add("warn", i, 0, l.length, /^image$/i.test(r[1]) ? "The infobox has an \"image:\" line with no picture path." : "The infobox row \"" + r[1].trim() + "\" has no value.");
       } else inInfo = false;
       if (scan.replace(/>!(.+?)!</g, pad(0)).indexOf(">!") >= 0) add("warn", i, scan.indexOf(">!"), 2, "This spoiler is never closed: write !< after the hidden text, on the same line.");
+      var pl; PIC_LINK.lastIndex = 0;
+      while ((pl = PIC_LINK.exec(scan))) add("error", i, pl.index, pl[0].length, "A picture cannot be inside a link, so this is shown as plain text. Put the picture and the link on separate lines.");
       var im; IMAGE.lastIndex = 0;
       while ((im = IMAGE.exec(scan))) {
         var ref = im[1];

@@ -901,6 +901,8 @@
     s = codeSpans(s, keep);
     s = s.replace(/\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g, function (m, t, l) { return keep(atom(wikiLink(t, l), m)); });
     s = s.replace(/\{\{([^{}]+)\}\}/g, function (m, t) { return keep(atom(keycaps(t), m)); });
+    /* a picture inside a link, [![alt](pic)](url), is not supported: it is shown as plain text (the editor's Problems and tools/guide.py report it) */
+    s = s.replace(/\[!\[[^\]]*\]\([^()\s]*(?:\s+"[^"]*")?\)(?:\{[^}]*\})?[^\]]*\]\([^()\s]*\)/g, function (m) { return keep(atom(esc(m), m)); });
     s = s.replace(IMG_RE, function (m, alt, src) {
       src = imgSrc(src); if (!src) return "";
       return keep(atom('<img src="' + esc(src) + '" alt="' + esc(alt) + '" loading="lazy">', m));
