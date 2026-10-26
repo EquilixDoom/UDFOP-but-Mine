@@ -13,7 +13,8 @@ Viewing your currently installed mods is easily done via the main menu's setting
 ### DREAM & DREAM 90s:
 
 [DREAM](https://www.nexusmods.com/daggerfallunity/mods/5) and its counter-part [DREAM 90s](https://www.nexusmods.com/daggerfallunity/mods/672) are graphics mods distributed for [Daggerfall Unity](https://github.com/Interkarma/daggerfall-unity/releases) which are also compatible with DFO. These mods attempt to "enhance" the visual fidelity of Daggerfall with higher resolution, upscaled graphics that have their own artistic intent. Many users prefer to play with these mods, and support for them is available in DFO, although some issues may be present such as potential issues with Paperdolls appearances.
-Additionally, with DREAM 90s you will also need to install the [DREAM 90s - Mod Compatibility Patch](https://www.nexusmods.com/daggerfallunity/mods/688?tab=files) for full support of 3D objects in DFO.
+
+Additionally, with both DREAM and DREAM 90s you will also need to install the appropriate [DREAM - Mod Compatibility Patch](https://www.nexusmods.com/daggerfallunity/mods/911) or [DREAM 90s - Mod Compatibility Patch](https://www.nexusmods.com/daggerfallunity/mods/688?tab=files) for full support of 3D objects in DFO.
 
 The following instructions walk you through installation of these textures:
 
