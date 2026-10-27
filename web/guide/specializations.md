@@ -1,11 +1,19 @@
 ---
 title: Specializations
 category: Character
-summary: A page for the in-game Specializations
+summary: A page listing the in-game Specializations 
 ---
-The following information on Specializations is taken from the in-game menu of the same name. And is accurate as of Update 0.0.437 on 27 Oct 2026
+
+> [!NOTE]
+> **Applies to:** *Online*. As of patch *0.0.437* for a list of the latest information go here for [[topic:Arcane Specialisations]] or here for [[topic:Martial Specialisations]]
 
 This page lists each Specialization, Requirement, Passive and Signature Spell/Technique
+
+
+## Limits and things to know
+- *Specializations are not unlockable in Offline without turning on Master Skills*
+- *All Specializations require two skills to be maxed to 100* 
+- *The player can only have one martial and one arcane specialization per character*
 
 ## Specializations
 ### Arcane
@@ -43,3 +51,13 @@ This page lists each Specialization, Requirement, Passive and Signature Spell/Te
   | Warblade | Long Blade and Axe | **War Rhythm:** Each kill makes you swing 15% faster for 10 seconds. | **Rallying Cleave:** Hit every enemy in a wide arc in front of you. For 8 seconds, your blows and arrows deal 15% more damage.
   | Woodsman | Axe and Archery | **Tireless:** Each kill restores 15% of your fatigue. | **Felling Strike:** Bow: 5 arrows rain down on a spot. Axe: leap onto an enemy up to 8 meters away. Each enemy it kills restores 10% of your health.
   | Vanguard | Long Blade and Blunt Weapon | **Iron Discipline:** Enemy blows deal 10% less damage to you. | **Judgement:** leap up to 8 meters onto an enemy and hit every enemy within 2.5 meters of where you land. Each enemy it hits restores 4% of your health (up to 3 enemies).
+
+## History
+- Martial Specializations were Introduced in Patch 0.1.9472
+- Arcane Specializations were Introduced in Patch 0.1.8519
+
+## Sources
+
+*The in-game specializations menu under the growth tab.*
+
+
