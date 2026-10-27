@@ -3,6 +3,8 @@ title: Page title
 # category: reuse a group name from the Game Guide page, or leave empty for "General"
 category: Places
 summary: One sentence that says what the place is and why a player goes there. It shows in link previews and lists.
+# authors: who wrote the page, separated by commas; write [name](link) to link a name
+authors:
 # related: topic:Name, guide:Page title
 ---
 

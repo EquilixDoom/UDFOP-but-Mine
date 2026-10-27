@@ -226,7 +226,7 @@
       var alt = sel.indexOf("\n") < 0 && sel ? sel : "alt text", text = "![" + alt + "](images/name.png)";
       return { start: s, end: e, text: text, a: s + 4 + alt.length, b: s + 4 + alt.length + 15 };
     }
-    if (name === "front") return hasFrontMatter(v) ? null : { start: 0, end: 0, text: "---\ntitle: \ncategory: \nsummary: \n---\n\n", a: 11, b: 11 };
+    if (name === "front") return hasFrontMatter(v) ? null : { start: 0, end: 0, text: "---\ntitle: \ncategory: \nsummary: \nauthors: \n---\n\n", a: 11, b: 11 };
     return null;
   }
 

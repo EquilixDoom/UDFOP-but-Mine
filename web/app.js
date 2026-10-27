@@ -729,7 +729,7 @@
     });
   }
   /* The editor's starter text is a template in web/guide/: _template.md for a page about how something works, and one for each other kind of page; this is only a fallback if they cannot be fetched. */
-  var FALLBACK_TPL = "---\ntitle: Page title\ncategory: \nsummary: \n---\n\nWrite your page here.\n";
+  var FALLBACK_TPL = "---\ntitle: Page title\ncategory: \nsummary: \nauthors: \n---\n\nWrite your page here.\n";
   var TEMPLATES = [["", "How it works", "_template.md"], ["item", "Item", "_template-item.md"], ["place", "Place", "_template-place.md"], ["creature", "Creature or boss", "_template-creature.md"]];
   var guideTemplates = {};   /* kind -> text; "" is the default */
   function newPageUrl(title, kind) {

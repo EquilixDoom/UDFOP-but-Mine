@@ -123,9 +123,11 @@ def scan(root=ROOT, area='guide'):
                 problems.append(('error', where, 'the page is empty'))
             if re.search(r'[^A-Za-z0-9._/ -]', slug):
                 problems.append(('warn', where, 'file names are easier to link with only letters, numbers, spaces and hyphens'))
-            authors = meta.get('authors', '').strip()   # people to credit who are not in the commit history
-            if 'authors' in meta and not authors:
-                problems.append(('warn', where, 'the "authors:" line is empty: add the names to credit (comma separated) or remove the line'))
+            authors = meta.get('authors', '').strip()   # who wrote the page; the commit history may not name them
+            if 'authors' not in meta:
+                problems.append(('warn', where, 'no authors: line in the front matter: add one with the names of the people who wrote the page (comma separated)'))
+            elif not authors:
+                problems.append(('warn', where, 'the "authors:" line is empty: add the names of the people who wrote the page (comma separated)'))
             unlisted = meta.get('unlisted', '').strip().lower() in ('yes', 'true', '1', 'on')
             pages.append(dict(slug=slug, area=area, _where=where, title=title, category=category, summary=meta.get('summary', ''), unlisted=unlisted, **({'authors': authors} if authors else {}),
                               text=plain(body)[:6000], _body=body,

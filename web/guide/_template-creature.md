@@ -3,6 +3,8 @@ title: Page title
 # category: reuse a group name from the Game Guide page, or leave empty for "General"
 category: Creatures
 summary: One sentence that says what the creature is and how a player deals with it. It shows in link previews and lists.
+# authors: who wrote the page, separated by commas; write [name](link) to link a name
+authors:
 # related: topic:Name, guide:Page title
 ---
 
