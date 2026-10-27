@@ -305,8 +305,9 @@ ul.cols small { color: var(--muted); }
 .tp[data-type=New] { color: var(--new); } .tp[data-type=Rework] { color: var(--rework); } .tp[data-type=Fix] { color: var(--fix); }
 .tp[data-type=Other] { color: var(--other); } .tp[data-type=Performance] { color: var(--perf); } .tp[data-type=Economy] { color: var(--econ); }
 .tp[data-type=UI] { color: var(--ui); } .tp[data-type=QoL] { color: var(--qol); }
-.lines .add { color: var(--buff); }
-.lines .del { color: var(--nerf); }
+.lines .add, .lines .del { display: inline-block; text-align: right; font-variant-numeric: tabular-nums; }   /* every + and every − in a column lines up on its right edge */
+.lines .add { min-width: var(--aw, 3ch); color: var(--buff); }
+.lines .del { min-width: var(--dw, 3ch); color: var(--nerf); }
 .cbody { display: block; margin-top: 2px; font-size: .85rem; color: var(--muted); white-space: pre-line; }
 .pagemeta { margin: .2em 0 .8em; }
 .wikitable.sub { width: auto; margin: .5em 0 .25em; font-size: .82rem; }

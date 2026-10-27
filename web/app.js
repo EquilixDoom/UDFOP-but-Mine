@@ -1184,7 +1184,7 @@
           var hs = data[real];
           if (!hs) { box.innerHTML = '<div class="mbox">No history is recorded for this page yet. <a href="' + all + '" rel="noopener">See it on GitHub</a>.</div>'; return; }
           box.innerHTML = "<p>Every change to this page, newest first. Each date opens that change on GitHub.</p>" +
-            '<div class="wrap"><table class="wikitable stack"><thead><tr><th>Date</th><th>Author</th><th>Lines</th><th>Change</th></tr></thead><tbody>' + hs.c.map(function (c) {
+            '<div class="wrap"><table class="wikitable stack" style="--aw:' + (1.5 + Math.max.apply(null, hs.c.map(function (c) { return String(c[5]).length; }))) + "ch;--dw:" + (1.5 + Math.max.apply(null, hs.c.map(function (c) { return String(c[6]).length; }))) + 'ch"><thead><tr><th>Date</th><th>Author</th><th>Lines</th><th>Change</th></tr></thead><tbody>' + hs.c.map(function (c) {
               return '<tr><td class="nowrap"><a href="' + REPO + "/commit/" + enc(c[0]) + '" rel="noopener">' + esc(c[1]) + '</a></td><td class="nowrap">' + esc(c[2]) + '</td><td class="nowrap lines"><span class="add">+' + c[5] + '</span> <span class="del">−' + c[6] + "</span></td><td><b>" + esc(c[3]) + "</b>" + (c[4] ? '<span class="cbody">' + esc(c[4]) + "</span>" : "") + "</td></tr>";
             }).join("") + "</tbody></table></div>" +
             '<p><a href="' + all + '" rel="noopener">' + (hs.n > hs.c.length ? "All " + hs.n + " changes" : "This page&rsquo;s history") + " on GitHub ↗</a></p>";
