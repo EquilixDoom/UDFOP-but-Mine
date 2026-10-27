@@ -76,6 +76,10 @@
     var body = lines.slice(start).join("\n");
     if (!meta.title) top("error", "No title: add a title: line to the front matter.");
     if (!meta.summary) top("warn", "No summary: it is the text shown in hover previews and lists.");
+    if ("authors" in meta && !meta.authors.trim()) {
+      var ai = 0; for (var q = 0; q < lines.length; q++) if (/^authors:/i.test(lines[q])) { ai = q; break; }
+      add("warn", ai, 0, lines[ai].length, "The authors: line is empty: add the names to credit (comma separated) or remove the line.");
+    }
     if (!body.trim()) top("error", "The page is empty.");
     if (meta.title && H.pageExists) {
       var low = meta.title.trim().toLowerCase(), slug = low.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""), self = opts && opts.slug ? opts.slug.toLowerCase() : null, clash;

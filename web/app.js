@@ -1117,6 +1117,13 @@
     if (arg && SITE_MOVED[arg.toLowerCase()]) { location.replace(SITE_MOVED[arg.toLowerCase()]); return null; }
     return pageView("site", arg || "index");
   };
+  /* "Written by ..." from the authors: front matter line: names separated by commas, a name written [name](link) is linked */
+  function authorsLine(list) {
+    return "Written by " + list.split(",").map(function (a) {
+      var m = a.trim().match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);
+      return m ? '<a href="' + esc(m[2]) + '" rel="noopener">' + esc(m[1]) + "</a>" : esc(a.trim());
+    }).filter(Boolean).join(", ");
+  }
   /* one Markdown page of the Game Guide (web/guide/) or the Site Guide (web/site/); both are rendered the same way */
   function pageView(area, slug) {
     var site = area === "site", bySlug = site ? siteBySlug : guideBySlug, byTitle = site ? siteByTitle : guideByTitle, dir = site ? "site/" : "guide/";
@@ -1182,10 +1189,7 @@
         if (hat && !site) { if (entry && entry.unlisted) hat.remove(); else hat.innerHTML = GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a>"; }
         if (entry && (entry.created || entry.authors)) {   /* who wrote the page (front matter authors:), when it was made and last changed, and by whom (from its commits) */
           var anchor = document.querySelector(".hat") || document.querySelector(".tagline"), bits = [];
-          if (entry.authors) bits.push("Written by " + entry.authors.split(",").map(function (a) {
-            var m = a.trim().match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);   /* a name, or [name](link) */
-            return m ? '<a href="' + esc(m[2]) + '" rel="noopener">' + esc(m[1]) + "</a>" : esc(a.trim());
-          }).filter(Boolean).join(", "));
+          if (entry.authors) bits.push(authorsLine(entry.authors));
           if (entry.created) {
             bits.push("Created " + esc(entry.created) + " by " + esc(entry.cby));
             if (entry.updated !== entry.created || entry.by !== entry.cby) bits.push("Last updated " + esc(entry.updated) + " by " + esc(entry.by));
@@ -2037,7 +2041,7 @@
     return null;
   }
   window.udfopHost = {
-    views: views, app: app, REPO: REPO, HOWTO: HOWTO, GUIDE_HAT: GUIDE_HAT, LINK_ICON: LINK_ICON, TEMPLATES: TEMPLATES, FALLBACK_TPL: FALLBACK_TPL, guideTemplates: guideTemplates,
+    views: views, app: app, authorsLine: authorsLine, REPO: REPO, HOWTO: HOWTO, GUIDE_HAT: GUIDE_HAT, LINK_ICON: LINK_ICON, TEMPLATES: TEMPLATES, FALLBACK_TPL: FALLBACK_TPL, guideTemplates: guideTemplates,
     esc: esc, enc: enc, slugId: slugId, splitSection: splitSection, plainText: plainText, frontMatter: frontMatter, page: page,
     query: function () { return routeQuery; },
     guideReady: function () { return guide !== null; },

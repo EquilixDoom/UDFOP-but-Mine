@@ -116,7 +116,7 @@
     "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "Left click", "Right click", "Middle click", "Scroll up", "Scroll down", "Mouse 4", "Mouse 5",
     "Pad:A", "Pad:B", "Pad:X", "Pad:Y", "Pad:LB", "Pad:RB", "Pad:LT", "Pad:RT", "Pad:L1", "Pad:R1", "Pad:L2", "Pad:R2", "Pad:L3", "Pad:R3", "Pad:LSB", "Pad:RSB", "Pad:Start", "Pad:Select"];
   var CALLOUTS = ["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION", "INFO"];
-  var FIELDS = [["title", "the page title"], ["category", "the group it is listed under"], ["summary", "one sentence for previews and lists"], ["related", "pages and topics to link at the end"], ["unlisted", "true keeps it out of the lists"]];
+  var FIELDS = [["title", "the page title"], ["category", "the group it is listed under"], ["summary", "one sentence for previews and lists"], ["related", "pages and topics to link at the end"], ["unlisted", "true keeps it out of the lists"], ["authors", "people to credit who are not in the page history"]];
   /* what the writer is typing at caret s: { kind, from, query } (the text from..s is replaced when an item is chosen), or null */
   function context(v, s) {
     var ls = lineStart(v, s), le = lineEnd(v, s), line = v.slice(ls, le), before = line.slice(0, s - ls), m;

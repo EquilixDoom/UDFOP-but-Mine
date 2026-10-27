@@ -133,7 +133,7 @@
         try { html = H.renderDoc(fm.body, t, ro); } catch (e) { html = '<div class="mbox">The preview could not draw this text.</div>'; }
         /* the title and the breadcrumb a reader sees above the page (no breadcrumb for an unlisted page); the category link is the one the page will have in the lists */
         var unlisted = /^(yes|true|1|on)$/i.test((fm.meta.unlisted || "").trim()), cat = (fm.meta.category || "").replace(/\s+/g, " ").trim() || "General";
-        prev.innerHTML = '<h1 class="title">' + esc(t) + "</h1>" + (unlisted ? "" : '<div class="hat breadcrumbs">' + H.GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a></div>") + '<div id="gp">' + html + "</div>";
+        prev.innerHTML = '<h1 class="title">' + esc(t) + "</h1>" + (unlisted ? "" : '<div class="hat breadcrumbs">' + H.GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a></div>") + ((fm.meta.authors || "").trim() ? '<p class="pagemeta"><small class="muted">' + H.authorsLine(fm.meta.authors) + "</small></p>" : "") + '<div id="gp">' + html + "</div>";
         if (view) view.resync();
         if (vis) vis.clear();
         if (editing) {   /* an existing page: GitHub's edit page cannot be given new text in the address, so the page is copied and pasted over the old text there */
