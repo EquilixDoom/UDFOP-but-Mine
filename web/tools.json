@@ -64,5 +64,31 @@
         "text": "General knowledge quiz to make sure you know what your doing."
       }
     ]
+  },
+
+  {
+    "name": "Ohrion: Daggerfall Watch",
+    "url": "https://dfo.spaceghosts.com/",
+    "creator": "Ohrion",
+    "creatorUrl": "https://discord.com/users/521113466971619329",
+    "tags": ["Event Timers", "Vendor Database"],
+    "summary": "A tool to display Event Timers and Player Vendor information",
+    "description": [
+      "Ohrion's tool allows you to track events outside of the game window, as well as see information on Gilded Drops and Player Vendor listings and locations in ways that the base client does not make readily available"
+    ],
+    "features": [
+      {
+        "name": "Event Watch",
+        "text": "A list of timers for all events, track exactly when they will happen and view the possible loot tables."
+      },
+      {
+        "name": "Gilded Drops",
+        "text": "Filter events to only show the ones that will have Gilded Drops, and see what those drops are."
+      },
+      {
+        "name": "Vendor Database",
+        "text": "See transparently what people are selling on the market boards, who listed items, and where they are located."
+      }
+    ]
   }
 ]
