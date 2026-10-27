@@ -28,7 +28,7 @@ let passed = 0, failed = 0;
 function test(name, fn) { try { fn(); passed++; } catch (e) { failed++; console.log("FAIL " + name + "\n  " + (e.message || e).split("\n")[0]); } }
 const msgs = (text) => P.lint(text).map((p) => p.msg);
 const has = (text, re) => msgs(text).some((m) => re.test(m));
-const GOOD = "---\ntitle: T\ncategory: C\nsummary: S\n---\n\nBody\n";
+const GOOD = "---\ntitle: T\ncategory: C\nsummary: S\nauthors: A\n---\n\nBody\n";
 
 test("a good page has no problems", () => assert.strictEqual(P.lint(GOOD).length, 0));
 test("missing front matter reports title and summary", () => { assert(has("Just text", /No title/)); assert(has("Just text", /No summary/)); });
@@ -95,7 +95,7 @@ test("an escaped pipe in a table row is a label separator", () => {
   assert(has(GOOD + "\n| A | B |\n| --- | --- |\n| [[Nope\\|the label]] | x |\n", /\[\[Nope\]\]/));
 });
 test("a link written in backticks is ignored", () => assert(!has(GOOD + "\nUse `[[Nope]]`\n", /Nope/)));
-test("a problem points at its line", () => assert.strictEqual(P.lint(GOOD + "\n[[Nope]]\n")[0].line, 9));
+test("a problem points at its line", () => assert.strictEqual(P.lint(GOOD + "\n[[Nope]]\n")[0].line, 10));
 test("CRLF and BOM are tolerated", () => assert.strictEqual(P.lint("\ufeff" + GOOD.replace(/\n/g, "\r\n")).length, 0));
 
 test("first placeholder skips the opening Tip box", () => {
@@ -648,7 +648,7 @@ test("format: a rule and the snippets stand on lines of their own with a blank l
   assert.strictEqual(fx("snip.image", "a " + S1 + "photo" + S2), "a ![photo](" + S1 + "images/name.png" + S2 + ")");
 });
 test("format: front matter is added only to a page that has none", () => {
-  assert.strictEqual(fx("snip.front", "Body" + S1), "---\ntitle: " + S1 + "\ncategory: \nsummary: \n---\n\nBody");
+  assert.strictEqual(fx("snip.front", "Body" + S1), "---\ntitle: " + S1 + "\ncategory: \nsummary: \nauthors: \n---\n\nBody");
   assert.strictEqual(fx("snip.front", "---\ntitle: T\n---\n" + S1), null);
   assert.strictEqual(FM.hasFrontMatter("---\na: b\n---"), true);
   assert.strictEqual(FM.hasFrontMatter("--- x\n"), false);
