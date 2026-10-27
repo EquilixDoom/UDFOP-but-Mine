@@ -7360,3 +7360,142 @@
 {"id":"0.1.11867-030","source":"The letter from Princess Morgiah comes at level 3 or higher."}
 {"id":"0.1.11867-031","source":"The repair also works if your character did not meet Lady Brisienna."}
 {"id":"0.1.11867-032","source":"You can link an item into a chat line as a coloured [Name]. In the chat field, type [ or press Tab."}
+{"id":"0.1.11990-001","source":"A new Crafting page is in the menu, next to the Professions page."}
+{"id":"0.1.11990-002","source":"When you stand at a station, the Professions key opens the Crafting page at that station."}
+{"id":"0.1.11990-003","source":"Each station shows your rank in its craft, a bar to the next rank, and your experience."}
+{"id":"0.1.11990-004","source":"The Professions page shows a bar for each profession."}
+{"id":"0.1.11990-005","source":"The Professions page shows each task that gives experience, and how much each task gives at your rank."}
+{"id":"0.1.11990-006","source":"The game now records which first-time bonuses you received. Each pattern shows First-time bonus or Made before."}
+{"id":"0.1.11990-007","source":"The Professions page shows how many first-time bonuses you received. It also shows the bonuses that you can get at your rank."}
+{"id":"0.1.11990-008","source":"A craft at its limit shows no first-time bonuses, because they give no experience."}
+{"id":"0.1.11990-009","source":"The anvil, the workbench, the loom and the Provisioning fire have three filters: All, Can make now and First-time bonus."}
+{"id":"0.1.11990-010","source":"Craft x N makes the same item up to 10 times. It stops when you do not have the materials or the gold."}
+{"id":"0.1.11990-011","source":"The help text for each craft is shorter and easier to read."}
+{"id":"0.1.11990-012","source":"A character at rank 100 in Smithing, Building or Outfitting can make one Master's work each day."}
+{"id":"0.1.11990-013","source":"A Master's work is a Legendary item. You choose its three lines. The game sets the value of each line in the Legendary range."}
+{"id":"0.1.11990-014","source":"One line at most can be an effect. A Master's work has no Legendary power."}
+{"id":"0.1.11990-015","source":"It uses the materials of the recipe, the fee of the station, 2 Heartwood, 3 Pearls and 10 Arcane Essence."}
+{"id":"0.1.11990-016","source":"The item maker does not accept Legendary items."}
+{"id":"0.1.11990-017","source":"Each port has two to four boats that catch fish each day. The boats go out to sea in the morning and come back in the evening."}
+{"id":"0.1.11990-018","source":"There are two new ship classes: Fishing Skiff and Fishing Smack."}
+{"id":"0.1.11990-019","source":"A ship that you book for a passage now sails to the quay of its port."}
+{"id":"0.1.11990-020","source":"If a ship that does not move blocks the quay for 40 seconds, you go ashore as before. If a ship that moves blocks the quay, your ship waits for 2 minutes at most."}
+{"id":"0.1.11990-021","source":"On a fast ship, the land ahead now loads in time."}
+{"id":"0.1.11990-022","source":"Aldbrugh now has a quay."}
+{"id":"0.1.11990-023","source":"Online, one character at a time can hire each recruit at a crew hall. The crew hall does not show the recruits that other characters hired today."}
+{"id":"0.1.11990-024","source":"The members of your party who are aboard your ship now cross the Veil with you. They pay no fare."}
+{"id":"0.1.11990-025","source":"New content does not make your gear old. No item line goes above the top of the Legendary range. No new rarity comes above Gilded."}
+{"id":"0.1.11990-026","source":"Each type of damage bonus now has a limit. The bonuses from sigils, sets, Legendary items and other powers also have one limit together."}
+{"id":"0.1.11990-027","source":"Damage reductions have the same two types of limit. No gear that you have now goes above these limits."}
+{"id":"0.1.11990-028","source":"A set piece below the highest stage that you wore its set at gets three times the sigil XP. This stops when the piece is at that stage."}
+{"id":"0.1.11990-029","source":"The set card shows 3x XP next to the piece that holds the set back."}
+{"id":"0.1.11990-030","source":"Each armor piece, shield and weapon that you hold adds its appearance to your collection."}
+{"id":"0.1.11990-031","source":"A Clothing Store, an Armorer and a Weaponsmith have a Wardrobe. It gives an item that you wear an appearance that you collected from an item of the same type."}
+{"id":"0.1.11990-032","source":"An appearance costs gold. To remove an appearance costs no gold."}
+{"id":"0.1.11990-033","source":"An appearance does not change the strength of the item. Other players see the appearance."}
+{"id":"0.1.11990-034","source":"The Wardrobe shows your character with the appearance before you pay."}
+{"id":"0.1.11990-035","source":"The Collections page has a new Appearances part."}
+{"id":"0.1.11990-036","source":"Online, each bounty that you complete adds to your hunter rank. There are six ranks, from Unblooded to Huntmaster."}
+{"id":"0.1.11990-037","source":"At the rank Stalker and higher, each bounty board shows a named beast each week. A named beast is an elite enemy with two boss traits."}
+{"id":"0.1.11990-038","source":"A named beast gives the gold of three bounty groups and a Mounted Trophy. You can put a Mounted Trophy on a wall of your home."}
+{"id":"0.1.11990-039","source":"The Trophy Hunter choice in Hunting now works. A clean pelt of a beast of grade 5 or 6 gives a Mounted Trophy."}
+{"id":"0.1.11990-040","source":"A bounty that you complete in a region can give influence to the seat of that region. Your war guild must pledge to that seat, and you must be a member for 7 days or more."}
+{"id":"0.1.11990-041","source":"Each week, 10 bounties at most give influence."}
+{"id":"0.1.11990-042","source":"The members of your party see the name of a named beast."}
+{"id":"0.1.11990-043","source":"An older copy of the game cannot go into a dungeon, a building or the open world online. Update the game to play online."}
+{"id":"0.1.11990-044","source":"There are 16 new titles. Four are for bounties, ten are for a Master in each profession, and two are for Sea Serpents."}
+{"id":"0.1.11990-045","source":"The Collections page has three new parts: Trophies, Fish and Annals."}
+{"id":"0.1.11990-046","source":"We fixed a problem with account recovery. A person who knew your password could undo your recovery. Now a recovery always holds."}
+{"id":"0.1.11990-047","source":"Two account recoveries at the same time no longer sign out the session of the second recovery."}
+{"id":"0.1.11990-048","source":"Gold and items that you take from a shared home chest can no longer stay in the chest too."}
+{"id":"0.1.11990-049","source":"In the window of a shared home chest, you cannot use, salvage or dismantle an item. Close the chest first."}
+{"id":"0.1.11990-050","source":"In the window of a shared home chest, a map moves as an item. It does not show its location there."}
+{"id":"0.1.11990-051","source":"The owner of a home can always change the access of a chest. A guest who has the chest open cannot stop this."}
+{"id":"0.1.11990-052","source":"A crafter can no longer take back a crafted item after a trade or a sale to another player."}
+{"id":"0.1.11990-053","source":"A staff unfreeze now covers only the problem that the staff looked at."}
+{"id":"0.1.11990-054","source":"A smith's repair no longer brings back the sale bonus of your own repairs after wear used it up."}
+{"id":"0.1.11990-055","source":"A group can no longer make the Abyss Remnant weaker than it should be. The same fix applies to the Oblivion Gate Warden and the Tonal Warden."}
+{"id":"0.1.11990-056","source":"Practice that you save on a skill at 100 no longer turns into extra points after you master the skill."}
+{"id":"0.1.11990-057","source":"One filled soul gem now binds only one item in the item maker."}
+{"id":"0.1.11990-058","source":"The allies that an artifact summons carry no loot, also after you save and load the game."}
+{"id":"0.1.11990-059","source":"Spell Absorption now absorbs a spell that you cast on yourself, also when your magicka is full."}
+{"id":"0.1.11990-060","source":"When you set Master Skills off and then on again, the practice of your mastered skills stays."}
+{"id":"0.1.11990-061","source":"Identify never gives back more magicka than the cast cost."}
+{"id":"0.1.11990-062","source":"Running and Jumping no longer train faster during an accelerated journey."}
+{"id":"0.1.11990-063","source":"A player can no longer go through a low ceiling into the room above, or out of a dungeon."}
+{"id":"0.1.11990-064","source":"A Portal Stone portal can no longer open near the gate of a live event. The wagon of another player near the gate is not shown."}
+{"id":"0.1.11990-065","source":"A few players can no longer stop the solution of the Orrery in an Abyss Dungeon. Each stone now shows the name of the last player who turned it."}
+{"id":"0.1.11990-066","source":"Trades and journal pages from a player that you blocked no longer reach you."}
+{"id":"0.1.11990-067","source":"A party member who comes back online in an instance no longer goes offline for good."}
+{"id":"0.1.11990-068","source":"A poor connection no longer causes the game to disconnect you after a stall, also during a fight."}
+{"id":"0.1.11990-069","source":"When you change your aura or your name in a party instance, the game no longer disconnects you."}
+{"id":"0.1.11990-070","source":"Online, an open window in a dungeon no longer stops the monsters. Your character still stands still while the window is open. Offline play pauses as before."}
+{"id":"0.1.11990-071","source":"Online, a technique no longer starts when you push its key under an open window in a dungeon."}
+{"id":"0.1.11990-072","source":"Spells now hit other players in the dungeons of the PvP zone."}
+{"id":"0.1.11990-073","source":"Chameleon, Invisibility and Shadow (Normal) now stop when your blow causes damage to another player. The True forms do not stop."}
+{"id":"0.1.11990-074","source":"Soul Trap now works in the dungeon of a party member."}
+{"id":"0.1.11990-075","source":"Comprehend Languages, Spell Reflection and Spell Resistance now use your best ward, not the first one."}
+{"id":"0.1.11990-076","source":"The items that you buy from a home trader or the market now come to your pack automatically. The game tells you when a purchase arrives."}
+{"id":"0.1.11990-077","source":"A purchase that waits from before this update arrives the next time that you play that character online."}
+{"id":"0.1.11990-078","source":"A lost connection during a market delivery no longer sends you to the title screen."}
+{"id":"0.1.11990-079","source":"The \"Bought\" message of a trader no longer says that a piece is in your pack before it arrives."}
+{"id":"0.1.11990-080","source":"You can delete a character with a purchase on its way again after you play it once."}
+{"id":"0.1.11990-081","source":"The notices of a frozen character now say what is frozen. A staff freeze tells you how to contact the staff."}
+{"id":"0.1.11990-082","source":"The List form of the market and the guild Stores now tell you which materials they cannot take, and why."}
+{"id":"0.1.11990-083","source":"A stolen item for sale on the market, at a home trader or on the Vendor page now shows that it is stolen. A stolen item in a trade with another player shows it too."}
+{"id":"0.1.11990-084","source":"When you take back an item from your market stall and the connection fails, the item now comes back to your pack."}
+{"id":"0.1.11990-085","source":"The cash-out of a card table now tells you that the gold went into your account at the Bank of the Empire."}
+{"id":"0.1.11990-086","source":"Items on a shop or guild counter are no longer lost if the game closes while the counter is open."}
+{"id":"0.1.11990-087","source":"Rare, Legendary and other rarity gear that its own enchantment wears out now breaks and stays in your inventory. You can repair it."}
+{"id":"0.1.11990-088","source":"A dungeon loot pile from another version of the game now says that another player has a different version."}
+{"id":"0.1.11990-089","source":"When the room does not confirm a take from a shared loot pile, the game tells you that the item went back."}
+{"id":"0.1.11990-090","source":"In a dungeon where a group rested many times, the bodies of ambushers no longer disappear for the other players."}
+{"id":"0.1.11990-091","source":"On the classic inventory look, the items that you take from or put into a shared chest now stay."}
+{"id":"0.1.11990-092","source":"A worn item with Cast When Used on the hotbar, such as a jewel or a robe, now casts its spell. If the item also gives armor or another power, the first push puts it on."}
+{"id":"0.1.11990-093","source":"The Goldsmith card now says what it does: Silver jewelry that you make has the enchantment points and the value of Gold."}
+{"id":"0.1.11990-094","source":"You can always abandon a quest that keeps the door of a guild shut, also when its journal is empty."}
+{"id":"0.1.11990-095","source":"Two quests that use the same tavern no longer put their contacts on top of each other."}
+{"id":"0.1.11990-096","source":"If you say No to the Queen of Sentinel about the letter of Lord K'avar, she asks again. In a questline where your No is a choice, the quest does not ask again."}
+{"id":"0.1.11990-097","source":"On the classic look, the questor now tells you the correct way to the Quests tab."}
+{"id":"0.1.11990-098","source":"Online, a quest no longer sends you to a dungeon inside the PvP zone."}
+{"id":"0.1.11990-099","source":"Azimuthal Vectors: the journal now asks you to read the old catalog before it crosses it off."}
+{"id":"0.1.11990-100","source":"Arena: the Herald no longer sends you to an empty floor after a ladder bout."}
+{"id":"0.1.11990-101","source":"Farm bounties: the Quests tab now keeps the way to the farmstead where the beasts wait."}
+{"id":"0.1.11990-102","source":"The attacks of the Tonal Warden that hit the whole bridge no longer hit several times at once."}
+{"id":"0.1.11990-103","source":"You can now pick up the spoils of a Redoubt in the Battlespire."}
+{"id":"0.1.11990-104","source":"If your game window is in the background when an Elite Breach moves to its next level, you now go there too."}
+{"id":"0.1.11990-105","source":"Crowded events no longer break the sound. The quietest and farthest sounds stop first. Your own sounds always play."}
+{"id":"0.1.11990-106","source":"The Players shown at once setting now also hides the Revenants and companions of the hidden players."}
+{"id":"0.1.11990-107","source":"Ports with docks some distance from the town, like Daggerfall, Wayrest and Pencart, now show their docks when you arrive by sea."}
+{"id":"0.1.11990-108","source":"Pirates and other ships no longer appear every few seconds when you travel at sea on the Overworld."}
+{"id":"0.1.11990-109","source":"Overworld travel now stays on the road over bridges and causeways."}
+{"id":"0.1.11990-110","source":"When you leave your caravan, you now step out on open ground."}
+{"id":"0.1.11990-111","source":"Rooms with no lamps of their own, like some inns, are no longer dark. A lamp that you put in such a room does not make it dark again."}
+{"id":"0.1.11990-112","source":"Rain and snow now fill the whole view when you pull the camera back."}
+{"id":"0.1.11990-113","source":"Moored boats no longer play their sounds at full volume after you leave a building or your caravan."}
+{"id":"0.1.11990-114","source":"Guild hall banners no longer hang in the air. A banner now hangs only in front of a wall."}
+{"id":"0.1.11990-115","source":"The Confirm button of the decorator works again after a slow answer from the server. Two clicks no longer send your changes twice."}
+{"id":"0.1.11990-116","source":"In the decorator, a click on a placed piece now picks it up on every interface."}
+{"id":"0.1.11990-117","source":"When you accept stars in the Firmament, the game no longer shows a red error."}
+{"id":"0.1.11990-118","source":"The red crash report now has a Dismiss button. The report for a lost graphics card does not have it, because you must reload the page."}
+{"id":"0.1.11990-119","source":"The A button of a controller on the world map no longer causes an error in Firefox."}
+{"id":"0.1.11990-120","source":"Weir Keys no longer show more keys than you have. The description of the key now says that all characters on your account share the keys. The count is also correct after you go into another dungeon."}
+{"id":"0.1.11990-121","source":"In the desktop app, when Wait For Screen Refresh is off and Frame Rate Cap is Off, the game now holds at 300 frames a second."}
+{"id":"0.1.11990-122","source":"A new setting is in Settings > Accessibility > Motion: Shake from other players' spells. You can choose Full, Half or Off, and Half is the default."}
+{"id":"0.1.11990-123","source":"The Screen Shake On Damage setting is now Screen Shake When Hurt."}
+{"id":"0.1.11990-124","source":"The message for a graphics failure now says that the graphics card reset or ran short of memory."}
+{"id":"0.1.11990-125","source":"A long press of the quick-menu key no longer closes the quick menu."}
+{"id":"0.1.11990-126","source":"Notifications no longer stay on the screen when one of them repeats."}
+{"id":"0.1.11990-127","source":"Townsfolk no longer tell the news of a removed quest with placeholder words."}
+{"id":"0.1.11990-128","source":"Old escort faces no longer stay on the screen."}
+{"id":"0.1.11990-129","source":"A bed inside a building now gives the rest of a bed. This is also true when you have poison or a disease."}
+{"id":"0.1.11990-130","source":"Travel on horseback with the Overworld map or Travel Options no longer tramples townsfolk."}
+{"id":"0.1.11990-131","source":"A Bloodline house with no relatives alive now offers a newborn heir, where the Bloodline rules allow one."}
+{"id":"0.1.11990-132","source":"Giants no longer appear inside rocks."}
+{"id":"0.1.11990-133","source":"Spells that you cast with Morrowind models now leave the hand as fast as with Daggerfall models."}
+{"id":"0.1.11990-134","source":"The Enhanced HUD now shows the stacks of the Blademaster's Flowing Steel and the time that they stay."}
+{"id":"0.1.11990-135","source":"The Fighter Mage (Female) skin no longer shrinks while she casts."}
+{"id":"0.1.11990-136","source":"The confirmation questions of the Settings screen now open on phones and narrow screens."}
+{"id":"0.1.11990-137","source":"The pointer banner of the browser no longer appears every time a menu closes."}
+{"id":"0.1.11990-138","source":"A tap on the amount box of the Bank now opens the number keypad. The box that you type in is now above the Bank window."}
+{"id":"0.1.11990-139","source":"The talk window now fits a phone that you hold sideways, also a small phone."}
