@@ -2,6 +2,7 @@
 title: Iliac Hand guide
 category: Minigames
 summary: A guide to playing Iliac Hand and its mechanics
+authors: samael21walter, Geets
 ---
 
 ## Overview
