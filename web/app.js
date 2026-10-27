@@ -1197,6 +1197,7 @@
     h += '<div class="portal"><h3>Patch Notes</h3><div><p>Every recorded change, patch by patch: <b>' + D.totals.rows.toLocaleString() + "</b> changes to <b>" + topics.length + "</b> topics. Latest: <b>" + vlink(versions[0]) + "</b> (" + esc(dateOf(versions[0])) + ').</p><p><a href="#/patchnotes">Browse the Patch Notes →</a><br><a href="#/recent">Recent changes</a></p></div></div>';
     var sg = siteBySlug["index"];   /* the Site Guide's front page supplies the card's text */
     h += '<div class="portal"><h3>Site Guide</h3><div><p>' + esc(sg ? sg.summary : "Help for writing, fixing and reviewing Game Guide pages, and for getting around the site.") + '</p><p><a href="#/site">Open the Site Guide →</a><br><a href="#/site/using-the-site">Using the site</a></p></div></div>';
+    h += '<div class="portal"><h3>Official Links</h3><div><ul>' + officialLinks(true) + "</ul><p><small class='muted'>Run by the DFO Online developers/community, not by this site.</small></p></div></div>";
     h += '<div class="portal wide"><h3>Made by the community</h3><div><p>UDOP is written and kept up by volunteers. <a href="#/about">Meet the people behind it →</a></p></div></div>';
     h += "</div>";
     h += "<p>Patch notes are compiled from the developers' public release notes by a script, so they are updated for each release. Guide pages are written and corrected by the community, and the Site Guide explains how. <a href=\"#/about\">About &amp; Credits</a></p>";
@@ -1208,6 +1209,27 @@
     return REPO + "/issues/new?template=" + template + "&title=" + enc(prefix) + "&page=" + enc(feedbackPage);
   }
   var feedbackPage = location.href;
+  /* the developers' own pages, listed in the main menu and on the Main Page; they are not run by this site */
+  var OFFICIAL = [
+    { name: "Game website", url: "https://daggerfalljs.dev/", note: "Play the game in browser or download it" },
+    { name: "Discord", url: "https://discord.com/channels/1345035007164678226", note: "The DFO Online community server" },
+    { name: "GitHub", url: "https://github.com/Lattymoy/daggerfall-js-source", note: "Game source code" },
+    { name: "YouTube", url: "https://www.youtube.com/@DFOOnline", note: "The Official (unofficial) channel for DFO Online" },
+    { name: "Reddit", url: "https://www.reddit.com/r/DaggerfallOnline/", note: "A community for players of DFO Online" }
+  ];
+  function officialLinks(withNote) {
+    return OFFICIAL.map(function (o) {
+      return '<li><a href="' + o.url + '" rel="noopener" title="' + esc(o.note) + '">' + esc(o.name) + " ↗</a>" + (withNote ? " – " + esc(o.note) : "") + "</li>";
+    }).join("");
+  }
+  (function () {
+    var last = document.querySelector('#side nav:last-of-type');
+    if (!last) return;
+    var nav = document.createElement("nav");
+    nav.setAttribute("aria-label", "Official links");
+    nav.innerHTML = "<h3>Official Links</h3><ul>" + officialLinks(false) + "</ul>";
+    last.parentNode.insertBefore(nav, last.nextSibling);
+  })();
   var GAME_BUGS = "https://discord.com/channels/1345035007164678226/1552054193441869907";   /* where bugs in the game itself are reported (the bug-reports channel of the DFO Online Discord) */
   views.feedback = function () {
     var h = '<div class="mbox"><b>Found a bug in the game itself?</b> This page is only for this website. Report bugs in DFO Online in the <b>bug-reports</b> channel of the DFO Online Discord: <a href="' + GAME_BUGS + '" rel="noopener">open bug-reports</a>.</div>';
