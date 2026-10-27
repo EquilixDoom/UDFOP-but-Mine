@@ -7211,3 +7211,152 @@
 {"id":"0.1.11738-005","source":"While a message stands over a shop counter, Enter and Escape answer the message. Before, Enter ran the counter's action again and Escape closed the counter."}
 {"id":"0.1.11738-006","source":"On a phone, an escort's portrait no longer sits under the touch controls in the top-left corner. It now starts just below them."}
 {"id":"0.1.11740-001","source":"The Thunderlock sits in a new place in first person: a little smaller, lower, and further in from the corner."}
+{"id":"0.1.11757-001","source":"DFO Online has its own logo: a gold dragon coiled through a red D, F and O, with Online on a scroll beneath. It replaces the placeholder in the opening film, on the main menu and its section headers, on the website and in the desktop launcher."}
+{"id":"0.1.11757-002","source":"The Sky-Ketch's messages, its tracker and its map card are shorter and plainer. The ship is \"it\" now, never \"she\"."}
+{"id":"0.1.11757-003","source":"All 25 languages are updated to match."}
+{"id":"0.1.11757-004","source":"The Sky-Ketch questline's letters and conversations are rewritten in plainer words. The story is the same."}
+{"id":"0.1.11757-005","source":"*Rourken Thunder* and *The Ketch That Never Lands* are tightened. *The Ketch That Never Lands* no longer says the ship stays for a day and a half. It stays seven hours, every ten hours."}
+{"id":"0.1.11757-006","source":"The Sky-Ketch's three Discord announcements are reworded."}
+{"id":"0.1.11757-007","source":"You can board the Sky-Ketch again. She shows over Daggerfall and her anchor-lift takes you up."}
+{"id":"0.1.11757-008","source":"A fall from her wakes you in the fields at a quarter of your health. Dying aboard after a fall works as it should."}
+{"id":"0.1.11757-009","source":"If you fall off the bridge when a section of its outer ring drops away, you are caught and set back on the bridge. Before, you could land trapped inside her hull."}
+{"id":"0.1.11757-010","source":"The voyage tracker shows the Boarding Watch's fourth and fifth waves. It no longer says \"The Watch is waiting\" during them."}
+{"id":"0.1.11757-011","source":"Healing before the bridge now counts. Your health is reported to the ship for the whole voyage."}
+{"id":"0.1.11757-012","source":"Crews aboard when she weighs anchor now have 45 minutes to finish, up from 20."}
+{"id":"0.1.11757-013","source":"A Tonal Warden fight is lost only after the bridge has been empty for two minutes, up from thirty seconds. A solo player who falls has time to climb back, and a crewmate can still be raised."}
+{"id":"0.1.11757-014","source":"Constructs' health no longer drops when crewmates step off the ship."}
+{"id":"0.1.11757-015","source":"Sentries no longer back off out over the bow's nets, no longer stand two to a post, and now shoot when you chase them."}
+{"id":"0.1.11757-016","source":"Spiders walk around the hold's cradles, coils, sockets and lift tower."}
+{"id":"0.1.11757-017","source":"Climbing over the main top's net onto the engine house roof no longer skips the Sailwalk. You are set back on the main top."}
+{"id":"0.1.11757-018","source":"Landing on the invisible ceiling over the waist no longer drains your health to 1. You are set back where you came from."}
+{"id":"0.1.11757-019","source":"The Rotten Rigging's gust blows only over the Sailwalk. It no longer pushes you on the aft deck or sounds through the Warden fight."}
+{"id":"0.1.11757-020","source":"Closed a gap in the side of the waist by the bridge."}
+{"id":"0.1.11757-021","source":"The engine's flywheel no longer cuts through a socket."}
+{"id":"0.1.11757-022","source":"The Sky-Ketch's constructs now show a health bar when you strike them. So do the Oblivion gate's legion, the Elite Breach's enemies and the Shattered Hour's Echoes."}
+{"id":"0.1.11757-023","source":"The constructs' Pellet limit now counts per voyage. Reloading no longer resets it."}
+{"id":"0.1.11757-024","source":"The Hammer Wardens, the Watch-Captain and the Tonal Warden always drop their Pellets. Before, the limit was often used up before you reached them."}
+{"id":"0.1.11757-025","source":"Constructs the ship removes by itself no longer drop Pellets."}
+{"id":"0.1.11757-026","source":"Pellet piles lie where the construct fell and can always be picked up."}
+{"id":"0.1.11763-001","source":"The deck no longer plays its own one-off sounds at sea: waves slapping the hull, creaking timbers and ropes, flapping sails and spray over the bow are gone. You still hear the sea, the wind in the rigging, the gulls near land and the ship's bell."}
+{"id":"0.1.11767-001","source":"Nirnroot Sage - a new title, drawn in a nirnroot's leaf green into its glow into the pale of smoke."}
+{"id":"0.1.11767-002","source":"Its glyph - a glowing nirnroot beside his name (and on the account card and in Collections)."}
+{"id":"0.1.11767-003","source":"Sage's Smoke - a new aura: smoke billows up around you, nirnroots circle your waist, and small green runes glow in a ring around your feet. The smoke never clouds your own first-person view."}
+{"id":"0.1.11772-001","source":"A crafting writ's card now tells you when the potions you brewed today, or the dishes and kits in your pack, were made with looted or gold-bought ingredients. Those never fill a writ. Before, the card just said \"0 brewed by you\"."}
+{"id":"0.1.11772-002","source":"With nothing to explain, the card now asks you to brew at an alchemy station. A potion maker anywhere else, such as a temple's, doesn't count."}
+{"id":"0.1.11772-003","source":"When one of your quests leads to a dungeon that the shared world builds smaller, the door now lists your instance first and Public last. The smaller shared build lacks parts of the dungeon, for example the hall at the top of the Masoleum of Darkivaron's lift, and none of a quest's targets stand in it."}
+{"id":"0.1.11779-001","source":"Potions, dishes and Repair Kits you make yourself now fill crafting writs whatever they were made from, including looted ingredients and ingredients bought with gold at a shop. Before, those brews earned experience but didn't count toward writs."}
+{"id":"0.1.11779-002","source":"Potions you brewed before this update count too."}
+{"id":"0.1.11779-003","source":"Bought or found bottles still don't count, and neither do pieces you sold and bought back. A potion still has to be brewed at an alchemy station (an Alchemist's, a Mages Guild hall or your own home)."}
+{"id":"0.1.11779-004","source":"Rare weapons, armour, jewellery and clothing, found or crafted as Masterworks, can now be enchanted at the Item Maker. Before, the maker refused every Rare because of the enchantment it already carries."}
+{"id":"0.1.11779-005","source":"That enchantment, and a curse's drawback if the piece has one, stays on the item, is shown at the top of the maker's lists, and uses none of the item's enchantment points."}
+{"id":"0.1.11779-006","source":"Identify a found Rare first. Masterworks come identified."}
+{"id":"0.1.11779-007","source":"Legendary items still can't be enchanted."}
+{"id":"0.1.11779-008","source":"A Masterwork you made and then enchanted now says why it can't be listed on the market: trade it, or sell it at a counter. It used to tell you to list it as a crafted piece, which you couldn't do."}
+{"id":"0.1.11785-001","source":"Ships can no longer ram. Driving your bow into another ship, or a galley driving its bow into yours, does no damage and no longer locks the two ships together."}
+{"id":"0.1.11785-002","source":"When an enemy ship strikes its colours, E: board now appears as soon as you are within boarding range, at any speed. You no longer have to slow down or heave to first."}
+{"id":"0.1.11785-003","source":"When you board, the grapples pull the other ship alongside yours. Your sails come in and your ship slows to a stop during the pull. The other ship is pulled around your hull, never through it, and ends up right beside yours wherever you stop, the two hulls side by side."}
+{"id":"0.1.11785-004","source":"Pirates who board you are pulled alongside the same way."}
+{"id":"0.1.11785-005","source":"The two ramming stars now extend your grapple reach. Iron Beak is renamed Long Lines (+15% grapple reach), and Grappling Irons gives +25% grapple reach and one extra boarder. Stars you already took stay taken."}
+{"id":"0.1.11808-001","source":"The intro is re-shot over the Imperial City: dawn over Lake Rumare with the White-Gold Tower's windows still lit, the clouds breaking, a sweep over the Tower and around the districts, a dive past the Arena, then a long climb until all of Tamriel lies below - its provinces, borders, rivers and cities named - and the DFO Online logo lands over the map."}
+{"id":"0.1.11808-002","source":"A narrator sets the scene in five lines, in every language the game speaks."}
+{"id":"0.1.11808-003","source":"The intro's music is back the way it played before recent changes."}
+{"id":"0.1.11808-004","source":"The DFO Online logo now sits centred on the intro, the main menu and the website."}
+{"id":"0.1.11808-005","source":"Picking a lock is now something you do, not a dice roll. In Steal mode, a locked front door, dungeon door, chest or crate opens a lock of pin tumblers (Grab mode works on chests and crates too). Lift each pin to the shear line and set them in the lock's own order. Harder locks have more pins, and some have spool pins that false-set."}
+{"id":"0.1.11808-006","source":"A door inside a building that a Lock spell sealed can be picked too."}
+{"id":"0.1.11808-007","source":"Your Lockpicking skill decides how forgiving each pin is, and your Agility widens or narrows it. A slip drops a pin, and a careless lift can snap your pick."}
+{"id":"0.1.11808-008","source":"Auto attempt rolls your chance the old way. A failed roll snaps a pick. Leave walks away and costs nothing."}
+{"id":"0.1.11808-009","source":"Works with keyboard, mouse, gamepad and touch. On a gamepad the d-pad picks the pin, A lifts and sets, X is the Auto attempt, and the prompt bar says so. On a phone the window fits the screen, even turned on its side."}
+{"id":"0.1.11808-010","source":"The lock window wears your Enhanced Plus colors and the DFO Grimoire, like every other window, and uses the classic look on the classic skin."}
+{"id":"0.1.11808-011","source":"With Gentle work on, only the Auto attempt is offered, and the window says so."}
+{"id":"0.1.11808-012","source":"Magically held dungeon doors still need magic."}
+{"id":"0.1.11808-013","source":"New item: Lockpick. You need one to pick a lock, and a pick that snaps is gone. Every General Store and Pawn Shop keeps a stack."}
+{"id":"0.1.11808-014","source":"Classes that train Lockpicking start with five, and existing characters of those classes get five once. Thieves, burglars and other rogues often carry a few."}
+{"id":"0.1.11808-015","source":"New setting under Settings → Gameplay → Climbing & gathering: Resource highlights. Choose Glint (today's sparkle on herbs, veins and trees), Outline (a colored outline round each herb, vein, tree and other gathering spot, back by request and easy to see day or night), or Both. Hunting bodies keep their glow."}
+{"id":"0.1.11808-016","source":"Materials headed for your bag are no longer lost when the server's reply goes missing and you switch characters or devices before it retries."}
+{"id":"0.1.11808-017","source":"Gathering that runs past midnight UTC now stops cleanly instead of wearing your tool for nothing, and says why. A Motherlode strike stops the same way when its lode sinks."}
+{"id":"0.1.11808-018","source":"The choice list at a node (herbs or the Basket, skin or search) works again after you die with it open."}
+{"id":"0.1.11808-019","source":"Rain now makes the Sickle's steady hand harder, as the profession always said."}
+{"id":"0.1.11808-020","source":"Intelligence and Agility now set the Fishing-Net's tug window as well as the haul: wider when they are high, narrower when they are low."}
+{"id":"0.1.11808-021","source":"Other players' gathering is now heard stroke for stroke on high-refresh screens."}
+{"id":"0.1.11808-022","source":"A school's extra fish counts on your first 40 schools of the day, however many plain hauls came first."}
+{"id":"0.1.11808-023","source":"Motherlodes can only be struck once they have risen."}
+{"id":"0.1.11808-024","source":"The gathering highlights no longer leak graphics memory when they fail to load. A shader fault that could show on some graphics drivers is fixed."}
+{"id":"0.1.11808-025","source":"Bows hit a little harder, and arrows fly faster."}
+{"id":"0.1.11808-026","source":"The Thunderlock reloads faster as your Speed rises, down to 1.36s The pistol is unchanged."}
+{"id":"0.1.11814-001","source":"Cloth that you weave or spin at the Loom now gives the first-time bonus. This is true for Root Tendrils and furs from all sources: gathered, looted or bought."}
+{"id":"0.1.11814-002","source":"Cloth from a guild member also gives the bonus."}
+{"id":"0.1.11814-003","source":"Cloth that you buy with silver from the Weavers or on the Market does not give the bonus. The game counts each bolt of this cloth that you buy. That number of the next bolts that you use give no bonus."}
+{"id":"0.1.11814-004","source":"A piece that you make from cloth bought with silver does not use the first-time bonus of that piece. Make the piece again from cloth that you weave to receive the bonus. This is also true for pieces that you made before this update."}
+{"id":"0.1.11814-005","source":"Before you push Craft, the Loom shows the number of bolts bought with silver that you must use first."}
+{"id":"0.1.11821-001","source":"Each piece of armor now shows its type: Leather, Chain or Plate."}
+{"id":"0.1.11821-002","source":"The type shows on the item card, in the loot and trader panels, in the two trade windows and on the questline reward card."}
+{"id":"0.1.11821-003","source":"Leather armor gives Agility and Speed bonuses more often. It also gives more carry weight, Poison resistance and Frost resistance."}
+{"id":"0.1.11821-004","source":"Chain armor gives resistance bonuses two times as often. It gives more Magic, Fire and Frost resistance, and less Shock resistance."}
+{"id":"0.1.11821-005","source":"Plate armor gives an armor bonus more often. It also gives more Strength, Endurance and carry weight bonuses."}
+{"id":"0.1.11821-006","source":"A Reforge on armor uses the same frequencies."}
+{"id":"0.1.11821-007","source":"Merchants now pay 50% less for Daedric weapons, armor and shields."}
+{"id":"0.1.11831-001","source":"On the Market, you sell a piece from your pack from pictures, not from a list of names. Each piece shows its icon, its name in the color of its rarity, and its wear."}
+{"id":"0.1.11831-002","source":"Select a piece to see it before you list it. The card shows its damage, armor, hands, material, condition, weight and magic, as your inventory shows them. You do not have to open your pack first."}
+{"id":"0.1.11831-003","source":"Find a piece by its name. You can also show only one kind of piece, one rarity or one material."}
+{"id":"0.1.11831-004","source":"Pieces that you cannot sell on the market are in a closed list, Not for the market. Each piece in this list shows the reason."}
+{"id":"0.1.11831-005","source":"The form does not select a piece for you. Select the piece that you want to sell. Select it again to remove the selection."}
+{"id":"0.1.11831-006","source":"From your pack, From the Stores, A crafted piece and An auction (Masterworks) are now buttons. Before, they were in a list."}
+{"id":"0.1.11831-007","source":"For online characters, the form opens on your pack if your pack has a piece that you can sell. The form keeps the last kind that you used until you close the game."}
+{"id":"0.1.11831-008","source":"The Goods view has a new Sell from your pack button. It opens the form on your pack."}
+{"id":"0.1.11831-009","source":"Crafted pieces, Masterworks for an auction and Put up a piece from your pack at your home trader use the same pictures."}
+{"id":"0.1.11831-010","source":"The list of pieces keeps its position when you select a piece at the bottom of the list."}
+{"id":"0.1.11831-011","source":"The window does not lose your clicks while the pictures of the pieces load."}
+{"id":"0.1.11831-012","source":"A double-click on a piece selects it."}
+{"id":"0.1.11837-001","source":"Over the Shoulder is a new camera option for the Morrowind body in third person. It is in Settings > Camera, with the values Off, Right and Left."}
+{"id":"0.1.11837-002","source":"The camera is behind your shoulder. Your head does not cover the crosshair."}
+{"id":"0.1.11837-003","source":"When you hold a weapon or a spell, the camera moves above your head, in the center. Your arrows and spells go to the crosshair."}
+{"id":"0.1.11837-004","source":"Two-handed thrust: your hands do not go through your back before the thrust. You hold the blade in front of your hip, and then you thrust it forward."}
+{"id":"0.1.11837-005","source":"Two-handed weapons: your arms do not go through your body. This is correct for the guard and for all attacks with a two-handed weapon, a staff or a spear. You hold the weapon in front of your body, and your hands move before the blade."}
+{"id":"0.1.11837-006","source":"One-handed weapons: when you run, you hold the weapon low at your side. The blade points forward. Your wrist is straight, and the blade does not point to the side."}
+{"id":"0.1.11837-007","source":"Bow, crossbow and thrown weapons: when you pull the weapon back, your upper body turns with your aim. The weapon points to where you look, not up."}
+{"id":"0.1.11842-001","source":"You can ram ships again. Sail into the side of a ship at speed."}
+{"id":"0.1.11842-002","source":"A ram causes damage to the hull of the ship that you hit. Your ship also has some damage from the ram."}
+{"id":"0.1.11842-003","source":"A ram cannot sink a ship. Rams decrease the hull of a ship until it surrenders. Then you can board it."}
+{"id":"0.1.11842-004","source":"A ram into the side of a ship causes more damage than a ram into its bow or its stern."}
+{"id":"0.1.11842-005","source":"More speed toward the ship causes more damage, up to a limit. A storm does not make a ram stronger."}
+{"id":"0.1.11842-006","source":"If your ship only touches the side of a ship as it sails past, that is not a ram."}
+{"id":"0.1.11842-007","source":"A small boat causes less damage to a large ship than a large ship causes."}
+{"id":"0.1.11842-008","source":"If the hull of your ship is low, your ram is weaker. A wrecked ship cannot ram."}
+{"id":"0.1.11842-009","source":"A ram does not lock the two ships together. You can board a ship only after it surrenders."}
+{"id":"0.1.11842-010","source":"You cannot ram a lawful ship that is at peace with you. Your ship only touches it, and you do not commit piracy."}
+{"id":"0.1.11842-011","source":"If you fire on a lawful ship first, you can ram it. That ram is piracy, as a cannon shot is."}
+{"id":"0.1.11842-012","source":"The Large Galley has a ram on its bow again. Its ram causes two times the damage. The galley has less damage from its own ram."}
+{"id":"0.1.11842-013","source":"An enemy galley can ram your ship. It rams only the ship that it fights."}
+{"id":"0.1.11842-014","source":"A ram from a galley cannot sink your ship. If you use Brace, your ship has only half of the damage."}
+{"id":"0.1.11867-001","source":"The intro title screen is now the main menu. The map of Tamriel and the DFO Online logo stay on the screen."}
+{"id":"0.1.11867-002","source":"Online and Offline are on the title screen, below the logo. Tap to continue is removed."}
+{"id":"0.1.11867-003","source":"When you select Offline, Continue, New Game, Load Game and Test Room show below the logo."}
+{"id":"0.1.11867-004","source":"Skip intro and the Escape key go to the title screen."}
+{"id":"0.1.11867-005","source":"If Skip start video is on, the game opens on the title screen."}
+{"id":"0.1.11867-006","source":"The music volume decreases when you push the first button on the menu."}
+{"id":"0.1.11867-007","source":"The Worn label in the item list of the chat is larger."}
+{"id":"0.1.11867-008","source":"If Project Legacy is on, townspeople have four new options under Tell me about: Pay a compliment, Give a gift (50 gold), Hug and Kiss."}
+{"id":"0.1.11867-009","source":"A gift costs 50 gold."}
+{"id":"0.1.11867-010","source":"You can use each option one time each day for each person."}
+{"id":"0.1.11867-011","source":"If you load a save, an option does not give the same courtship progress two times."}
+{"id":"0.1.11867-012","source":"Each option shows what it changed, for example \"(Regard +2, now +14. Courtship +4, now 41 of 100.)\". The change includes the effect of your tone."}
+{"id":"0.1.11867-013","source":"The game now shows your courtship progress."}
+{"id":"0.1.11867-014","source":"A hug is possible when the person thinks of you as a friend, or when you court the person."}
+{"id":"0.1.11867-015","source":"A kiss is possible when your courtship is at 34 or more, or when you are engaged or married."}
+{"id":"0.1.11867-016","source":"If it is too soon, the person tells you what is necessary. You do not lose gold or regard."}
+{"id":"0.1.11867-017","source":"You can now master all three primary skills: 3 primary, 2 major and 1 minor."}
+{"id":"0.1.11867-018","source":"If you mastered two primary skills before, you keep them. You also get the third slot."}
+{"id":"0.1.11867-019","source":"The highest character level is now 45. This limit is the same for each level system that you can select."}
+{"id":"0.1.11867-020","source":"With the classic level system, you get the last levels when your mastered skills go above 100."}
+{"id":"0.1.11867-021","source":"The Level box on the character sheet shows when you are at the highest level."}
+{"id":"0.1.11867-022","source":"Jewellery now gets Hand-to-Hand and Critical Strike skill lines as frequently as the other skills that it prefers."}
+{"id":"0.1.11867-023","source":"Players with an old version of the game can see different skill lines on new pieces until they get the new version."}
+{"id":"0.1.11867-024","source":"The ships of other players do not block or push your ship outside PvP waters. This includes all of the Sethrakul fight."}
+{"id":"0.1.11867-025","source":"When a different ship goes through your ship, it does not push you off your deck. It also does not move you away on its deck."}
+{"id":"0.1.11867-026","source":"If ships overlap when you sail into PvP waters, they can move apart."}
+{"id":"0.1.11867-027","source":"We removed the \"bumpers\" that pushed ships apart in the Sethrakul fight."}
+{"id":"0.1.11867-028","source":"We fixed a problem: some new online characters did not get the letter from Princess Morgiah or the other royal letters."}
+{"id":"0.1.11867-029","source":"When one of these characters plays again, the main quest repairs itself. Then the letters come as usual."}
+{"id":"0.1.11867-030","source":"The letter from Princess Morgiah comes at level 3 or higher."}
+{"id":"0.1.11867-031","source":"The repair also works if your character did not meet Lady Brisienna."}
+{"id":"0.1.11867-032","source":"You can link an item into a chat line as a coloured [Name]. In the chat field, type [ or press Tab."}
