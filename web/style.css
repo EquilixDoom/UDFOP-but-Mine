@@ -258,6 +258,7 @@ ul.cols small { color: var(--muted); }
 .gtable .wikitable { margin: 0; }
 .tbar { display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap; font-size: .85rem; }
 .tbar input.filter { width: 14em; max-width: 100%; margin: 0 0 .4em; padding: 3px 8px; font-size: .85rem; }
+::highlight(tfind) { background-color: color-mix(in srgb, var(--accent) 40%, transparent); color: inherit; }   /* the words typed in a table's filter box */
 .tfw { position: relative; display: inline-block; max-width: 100%; }
 .tfw input.filter { padding-right: 24px; }
 .tfw input.filter::-webkit-search-cancel-button { display: none; }   /* the clear button below is the same in every browser */

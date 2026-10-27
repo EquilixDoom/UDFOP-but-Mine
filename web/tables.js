@@ -106,6 +106,25 @@
     if (!t.classList.contains("filtered")) return;
     var n = 0; Array.prototype.forEach.call(t.tBodies[0].rows, function (r) { r.classList.remove("alt"); if (!r.hidden) { if (n++ % 2) r.classList.add("alt"); } });
   }
+  /* the words being searched are painted in the rows shown, with the CSS Custom Highlight API: nothing in the table is changed, so links, sorting and copying are untouched (a browser without it shows no highlight) */
+  function paintFind(box, words) {
+    if (!window.CSS || !CSS.highlights || typeof Highlight === "undefined") return;
+    var ranges = [];
+    if (words.length) Array.prototype.forEach.call(box.querySelector("table").tBodies[0].rows, function (r) {
+      if (r.hidden) return;
+      var tw = document.createTreeWalker(r, NodeFilter.SHOW_TEXT), n;
+      while ((n = tw.nextNode())) {
+        var low = n.nodeValue.toLowerCase();
+        words.forEach(function (w) {
+          for (var at = low.indexOf(w); at >= 0; at = low.indexOf(w, at + w.length)) { var rg = document.createRange(); rg.setStart(n, at); rg.setEnd(n, at + w.length); ranges.push(rg); }
+        });
+      }
+    });
+    box.__finds = ranges;
+    var all = [];
+    Array.prototype.forEach.call(document.querySelectorAll(".gtable"), function (b) { if (b.__finds) all = all.concat(b.__finds); });
+    if (all.length) CSS.highlights.set("tfind", new Highlight(...all)); else CSS.highlights.delete("tfind");
+  }
   function applyFilter(box) {
     var t = box.querySelector("table"), q = box.querySelector(".tfind").value.toLowerCase().split(/\s+/).filter(Boolean), rows = t.tBodies[0].rows, shown = 0;
     Array.prototype.forEach.call(rows, function (r) {
@@ -114,6 +133,7 @@
       if (!r.hidden) shown++;
     });
     t.classList.toggle("filtered", q.length > 0); restripe(t); fit(box);
+    paintFind(box, q);
     box.querySelector(".tclear").hidden = !box.querySelector(".tfind").value;
     var c = box.querySelector(".tcount");
     c.textContent = q.length ? shown + " of " + rows.length + " records found" : "";
