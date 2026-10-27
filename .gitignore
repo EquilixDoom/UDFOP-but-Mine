@@ -13,6 +13,8 @@ __pycache__/
 data/release_notes.md
 
 web/guide/index.json
+web/guide/history.json
 web/guide/images.json
 web/site/index.json
+web/site/history.json
 web/credits.json

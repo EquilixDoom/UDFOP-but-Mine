@@ -5,8 +5,8 @@
 
 Game Guide pages are Markdown files under web/guide/ (see CONTRIBUTING.md); Site Guide pages (help for contributors
 and reviewers) are Markdown files under web/site/. Files and folders whose name starts with "_" or "." are ignored.
-index.json and credits.json (the names on the Credits page, from CONTRIBUTORS.md) are generated, git-ignored, and rebuilt by the deploy workflow, so contributors never have to run this."""
-import json, os, re, sys
+index.json, history.json (each page's commits, newest first) and credits.json (the names on the Credits page, from CONTRIBUTORS.md) are generated, git-ignored, and rebuilt by the deploy workflow, so contributors never have to run this."""
+import json, os, re, subprocess, sys
 
 ROOT = os.path.join('web', 'guide')
 SITE = os.path.join('web', 'site')
@@ -123,12 +123,37 @@ def scan(root=ROOT, area='guide'):
                 problems.append(('error', where, 'the page is empty'))
             if re.search(r'[^A-Za-z0-9._/ -]', slug):
                 problems.append(('warn', where, 'file names are easier to link with only letters, numbers, spaces and hyphens'))
+            authors = meta.get('authors', '').strip()   # people to credit who are not in the commit history
+            if 'authors' in meta and not authors:
+                problems.append(('warn', where, 'the "authors:" line is empty: add the names to credit (comma separated) or remove the line'))
             unlisted = meta.get('unlisted', '').strip().lower() in ('yes', 'true', '1', 'on')
-            pages.append(dict(slug=slug, area=area, _where=where, title=title, category=category, summary=meta.get('summary', ''), unlisted=unlisted,
+            pages.append(dict(slug=slug, area=area, _where=where, title=title, category=category, summary=meta.get('summary', ''), unlisted=unlisted, **({'authors': authors} if authors else {}),
                               text=plain(body)[:6000], _body=body,
                               _related=[x.strip() for x in meta.get('related', '').split(',') if x.strip()],
                               _expected={x.strip().lower() for x in meta.get('expected-missing', '').split(',') if x.strip()}))
     return pages, problems
+
+
+HISTORY_SHOWN = 50   # the History tab lists this many of a page's newest commits; it links to GitHub for the rest
+
+
+def git_history(path):
+    """The commits that touched one file, newest first, as [short hash, date, author name, subject, description, lines added, lines removed]; [] when git or the history is not there."""
+    try:
+        r = subprocess.run(['git', 'log', '--follow', '--numstat', '--format=%x1e%h%x1f%aI%x1f%an%x1f%s%x1f%b%x1f', '--', path], capture_output=True, text=True, encoding='utf-8')
+    except OSError:
+        return []
+    if r.returncode != 0:
+        return []
+    out = []
+    for rec in r.stdout.split('\x1e'):
+        f = rec.split('\x1f')
+        if len(f) == 6:
+            body = '\n'.join(l for l in f[4].strip().splitlines() if not re.match(r'(Co-Authored-By|Signed-off-by):', l, re.I)).strip()   # the trailers say who, which the Author column already does
+            nums = [re.match(r'(\d+)\t(\d+)\t', l) for l in f[5].splitlines()]
+            nums = [m for m in nums if m]   # a picture or other binary file shows "-" and is left out
+            out.append([f[0], f[1][:10], f[2], f[3], body, sum(int(m.group(1)) for m in nums), sum(int(m.group(2)) for m in nums)])
+    return out
 
 
 def topic_names():
@@ -422,9 +447,17 @@ def main():
     for area, root, prefix in sections:
         ps = by_area[area]
         ps.sort(key=lambda p: (p['category'].lower(), p['title'].lower()))
+        hist = {}
+        for p in ps:
+            h = git_history(os.path.join(root, p['slug'] + '.md'))
+            if h:
+                hist[p['slug']] = {'n': len(h), 'c': h[:HISTORY_SHOWN]}
+                p['created'], p['cby'], p['updated'], p['by'] = h[-1][1], h[-1][2], h[0][1], h[0][2]   # a page's first and latest commit
         out = [{k: v for k, v in p.items() if not k.startswith('_') and k != 'area' and not (k == 'unlisted' and not v)} for p in ps]
         with open(os.path.join(root, 'index.json'), 'w', encoding='utf-8') as f:
             json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
+        with open(os.path.join(root, 'history.json'), 'w', encoding='utf-8') as f:
+            json.dump(hist, f, ensure_ascii=False, separators=(',', ':'))
         print('%s: %d page(s) indexed' % (area, len(out)))
     # the pictures the editor offers after ![](  (paths from the Game Guide folder)
     pics = sorted(os.path.relpath(os.path.join(d, f), ROOT).replace(os.sep, '/') for d, _, fs in os.walk(ROOT) for f in fs

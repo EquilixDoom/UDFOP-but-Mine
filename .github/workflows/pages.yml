@@ -23,6 +23,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the page History tabs and dates are read from the commits
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'

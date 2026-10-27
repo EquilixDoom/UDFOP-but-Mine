@@ -1154,19 +1154,46 @@
           });
         }, function () { box.innerHTML = '<div class="mbox">The source view could not load. Check your connection, then <a href="' + location.hash + '">try again</a>.</div>'; });
       }
+      /* the History tab: the page's commits, newest first, each linking to the change on GitHub (web/<area>/history.json, built by tools/guide.py) */
+      function showHistory() {
+        var all = REPO + "/commits/main/web/" + dir + slugPath + ".md";
+        fetch(dir + "history.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (data) {
+          var hs = data[real];
+          if (!hs) { box.innerHTML = '<div class="mbox">No history is recorded for this page yet. <a href="' + all + '" rel="noopener">See it on GitHub</a>.</div>'; return; }
+          box.innerHTML = "<p>Every change to this page, newest first. Each date opens that change on GitHub.</p>" +
+            '<div class="wrap"><table class="wikitable stack"><thead><tr><th>Date</th><th>Author</th><th>Lines</th><th>Change</th></tr></thead><tbody>' + hs.c.map(function (c) {
+              return '<tr><td class="nowrap"><a href="' + REPO + "/commit/" + enc(c[0]) + '" rel="noopener">' + esc(c[1]) + '</a></td><td class="nowrap">' + esc(c[2]) + '</td><td class="nowrap lines"><span class="add">+' + c[5] + '</span> <span class="del">−' + c[6] + "</span></td><td><b>" + esc(c[3]) + "</b>" + (c[4] ? '<span class="cbody">' + esc(c[4]) + "</span>" : "") + "</td></tr>";
+            }).join("") + "</tbody></table></div>" +
+            '<p><a href="' + all + '" rel="noopener">' + (hs.n > hs.c.length ? "All " + hs.n + " changes" : "This page&rsquo;s history") + " on GitHub ↗</a></p>";
+          fitEndPad();
+        }).catch(function () { box.innerHTML = '<div class="mbox">The history could not load. It is built when the site is published, so a local copy has it only after <code>python tools/guide.py</code>. <a href="' + all + '" rel="noopener">See it on GitHub</a>.</div>'; });
+      }
       fetch(dir + slugPath + ".md").then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }).then(function (raw) {
         var fm = frontMatter(raw), t = fm.meta.title || title, cat = fm.meta.category || (entry && entry.category) || "General";
         document.title = t + " – " + SHORT;
         setNav(["page:" + (site ? "site/" : "") + real.toLowerCase(), area]);   /* the page's real slug, not the title or odd capitals someone typed */
         document.querySelector("h1.title").textContent = t;
-        var base = entry ? purl(entry) : (site ? "#/site/" : "#/guide/") + slugPath, source = routeQuery.view === "source";
+        var base = entry ? purl(entry) : (site ? "#/site/" : "#/guide/") + slugPath, source = routeQuery.view === "source", hist = routeQuery.view === "history";
         /* the same tabs as the By type / By topic switch: the chosen one is not a link */
         function vtab(on, label, href, right) { return on ? '<span class="on' + (right ? " ptab-r" : "") + '" aria-current="page">' + label + "</span>" : '<a' + (right ? ' class="ptab-r"' : "") + ' href="' + href + '">' + label + "</a>"; }
         document.querySelector("h1.title").insertAdjacentHTML("afterend", '<nav class="gtabs ptabs banner" aria-label="Views of this page"><span class="on">Article</span>' +
-          vtab(!source, "Read", base, true) + vtab(source, "View Source", base + "?view=source", false) + "</nav>");
+          vtab(!source && !hist, "Read", base, true) + vtab(source, "View Source", base + "?view=source", false) + vtab(hist, "History", base + "?view=history", false) + "</nav>");
         var hat = document.querySelector(".hat");
         if (hat && !site) { if (entry && entry.unlisted) hat.remove(); else hat.innerHTML = GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a>"; }
+        if (entry && (entry.created || entry.authors)) {   /* who wrote the page (front matter authors:), when it was made and last changed, and by whom (from its commits) */
+          var anchor = document.querySelector(".hat") || document.querySelector(".tagline"), bits = [];
+          if (entry.authors) bits.push("Written by " + entry.authors.split(",").map(function (a) {
+            var m = a.trim().match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);   /* a name, or [name](link) */
+            return m ? '<a href="' + esc(m[2]) + '" rel="noopener">' + esc(m[1]) + "</a>" : esc(a.trim());
+          }).filter(Boolean).join(", "));
+          if (entry.created) {
+            bits.push("Created " + esc(entry.created) + " by " + esc(entry.cby));
+            if (entry.updated !== entry.created || entry.by !== entry.cby) bits.push("Last updated " + esc(entry.updated) + " by " + esc(entry.by));
+          }
+          if (anchor) anchor.insertAdjacentHTML("afterend", '<p class="pagemeta banner"><small class="muted">' + bits.join(" · ") + "</small></p>");
+        }
         if (source) { showSource(raw); return; }
+        if (hist) { showHistory(); return; }
         mdRoot = dir;
         mdBase = real.indexOf("/") >= 0 ? real.replace(/[^/]*$/, "") : "";
         refs = newRefs(area + "|" + real);
