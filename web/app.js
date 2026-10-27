@@ -1139,10 +1139,26 @@
           var words = (text.match(/\S+/g) || []).length;
           box.innerHTML = '<div class="mbox srcnote"><b>This is the source of this page</b>: the Markdown file it is written in. You can select and copy it here, but not change it. To change the page, ' +
             (site ? "" : '<a href="#/editor?page=' + enc(real) + '">open it in the Editor</a> or ') + '<a href="' + gh + '" rel="noopener">edit it on GitHub</a>. Either way, <a href="' + REPO + '/fork" rel="noopener">fork the project</a> first. New to this? <a href="' + HOWTO + '">Learn how</a>.</div>' +
-            '<div class="srcv"><div class="edw-pbar"><strong>' + esc(file) + '</strong><span class="edw-grow"></span><small>read-only</small></div>' +
+            '<div class="srcv"><div class="edw-pbar"><strong>' + esc(file) + '</strong><span class="edw-grow"></span><small>read-only</small><button type="button" class="srcv-wrap" aria-pressed="true" title="Wrap long lines or scroll sideways">Word wrap</button><button type="button" class="srcv-copy" title="Copy the whole source">Copy</button></div>' +
             '<div class="srcv-code edw-code" tabindex="0" aria-label="Source of this page, read only">' + window.udfopEditor.highlight(text) + "</div>" +
             '<div class="edw-sbar"><span>' + text.split("\n").length.toLocaleString() + " lines</span><span>" + words.toLocaleString() + " words</span></div></div>";
-          var panel = box.querySelector(".srcv"), code = box.querySelector(".srcv-code");
+          var panel = box.querySelector(".srcv"), code = box.querySelector(".srcv-code"), wrapBtn = box.querySelector(".srcv-wrap"), VIEW_KEY = "udfop.editor.view";
+          /* word wrap: the same setting as the editor's View menu, kept between visits */
+          function wrapIs() { try { var v = JSON.parse(localStorage.getItem(VIEW_KEY) || "null"); return !(v && v.wrap === false); } catch (e) { return true; } }
+          function setWrap(on, save) {
+            code.classList.toggle("nowrap", !on); wrapBtn.setAttribute("aria-pressed", on ? "true" : "false");
+            if (!save) return;
+            try { var v = JSON.parse(localStorage.getItem(VIEW_KEY) || "null") || {}; v.wrap = on; localStorage.setItem(VIEW_KEY, JSON.stringify(v)); } catch (e) {}
+          }
+          setWrap(wrapIs(), false);
+          var copyBtn = box.querySelector(".srcv-copy");
+          copyBtn.addEventListener("click", function () {
+            copyText(text, function (ok) {
+              copyBtn.textContent = ok ? "Copied" : "Could not copy"; clearTimeout(copyBtn.__t);
+              copyBtn.__t = setTimeout(function () { copyBtn.textContent = "Copy"; }, 1600);
+            });
+          });
+          wrapBtn.addEventListener("click", function () { setWrap(wrapBtn.getAttribute("aria-pressed") !== "true", true); });
           function fit() {   /* the panel and the site footer under it fill the window together; the source scrolls inside the panel */
             if (!panel.isConnected) { window.removeEventListener("resize", fit); return; }
             var foot = document.getElementById("foot"), num = function (el, prop) { return el ? parseFloat(getComputedStyle(el)[prop]) || 0 : 0; };
