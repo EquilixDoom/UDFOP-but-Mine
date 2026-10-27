@@ -85,9 +85,13 @@
         "name": "Gilded Drops",
         "text": "Filter events to only show the ones that will have Gilded Drops, and see what those drops are."
       },
+{
+        "name": "Watchlist",
+        "text": "Mark events you are interested in to have only those events appear in the watchlist section."
+      },
       {
         "name": "Vendor Database",
-        "text": "See transparently what people are selling on the market boards, who listed items, and where they are located."
+        "text": "See transparently what people are selling at vendors, who listed items, and where they are located. This database updates hourly and scans all vendors in the game."
       }
     ]
   }
