@@ -9,11 +9,11 @@ related: topic:Firmament
 > [!NOTE]
 > The initial commit of this page was prepared with the assistance of AI tools. Readers are encouraged to verify the information against the game and official sources, and to contribute corrections and improvements.
 >
-> **Applies to:** Daggerfall Online, online mode. Verified against Update 0.0.466 (`app-v0.1.12948`), 28 October 2026.
+> **Applies to:** DFO Online, online mode. Verified against Update 0.0.466 (`app-v0.1.12948`), 28 October 2026.
 
 ## Overview
 
-Firmament is a passive progression system in Daggerfall Online. Its tree contains 518 interconnected stars that provide bonuses to combat, magic, professions, trade, and exploration.
+Firmament is a passive progression system in DFO Online. Its tree contains 518 interconnected stars that provide bonuses to combat, magic, professions, trade, and exploration.
 
 A character develops their allocation by selecting a birthsign and spending points along connected paths. Firmament is accessed through **Pause Menu → Growth → Firmament**.
 
