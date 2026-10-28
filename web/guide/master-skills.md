@@ -64,4 +64,5 @@ summary: A page explaining Master Skills
 ## Sources
 
 *Master Skills were introduced in patch 0.1.4991 also known as "Master Skills, Mentoring, Bounties and the Leveling Choice"*
+
 *The maximum amount of Master Skills was changed in patch 0.1.11867 from two primary to three primary.*
