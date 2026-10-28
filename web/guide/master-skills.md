@@ -5,7 +5,7 @@ summary: A page explaining Master Skills
 ---
 
 > [!NOTE]
-> **Applies to:** *Online and as an option for Offline*. As of patch *0.0.441*.  for a list of the latest information go here [[topic:Master Skills]]
+> **Applies to:** *Online and as an option for Offline*. As of patch *0.0.449* which released on *2026/10/27*.  for a list of the latest information go here [[topic:Master Skills]]
  This page goes in to detail about Master Skills and their Limitations and Benefits.
 
 ## Limits and things to know
@@ -13,7 +13,7 @@ summary: A page explaining Master Skills
 - *All mastered skills can be leveled past 100 to a maximum of 200*
 - *Once you master a skill it cannot be changed and is **permanent** for that character.*
 - *The maximum amount of Mastered skills a character can have is 6*
-- *If a combination of skills are mastered it can open the possibility to use * [[Specializations]]
+- *If a combination of skills are mastered it can open the possibility to use* [[Specializations]]
 
 ## Master Skills
 *All skills can be leveled to 100 but only 6 can be mastered 3 Primary, 2 Major and 1 Minor.*
@@ -47,7 +47,7 @@ summary: A page explaining Master Skills
 > - "**Blunt Weapon:** up to 80% harder against fresh foes (half health or more)."
 >   - "Against the Oblivion Gate's court, the Elite Gates, the Remnant and the sea serpent, whose health the server keeps, the Axe and the Blunt Weapon each land up to 40% harder on every blow."
 > - "**Short Blade:** swings up to 40% faster."
-> - **Hand-to-Hand:** its damage already grew with the skill, and still does.
+> - "**Hand-to-Hand:** its damage already grew with the skill, and still does."
 > From lattymoy, Patch 0.1.9472 also known as Martial Specialisations
 ---
 ## Speculation
@@ -64,4 +64,5 @@ summary: A page explaining Master Skills
 ## Sources
 
 *Master Skills were introduced in patch 0.1.4991 also known as "Master Skills, Mentoring, Bounties and the Leveling Choice"*
+
 *The maximum amount of Master Skills was changed in patch 0.1.11867 from two primary to three primary.*
