@@ -39,6 +39,8 @@ Each eligible player who contributed a recent hit can receive the full XP for a 
 
 Every character begins at Renown 1. The maximum is **Renown 50**, requiring **2,318,660 total XP**. Each level above 1 adds **3 maximum health** and **2 maximum magicka** during online play.
 
+For a Renown level *L* from 1 to 50, let *n = L − 1*. The total XP required to reach that level is *10 × floor((n³ × (n + 10) + 300 × n) ÷ 30)*. The table shows selected levels.
+
 | Renown | Total XP required | Bonus health | Bonus magicka |
 | ---: | ---: | ---: | ---: |
 | 1 | 0 | 0 | 0 |
