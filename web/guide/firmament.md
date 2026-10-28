@@ -1,6 +1,6 @@
 ---
 title: Firmament
-category: Game Mechanics
+category: Character
 summary: The Firmament passive progression tree, including birthsigns, points, bonuses, and restrictions.
 authors: pureiimagination
 related: topic:Firmament
