@@ -1,7 +1,7 @@
 ---
 title: Renown
 category: Character
-summary: Online character progression that increases health and magicka and affects encounters, sigils and loot.
+summary: Online character progression that increases health and Magicka and affects encounters, sigils and loot.
 authors: pureiimagination
 related: topic:Renown
 ---
@@ -11,7 +11,7 @@ related: topic:Renown
 >
 > The initial commit of this page was prepared with the assistance of AI tools. Readers are encouraged to verify the information against the game and official sources, and to contribute corrections and improvements.
 
-Renown is a separate progression level earned through online activities. It exists alongside the character's normal Daggerfall level and provides additional maximum health and magicka during online play.
+Renown is a separate progression level earned through online activities. It exists alongside the character's normal Daggerfall level and provides additional maximum health and Magicka during online play.
 
 Renown is tracked separately for each character and stored on the game's servers rather than in the Daggerfall save file. Playing offline does not earn Renown XP, and the additional attributes granted by Renown are not applied offline.
 
@@ -21,7 +21,7 @@ Renown XP comes from combat, quests, Arena victories, world events and completed
 
 ### Defeating enemies
 
-A kill can award XP when the enemy dies within **30 seconds** of a hit you landed. You receive the full eligible kill award even if another player deals the final blow. Each party member who qualifies can receive XP; party members in the same room increase the award by **10% per additional member**, up to eight members total.
+A kill can award XP when the enemy dies within **30 seconds** of a hit you landed. Every eligible player receives the full kill award, even if another player deals the final blow. For party members in the same room, each additional member adds **10 percentage points of the base kill award**, up to eight members total. A full party can receive **170% of the base kill award per eligible player**.
 
 The kill's effective enemy level is the lowest of the enemy's level, **Renown + 3**, and **30**. XP is `floor(0.75 × 10 × effective enemy level)`, before the party bonus. For example, a level-30 enemy at Renown 1 is counted as level 4 and awards **30 XP** before any party bonus.
 
@@ -53,11 +53,11 @@ Event rewards are paid to the character that fought the event. A signed event cl
 
 ## Levels and attribute bonuses
 
-Every character begins at Renown 1. The maximum is **Renown 50**, requiring **2,318,660 total XP**. Each level above 1 adds **3 maximum health** and **2 maximum magicka** during online play.
+Every character begins at Renown 1. The maximum is **Renown 50**, requiring **2,318,660 total XP**. Each level above 1 adds **3 maximum health** and **2 maximum Magicka** during online play.
 
 For a Renown level *L* from 1 to 50, let *n = L − 1*. The total XP required to reach that level is *10 × floor((n³ × (n + 10) + 300 × n) ÷ 30)*. The table shows selected levels.
 
-| Renown | Total XP required | Bonus health | Bonus magicka |
+| Renown | Total XP required | Bonus health | Bonus Magicka |
 | ---: | ---: | ---: | ---: |
 | 1 | 0 | 0 | 0 |
 | 5 | 690 | +12 | +8 |
@@ -67,7 +67,7 @@ For a Renown level *L* from 1 to 50, let *n = L − 1*. The total XP required to
 | 40 | 972,770 | +117 | +78 |
 | 50 | 2,318,660 | +147 | +98 |
 
-The values are additional to the character's ordinary maximum health and magicka. Renown does not replace normal character levels, skills or other progression systems.
+The values are additional to the character's ordinary maximum health and Magicka. Renown does not replace normal character levels, skills or other progression systems.
 
 ## Effects on other mechanics
 
