@@ -3,11 +3,12 @@ title: Official Discord FAQ
 category: FAQs
 summary: Latty's Discord FAQ
 ---
+
 The information provided on this page is derived from an official [Discord](https://discord.gg/daggerfallonline) [channel](https://discord.com/channels/1345035007164678226/1556664733556408432). The information derived from it may become outdated over time, please refer to in-game documentation and/or the Discord itself for more current and relevant information if something provided herein is not accurate to the current game. 
 
 ## What do I need to play online mode?
 
-You need the Daggerfall game data and a Daggerfall Online [[topic:Accounts|account]]. For more detailed installation instructions, please visit [[Installation Guide]].
+You need the Daggerfall game data and a DFO Online [[topic:Accounts|account]]. For more detailed installation instructions, please visit [[Installation Guide]].
 
 ## Are my offline and online characters separate?
 
@@ -36,7 +37,7 @@ Yes. Online progression that belongs to a character is tracked separately for ea
 
 Online Mode uses the Enhanced gameplay lane. Shared gameplay systems are kept consistent between players, so one player cannot disable something that affects the shared world, although settings which are primarily cosmetic are able to be changed.
 
-## Is Daggerfall Online a persistent shared world?
+## Is DFO Online a persistent shared world?
 
 Yes. Players inhabit the same Iliac Bay. Supported shared systems include:
 
@@ -238,22 +239,22 @@ Supported sources include:
 
 There are 13 professions.
 
-| Type | Professions |
-|---|---|
-| Gathering | [[topic:Mining]], [[topic:Logging]], [[topic:Herbalism]], [[topic:Hunting]], [[topic:Fishing]] |
-| Crafting | [[topic:Smithing]], [[topic:Outfitting]], [[topic:Carpentry]], [[topic:Masonry]], [[topic:Alchemy]], [[topic:Enchanting]], [[topic:Cooking]], [[topic:Jewelcrafting]] |
+| Type      | Professions                                                                                                                                                           |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gathering | [[topic:Mining]], [[topic:Logging]], [[topic:Herbalism]], [[topic:Hunting]], [[topic:Fishing]]                                                                        |
+| Crafting  | [[topic:Smithing]], [[topic:Outfitting]], [[topic:Carpentry]], [[topic:Masonry]], [[topic:Alchemy]], [[topic:Enchanting]], [[topic:Cooking]], [[topic:Jewelcrafting]] |
 
 ## What are the profession ranks?
 
 Professions run from 0 to 100.
 
-| Rank | Level |
-|---|---|
-| Novice | 0 |
-| Apprentice | 25 |
-| Journeyman | 50 |
-| Expert | 75 |
-| Master | 100 |
+| Rank       | Level |
+| ---------- | ----- |
+| Novice     | 0     |
+| Apprentice | 25    |
+| Journeyman | 50    |
+| Expert     | 75    |
+| Master     | 100   |
 
 ## Where do gathered materials go?
 
@@ -296,11 +297,11 @@ No. Online Mode uses an [[topic:Empire Bank|Empire-wide bank account]] for suppo
 
 No. The normal online death penalty applies to gold carried in your purse.
 
-##Where is the market?
+## Where is the market?
 
 Use a town's [[topic:Notice Board]].
 
-##What can be traded through the market?
+## What can be traded through the market?
 
 Depending on the market section:
 
@@ -311,7 +312,7 @@ Depending on the market section:
 - Buy orders
 - Auctions
 
-##What market tools are available?
+## What market tools are available?
 
 The Notice Board includes:
 
@@ -325,11 +326,11 @@ The Notice Board includes:
 - Active listings
 - Active orders
 
-##Can the market use gold?
+## Can the market use gold?
 
 Yes. Some market systems use Drakes, while supported player item listings can use gold. Always check the currency before purchasing.
 
-##What is courier delivery?
+## What is courier delivery?
 
 Items bought from another region may require delivery. Courier delivery can add:
 
@@ -340,11 +341,11 @@ Items being delivered appear as *On the Road* until they arrive.
 
 ### Direct trading
 
-##Can I trade directly with another player?
+### Can I trade directly with another player?
 
 Yes. Players can [[topic:Player Trade|directly trade]] eligible items.
 
-##Can everything be traded?
+### Can everything be traded?
 
 No. Protected items may include:
 
@@ -358,41 +359,41 @@ Protected items may also be prevented from being dropped, sold, or stored.
 
 ## Housing
 
-##How do I buy a house online?
+### How do I buy a house online?
 
 Go to the house and interact with its front door. Online houses are purchased directly from the building.
 
-##Can two players own the same online house?
+### Can two players own the same online house?
 
 No. Online ownership of that building is exclusive.
 
-##Who can enter my house?
+### Who can enter my house?
 
 The owner controls access.
 
-##Can I decorate my house?
+### Can I decorate my house?
 
 Yes. Online houses support placed furniture and decorations.
 
-##Can houses have crafting stations?
+### Can houses have crafting stations?
 
 Yes. Supported furniture can become functional crafting stations.
 
-##Can I rent rooms to other players?
+### Can I rent rooms to other players?
 
 Yes. Supported online homes include player rental systems.
 
-##Are offline and online houses the same?
+### Are offline and online houses the same?
 
 No. Online housing and normal offline Daggerfall housing are separate systems.
 
 ## Player guilds
 
-##Are player guilds different from normal Daggerfall guilds?
+### Are player guilds different from normal Daggerfall guilds?
 
 Yes. Normal NPC factions still exist. Player guilds are a separate Online Mode system.
 
-##How many player guild ranks are there?
+### How many player guild ranks are there?
 
 There are four ranks:
 
@@ -401,7 +402,7 @@ There are four ranks:
 - Member
 - Recruit
 
-##What can guild permissions control?
+### What can guild permissions control?
 
 Guild permissions can control:
 
@@ -413,15 +414,15 @@ Guild permissions can control:
 - Guild notes
 - Heraldry
 
-##Do guilds have shared storage?
+### Do guilds have shared storage?
 
 Yes. A normal [[topic:Guild Vault|guild vault]] has 50 item slots. Owning a guild hall adds another 50 slots, so a hall-owning guild has 100 vault slots in total.
 
-##Can a guild change its name?
+### Can a guild change its name?
 
 Yes. [[topic:Guild Rename|Renaming]] the guild or guild tag costs 25,000 gold from the treasury, and there is a 14-day rename cooldown. Certain territorial situations can prevent renaming.
 
-##Do guilds have heraldry?
+### Do guilds have heraldry?
 
 Yes. Guild heraldry can appear on:
 
@@ -430,7 +431,7 @@ Yes. Guild heraldry can appear on:
 - Territory
 - Other guild displays
 
-##What is a guild hall?
+### What is a guild hall?
 
 A [[topic:Guild Hall|guild hall]] is shared guild property. Depending on permissions it can support:
 
@@ -442,27 +443,27 @@ A [[topic:Guild Hall|guild hall]] is shared guild property. Depending on permiss
 
 ## Territory and sieges
 
-##Can guilds control territory?
+### Can guilds control territory?
 
 Yes. Player guilds can compete for political holdings throughout the Iliac Bay.
 
-##What is a Seat?
+### What is a Seat?
 
 A [[topic:Seats|Seat]] is a capturable political holding tied to a supported palace settlement. Guilds compete through influence and territorial systems to control them.
 
-##Are there larger holdings?
+### Are there larger holdings?
 
 Yes. Major kingdom holdings form a higher level of territorial control.
 
-##Can another guild attack us whenever they want?
+### Can another guild attack us whenever they want?
 
 No. [[topic:Siege|Sieges]] use scheduled battle windows.
 
-##How does siege combat work?
+### How does siege combat work?
 
 Siege PvP is server-refereed. Because actual territory can change ownership, siege combat uses stronger validation than normal cooperative combat.
 
-##Can guilds build defenses?
+### Can guilds build defenses?
 
 Territorial systems can support:
 
@@ -472,7 +473,7 @@ Territorial systems can support:
 - Camps
 - Siege equipment
 
-##Are there seasons?
+### Are there seasons?
 
 Yes. Territorial play includes:
 
@@ -514,25 +515,25 @@ Players then enter the shared boss encounter. Eligible players receive their own
 
 ## PvP and duels
 
-##Is there open-world PvP?
+### Is there open-world PvP?
 
 As of [[patch:0.1.7051|Patch 0.1.7051]], the new [[topic:Wrothgarian Zone]] acts as an open world PvP area, players are warned before entering and are able to kill one another openly here. Any held or equipped items can be looted from you, as well as anything in your cart.
 
-##How do duels work?
+### How do duels work?
 
 Both players must agree. [[topic:Duels]] support melee weapons, bows and spells. The duel ends before the defeated player is actually killed, and both players are restored afterward.
 
-##Are duel records tracked?
+### Are duel records tracked?
 
 Yes. Duel results are recorded on online player profiles.
 
 ## Daggerfall Arena
 
-##Where is the Arena?
+### Where is the Arena?
 
 The Daggerfall Arena is located in Daggerfall city.
 
-##What can I do there?
+### What can I do there?
 
 Current features include:
 
@@ -548,33 +549,33 @@ Current features include:
 - Scheduled exhibitions
 - Private sessions
 
-##How does ranked matchmaking work?
+### How does ranked matchmaking work?
 
 Players queue through the [[topic:Arena Ladder|Arena]]. Matchmaking begins around your rating and expands the acceptable rating difference while you wait. Both players must accept before the match begins.
 
-##Can people spectate?
+### Can people spectate?
 
 Yes. Arena fights support spectators.
 
-##What are private sessions?
+### What are private sessions?
 
 A player can host a [[topic:Private Sessions|private session]] using a join code. The host chooses who fights and who spectates.
 
-##Are 5v5 battles, Arena betting or jousting available?
+### Are 5v5 battles, Arena betting or jousting available?
 
 Not yet. These systems are planned but are not currently playable.
 
 ## Important online differences
 
-##Does resting skip time for everyone?
+### Does resting skip time for everyone?
 
 No. Online Mode uses a shared event clock. Your rest advances your personal character time without forcing the rest of the server forward.
 
-##Can I disable shared online systems?
+### Can I disable shared online systems?
 
 Not when the feature affects the shared world. Shared systems must remain consistent between players.
 
-##Are horses, carts, camps and boats shared?
+### Are horses, carts, camps and boats shared?
 
 Supported world objects can be visible to other players and persist online. This can include:
 
@@ -587,7 +588,7 @@ Supported world objects can be visible to other players and persist online. This
 
 Some ships also support multiple players.
 
-##Does Online Mode have anti-cheat?
+### Does Online Mode have anti-cheat?
 
 It depends on the system. Normal cooperative gameplay still trusts parts of the player's client. More competitive or valuable systems use stronger server or relay validation, including:
 
@@ -598,6 +599,6 @@ It depends on the system. Normal cooperative gameplay still trusts parts of the 
 - Account progression
 - Reward claims
 
-##What if this guide disagrees with an old Discord post?
+### What if this guide disagrees with an old Discord post?
 
-Use the current in-game UI and announcements first. Daggerfall Online is actively developed, so older posts, screenshots and development notes may refer to systems that were changed, renamed or replaced. This wiki is maintained by community members and may also become outdated, so please keep in mind that everything here is provided as-is and without guarantee of being absolutely current. Please report any issues to the mainatiners and collaborators at [github](https://github.com/tau-samsara/udfop)
+Use the current in-game UI and announcements first. DFO Online is actively developed, so older posts, screenshots and development notes may refer to systems that were changed, renamed or replaced. This wiki is maintained by community members and may also become outdated, so please keep in mind that everything here is provided as-is and without guarantee of being absolutely current. Please report any issues to the mainatiners and collaborators at [github](https://github.com/tau-samsara/udfop)
