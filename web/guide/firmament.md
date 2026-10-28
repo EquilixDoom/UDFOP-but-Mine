@@ -166,7 +166,7 @@ Firmament limits the combined bonuses from allocated stars. These limits apply t
 | Weapon damage while below half Health | +25% |
 | Total weapon damage, including conditional bonuses | +50% |
 | Spell damage | +30% |
-| Spell penetration | -10 to enemy saving throws |
+| Spell penetration | −10 to enemy saving throws |
 | Casting speed | +15% |
 | Spell cost reduction for an individual school | 20% |
 | Combined spell cost reduction | 25% |
