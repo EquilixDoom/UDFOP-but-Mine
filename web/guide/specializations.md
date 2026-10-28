@@ -5,14 +5,15 @@ summary: A page listing the in-game Specializations
 ---
 
 > [!NOTE]
-> **Applies to:** *Online*. As of patch *0.0.437* for a list of the latest information go here for [[topic:Arcane Specialisations]] or here for [[topic:Martial Specialisations]]
+> **Applies to:** *Both Online and Offline*. As of patch *0.0.449* Which released on *2026/10/27* for a list of the latest information go here for [[topic:Arcane Specialisations]] or here for [[topic:Martial Specialisations]]
 
 This page lists each Specialization, Requirement, Passive and Signature Spell/Technique
 
 
 ## Limits and things to know
-- *Specializations are not unlockable in Offline without turning on Master Skills*
-- *All Specializations require two skills to be maxed to 100* 
+
+- *A Specialization can be taken under a trial run for a day after it is chosen. Changing it is free and immediate.*
+- *All Specializations require two skills to be maxed to 100 and be* [[Master Skills]] 
 - *The player can only have one martial and one arcane specialization per character*
 
 ## Specializations
@@ -53,8 +54,8 @@ This page lists each Specialization, Requirement, Passive and Signature Spell/Te
   | Vanguard | Long Blade and Blunt Weapon | **Iron Discipline:** Enemy blows deal 10% less damage to you. | **Judgement:** leap up to 8 meters onto an enemy and hit every enemy within 2.5 meters of where you land. Each enemy it hits restores 4% of your health (up to 3 enemies).
 
 ## History
-- Martial Specializations were Introduced in Patch 0.1.9472
-- Arcane Specializations were Introduced in Patch 0.1.8519
+- Martial Specializations was Introduced in Patch 0.1.9472
+- Arcane Specializations was Introduced in Patch 0.1.8519
 
 ## Sources
 
