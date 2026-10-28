@@ -5,7 +5,7 @@ summary: A page explaining Master Skills
 ---
 
 > [!NOTE]
-> **Applies to:** *Online and as an option for Offline*. As of patch *0.0.441*.  for a list of the latest information go here [[topic:Master Skills]]
+> **Applies to:** *Online and as an option for Offline*. As of patch *0.0.449* which released on *2026/10/27*.  for a list of the latest information go here [[topic:Master Skills]]
  This page goes in to detail about Master Skills and their Limitations and Benefits.
 
 ## Limits and things to know
@@ -47,7 +47,7 @@ summary: A page explaining Master Skills
 > - "**Blunt Weapon:** up to 80% harder against fresh foes (half health or more)."
 >   - "Against the Oblivion Gate's court, the Elite Gates, the Remnant and the sea serpent, whose health the server keeps, the Axe and the Blunt Weapon each land up to 40% harder on every blow."
 > - "**Short Blade:** swings up to 40% faster."
-> - **Hand-to-Hand:** its damage already grew with the skill, and still does.
+> - "**Hand-to-Hand:** its damage already grew with the skill, and still does."
 > From lattymoy, Patch 0.1.9472 also known as Martial Specialisations
 ---
 ## Speculation
