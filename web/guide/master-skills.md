@@ -13,7 +13,7 @@ summary: A page explaining Master Skills
 - *All mastered skills can be leveled past 100 to a maximum of 200*
 - *Once you master a skill it cannot be changed and is **permanent** for that character.*
 - *The maximum amount of Mastered skills a character can have is 6*
-- *If a combination of skills are mastered it can open the possibility to use * [[Specializations]]
+- *If a combination of skills are mastered it can open the possibility to use* [[Specializations]]
 
 ## Master Skills
 *All skills can be leveled to 100 but only 6 can be mastered 3 Primary, 2 Major and 1 Minor.*
