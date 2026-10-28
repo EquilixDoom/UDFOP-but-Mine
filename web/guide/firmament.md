@@ -35,7 +35,7 @@ The game uses *star* for both an element of the tree and a type of spendable poi
 
 | Points | Acquisition | Allocation | Maximum |
 |---|---|---|---|
-| Stars | 2 for each [[Renown]] level after level 1 | Any star | 98 at Renown 50 |
+| Stars | 2 for each [[topic:Renown]] level after level 1 | Any star | 98 at Renown 50 |
 | Craft points | 1 for every 8 combined profession ranks | Craft stars only | 125 |
 
 Profession ranks are summed across all ten [[topic:Professions]], each with a maximum rank of 100. When Craft stars are allocated, available Craft points are spent before Stars.
