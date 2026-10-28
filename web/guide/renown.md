@@ -1,6 +1,6 @@
 ---
 title: Renown
-category: Game Mechanics
+category: Character
 summary: Online character progression that increases health and magicka and affects encounters, sigils and loot.
 authors: pureiimagination
 related: topic:Renown
