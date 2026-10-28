@@ -17,7 +17,7 @@ Firmament is a passive progression system in DFO Online. Its tree contains 518 i
 
 A character develops their allocation by selecting a birthsign and spending points along connected paths. Firmament is accessed through **Pause Menu → Growth → Firmament**.
 
-![The Firmament interface showing the progression tree, Stars and Craft point balances, and a highlighted path.](images/firmament-tree.png "The Firmament progression tree and its controls."){center 900}
+![The Firmament interface showing the progression tree, Stars and Craft point balances, and a highlighted path.](images/firmament-tree.png "The Firmament progression tree and its controls."){right 320}
 
 ## Terminology
 
