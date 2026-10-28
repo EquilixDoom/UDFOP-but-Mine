@@ -13,17 +13,17 @@ related: topic:Renown
 
 Renown is a separate progression level earned through online activities. It exists alongside the character's normal Daggerfall level and provides additional maximum health and magicka during online play.
 
-Renown belongs to each character individually, but its progress is stored by the account service rather than in the Daggerfall save file. Playing offline does not earn Renown XP, and the additional attributes granted by Renown are not applied offline. See the [Renown implementation](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/net/renown.js).
+Renown belongs to each character individually, but its progress is stored by the account service rather than in the Daggerfall save file. Playing offline does not earn Renown XP, and the additional attributes granted by Renown are not applied offline.
 
 ## Earning Renown
 
 Renown XP can be earned through several online activities:
 
-- **Defeating enemies.** A character earns XP when an enemy dies within 30 seconds of a hit landed by that character, even if someone else delivers the killing blow. City watch members, allies and kills treated as murder do not award Renown XP. See [combat tracking](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/net/renownTracker.js).
+- **Defeating enemies.** A character earns XP when an enemy dies within 30 seconds of a hit landed by that character, even if someone else delivers the killing blow. City watch members, allies and kills treated as murder do not award Renown XP.
 - **Completing quests.** Quest XP is based on the character's normal Daggerfall level, subject to the Renown scaling limit.
-- **Winning Arena bouts.** Victories in the Arena ladder and rated matches between players award Renown XP. The amount depends on the bout or tier. See [Arena rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/arena.js).
-- **Participating in world events.** Eligible rewards include defending towns against raiding parties, claiming fallen stars and fighting the sea serpent. These activities have their own participation and claim conditions. See [raid rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/raids.js), [star rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/stars.js) and [serpent rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/serpents.js).
-- **Completing writs.** Gathering and crafting writs can award Renown alongside their other rewards. See [writ rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/professions.js).
+- **Winning Arena bouts.** Victories in the Arena ladder and rated matches between players award Renown XP. The amount depends on the bout or tier.
+- **Participating in world events.** Eligible rewards include defending towns against raiding parties, claiming fallen stars and fighting the sea serpent. These activities have their own participation and claim conditions.
+- **Completing writs.** Gathering and crafting writs can award Renown alongside their other rewards.
 
 ### Combat and quest XP
 
@@ -34,8 +34,6 @@ A kill grants 10 XP per effective enemy level before the 75% Renown rate is appl
 ### Party bonus
 
 Each eligible player who contributed a recent hit can receive the full XP for a defeated enemy. For party members in the same room, the kill award increases by **10% for each additional member**, up to eight members in total. A full party can therefore receive **170% of the normal kill XP per eligible player**. The final award is rounded to a whole number.
-
-These calculations are defined in the [Renown XP rules](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/net/renown.js).
 
 ## Levels and attribute bonuses
 
@@ -51,7 +49,7 @@ Every character begins at Renown 1. The maximum is **Renown 50**, requiring **2,
 | 40 | 972,770 | +117 | +78 |
 | 50 | 2,318,660 | +147 | +98 |
 
-The values are additional to the character's ordinary maximum health and magicka. Renown does not replace normal character levels, skills or other progression systems. See [Renown bonuses](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/renownLayer.js).
+The values are additional to the character's ordinary maximum health and magicka. Renown does not replace normal character levels, skills or other progression systems.
 
 ## Effects on other mechanics
 
@@ -71,17 +69,17 @@ Renown determines the highest stage of a weapon's sigil power that its wielder c
 | 30–39 | Radiant |
 | 40–50 | Ascendant |
 
-Sigil damage bonuses are inactive offline. Higher Renown also improves the online loot bonuses associated with these same five stages. Offline loot does not scale with Renown. See [sigil stages](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/sigil/sigil.js) and [Renown-based loot](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/renownLoot.js).
+Sigil damage bonuses are inactive offline. Higher Renown also improves the online loot bonuses associated with these same five stages. Offline loot does not scale with Renown.
 
 ### Enemy encounters
 
 In online play, **Renown 5** is required for elite enemies generated by the player's own open-world encounters and searches. This restriction does not apply to elite selections in shared dungeons.
 
-**Renown 10** is required for the character's revenants to become active online. Revenants also require the Loot rarity setting to be enabled. These Renown requirements do not restrict the corresponding offline encounters. See [elite enemies](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/eliteFoes.js) and [revenants](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/revenant/revenant.js).
+**Renown 10** is required for the character's revenants to become active online. Revenants also require the Loot rarity setting to be enabled. These Renown requirements do not restrict the corresponding offline encounters.
 
 ## Progress and limits
 
-The in-game HUD displays the current Renown level and an XP progress bar. XP earned but not yet confirmed by the account service can appear as a provisional portion of the bar. Renown is also displayed beside player names and in profiles; the account view includes character progress. See the [HUD implementation](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/ui/hud/hudRenown.js).
+The in-game HUD displays the current Renown level and an XP progress bar. XP earned but not yet confirmed by the account service can appear as a provisional portion of the bar. Renown is also displayed beside player names and in profiles; the account view includes character progress.
 
 The account service applies the following limits:
 
@@ -89,4 +87,24 @@ The account service applies the following limits:
 - **Renown 50** is the level cap. Once the character has reached the required total, further XP is not stored.
 - An account can hold Renown tracks for up to **60 living characters**. Records of deceased or retired characters do not occupy this allowance.
 
-Writ rewards are an exception to the hourly XP allowance: their Renown is awarded separately from the standard hourly report system. See [account-side Renown tracking](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/renownTracks.js), [gathering writ delivery](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/professions.js) and [crafting writ delivery](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/craftWrits.js).
+Writ rewards are an exception to the hourly XP allowance: their Renown is awarded separately from the standard hourly report system.
+
+## Sources
+
+Source code for Update **0.0.468** (`app-v0.1.12955`):
+
+- [Renown implementation](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/net/renown.js)
+- [Combat tracking](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/net/renownTracker.js)
+- [Arena rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/arena.js)
+- [Raid rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/raids.js)
+- [Star rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/stars.js)
+- [Serpent rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/serpents.js)
+- [Writ rewards](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/professions.js)
+- [Renown bonuses](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/renownLayer.js)
+- [Sigil stages](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/sigil/sigil.js)
+- [Renown-based loot](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/renownLoot.js)
+- [Elite enemies](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/eliteFoes.js)
+- [Revenants](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/systems/revenant/revenant.js)
+- [HUD implementation](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/src/ui/hud/hudRenown.js)
+- [Account-side Renown tracking](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/renownTracks.js)
+- [Crafting writ delivery](https://github.com/Lattymoy/daggerfall-js-source/blob/app-v0.1.12955/server-account/src/craftWrits.js)
