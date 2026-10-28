@@ -1210,7 +1210,7 @@
             bits.push("Created " + esc(entry.created) + " by " + esc(entry.cby));
             if (entry.updated !== entry.created || entry.by !== entry.cby) bits.push("Last updated " + esc(entry.updated) + " by " + esc(entry.by));
           }
-          if (anchor) anchor.insertAdjacentHTML("afterend", '<p class="pagemeta banner"><small class="muted">' + bits.join(" · ") + "</small></p>");
+          if (anchor) anchor.insertAdjacentHTML("afterend", '<p class="pagemeta banner"><small class="muted">' + bits.join("<br>") + "</small></p>");
         }
         if (source) { showSource(raw); return; }
         if (hist) { showHistory(); return; }
