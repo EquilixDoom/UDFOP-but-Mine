@@ -17,23 +17,39 @@ Renown belongs to each character individually, but its progress is stored by the
 
 ## Earning Renown
 
-Renown XP can be earned through several online activities:
+Renown XP comes from combat, quests, Arena victories, world events and completed writs. Rewards are credited to the character that earned or claimed them. Most sources use the same account-wide limit of **15,000 XP per clock hour**; gathering and crafting writ rewards are credited separately and do not use that hourly allowance. No source can raise a character above Renown 50.
 
-- **Defeating enemies.** A character earns XP when an enemy dies within 30 seconds of a hit landed by that character, even if someone else delivers the killing blow. City watch members, allies and kills treated as murder do not award Renown XP.
-- **Completing quests.** Quest XP is based on the character's normal Daggerfall level, subject to the Renown scaling limit.
-- **Winning Arena bouts.** Victories in the Arena ladder and rated matches between players award Renown XP. The amount depends on the bout or tier.
-- **Participating in world events.** Eligible rewards include defending towns against raiding parties, claiming fallen stars and fighting the sea serpent. These activities have their own participation and claim conditions.
-- **Completing writs.** Gathering and crafting writs can award Renown alongside their other rewards.
+### Defeating enemies
 
-### Combat and quest XP
+A kill can award XP when the enemy dies within **30 seconds** of a hit you landed. You receive the full eligible kill award even if another player deals the final blow. Each party member who qualifies can receive XP; party members in the same room increase the award by **10% per additional member**, up to eight members total.
 
-Enemy kills and ordinary quests use a scaling limit: their effective level for Renown XP cannot exceed **the character's current Renown + 3**, or level 30. This limits how quickly a high-level Daggerfall character can advance through the early Renown levels.
+The kill's effective enemy level is the lowest of the enemy's level, **Renown + 3**, and **30**. XP is `floor(0.75 × 10 × effective enemy level)`, before the party bonus. For example, a level-30 enemy at Renown 1 is counted as level 4 and awards **30 XP** before any party bonus.
 
-A kill grants 10 XP per effective enemy level before the 75% Renown rate is applied. A quest grants 100 XP plus 40 XP per effective character level before the same rate. Fractional XP is rounded down. For example, a level-30 enemy defeated at Renown 1 is treated as level 4 for this calculation and grants **30 Renown XP**.
+City watch, townspeople, your own allies and kills treated as murder do not award Renown. A scripted kill without a qualifying hit, or an enemy that dies to poison more than 30 seconds after your last hit, also gives no XP.
 
-### Party bonus
+### Completing quests
 
-Each eligible player who contributed a recent hit can receive the full XP for a defeated enemy. For party members in the same room, the kill award increases by **10% for each additional member**, up to eight members in total. A full party can therefore receive **170% of the normal kill XP per eligible player**. The final award is rounded to a whole number.
+Ordinary quest XP is based on your Daggerfall character level, limited to **Renown + 3** and level **30**. The reward is `floor(0.75 × (100 + 40 × effective character level))`. This limit prevents a high-level character from earning Renown as if every quest were scaled to level 30 from the start.
+
+### Winning Arena bouts
+
+A victory in the PvE Arena ladder or a rated player-versus-player bout awards Renown to the character named for the claim. A loss, draw, unrated match, or replay of a ladder step already won gives no Renown.
+
+A regular ladder win pays the equivalent of one quest at its tier's reference level; higher tiers use higher reference levels. A tier champion bout pays twice that amount, and the Grand Champion bout pays three times the top-tier amount. A rated PvP win pays one quest reward at level 30, subject to the same Renown-level scaling limit as other quest-based rewards. The account's hourly XP limit applies.
+
+### Participating in world events
+
+- **Raiding parties:** A successful claim for a defended town pays the equivalent of **three level-30 quest rewards**, scaled to the character's Renown. An account can claim up to six raids per game day. The account-wide hourly XP limit applies.
+- **Fallen stars:** Claiming a fallen star after eligible participation pays the same Renown as defending a town from a raid. Each star pays an account once, and the hourly limit applies.
+- **Sea serpent:** A successful claim for a serpent slain pays **six level-30 quest rewards**, scaled to Renown. If the character's participation is recorded as staying through the fight rather than dealing damage, the reward is halved. The hourly limit applies.
+
+Event rewards are paid to the character that fought the event. A signed event claim can credit only the amount remaining under the account's hourly allowance and the character's Renown cap.
+
+### Completing writs
+
+**Gathering writs** include daily Court writs and writs posted by guild chapters. Completing a writ awards `floor(0.75 × 25 × tier × units ÷ 10)` Renown XP, where *tier* and *units* are the writ's tier and requested quantity. The reward is credited separately from the hourly XP allowance.
+
+**Crafting writs** are offered on the daily Work board, up to three per account each UTC day. Completing a writ awards `floor(0.75 × 2 × silver pay)` Renown XP. The reward is credited separately from the hourly allowance. The writ must be completed with the required goods or crafted items before it expires.
 
 ## Levels and attribute bonuses
 
