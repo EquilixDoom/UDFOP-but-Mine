@@ -13,7 +13,7 @@ related: topic:Firmament
 
 ## Overview
 
-![The Firmament interface showing the progression tree, Stars and Craft point balances, and a highlighted path.](images/firmament-tree.png "The Firmament progression tree and its controls."){right 240}
+![The Firmament interface showing the progression tree, Stars and Craft points, and a highlighted path.](images/firmament-tree.png "The Firmament progression tree and its controls."){right 240}
 
 Firmament is a passive progression system in DFO Online. Its tree contains 518 interconnected stars that provide bonuses to combat, magic, professions, trade, and exploration.
 
