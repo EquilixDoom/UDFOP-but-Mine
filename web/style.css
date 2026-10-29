@@ -543,6 +543,20 @@ a.btn:hover { filter: brightness(1.1); text-decoration: none; }
 sup.lt { font-size: .62em; line-height: 0; margin-left: 1px; font-weight: 700; letter-spacing: .02em; color: var(--muted); }
 
 /* the automatic References section at the bottom of a guide page */
+.gl-bar { display: flex; align-items: baseline; gap: .8em; flex-wrap: wrap; }
+.gl-bar input.filter { flex: 0 1 20em; }
+.gl-letters { display: flex; flex-wrap: wrap; gap: 2px; margin: 0 0 .6em; }
+.gl-letters a, .gl-letters span { min-width: 1.6em; padding: 1px 4px; text-align: center; }
+.gl-letters.cats { gap: 2px 6px; }
+.gl-letters.cats a { padding: 1px 6px; }
+.gl-letters span { color: var(--muted); opacity: .55; }
+h2.gl-ltr { margin: 1em 0 .2em; font-size: 1.15rem; }
+.gl-e { padding: .5em 0; border-bottom: 1px solid var(--line); }
+.gl-e:last-child { border-bottom: none; }
+.gl-e[hidden], .gl-ltr[hidden], .gl-none[hidden] { display: none; }
+.gl-e p { margin: 0 0 .15em; }
+.gl-t { font-weight: bold; }
+.gl-al, .gl-s { font-size: .85rem; }
 sup.fnref { font-size: .75em; line-height: 0; margin-left: 1px; font-weight: 700; }
 sup.fnref a { text-decoration: none; }
 .fnhit { background: color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 3px; }

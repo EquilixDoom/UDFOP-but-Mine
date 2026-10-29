@@ -1126,7 +1126,7 @@
   views.guide = function (arg) {
     if (arg && arg.indexOf("category/") === 0) return views.guidecat(arg.slice(9));
     if (arg) return views.guidepage(arg);
-    var h = "<p>The Game Guide is the community-written part of UDOP: how things in DFO Online work, written by players. Unlike the patch notes it is edited by hand, so anyone can improve it.</p>" + contribBox();
+    var h = "<p>The Game Guide is the community-written part of UDOP: how things in DFO Online work, written by players. Unlike the patch notes it is edited by hand, so anyone can improve it.</p>" + '<p class="browse"><b>Browse:</b> <a href="#/glossary">Glossary</a></p>' + contribBox();
     if (guide === null) h += "<p>Loading…</p>";
     else if (guideFailed) h += guideUnavailable();
     else if (!listedGuide().length) h += "<p>There are no guide pages yet. Be the first to write one.</p>";
@@ -1146,6 +1146,10 @@
     return { title: c, html: page(esc(c), h, { hat: GUIDE_HAT + " › " + esc(c) }), toc: false };
   };
   views.guidepage = function (slug) {
+    if (slug.toLowerCase() === "glossary") {   /* the glossary has its own address; a link to one of its terms (#s-term) opens that entry */
+      var q = location.hash.indexOf("?"), f = location.hash.indexOf("#", 1);
+      location.replace("#/glossary" + (q >= 0 ? location.hash.slice(q, f > q ? f : undefined) : "") + (f > 0 ? location.hash.slice(f).replace(/^#s-/, "#gl-") : "")); return null;
+    }
     if (MOVED[slug.toLowerCase()]) { location.replace(MOVED[slug.toLowerCase()]); return null; }
     return pageView("guide", slug);
   };
@@ -1164,14 +1168,88 @@
       return m ? '<a href="' + esc(m[2]) + '" rel="noopener">' + esc(m[1]) + "</a>" : esc(a.trim());
     }).filter(Boolean).join(", ");
   }
+  /* The Glossary (#/glossary) is built from the Game Guide page web/guide/glossary.md, which anyone can edit. Each term is a ### heading; under it come an optional "Also called:" line,
+     the definition, and an optional "See also:" line. Other headings (a letter, say) and the text before the first term are ignored. The terms are sorted and grouped by first letter;
+     each entry can be linked as #/glossary#gl-term. */
+  function glossaryId(term) { return "gl-" + term.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  function glossaryRows(raw) {
+    var rows = [], cur = null, fence = false;
+    frontMatter(raw).body.split("\n").forEach(function (l) {
+      var h, m;
+      if (/^(`{3,}|~{3,})/.test(l)) { fence = !fence; return; }
+      if (fence) return;
+      if ((h = /^(#{1,6})\s+(.*?)(?:\s+#+)?\s*$/.exec(l))) { cur = h[1].length === 3 ? { term: plainText(h[2]), also: "", cat: "", def: [], see: "" } : null; if (cur) rows.push(cur); return; }
+      if (!cur || !l.trim()) return;
+      if ((m = /^[*_]*(Also called|See also|Category)[*_]*\s*:\s*[*_]*\s*(.*)$/i.exec(l.trim()))) { var v = m[2].replace(/[*_]+$/, ""); if (/^also/i.test(m[1])) cur.also = v; else if (/^cat/i.test(m[1])) cur.cat = plainText(v); else cur.see = m[2]; }
+      else cur.def.push(l.trim());
+    });
+    return rows.filter(function (r) { return r.term && r.def.length; }).map(function (r) { r.def = r.def.join(" "); return r; })
+      .sort(function (a, b) { return a.term.toLowerCase() < b.term.toLowerCase() ? -1 : a.term.toLowerCase() > b.term.toLowerCase() ? 1 : 0; });
+  }
+  /* draws the glossary into box from the Markdown body of web/guide/glossary.md (the page it is read from keeps that page's View Source and History tabs) */
+  function drawGlossary(box, body) {
+    var rows = glossaryRows(body), intro = '<p>Short shared definitions for the terms the Game Guide uses. Each entry links to the page that explains it in full.</p>';
+    if (!rows.length) { box.innerHTML = intro + '<div class="mbox">The glossary has no entries yet. Add a term to this page with the Edit link below.</div>'; return; }
+    refs = newRefs("guide|glossary");
+    var az = routeQuery.group === "az", html = "", last = "", have = {}, groups = [], bar = "";
+    /* grouped by category (the default; a term with none goes under Other, last) or A to Z */
+    function groupOf(r) { return az ? (/^[a-z]/i.test(r.term) ? r.term.charAt(0).toUpperCase() : "#") : (r.cat || "Other"); }
+    rows.slice().sort(function (x, y) {
+      var gx = groupOf(x), gy = groupOf(y);
+      if (!az && gx !== gy) return gx === "Other" ? 1 : gy === "Other" ? -1 : gx.toLowerCase() < gy.toLowerCase() ? -1 : 1;
+      return 0;
+    }).forEach(function (r) {
+      var g = groupOf(r), gid = az ? "gl-letter-" + (g === "#" ? "other" : g) : "gl-cat-" + g.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      if (g !== last) { html += '<h2 class="gl-ltr" id="' + gid + '">' + esc(g) + "</h2>"; last = g; have[g] = gid; groups.push(g); }
+      var meta = (az && r.cat ? esc(r.cat) : "") + (az && r.cat && r.also ? " · " : "") + (r.also ? "Also called: " + esc(r.also) : "");
+      html += '<div class="gl-e" id="' + glossaryId(r.term) + '" data-find="' + esc((r.term + " " + r.also + " " + r.cat + " " + plainText(r.def)).toLowerCase()) + '"><p class="gl-t">' + wikiLink(r.term) + "</p>" +   /* the term opens the guide page of that name; with none it is a red link that starts one */
+        (meta ? '<p class="gl-al muted">' + meta + "</p>" : "") + '<p class="gl-d">' + inline(r.def) + "</p>" +
+        (r.see ? '<p class="gl-s muted">See also: ' + inline(r.see) + "</p>" : "") + "</div>";
+    });
+    refs = null;
+    if (az) bar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").map(function (c) { return have[c] ? '<a href="' + pagePath() + "#" + have[c] + '">' + c + "</a>" : '<span aria-hidden="true">' + c + "</span>"; }).join("");
+    else bar = groups.map(function (g) { return '<a href="' + pagePath() + "#" + have[g] + '">' + esc(g) + "</a>"; }).join("");
+    var tabs = '<nav class="gtabs" aria-label="Group the glossary">' + (az ? '<a href="#/glossary">By category</a><span class="on" aria-current="page">A to Z</span>' : '<span class="on" aria-current="page">By category</span><a href="#/glossary?group=az">A to Z</a>') + "</nav>";
+    box.innerHTML = intro + tabs + '<div class="gl-bar"><input type="search" class="filter" placeholder="Filter terms" aria-label="Filter the glossary" autocomplete="off"><span class="gl-n muted" role="status" aria-live="polite"></span></div>' +
+      '<nav class="gl-letters' + (az ? "" : " cats") + '" aria-label="' + (az ? "Jump to a letter" : "Jump to a category") + '">' + bar + '</nav><div class="gl-list">' + html + '</div><p class="gl-none muted" hidden>No term matches.</p>';
+    var input = box.querySelector("input"), count = box.querySelector(".gl-n"), entries = box.querySelectorAll(".gl-e"), letters = box.querySelectorAll(".gl-ltr");
+    function filter() {
+      var w = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
+      Array.prototype.forEach.call(entries, function (e) {
+        var ok = w.every(function (x) { return e.getAttribute("data-find").indexOf(x) >= 0; });
+        e.hidden = !ok; if (ok) shown++;
+      });
+      /* a heading stays while any entry after it, up to the next heading, is shown */
+      Array.prototype.forEach.call(letters, function (l) { var n = l.nextElementSibling, any = false; while (n && !n.classList.contains("gl-ltr")) { if (!n.hidden) any = true; n = n.nextElementSibling; } l.hidden = !any; });
+      count.textContent = w.length ? shown + " of " + entries.length + " terms" : entries.length + " terms";
+      box.querySelector(".gl-none").hidden = shown > 0;
+      /* the words typed are painted in the entries shown (the CSS Custom Highlight API, as in guide tables; a browser without it shows none) */
+      if (window.CSS && CSS.highlights && typeof Highlight !== "undefined") {
+        var found = [];
+        if (w.length) Array.prototype.forEach.call(entries, function (e) {
+          if (e.hidden) return;
+          var tw = document.createTreeWalker(e, NodeFilter.SHOW_TEXT), n;
+          while ((n = tw.nextNode())) {
+            var low = n.nodeValue.toLowerCase();
+            w.forEach(function (x) { for (var at = low.indexOf(x); at >= 0; at = low.indexOf(x, at + x.length)) { var rg = document.createRange(); rg.setStart(n, at); rg.setEnd(n, at + x.length); found.push(rg); } });
+          }
+        });
+        if (found.length) CSS.highlights.set("tfind", new Highlight(...found)); else CSS.highlights.delete("tfind");
+      }
+    }
+    input.addEventListener("input", filter); filter();
+  }
+  /* #/glossary is the guide page glossary (unlisted) drawn as the glossary, with that page's own Read, View Source and History tabs */
+  views.glossary = function () { return pageView("guide", "glossary", true); };
   /* one Markdown page of the Game Guide (web/guide/) or the Site Guide (web/site/); both are rendered the same way */
-  function pageView(area, slug) {
+  function pageView(area, slug, glossary) {   /* glossary: the Glossary page, which is the guide page glossary drawn as the glossary */
     var site = area === "site", bySlug = site ? siteBySlug : guideBySlug, byTitle = site ? siteByTitle : guideByTitle, dir = site ? "site/" : "guide/";
     var entry = bySlug[slug.toLowerCase()] || byTitle[slug.toLowerCase()], front = site && (entry ? entry.slug : slug) === "index";
     var title = entry ? entry.title : slug.split("/").pop();
     var real = entry ? entry.slug : slug, slugPath = real.split("/").map(enc).join("/");
     return { title: title, html: page(esc(title), '<div id="gp"><p>Loading…</p></div>', { hat: front ? HOME_HAT + " › Site Guide" : site ? SITE_HAT : GUIDE_HAT }), after: function () {
       var box = document.getElementById("gp");
+      if (glossary && guide === null) return;   /* the page list is still loading and the terms are checked against it: the page is drawn again when it arrives */
       /* the View Source tab: the page's Markdown file in a read-only copy of the editor's panes, with a notice on how to change it. The editor's colors are fetched the first time. */
       function showSource(raw) {
         var text = raw.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n"), file = dir + real + ".md", gh = REPO + "/edit/main/web/" + dir + slugPath + ".md";
@@ -1236,13 +1314,14 @@
         document.title = t + " – " + SHORT;
         setNav(["page:" + (site ? "site/" : "") + real.toLowerCase(), area]);   /* the page's real slug, not the title or odd capitals someone typed */
         document.querySelector("h1.title").textContent = t;
-        var base = entry ? purl(entry) : (site ? "#/site/" : "#/guide/") + slugPath, source = routeQuery.view === "source", hist = routeQuery.view === "history";
+        var base = glossary ? "#/glossary" : entry ? purl(entry) : (site ? "#/site/" : "#/guide/") + slugPath, source = routeQuery.view === "source", hist = routeQuery.view === "history";
         /* the same tabs as the By type / By topic switch: the chosen one is not a link */
         function vtab(on, label, href, right) { return on ? '<span class="on' + (right ? " ptab-r" : "") + '" aria-current="page">' + label + "</span>" : '<a' + (right ? ' class="ptab-r"' : "") + ' href="' + href + '">' + label + "</a>"; }
         document.querySelector("h1.title").insertAdjacentHTML("afterend", '<nav class="gtabs ptabs banner" aria-label="Views of this page"><span class="on">Article</span>' +
           vtab(!source && !hist, "Read", base, true) + vtab(source, "View Source", base + "?view=source", false) + vtab(hist, "History", base + "?view=history", false) + "</nav>");
         var hat = document.querySelector(".hat");
-        if (hat && !site) { if (entry && entry.unlisted) hat.remove(); else hat.innerHTML = GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a>"; }
+        if (hat && glossary) hat.innerHTML = GUIDE_HAT + " › Glossary";
+        else if (hat && !site) { if (entry && entry.unlisted) hat.remove(); else hat.innerHTML = GUIDE_HAT + ' › <a href="#/guide/category/' + enc(cat) + '">' + esc(cat) + "</a>"; }
         if (entry && (entry.created || entry.authors)) {   /* who wrote the page (front matter authors:), when it was made and last changed, and by whom (from its commits) */
           var anchor = document.querySelector(".hat") || document.querySelector(".tagline"), bits = [];
           if (entry.authors) bits.push(authorsLine(entry.authors));
@@ -1254,6 +1333,11 @@
         }
         if (source) { showSource(raw); return; }
         if (hist) { showHistory(); return; }
+        if (glossary) {
+          drawGlossary(box, fm.body);
+          box.insertAdjacentHTML("beforeend", '<p class="editline footer-note">Want to contribute? <a href="' + HOWTO + '">Learn how</a><br><a href="' + REPO + '/fork" rel="noopener">Fork project</a> | <a href="' + REPO + "/edit/main/web/" + dir + slugPath + '.md" rel="noopener">Edit this page on github</a><br><a href="#/editor?page=' + enc(real) + '">Open this page in the Editor</a></p>');
+          fitEndPad(); jumpPending(); return;
+        }
         mdRoot = dir;
         mdBase = real.indexOf("/") >= 0 ? real.replace(/[^/]*$/, "") : "";
         refs = newRefs(area + "|" + real);
@@ -1809,7 +1893,7 @@
     .then(function () {
       return fetch("tools.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (j) { toolList = j; }).catch(function () { toolList = []; });
     })
-    .then(function () { if (/^#\/(guide|site|search|about|tools)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
+    .then(function () { if (/^#\/(guide|site|search|about|tools|glossary)?(\/|$)/.test(location.hash) || location.hash === "" || location.hash === "#") route(); });
   document.getElementById("foot-stats").textContent = D.totals.rows.toLocaleString() + " changes · " + topics.length + " topics · " + allVersions.length + " patches · latest " + versions[0] + " (" + dateOf(versions[0]) + ")";
 
   /* search box with suggestions */
@@ -2177,7 +2261,7 @@
     if (name !== "feedback") feedbackPage = location.href;
     var fr = document.getElementById("foot-report");
     if (fr) { fr.href = "#/feedback"; }
-    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", patches: "patchnotes", patch: "patchnotes", site: "site", tools: "tools", about: "about", credits: "credits", editor: "editor" }[name];
+    var nav = { home: "home", feedback: "feedback", guide: "guide", patchnotes: "patchnotes", recent: "patchnotes", topics: "patchnotes", topic: "patchnotes", hubs: "patchnotes", hub: "patchnotes", patches: "patchnotes", patch: "patchnotes", glossary: "guide", site: "site", tools: "tools", about: "about", credits: "credits", editor: "editor" }[name];
     var keys = [nav];
     if (name === "guide") {
       if (arg.indexOf("category/") === 0) keys = ["guide"];
