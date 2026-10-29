@@ -230,7 +230,7 @@ Writs can award Renown XP.[^writs]
 
 [^writs]: https://example.com/source
 
-The reference becomes a small numbered link, and the notes are listed under a **Footnotes** heading at the end of the page, before References.
+The reference becomes a small numbered link, and the notes are listed under a **Footnotes** heading at the end of the page, before References. The [[site:Footnote demo]] page shows more cases.
 
 - **Numbering** follows the order the references first appear in the text, whatever the order of the notes. Using the same name again reuses its number, and the note gets a way back for each use.
 - **A note** can hold links, bold, italic and other links of the guide. A note that is only an address shows it as a link. A long note can continue on the lines after it if they are indented.
