@@ -11,7 +11,7 @@ summary: A page listing information about Vampires
 > This page and it's information has not been extensively tested in-game!
 
 
-This page lists  Vampire Bloodline, Advantage, Disadvantage and Bloodline Gift.
+This page lists Vampire Bloodline, Advantage, Disadvantage and Bloodline Gift.
 
 
 
