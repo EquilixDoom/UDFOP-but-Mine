@@ -306,6 +306,25 @@ def check_headings(pages, problems):
             problems.append(('warn', p['_where'], '%d line%s begin%s with # but %s no space after the hashes, so %s shown as plain text instead of a heading (first: "%s"). Add a space after the hashes' % (len(bad), '' if one else 's', 's' if one else '', 'has' if one else 'have', 'it is' if one else 'they are', bad[0].strip()[:60])))
 
 
+FN_DEF = re.compile(r'^\[\^([^\]\s]+)\]:', re.M)
+FN_DEF_LINES = re.compile(r'^\[\^[^\]\s]+\]:.*(?:\n[ \t]{2,}\S.*)*', re.M)
+FN_REF = re.compile(r'\[\^([^\]\s]+)\]')
+
+
+def check_footnotes(pages, problems):
+    """A footnote reference [^id] needs a definition line [^id]: text, and a definition needs a reference. An undefined reference stays as written."""
+    for p in pages:
+        body = strip_code(p['_body'])
+        defs = FN_DEF.findall(body)
+        used = {m.group(1) for m in FN_REF.finditer(FN_DEF_LINES.sub('', body))}   # a reference inside a definition is only text
+        for i in sorted(used - set(defs)):
+            problems.append(('error', p['_where'], 'the footnote reference [^%s] has no definition, so it is shown as written (add a line "[^%s]: the note")' % (i, i)))
+        for i in sorted({d for d in defs if defs.count(d) > 1}):
+            problems.append(('error', p['_where'], 'the footnote [^%s] is defined more than once (only the first is used)' % i))
+        for i in sorted(set(defs) - used):
+            problems.append(('warn', p['_where'], 'the footnote [^%s] is defined but never referenced, so it is not shown' % i))
+
+
 def patch_versions():
     try:
         raw = open(os.path.join('web', 'data.js'), encoding='utf-8').read()
@@ -390,6 +409,7 @@ def main():
     check_alerts(pages, problems)
     check_picture_links(pages, problems)
     check_headings(pages, problems)
+    check_footnotes(pages, problems)
     check_infoboxes(pages, problems)
     topics = topic_names()
     versions = patch_versions()

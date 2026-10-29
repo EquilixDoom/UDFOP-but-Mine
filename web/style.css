@@ -543,6 +543,13 @@ a.btn:hover { filter: brightness(1.1); text-decoration: none; }
 sup.lt { font-size: .62em; line-height: 0; margin-left: 1px; font-weight: 700; letter-spacing: .02em; color: var(--muted); }
 
 /* the automatic References section at the bottom of a guide page */
+sup.fnref { font-size: .75em; line-height: 0; margin-left: 1px; font-weight: 700; }
+sup.fnref a { text-decoration: none; }
+.fnhit { background: color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 3px; }
+ol.footnotes { margin: .3em 0 1em 1.8em; padding: 0; }
+ol.footnotes li { margin: 3px 0; }
+ol.footnotes .fnback { text-decoration: none; margin-left: .2em; }
+ol.footnotes .fnback sup { font-size: .7em; line-height: 0; }
 ol.refs { margin: .3em 0 1em 1.8em; padding: 0; }
 ol.refs li { margin: 2px 0; }
 

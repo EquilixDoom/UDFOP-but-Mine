@@ -11,6 +11,7 @@
   var IMAGE = /!\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)(?:\{[^}]*\})?/g, FIGURE = /^!\[[^\]]*\]\([^)\s]+(?:\s+"[^"]*")?\)\{([^}]*)\}\s*$/;
   var PIC_LINK = /\[!\[[^\]]*\]\([^()\s]*(?:\s+"[^"]*")?\)(?:\{[^}]*\})?[^\]]*\]\([^()\s]*\)/g;
   var HTMLISH = /<\s*\/?\s*(script|iframe|object|embed|style|img|a)\b|javascript:|\bon[a-z]+\s*=|[\x00-\x08\x0b\x0c\x0e-\x1f]/i;
+  var FN_DEF = /^\[\^([^\]\s]+)\]:/, FN_REF = /\[\^([^\]\s]+)\]/g;
   function pad(n) { return new Array(n + 1).join(" "); }
   /* inline code is blanked the way the renderer reads it: a run of backticks closed by a run of the same length */
   function blankSpans(s) {
@@ -107,7 +108,7 @@
     if (m0) { var at = body.slice(0, m0.index).split("\n").length - 1 + start; add("warn", at, 0, lines[at].length, "Contains HTML tags, script-like text or control characters: the site shows these as plain text, but a reviewer will look."); }
     var langs = (window.udfopHighlight && window.udfopHighlight.names) || null, own = headingIds(body), expected = {};
     listOf(meta["expected-missing"]).forEach(function (n) { expected[n.toLowerCase()] = 1; });
-    var fence = null, fenceAt = 0, boxes = 0, firstLine = -1, inInfo = false;
+    var fence = null, fenceAt = 0, boxes = 0, firstLine = -1, inInfo = false, fnDefs = {}, fnRefs = {}, fnIn = false;
     for (var i = start; i < lines.length; i++) {
       var l = lines[i], m, a;
       if (firstLine < 0 && l.trim()) firstLine = i;
@@ -122,6 +123,12 @@
       if (l.length > MAX_LINE) { add("warn", i, 0, 0, "This line is " + l.length.toLocaleString() + " characters long: it is not checked for links, pictures or spoilers. Break it into shorter lines."); continue; }
       if ((a = /^(#{1,6})[^#\s]/.exec(l))) add("warn", i, 0, a[1].length, "This looks like a heading, but there is no space after the " + a[1] + ". Add one, or the line is shown as plain text.");
       var scan = blankSpans(l);   /* what is written inside `code` is only text */
+      var fd = FN_DEF.exec(l);   /* footnotes: a note line [^id]: text (and its indented lines), and references [^id] elsewhere */
+      if (fd) { fnIn = true; if (fnDefs[fd[1]]) add("error", i, 0, fd[0].length, "The footnote [^" + fd[1] + "] is already defined on line " + (fnDefs[fd[1]].line + 1) + "; only the first is used."); else fnDefs[fd[1]] = { line: i, len: fd[0].length }; }
+      else if (!(fnIn && /^\s{2,}\S/.test(l))) {
+        fnIn = false; var fr; FN_REF.lastIndex = 0;
+        while ((fr = FN_REF.exec(scan))) (fnRefs[fr[1]] = fnRefs[fr[1]] || []).push({ line: i, col: fr.index, len: fr[0].length });
+      }
       if ((a = /^>\s*\[!([A-Za-z]+)\]/.exec(l)) && !NOTICES.test(a[1])) add("warn", i, a[0].indexOf("[!"), a[0].length - a[0].indexOf("[!"), "Unknown box type: [!" + a[1] + "].");
       if (INFO_START.test(l)) {
         boxes++; inInfo = true;
@@ -177,6 +184,12 @@
         }
       }
     }
+    Object.keys(fnRefs).forEach(function (id) {
+      if (!fnDefs[id]) fnRefs[id].forEach(function (r) { add("error", r.line, r.col, r.len, "The footnote [^" + id + "] has no note, so it is shown as written. Add a line \"[^" + id + "]: the note\"."); });
+    });
+    Object.keys(fnDefs).forEach(function (id) {
+      if (!fnRefs[id]) add("warn", fnDefs[id].line, 0, fnDefs[id].len, "The footnote [^" + id + "] is never used, so it is not shown. Add [^" + id + "] where it belongs in the text.");
+    });
     if (fence) add("error", fenceAt, 0, lines[fenceAt].length, "This code box is never closed, so the rest of the page is shown as code. Close it with a line of " + fence + ".");
     return out;
   }

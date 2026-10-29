@@ -226,6 +226,11 @@
       var alt = sel.indexOf("\n") < 0 && sel ? sel : "alt text", text = "![" + alt + "](images/name.png)";
       return { start: s, end: e, text: text, a: s + 4 + alt.length, b: s + 4 + alt.length + 15 };
     }
+    if (name === "footnote") {   /* a reference where the caret is and its note as the last line of the page, with the note text selected */
+      var n = 1; while (v.indexOf("[^note" + n + "]") >= 0) n++;
+      var id = "note" + n, tail = v.slice(e).replace(/\s+$/, ""), note = "[^" + id + "]: ", body = "[^" + id + "]" + tail + "\n\n" + note + "Note text", at = s + body.length - 9;
+      return { start: s, end: v.length, text: body, a: at, b: at + 9 };
+    }
     if (name === "front") return hasFrontMatter(v) ? null : { start: 0, end: 0, text: "---\ntitle: \ncategory: \nsummary: \nauthors: \n---\n\n", a: 11, b: 11 };
     return null;
   }

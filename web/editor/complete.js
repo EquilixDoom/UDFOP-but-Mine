@@ -129,6 +129,11 @@
     }
     if ((m = /\[\[([^\[\]|#\n]+)#([^\[\]|\n]*)$/.exec(before))) return { kind: "heading", page: m[1], from: s - m[2].length, query: m[2] };
     if ((m = /\[\[([^\[\]|#\n]*)$/.exec(before))) return { kind: "page", from: s - m[1].length, query: m[1] };
+    if ((m = /\[\^([^\[\]\s]*)$/.exec(before))) {   /* [^ : the footnotes defined on the page */
+      var ids = [], fr = /^\[\^([^\]\s]+)\]:/gm, fm;
+      while ((fm = fr.exec(v)) && !openFence(v, fm.index)) if (ids.indexOf(fm[1]) < 0) ids.push(fm[1]);
+      return { kind: "footnote", from: s - m[1].length, query: m[1], ids: ids };
+    }
     if ((m = /\{\{([^{}\n]*)$/.exec(before))) { var q = m[1].slice(m[1].lastIndexOf("+") + 1).replace(/^\s+/, ""); return { kind: "key", from: s - q.length, query: q }; }
     if ((m = /^\s*>[ \t]*\[!([A-Za-z]*)$/.exec(before))) return { kind: "callout", from: s - m[1].length, query: m[1] };
     if ((m = /!\[[^\]\n]*\]\(([^)\s]*)$/.exec(before))) return { kind: "image", from: s - m[1].length, query: m[1], paren: true };
@@ -161,6 +166,7 @@
     else if (k === "heading") (data.headings ? data.headings(ctx.page) || [] : []).forEach(function (h) { list.push({ label: h, detail: "heading", insert: h }); });
     else if (k === "category") (data.categories || []).forEach(function (c) { list.push({ label: c, detail: "category", insert: c }); });
     else if (k === "field") FIELDS.forEach(function (f) { list.push({ label: f[0], detail: f[1], insert: f[0] + ": " }); });
+    else if (k === "footnote") (ctx.ids || []).forEach(function (id) { list.push({ label: id, detail: "footnote", insert: id }); });
     else if (k === "callout") CALLOUTS.forEach(function (c) { list.push({ label: c, detail: c === "INFO" ? "fact panel" : "box", insert: c }); });
     else if (k === "key") KEYS.forEach(function (c) { list.push({ label: c, detail: "", insert: c }); });
     else if (k === "image") (data.images || []).forEach(function (c) { list.push({ label: c, detail: "picture", insert: c }); });
@@ -169,7 +175,7 @@
   }
   /* choosing an item: the typed part is replaced and the closing marks are added (or, where an auto-closed pair is already there, stepped over) */
   function accept(v, s, ctx, item) {
-    var close = { page: "]]", heading: "]]", key: "}}", callout: "]" }[ctx.kind] || (ctx.kind === "image" && ctx.paren ? ")" : ""), text = item.insert, end = ctx.kind === "category" ? lineEnd(v, s) : s;
+    var close = { page: "]]", heading: "]]", key: "}}", callout: "]", footnote: "]" }[ctx.kind] || (ctx.kind === "image" && ctx.paren ? ")" : ""), text = item.insert, end = ctx.kind === "category" ? lineEnd(v, s) : s;
     if (close) { if (v.slice(s, s + close.length) === close) end = s + close.length; text += close; }
     return { start: ctx.from, end: end, text: text, a: ctx.from + text.length, b: ctx.from + text.length };
   }

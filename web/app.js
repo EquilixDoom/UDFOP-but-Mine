@@ -899,6 +899,7 @@
     var stash = [];
     function keep(h) { stash.push(h); return "\u0000" + (stash.length - 1) + "\u0000"; }
     s = codeSpans(s, keep);
+    s = s.replace(/\[\^([^\]\s]+)\]/g, function (m, id) { var h = fnRef(id); return h ? keep(atom(h, m)) : m; });   /* a footnote reference; one with no definition stays as written */
     s = s.replace(/\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g, function (m, t, l) { return keep(atom(wikiLink(t, l), m)); });
     s = s.replace(/\{\{([^{}]+)\}\}/g, function (m, t) { return keep(atom(keycaps(t), m)); });
     /* a picture inside a link, [![alt](pic)](url), is not supported: it is shown as plain text (the editor's Problems and tools/guide.py report it) */
@@ -969,8 +970,47 @@
   var mdRoot = "guide/";   /* "guide/" or "site/": which section's folder the page being rendered is in */
   var mdBase = "";   /* folder of the page being rendered, so pictures resolve next to it */
   /* ln0: with a number, every block gets data-ln="first-last", its lines in the source (1-based; ln0 lines come before src). The editor reads it. Left out, nothing is added. */
+  /* Footnotes: text[^id] is a numbered superscript link, and a line [^id]: text anywhere in the page (outside a code box) is its note. The notes are listed
+     under a Footnotes heading at the end, numbered by first use; a note used twice keeps its number and gets a way back from each use. */
+  var fnState = null;   /* while a page is drawn: { defs: id -> note text, uses: id -> { n, count }, order: ids by first use, inDef } (keys start with $) */
+  function fnId(id) { return id.replace(/[^A-Za-z0-9_-]/g, function (c) { return "_" + c.charCodeAt(0).toString(16); }); }
+  function fnRef(id) {
+    var f = fnState, k = "$" + id; if (!f || f.inDef || !(k in f.defs)) return "";
+    var u = f.uses[k] || (f.uses[k] = { n: f.order.push(id), count: 0 }), base = fnId(id);
+    u.count++;
+    return '<sup class="fnref"><a href="' + pagePath() + "#fn-" + base + '" role="doc-noteref" id="fnref-' + base + (u.count > 1 ? "-" + u.count : "") + '" aria-label="Footnote ' + u.n + '">[' + u.n + "]</a></sup>";
+  }
+  /* takes the note lines out of the page (their lines go blank, so line numbers stay) and keeps their text */
+  function fnScan(lines) {
+    var fence = null, cur = "", m, c;
+    lines.forEach(function (l, k) {
+      if (fence) { c = /^(`{3,}|~{3,})\s*$/.exec(l); if (c && c[1].charAt(0) === fence.charAt(0) && c[1].length >= fence.length) fence = null; return; }
+      if ((m = /^(`{3,}|~{3,})\s*([A-Za-z0-9+#.-]{1,20})?\s*$/.exec(l))) { fence = m[1]; cur = ""; return; }
+      if ((m = /^\[\^([^\]\s]+)\]:[ \t]*(.*)$/.exec(l))) { cur = "$" + m[1]; if (!(cur in fnState.defs)) fnState.defs[cur] = m[2].trim(); else cur = ""; lines[k] = ""; return; }
+      if (cur && /^\s{2,}\S/.test(l)) { fnState.defs[cur] += " " + l.trim(); lines[k] = ""; return; }
+      cur = "";
+    });
+  }
+  function fnList() {
+    var f = fnState; if (!f.order.length) return "";
+    var h = sec("Footnotes", "Footnotes", 2) + '<div role="doc-endnotes"><ol class="footnotes">';
+    f.order.forEach(function (id) {
+      var base = fnId(id), u = f.uses["$" + id], text = f.defs["$" + id], back = "";
+      if (/^https?:\/\/[^\s()\[\]]+$/i.test(text)) text = "[" + text.replace(/^https?:\/\//i, "").replace(/\/$/, "") + "](" + text + ")";   /* a note that is only an address shows it as a link */
+      f.inDef = true; text = inline(text); f.inDef = false;
+      for (var j = 1; j <= u.count; j++) back += ' <a class="fnback" role="doc-backlink" href="' + pagePath() + "#fnref-" + base + (j > 1 ? "-" + j : "") + '" aria-label="Back to reference ' + u.n + (u.count > 1 ? " (use " + j + " of " + u.count + ")" : "") + '">↩' + (u.count > 1 ? "<sup>" + j + "</sup>" : "") + "</a>";
+      h += '<li id="fn-' + base + '" role="doc-endnote">' + text + back + "</li>";
+    });
+    return h + "</ol></div>";
+  }
   function markdown(src, title, ln0) {
+    if (fnState) return markdownBody(src, title, ln0);   /* a quote or box inside the page shares the page's notes */
+    fnState = { defs: {}, uses: {}, order: [], inDef: false };
+    try { var h = markdownBody(src, title, ln0, true), f = fnList(); return f ? h + "\n" + f : h; } finally { fnState = null; }
+  }
+  function markdownBody(src, title, ln0, top) {
     var lines = src.replace(/\r\n?/g, "\n").split("\n"), out = [], i = 0, first = true, figSince = false, at0 = 0;
+    if (top) fnScan(lines);
     function emit(h, from, to, bk) { out.push(ln0 === undefined ? h : lnTag(h, ln0 + from + 1, ln0 + to + 1, bk)); }
     function nested(skip) { return ln0 === undefined ? undefined : ln0 + at0 + skip; }
     function para(buf, from) { if (buf.length) emit("<p>" + inline(buf.join(" ")) + "</p>", from, from + buf.length - 1, "p"); }
@@ -1694,6 +1734,8 @@
     if (id === "top") { if (!jump) markSection(""); window.scrollTo({ top: 0, behavior: jump ? "auto" : "smooth" }); return true; }
     var el = document.getElementById(id);
     if (el && isCompact()) { revealFolds(el); var fo = foldFor(el); if (fo) toggleFold(fo, true); }
+    var old = document.querySelector(".fnhit"); if (old) old.classList.remove("fnhit");   /* a footnote or the reference it belongs to stays shaded until the next jump (CSS :target cannot be used: the address's # names the page) */
+    if (el && /^fn(ref)?-/.test(id)) (el.closest("sup") || el).classList.add("fnhit");
     if (el) { if (!jump) markSection(id); el.scrollIntoView({ behavior: jump ? "auto" : "smooth", block: "start" }); }
     return !!el;
   }

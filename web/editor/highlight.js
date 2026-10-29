@@ -7,10 +7,10 @@
   /* colors the Markdown source; only colors (never weight or size), so the text lines up with the textarea above it */
   function inline(s) {
     if (s.length > P.MAX_LINE) return esc(s);
-    var re = /(`[^`]+`)|(\[\[[^\]]{0,200}\]\])|(\{\{[^}]{0,200}\}\})|(!?\[[^\]]{0,200}\]\([^)]{0,300}\))|(\*\*[^*]+\*\*)|(\*[^*\s][^*]*\*)|(>![^!]*!<)/g, out = "", at = 0, m;
+    var re = /(`[^`]+`)|(\[\[[^\]]{0,200}\]\])|(\{\{[^}]{0,200}\}\})|(!?\[[^\]]{0,200}\]\([^)]{0,300}\))|(\*\*[^*]+\*\*)|(\*[^*\s][^*]*\*)|(>![^!]*!<)|(\[\^[^\]\s]{1,100}\])/g, out = "", at = 0, m;
     while ((m = re.exec(s))) {
       out += esc(s.slice(at, m.index)); at = m.index + m[0].length;
-      var cls = m[1] ? "c" : m[2] ? (P.linkOk(m[0].slice(2, -2)) ? "w" : "x") : m[3] ? "q" : m[4] ? "u" : m[5] || m[6] ? "b" : "m";
+      var cls = m[1] ? "c" : m[2] ? (P.linkOk(m[0].slice(2, -2)) ? "w" : "x") : m[3] ? "q" : m[4] ? "u" : m[5] || m[6] ? "b" : m[8] ? "q" : "m";
       out += '<span class="t-' + cls + '">' + esc(m[0]) + "</span>";
     }
     return out + esc(s.slice(at));
@@ -92,6 +92,7 @@
       }
       else if ((m = FENCE.exec(l))) { st.fence = m[1]; h = span("m", m[1]) + (m[2] ? span("k", l.slice(m[1].length)) : ""); }
       else if (/^#{1,6}\s/.test(l)) h = span("h", l);
+      else if ((m = /^(\[\^[^\]\s]{1,100}\]:)(.*)$/.exec(l))) h = span("q", m[1]) + inline(m[2]);   /* a footnote's note line */
       else if ((m = /^(>\s?)(.*)$/.exec(l))) h = span("m", m[1]) + (/^\[!\w+\]/.test(m[2]) ? span("a", m[2]) : inline(m[2]));
       else if ((m = /^(\s*)([-*+]|\d+\.)(\s+)(.*)$/.exec(l))) h = esc(m[1]) + span("m", m[2]) + esc(m[3]) + inline(m[4]);
       else if (/^\s*\|/.test(l)) h = /^[\s|:-]+$/.test(l) ? span("m", l) : l.split("|").map(inline).join(span("m", "|"));

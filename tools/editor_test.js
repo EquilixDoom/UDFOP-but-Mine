@@ -825,6 +825,31 @@ test("complete: what is being typed decides which names are offered", () => {
   assert.strictEqual(ctxOf("su" + S1), null);
   assert.strictEqual(ctxOf("```\n[[a" + S1 + "\n```"), null);
 });
+test("footnotes: a reference with no note is an error, a note never used is a warning, a name defined twice is an error", () => {
+  assert(!has(GOOD + "\nText[^a]\n\n[^a]: Note\n", /footnote|\[\^/i));
+  assert.strictEqual(level(GOOD + "\nText[^a]\n", /no note/), "error");
+  assert.strictEqual(level(GOOD + "\nText\n\n[^a]: Note\n", /never used/), "warn");
+  assert.strictEqual(level(GOOD + "\nText[^a]\n\n[^a]: One\n[^a]: Two\n", /already defined/), "error");
+});
+test("footnotes: code, a note's own lines and a reference inside a note are not references", () => {
+  assert(!has(GOOD + "\n`[^a]` and\n```\n[^b]\n[^c]: x\n```\n", /footnote|\[\^/i));
+  assert(!has(GOOD + "\nText[^a]\n\n[^a]: Note [^b]\n", /no note/));
+  assert(!has(GOOD + "\nText[^a]\n\n[^a]: Note\n    continued [^zz]\n", /no note/));
+});
+test("footnotes: the editor offers the names defined on the page", () => {
+  const t = "a\n[^w]: x\n[^ab]: y\ntext [^", c = CP.context(t, t.length);
+  assert.strictEqual(c.kind, "footnote");
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(CP.items(c, {}).map((i) => i.label))), ["w", "ab"]);
+  assert.strictEqual(CP.context("```\n[^", 6), null);
+});
+test("footnotes: the Footnote snippet adds a reference and a note at the end, numbering past used names", () => {
+  assert.strictEqual(fx("snip.footnote", "Text" + S1 + " more\n"), "Text[^note1] more\n\n[^note1]: " + S1 + "Note text" + S2);
+  assert.strictEqual(fx("snip.footnote", "Text[^note1]" + S1 + "\n\n[^note1]: A"), "Text[^note1][^note2]\n\n[^note1]: A\n\n[^note2]: " + S1 + "Note text" + S2);
+});
+test("footnotes: the source view colors the reference and the note line", () => {
+  const h = P.highlight("Text[^a]\n[^a]: Note\n");
+  assert((h.match(/t-q">\[\^a\]</g) || []).length === 1 && /t-q">\[\^a\]:</.test(h));
+});
 const DATA = { pages: [{ title: "Controls", category: "Basics" }, { title: "Iliac Hand", category: "Guides" }], site: [{ title: "Using the editor" }], topics: ["Iliac Bay", "Renown"], categories: ["Basics", "Guides"], images: ["images/a.png", "images/b.png"], headings: (p) => (p === "Controls" ? ["Intro", "Setup"] : null) };
 const labels = (kind, query, page) => JSON.parse(JSON.stringify(CP.items({ kind, query, page }, DATA).map((i) => i.label)));
 test("complete: names are offered best match first", () => {

@@ -214,6 +214,32 @@ The words are masked by a dark bar. Clicking them, or pressing {{Enter}} or {{Sp
 > [!NOTE]
 > A spoiler hides words from the eye, not from the page. The text is still in the file on GitHub, and a reader can still select it and copy it. Use it for surprises in the game, never for anything private. A spoiler must sit on one line, and a line that starts with `>!` is treated as a paragraph, not a quotation.
 
+### Footnotes
+
+To name the source of a statement without cluttering the sentence, put `[^name]` after it and write the note on a line of its own, anywhere on the page.
+
+```markdown
+Writs can award Renown XP.[^writs]
+
+[^writs]: https://example.com/source
+```
+
+Rendered:
+
+Writs can award Renown XP.[^writs]
+
+[^writs]: https://example.com/source
+
+The reference becomes a small numbered link, and the notes are listed under a **Footnotes** heading at the end of the page, before References.
+
+- **Numbering** follows the order the references first appear in the text, whatever the order of the notes. Using the same name again reuses its number, and the note gets a way back for each use.
+- **A note** can hold links, bold, italic and other links of the guide. A note that is only an address shows it as a link. A long note can continue on the lines after it if they are indented.
+- **Names** are letters, digits, hyphens and underscores, such as `[^writs]` or `[^1]`. They are never shown, only the numbers.
+- **The page check** reports a reference with no note (it is shown as written), a name defined twice, and a note that is never used (it is not shown). In the editor, Format > Snippets > Footnote adds a reference at the caret and its note at the end of the page.
+
+> [!NOTE]
+> A note cannot hold another footnote, and a note inside a quote or a notice box is not recognized: write the note on a line of its own, at the left edge.
+
 ### Keys and buttons
 
 To show a keyboard key, a mouse button or a gamepad button, put its name between double braces. It is drawn as a small keycap, so readers can see at a glance what to press.
@@ -258,6 +284,6 @@ You do not write these. They come from what you wrote: a **Contents** list built
 
 ## Not supported
 
-Raw HTML (it is shown as plain text, which keeps pages safe and consistent), strikethrough, underline, colored text, footnotes, task-list checkboxes, merged table cells, embedded video or other media, forced line breaks inside a paragraph, and links to a section of a Patch Notes topic or patch (sections of guide pages and Site Guide pages can be linked, as shown under Links to other pages). Leave these out and the page will look right everywhere.
+Raw HTML (it is shown as plain text, which keeps pages safe and consistent), strikethrough, underline, colored text, task-list checkboxes, merged table cells, embedded video or other media, forced line breaks inside a paragraph, and links to a section of a Patch Notes topic or patch (sections of guide pages and Site Guide pages can be linked, as shown under Links to other pages). Leave these out and the page will look right everywhere.
 
 Back to the [Site Guide](#/site).
