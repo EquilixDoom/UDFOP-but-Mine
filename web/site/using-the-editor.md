@@ -32,6 +32,7 @@ The **Problems** button in the Editor's title bar checks your page every time yo
 - another page already has the same title or file name
 - a picture does not exist (the editor cannot add pictures, so add them in your pull request)
 - a code box is never closed, which turns the rest of the page into code
+- a footnote reference such as `[^name]` with no note line for it, or a note that is defined twice
 
 **Warnings** are worth a look but do not stop Submit:
 
@@ -42,6 +43,7 @@ The **Problems** button in the Editor's title bar checks your page every time yo
 - a Site Guide page or topic linked without its `site:` or `topic:` prefix
 - an infobox row with no value, more than one infobox, or an infobox that is not the first thing on the page
 - an unclosed spoiler, HTML or script-like text, or an unknown picture option or width
+- a footnote note that no reference uses, so it is not shown
 
 The check reads another page's headings, and looks for picture files, the first time you link to them, so a warning about a section or a picture can take a second to appear or go away.
 
@@ -161,7 +163,7 @@ The items put Markdown marks around the selection, or at the start of the lines 
 - **Callout** makes the lines a quote that opens with the type you choose: Note, Tip, Important, Warning or Caution. With the cursor inside a callout it changes the whole callout; choosing its own type again, or **Remove Callout**, turns it back into plain lines.
 - **Code Block** puts the lines between fence lines. Its list holds Plain Text and every language the site colors (Bash, Batch, C#, Config, Console, HTML, INI, JavaScript, JSON, Lua, Markdown, PowerShell, Properties, Python, Shell, SVG, TOML, TypeScript, XAML, XML, YAML and Zsh), and the choice is written after the opening fence. On lines that are already in a box, a different language changes the box's language, Plain Text removes it, and the same language takes the fence off.
 - **Horizontal Rule** adds a line of dashes with a blank line on each side. **Align Table** sets the table the cursor is in out in columns of equal width, keeping the alignment colons and column tags in the divider row. **Table Column** sets how the column under the cursor sorts for readers (number, percent, duration, date, yes/no, text or automatic) and marks the first column as the row label. **Clear Formatting** removes bold, italic, code, spoiler, key and link marks from the selection, or from the line when nothing is selected, and keeps the text.
-- **Snippets** insert a starting point and select the words to type over: **Table 2x2** and **Table 3x3** (columns by rows of text, under a heading row), **Key/Value Table**, **Image**, **Spoiler Block**, **Infobox** and **Front Matter**. Front Matter adds the title, category and summary lines at the top of the page, and is greyed out when the page already has them.
+- **Snippets** insert a starting point and select the words to type over: **Table 2x2** and **Table 3x3** (columns by rows of text, under a heading row), **Key/Value Table**, **Image**, **Spoiler Block**, **Infobox**, **Footnote** and **Front Matter**. Footnote puts a reference such as `[^note1]` at the cursor and its note line at the end of the page, with the note text selected to type over. Front Matter adds the title, category and summary lines at the top of the page, and is greyed out when the page already has them.
 
 ## Finishing what you type
 
@@ -170,7 +172,7 @@ The editor closes brackets and marks, carries lists and tables on, and offers na
 - **Pairs.** Typing `(`, `[`, `{`, `` ` ``, `*` or `>!` adds the closing half and puts the cursor between them, so `[[` makes `[[]]`. Typing the closing half steps over it. Backspace between an empty pair removes both. A `*` makes a pair only where emphasis can begin (after a space or an opening bracket, not at the start of a line, where it is a bullet, or inside a word). With text selected, `*`, `` ` ``, `[`, `(` and `{` put the marks around it and keep it selected, so `[` twice makes a wiki link and `*` twice makes bold.
 - {{Enter}} in a list starts the next item, with the next number in a numbered list; on an empty item it ends the list. In a quote or a callout it carries the `>` on, and on an empty quote line it ends the quote. After an opening code fence it adds the closing fence below. In a table it adds a row; in the heading row of a table that has no divider yet it adds the divider as well, and in an empty last row it ends the table.
 - {{Tab}} and {{Shift+Tab}} in a table row move to the next or previous cell and set the table out in columns. {{Tab}} in the last cell adds a row. {{Esc}} then {{Tab}} still leaves the text box.
-- **Suggestions** appear in a list under the cursor. {{Up}} and {{Down}} choose, {{Enter}} or {{Tab}} or a click accepts, and {{Esc}} closes the list until you type something different. After `[[` they are the Game Guide pages, then `topic:` and `site:` names; after `[[Page#` the headings of that page; after `{{` the key and button names; after `> [!` the box types; after `![text](` or an `image:` line the pictures already in the guide's folders. In the front matter they are the field names, the categories already in use, and, after `related:`, the pages and topics. Accepting adds the closing `]]`, `}}` or `)` unless an auto-closed one is already there.
+- **Suggestions** appear in a list under the cursor. {{Up}} and {{Down}} choose, {{Enter}} or {{Tab}} or a click accepts, and {{Esc}} closes the list until you type something different. After `[[` they are the Game Guide pages, then `topic:` and `site:` names; after `[[Page#` the headings of that page (after `[[Glossary#`, the glossary's terms); after `[^` the footnote names already used on the page; after `{{` the key and button names; after `> [!` the box types; after `![text](` or an `image:` line the pictures already in the guide's folders. In the front matter they are the field names, the categories already in use, and, after `related:`, the pages and topics. Accepting adds the closing `]]`, `}}` or `)` unless an auto-closed one is already there.
 
 ## Several cursors and selections
 
