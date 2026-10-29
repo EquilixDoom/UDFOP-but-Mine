@@ -1,6 +1,6 @@
 ---
 title: Firmament
-category: Game Mechanics
+category: Character
 summary: The Firmament passive progression tree, including birthsigns, points, bonuses, and restrictions.
 authors: pureiimagination
 related: topic:Firmament
@@ -9,15 +9,15 @@ related: topic:Firmament
 > [!NOTE]
 > The initial commit of this page was prepared with the assistance of AI tools. Readers are encouraged to verify the information against the game and official sources, and to contribute corrections and improvements.
 >
-> **Applies to:** Daggerfall Online, online mode. Verified against Update 0.0.466 (`app-v0.1.12948`), 28 October 2026.
+> **Applies to:** DFO Online, online mode. Verified against Update 0.0.466 (`app-v0.1.12948`), 28 October 2026.
 
 ## Overview
 
-Firmament is a passive progression system in Daggerfall Online. Its tree contains 518 interconnected stars that provide bonuses to combat, magic, professions, trade, and exploration.
+![The Firmament interface showing the progression tree, Stars and Craft points, and a highlighted path.](images/firmament-tree.png "The Firmament progression tree and its controls."){right 240}
+
+Firmament is a passive progression system in DFO Online. Its tree contains 518 interconnected stars that provide bonuses to combat, magic, professions, trade, and exploration.
 
 A character develops their allocation by selecting a birthsign and spending points along connected paths. Firmament is accessed through **Pause Menu → Growth → Firmament**.
-
-![The Firmament interface showing the progression tree, Stars and Craft point balances, and a highlighted path.](images/firmament-tree.png "The Firmament progression tree and its controls."){center 900}
 
 ## Terminology
 
@@ -151,16 +151,53 @@ Combat star bonuses are reduced according to the mentoring system's power scale.
 
 ### Bonus caps
 
-Firmament limits the combined contribution of allocated stars, including larger stars with specialised bonuses.
+Firmament limits the combined bonuses from allocated stars. These limits apply to the entire allocation, including notables and keystones.
 
 | Effect | Maximum Firmament contribution |
 |---|---|
-| General weapon damage | +30% |
-| Weapon damage, including situational bonuses | +50% |
+| Attributes | +15 points each |
+| Combat skills | +15 points each |
+| Non-combat skills | +20 points each |
+| Elemental and magic resistance | +20% each |
+| Armor Rating | +10 |
+| Individual weapon damage channels | +30% each |
+| Combined weapon damage, excluding conditional bonuses | +30% |
+| Weapon damage against unaware enemies | +40% |
+| Weapon damage while below half Health | +25% |
+| Total weapon damage, including conditional bonuses | +50% |
 | Spell damage | +30% |
-| Spell cost reduction | 25% |
-| Attribute increase | +15 |
-| Damage reduction | 15% |
+| Spell penetration | −10 to enemy saving throws |
+| Casting speed | +15% |
+| Spell cost reduction for an individual school | 20% |
+| Combined spell cost reduction | 25% |
+| Damage reduction from physical blows | 15% |
+| Damage reduction from spells and other harm | 15% |
+| Maximum Health | +75 points |
+| Maximum Spell Points | +75 points |
+| Health regeneration | 1% per round |
+| Spell Point regeneration | 1% per round |
+| Health restored after defeating an enemy | 6% |
+| Spell Points restored after defeating an enemy | 6% |
+| Chance to evade an attack | 10% |
+| Chance to absorb a Destruction spell | 15% |
+| Carrying capacity | +40% |
+| Warmth | +6 |
+| Cold and heat tolerance | 10 degrees each |
+| Reduced soaking from rain and snow | 40% |
+| Reduced travel Fatigue | 40% |
+| Reduced falling damage | 40% |
+| Reputation with social groups | +10 |
+| Sailing speed | +15% |
+| Gathering yield | +30% per profession |
+| Profession experience | +35% per profession |
+| Herbalism action bonus | +40% |
+| Additional time to set the fishing hook | +40% |
+
+Direct and percentage-based bonuses to attributes and skills share the same final cap. The percentage-based contributions are individually limited to 15% for attributes, 20% for combat skills, and 25% for non-combat skills.
+
+Percentage-based bonuses to maximum Health and Spell Points are limited to 15% each, but their combined contribution with flat bonuses cannot exceed 75 points per resource.
+
+Weapon damage bonuses are capped both individually and when combined. Conditional bonuses can raise the total to 50%. General and school-specific spell cost reductions share a combined cap of 25%.
 
 Firmament can increase attributes beyond their normal maximum of 100, subject to the applicable bonus cap.
 
